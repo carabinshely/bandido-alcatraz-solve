@@ -26,7 +26,13 @@
       "row": 1,
       "column": 1,
       "kind": "end",
-      "geometry": null
+      "geometry": {
+        "external_ports": [
+          "E"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy"
+      }
     },
     {
       "id": "p2-r1-c2",
@@ -34,7 +40,13 @@
       "row": 1,
       "column": 2,
       "kind": "end",
-      "geometry": null
+      "geometry": {
+        "external_ports": [
+          "W"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy"
+      }
     },
     {
       "id": "p2-r2-c1",
@@ -42,7 +54,13 @@
       "row": 2,
       "column": 1,
       "kind": "end",
-      "geometry": null
+      "geometry": {
+        "external_ports": [
+          "SE"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy"
+      }
     },
     {
       "id": "p2-r2-c2",
@@ -50,7 +68,13 @@
       "row": 2,
       "column": 2,
       "kind": "end",
-      "geometry": null
+      "geometry": {
+        "external_ports": [
+          "SW"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy"
+      }
     },
     {
       "id": "p2-r3-c1",
@@ -58,7 +82,15 @@
       "row": 3,
       "column": 1,
       "kind": "end",
-      "geometry": null
+      "geometry": {
+        "external_ports": [
+          "E",
+          "NE",
+          "SE"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy"
+      }
     },
     {
       "id": "p2-r3-c2",
@@ -66,7 +98,15 @@
       "row": 3,
       "column": 2,
       "kind": "end",
-      "geometry": null
+      "geometry": {
+        "external_ports": [
+          "W",
+          "NW",
+          "SW"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy"
+      }
     },
     {
       "id": "p2-r4-c1",
@@ -74,7 +114,14 @@
       "row": 4,
       "column": 1,
       "kind": "end",
-      "geometry": null
+      "geometry": {
+        "external_ports": [
+          "E",
+          "NE"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy"
+      }
     },
     {
       "id": "p2-r4-c2",
@@ -82,7 +129,14 @@
       "row": 4,
       "column": 2,
       "kind": "end",
-      "geometry": null
+      "geometry": {
+        "external_ports": [
+          "W",
+          "NW"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy"
+      }
     },
     {
       "id": "p2-r5-c1",
@@ -90,7 +144,14 @@
       "row": 5,
       "column": 1,
       "kind": "end",
-      "geometry": null
+      "geometry": {
+        "external_ports": [
+          "E",
+          "SE"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy"
+      }
     },
     {
       "id": "p2-r5-c2",
@@ -98,7 +159,14 @@
       "row": 5,
       "column": 2,
       "kind": "end",
-      "geometry": null
+      "geometry": {
+        "external_ports": [
+          "W",
+          "SW"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy"
+      }
     },
     {
       "id": "p2-r6-c1",
