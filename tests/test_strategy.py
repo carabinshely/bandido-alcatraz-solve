@@ -133,3 +133,19 @@ def test_spatial_features_default_to_zero_weight() -> None:
     assert weights.delta_merge_opportunities == 0
     assert weights.delta_water_obstruction == 0
     assert weights.new_trapped_water == 0
+    assert weights.bounded_merge_setup_gain == 0
+
+
+def test_bounded_merge_bank_caps_and_disables_over_budget() -> None:
+    from types import SimpleNamespace
+    from bandido_alcatraz.strategy import _bounded_merge_bank
+
+    assert _bounded_merge_bank(
+        SimpleNamespace(open_tunnels=9, merge_opportunities=4)
+    ) == 4
+    assert _bounded_merge_bank(
+        SimpleNamespace(open_tunnels=9, merge_opportunities=9)
+    ) == 6
+    assert _bounded_merge_bank(
+        SimpleNamespace(open_tunnels=11, merge_opportunities=9)
+    ) == 0
