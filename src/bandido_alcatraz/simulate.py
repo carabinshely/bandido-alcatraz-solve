@@ -37,6 +37,11 @@ def play_game(
     seed: int,
     max_turns: int = 500,
 ) -> GameResult:
+    if hand_size != 3:
+        raise NotImplementedError(
+            "v0 simulation supports 3-card hands until solo-easy refresh semantics are verified"
+        )
+
     rng = Random(seed)
     state = GameState.new(
         start_card=start_card,
@@ -49,9 +54,15 @@ def play_game(
         if state.won:
             return _result(state, "win")
 
+        if state.board.open_tunnels == 0:
+            return _result(state, "closed_tunnels_conditions_failed")
+
+        if not state.hand and not state.draw_pile:
+            return _result(state, "deck_exhausted")
+
         move = policy.choose(state, rng)
         if move is None:
-            if state.recycle_unplayable_hand():
+            if state.refresh_unplayable_hand():
                 continue
             reason = "deck_exhausted" if state.exhausted else "no_legal_move"
             return _result(state, reason)
