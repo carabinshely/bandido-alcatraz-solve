@@ -4,7 +4,13 @@ from bandido_alcatraz.board import Board
 from bandido_alcatraz.game import GameState
 from bandido_alcatraz.model import CardDefinition, CellSpec, Direction, Material
 from bandido_alcatraz.moves import Action
-from bandido_alcatraz.policies import GeometryAwareV1Policy, GreedyV0Policy
+from bandido_alcatraz.policies import (
+    CombinedV2Policy,
+    DiscardExcessV2Policy,
+    GeometryAwareV1Policy,
+    GreedyV0Policy,
+    WaterFirstV2Policy,
+)
 
 
 def card(
@@ -156,3 +162,71 @@ def test_geometry_aware_still_collects_one_port_when_alternative_seals_board() -
 
     assert move is not None
     assert move.action is Action.COLLECT
+
+
+def test_discard_excess_prefers_collecting_branching_excess_equipment() -> None:
+    state = state_with_one_open(
+        [
+            card(
+                "excess-branch-coat",
+                {
+                    Direction.WEST,
+                    Direction.NORTH,
+                    Direction.SOUTH,
+                },
+                material=Material.RAINCOAT,
+            ),
+            card(
+                "straight",
+                {Direction.WEST, Direction.EAST},
+            ),
+        ],
+        coats=3,
+        ropes=2,
+    )
+
+    move = DiscardExcessV2Policy().choose(state, Random(1))
+
+    assert move is not None
+    assert move.action is Action.COLLECT
+    assert state.hand[move.hand_index].card_id == "excess-branch-coat"
+
+
+def test_discard_excess_still_places_useful_closure_equipment() -> None:
+    state = state_with_one_open(
+        [
+            card(
+                "excess-end-coat",
+                {Direction.WEST},
+                material=Material.RAINCOAT,
+            ),
+            card(
+                "straight",
+                {Direction.WEST, Direction.EAST},
+            ),
+        ],
+        coats=3,
+        ropes=2,
+    )
+
+    move = DiscardExcessV2Policy().choose(state, Random(1))
+
+    assert move is not None
+    assert move.action is Action.PLACE
+    assert state.hand[move.hand_index].card_id == "straight" or state.hand[move.hand_index].card_id == "excess-end-coat"
+
+
+def test_v2_policy_weights_are_isolated() -> None:
+    discard = DiscardExcessV2Policy().weights
+    water = WaterFirstV2Policy().weights
+    combined = CombinedV2Policy().weights
+    base = GreedyV0Policy().weights
+
+    assert discard.collect_excess == 0
+    assert discard.delta_visible_water == base.delta_visible_water
+
+    assert water.collect_excess == base.collect_excess
+    assert water.delta_visible_water == 20_000
+
+    assert combined.collect_excess == 0
+    assert combined.delta_visible_water == 20_000
