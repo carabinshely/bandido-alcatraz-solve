@@ -84,14 +84,14 @@
           "x": 0,
           "y": 1,
           "tunnel_edges": [
-            "N",
-            "S"
+            "N"
           ],
           "water": false
         }
       ],
       "source": "owner-photo-set:2026-09-21",
-      "confidence": "observed"
+      "confidence": "observed",
+      "note": "The printed black path reaches the EXIT sign, but the sign-side endpoint is the escape terminal, not a normal open tunnel. Only the opposite edge is a connectable tunnel port for open-tunnel accounting."
     },
     "start_easy": {
       "cells": [
