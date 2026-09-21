@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass
 
 from .model import CardDefinition, CellSpec, Direction
@@ -40,13 +41,51 @@ class Board:
 
     @property
     def open_tunnels(self) -> int:
-        count = 0
+        return sum(self.open_tunnel_target_counts.values())
+
+    @property
+    def open_tunnel_target_counts(self) -> Counter[Coord]:
+        targets: Counter[Coord] = Counter()
         for (x, y), cell in self._cells.items():
             for edge in cell.tunnel_edges:
                 dx, dy = _DELTAS[edge]
-                if (x + dx, y + dy) not in self._cells:
-                    count += 1
-        return count
+                neighbor = (x + dx, y + dy)
+                if neighbor not in self._cells:
+                    targets[neighbor] += 1
+        return targets
+
+    @property
+    def merge_opportunities(self) -> int:
+        return sum(
+            count * (count - 1) // 2
+            for count in self.open_tunnel_target_counts.values()
+            if count >= 2
+        )
+
+    @property
+    def water_obstruction(self) -> int:
+        obstruction = 0
+        for (x, y), cell in self._cells.items():
+            if not cell.water:
+                continue
+            for dx, dy in _DELTAS.values():
+                if (x + dx, y + dy) in self._cells:
+                    obstruction += 1
+        return obstruction
+
+    @property
+    def trapped_water_cells(self) -> int:
+        trapped = 0
+        for (x, y), cell in self._cells.items():
+            if not cell.water:
+                continue
+            empty_neighbors = sum(
+                (x + dx, y + dy) not in self._cells
+                for dx, dy in _DELTAS.values()
+            )
+            if empty_neighbors == 0:
+                trapped += 1
+        return trapped
 
     def clone(self) -> "Board":
         other = Board()
