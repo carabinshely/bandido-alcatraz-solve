@@ -36,6 +36,21 @@ class CatalogCardType:
 
 
 @dataclass(frozen=True, slots=True)
+class SpecialGeometry:
+    role: str
+    cells: tuple[CellSpec, ...]
+    source: str
+    confidence: str
+
+    def definition(self) -> CardDefinition:
+        return CardDefinition(
+            card_id=self.role,
+            cells=self.cells,
+            is_exit=self.role == "exit",
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class DeckObservations:
     format_version: int
     game: str
@@ -43,6 +58,9 @@ class DeckObservations:
     aggregate_facts: AggregateFacts
     observations: tuple[dict[str, Any], ...]
     card_types: tuple[CatalogCardType, ...]
+    exit_geometry: SpecialGeometry | None
+    start_easy_geometry: SpecialGeometry | None
+    start_normal_geometry: SpecialGeometry | None
 
 
 def load_deck_observations(path: str | Path) -> DeckObservations:
@@ -52,6 +70,7 @@ def load_deck_observations(path: str | Path) -> DeckObservations:
         raise ValueError("; ".join(errors))
 
     facts = raw["aggregate_facts"]
+    special = raw["special_geometry"]
     return DeckObservations(
         format_version=raw["format_version"],
         game=raw["game"],
@@ -59,26 +78,49 @@ def load_deck_observations(path: str | Path) -> DeckObservations:
         aggregate_facts=AggregateFacts(**facts),
         observations=tuple(raw["observations"]),
         card_types=tuple(_parse_card_type(item) for item in raw["card_types"]),
+        exit_geometry=_parse_special_geometry("exit", special["exit"]),
+        start_easy_geometry=_parse_special_geometry(
+            "start_easy", special["start_easy"]
+        ),
+        start_normal_geometry=_parse_special_geometry(
+            "start_normal", special["start_normal"]
+        ),
     )
 
 
-def _parse_card_type(raw: dict[str, Any]) -> CatalogCardType:
-    material_value = raw.get("material")
-    material = Material(material_value) if material_value is not None else None
-    cells = tuple(
+def _parse_cells(raw_cells: list[dict[str, Any]]) -> tuple[CellSpec, ...]:
+    return tuple(
         CellSpec(
             x=cell["x"],
             y=cell["y"],
             tunnel_edges=frozenset(Direction(edge) for edge in cell["tunnel_edges"]),
             water=cell.get("water", False),
         )
-        for cell in raw["cells"]
+        for cell in raw_cells
     )
+
+
+def _parse_card_type(raw: dict[str, Any]) -> CatalogCardType:
+    material_value = raw.get("material")
+    material = Material(material_value) if material_value is not None else None
     return CatalogCardType(
         card_id=raw["id"],
         multiplicity=raw.get("multiplicity"),
         material=material,
-        cells=cells,
+        cells=_parse_cells(raw["cells"]),
+        source=raw["source"],
+        confidence=raw["confidence"],
+    )
+
+
+def _parse_special_geometry(
+    role: str, raw: dict[str, Any] | None
+) -> SpecialGeometry | None:
+    if raw is None:
+        return None
+    return SpecialGeometry(
+        role=role,
+        cells=_parse_cells(raw["cells"]),
         source=raw["source"],
         confidence=raw["confidence"],
     )
@@ -130,6 +172,27 @@ def validate_deck_observations(raw: dict[str, Any]) -> list[str]:
             if not isinstance(source, str) or not source.startswith("https://"):
                 errors.append(f"observations[{index}].source must be an https URL")
 
+    special = raw.get("special_geometry")
+    if not isinstance(special, dict):
+        errors.append("special_geometry must be an object")
+    else:
+        expected_roles = {"exit", "start_easy", "start_normal"}
+        if set(special) != expected_roles:
+            errors.append(
+                "special_geometry must contain exactly exit, start_easy, start_normal"
+            )
+        for role in expected_roles:
+            geometry = special.get(role)
+            if geometry is not None:
+                errors.extend(
+                    _validate_geometry_record(
+                        geometry,
+                        prefix=f"special_geometry.{role}",
+                        allow_material=False,
+                        allow_multiplicity=False,
+                    )
+                )
+
     card_types = raw.get("card_types")
     if not isinstance(card_types, list):
         errors.append("card_types must be a list")
@@ -151,70 +214,117 @@ def validate_deck_observations(raw: dict[str, Any]) -> list[str]:
         else:
             card_ids.add(card_id)
 
+        errors.extend(
+            _validate_geometry_record(
+                card_type,
+                prefix=prefix,
+                allow_material=True,
+                allow_multiplicity=True,
+            )
+        )
+
         multiplicity = card_type.get("multiplicity")
-        if multiplicity is not None and (
-            not isinstance(multiplicity, int)
-            or isinstance(multiplicity, bool)
-            or multiplicity <= 0
-        ):
-            errors.append(f"{prefix}.multiplicity must be null or a positive integer")
-        elif isinstance(multiplicity, int):
+        if isinstance(multiplicity, int) and not isinstance(multiplicity, bool):
             multiplicities.append(multiplicity)
 
-        material = card_type.get("material")
-        if material not in (None, "raincoat", "rope"):
-            errors.append(f"{prefix}.material must be null, raincoat, or rope")
-
-        source = card_type.get("source")
-        if not isinstance(source, str) or not source.startswith("https://"):
-            errors.append(f"{prefix}.source must be an https URL")
-
-        confidence = card_type.get("confidence")
-        if confidence not in ("authoritative", "observed", "inferred", "proxy"):
-            errors.append(
-                f"{prefix}.confidence must be authoritative, observed, inferred, or proxy"
-            )
-
-        cells = card_type.get("cells")
-        if not isinstance(cells, list) or not cells:
-            errors.append(f"{prefix}.cells must be a non-empty list")
-            continue
-
-        coords: set[tuple[int, int]] = set()
-        for cell_index, cell in enumerate(cells):
-            cell_prefix = f"{prefix}.cells[{cell_index}]"
-            if not isinstance(cell, dict):
-                errors.append(f"{cell_prefix} must be an object")
-                continue
-            x, y = cell.get("x"), cell.get("y")
-            if not isinstance(x, int) or isinstance(x, bool):
-                errors.append(f"{cell_prefix}.x must be an integer")
-            if not isinstance(y, int) or isinstance(y, bool):
-                errors.append(f"{cell_prefix}.y must be an integer")
-            if isinstance(x, int) and isinstance(y, int):
-                coord = (x, y)
-                if coord in coords:
-                    errors.append(f"{prefix} has duplicate cell coordinate {coord}")
-                coords.add(coord)
-
-            edges = cell.get("tunnel_edges")
-            if (
-                not isinstance(edges, list)
-                or any(edge not in ("N", "E", "S", "W") for edge in edges)
-                or len(edges) != len(set(edges))
-            ):
-                errors.append(
-                    f"{cell_prefix}.tunnel_edges must be unique N/E/S/W values"
-                )
-            if not isinstance(cell.get("water", False), bool):
-                errors.append(f"{cell_prefix}.water must be boolean")
-
     if raw.get("complete") is True:
-        if any(card_type.get("multiplicity") is None for card_type in card_types if isinstance(card_type, dict)):
+        if any(
+            card_type.get("multiplicity") is None
+            for card_type in card_types
+            if isinstance(card_type, dict)
+        ):
             errors.append("complete catalog cannot contain null multiplicity")
         if sum(multiplicities) != expected["ordinary_cards"]:
             errors.append(
                 "complete catalog multiplicities must sum to 68 ordinary cards"
             )
+        if isinstance(special, dict) and any(
+            special.get(role) is None for role in ("exit", "start_easy", "start_normal")
+        ):
+            errors.append(
+                "complete catalog requires exit, start_easy, and start_normal geometry"
+            )
+
+    return errors
+
+
+def _validate_geometry_record(
+    raw: dict[str, Any],
+    *,
+    prefix: str,
+    allow_material: bool,
+    allow_multiplicity: bool,
+) -> list[str]:
+    errors: list[str] = []
+
+    if allow_multiplicity:
+        multiplicity = raw.get("multiplicity")
+        if multiplicity is not None and (
+            not isinstance(multiplicity, int)
+            or isinstance(multiplicity, bool)
+            or multiplicity <= 0
+        ):
+            errors.append(
+                f"{prefix}.multiplicity must be null or a positive integer"
+            )
+    elif "multiplicity" in raw:
+        errors.append(f"{prefix}.multiplicity is not allowed")
+
+    if allow_material:
+        material = raw.get("material")
+        if material not in (None, "raincoat", "rope"):
+            errors.append(f"{prefix}.material must be null, raincoat, or rope")
+    elif "material" in raw:
+        errors.append(f"{prefix}.material is not allowed")
+
+    source = raw.get("source")
+    if not isinstance(source, str) or not source.startswith("https://"):
+        errors.append(f"{prefix}.source must be an https URL")
+
+    confidence = raw.get("confidence")
+    if confidence not in ("authoritative", "observed", "inferred", "proxy"):
+        errors.append(
+            f"{prefix}.confidence must be authoritative, observed, inferred, or proxy"
+        )
+
+    cells = raw.get("cells")
+    if not isinstance(cells, list) or not cells:
+        errors.append(f"{prefix}.cells must be a non-empty list")
+        return errors
+
+    coords: set[tuple[int, int]] = set()
+    for cell_index, cell in enumerate(cells):
+        cell_prefix = f"{prefix}.cells[{cell_index}]"
+        if not isinstance(cell, dict):
+            errors.append(f"{cell_prefix} must be an object")
+            continue
+
+        x, y = cell.get("x"), cell.get("y")
+        if not isinstance(x, int) or isinstance(x, bool):
+            errors.append(f"{cell_prefix}.x must be an integer")
+        if not isinstance(y, int) or isinstance(y, bool):
+            errors.append(f"{cell_prefix}.y must be an integer")
+        if (
+            isinstance(x, int)
+            and not isinstance(x, bool)
+            and isinstance(y, int)
+            and not isinstance(y, bool)
+        ):
+            coord = (x, y)
+            if coord in coords:
+                errors.append(f"{prefix} has duplicate cell coordinate {coord}")
+            coords.add(coord)
+
+        edges = cell.get("tunnel_edges")
+        if (
+            not isinstance(edges, list)
+            or any(edge not in ("N", "E", "S", "W") for edge in edges)
+            or len(edges) != len(set(edges))
+        ):
+            errors.append(
+                f"{cell_prefix}.tunnel_edges must be unique N/E/S/W values"
+            )
+        if not isinstance(cell.get("water", False), bool):
+            errors.append(f"{cell_prefix}.water must be boolean")
 
     return errors
