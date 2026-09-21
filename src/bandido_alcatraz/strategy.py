@@ -28,7 +28,7 @@ class PolicyWeights:
     wins: int = 1_000_000
     closes_last_without_win: int = -1_000_000
     delta_open_tunnels: int = 100
-    delta_visible_water: int = -5
+    delta_visible_water: int = 5
     places_exit_ready: int = 5_000
     places_exit_early: int = -5_000
 
