@@ -1,0 +1,59 @@
+{
+  "experiment": "synthetic-paired-evaluation-v1",
+  "authoritative_game_result": false,
+  "warning": "Synthetic fixture only; not a Bandido Alcatraz estimate.",
+  "simulator_commit": "74136744261aa3a994e6e45be4cefed9f6cc8465",
+  "workflow_run": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35591714432",
+  "seed_start": 0,
+  "seed_end": 499,
+  "games_per_policy": 500,
+  "policies": {
+    "greedy_v0": {
+      "wins": 63,
+      "win_rate": 0.126,
+      "interval_95": {
+        "low": 0.09973528894537706,
+        "high": 0.15796771771986404
+      }
+    },
+    "min_open_tunnels": {
+      "wins": 0,
+      "win_rate": 0,
+      "interval_95": {
+        "low": 0,
+        "high": 0.007624340461552241
+      }
+    },
+    "random_legal": {
+      "wins": 1,
+      "win_rate": 0.002,
+      "interval_95": {
+        "low": 0.00035313639455927456,
+        "high": 0.011240706705146758
+      }
+    }
+  },
+  "paired": {
+    "random_legal__vs__greedy_v0": {
+      "games": 500,
+      "a_only_wins": 0,
+      "b_only_wins": 62,
+      "both_win": 1,
+      "both_lose": 437
+    },
+    "min_open_tunnels__vs__greedy_v0": {
+      "games": 500,
+      "a_only_wins": 0,
+      "b_only_wins": 63,
+      "both_win": 0,
+      "both_lose": 437
+    },
+    "random_legal__vs__min_open_tunnels": {
+      "games": 500,
+      "a_only_wins": 1,
+      "b_only_wins": 0,
+      "both_win": 0,
+      "both_lose": 499
+    }
+  }
+}
