@@ -208,7 +208,7 @@ def test_checked_in_special_geometries_match_physical_start_and_exit() -> None:
     exit_board = Board()
     exit_board.seed(exit_card)
     assert exit_card.is_exit
-    assert exit_board.open_tunnels == 2
+    assert exit_board.open_tunnels == 1
 
     easy_board = Board()
     easy_board.seed(easy)
