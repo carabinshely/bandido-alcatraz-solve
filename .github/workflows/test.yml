@@ -35,3 +35,5 @@ jobs:
         run: python scripts/proxy_status.py
       - name: Real photographed-deck smoke
         run: python scripts/run_real_deck_smoke.py
+      - name: Real v3 policy diagnostics
+        run: python scripts/run_real_policy_v3_diagnostics.py
