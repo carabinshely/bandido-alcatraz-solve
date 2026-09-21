@@ -69,3 +69,34 @@ def test_geometry_is_separate_from_visual_metadata_transcription() -> None:
     data = _inventory()
 
     assert all(slot["geometry"] is None for slot in data["slots"])
+
+
+def test_owner_photo_start_variants_are_identified() -> None:
+    data = _inventory()
+    starts = {
+        slot["start_variant"]: slot
+        for slot in data["slots"]
+        if slot["role"] == "start"
+    }
+
+    assert set(starts) == {"easy", "normal"}
+    assert starts["easy"]["id"] == "photo-1-r1-c1"
+    assert starts["normal"]["id"] == "photo-2-r1-c1"
+
+
+def test_owner_photo_water_halves_are_two_top_two_bottom() -> None:
+    data = _inventory()
+    water = [
+        slot for slot in data["slots"]
+        if slot["role"] == "ordinary" and slot["water"]
+    ]
+
+    assert Counter(slot["water_half"] for slot in water) == {
+        "top": 2,
+        "bottom": 2,
+    }
+    assert all(
+        slot["water_half"] is None
+        for slot in data["slots"]
+        if not slot["water"]
+    )
