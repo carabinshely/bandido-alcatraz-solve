@@ -169,3 +169,21 @@ def test_owner_photo_provenance_is_allowed_without_committing_images() -> None:
     )
 
     assert validate_deck_observations(raw) == []
+
+
+def test_checked_in_physical_inventory_arithmetic() -> None:
+    raw = _raw()
+    facts = raw["aggregate_facts"]
+    inventory = raw["derived_inventory"]
+
+    assert inventory["non_start_draw_cards"] == (
+        facts["ordinary_cards"] + facts["exit_cards"]
+    ) == 69
+    assert inventory["distinct_physical_cards_total"] == (
+        facts["ordinary_cards"] + facts["exit_cards"] + facts["start_tiles"]
+    ) == 70
+    assert inventory["photographed_card_faces"] == (
+        facts["ordinary_cards"]
+        + facts["exit_cards"]
+        + inventory["start_faces_photographed"]
+    ) == 71
