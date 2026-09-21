@@ -1,0 +1,40 @@
+{
+  "experiment": "synthetic-weight-search-v1",
+  "authoritative_game_result": false,
+  "warning": "Synthetic fixture only; not a Bandido Alcatraz strategy estimate.",
+  "simulator_commit": "9f880511b768867bdd4c20aa9ccf4cfdb679c759",
+  "workflow_run": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35590270015",
+  "candidates_evaluated": 12,
+  "training_seed_start": 0,
+  "training_seed_end": 39,
+  "evaluation_seed_start": 10000,
+  "evaluation_seed_end": 10039,
+  "best_weights": {
+    "collect_needed": 1000,
+    "collect_excess": -500,
+    "wins": 1000000,
+    "closes_last_without_win": -1000000,
+    "delta_open_tunnels": 25,
+    "delta_visible_water": 5,
+    "places_exit_ready": 5000,
+    "places_exit_early": -1000
+  },
+  "training_summary": {
+    "games": 40,
+    "wins": 1,
+    "win_rate": 0.025,
+    "mean_turns": 9.975,
+    "failure_reasons": {
+      "closed_tunnels_conditions_failed": 39
+    }
+  },
+  "evaluation_summary": {
+    "games": 40,
+    "wins": 7,
+    "win_rate": 0.175,
+    "mean_turns": 9.325,
+    "failure_reasons": {
+      "closed_tunnels_conditions_failed": 33
+    }
+  }
+}
