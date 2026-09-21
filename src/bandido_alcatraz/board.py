@@ -48,6 +48,33 @@ class Board:
                     count += 1
         return count
 
+    def clone(self) -> "Board":
+        other = Board()
+        other._cells = dict(self._cells)
+        return other
+
+    def candidate_origins(self, card: CardDefinition) -> set[Coord]:
+        """Generate plausible origins; can_place remains the authority."""
+        origins: set[Coord] = set()
+
+        for (x, y), existing in self._cells.items():
+            for edge in existing.tunnel_edges:
+                dx, dy = _DELTAS[edge]
+                neighbor = (x + dx, y + dy)
+                if neighbor in self._cells:
+                    continue
+                required = _OPPOSITE[edge]
+                for cell in card.cells:
+                    if required in cell.tunnel_edges:
+                        origins.add((neighbor[0] - cell.x, neighbor[1] - cell.y))
+
+        water_coords = [coord for coord, cell in self._cells.items() if cell.water]
+        for water_coord in water_coords:
+            for cell in card.cells:
+                origins.add((water_coord[0] - cell.x, water_coord[1] - cell.y))
+
+        return origins
+
     def seed(self, card: CardDefinition, origin: Coord = (0, 0), quarter_turns: int = 0) -> None:
         if self._cells:
             raise ValueError("board is already seeded")
