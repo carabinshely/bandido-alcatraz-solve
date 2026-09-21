@@ -1,0 +1,55 @@
+{
+  "experiment": "real-deck-policy-v2",
+  "rules_variant": "v0-threshold-equipment",
+  "photographed_deck": true,
+  "simulator_commit": "d22169c507b61ddd60469a584999700c30137172",
+  "workflow_run": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35634224203",
+  "start_side": "easy-5-exit",
+  "hand_size": 3,
+  "seed_start": 0,
+  "seed_end": 49,
+  "games_per_policy": 50,
+  "policies": {
+    "greedy_v0": {
+      "wins": 0,
+      "mean_open_tunnels": 17.36,
+      "open_tunnels_le_5": 2,
+      "water_clear": 2,
+      "mean_visible_water": 3.32,
+      "equipment_ready": 49,
+      "exit_placed": 48,
+      "exit_equipment_water_ready": 0
+    },
+    "discard_excess_v2": {
+      "wins": 0,
+      "mean_open_tunnels": 16.02,
+      "open_tunnels_le_5": 2,
+      "water_clear": 1,
+      "mean_visible_water": 3.18,
+      "equipment_ready": 50,
+      "exit_placed": 49,
+      "exit_equipment_water_ready": 0
+    },
+    "water_first_v2": {
+      "wins": 0,
+      "mean_open_tunnels": 18.56,
+      "open_tunnels_le_5": 2,
+      "water_clear": 4,
+      "mean_visible_water": 2.66,
+      "equipment_ready": 49,
+      "exit_placed": 48,
+      "exit_equipment_water_ready": 2
+    },
+    "combined_v2": {
+      "wins": 0,
+      "mean_open_tunnels": 16.28,
+      "open_tunnels_le_5": 3,
+      "water_clear": 6,
+      "mean_visible_water": 2.36,
+      "equipment_ready": 50,
+      "exit_placed": 49,
+      "exit_equipment_water_ready": 5
+    }
+  },
+  "conclusion": "Excess-equipment discard improves open-end count; water priority improves water clearance; combining both improves both diagnostics but still yields no wins."
+}
