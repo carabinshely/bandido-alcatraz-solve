@@ -1,0 +1,105 @@
+{
+  "experiment": "seed24-trace",
+  "rules_variant": "v0-threshold-equipment",
+  "source_run": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35638439244",
+  "traced_commit": "00e6c9c5e2e5759b03fbce6428a57ba304033e5d",
+  "seed": 24,
+  "policies": {
+    "combined_v2": {
+      "won": false,
+      "reason": "deck_exhausted",
+      "turns": 69,
+      "final": {
+        "open_tunnels": 17,
+        "visible_water": 3,
+        "trapped_water": 1,
+        "raincoats": 6,
+        "ropes": 4,
+        "exit_placed": true
+      }
+    },
+    "combined_v3": {
+      "won": true,
+      "reason": "win",
+      "turns": 27,
+      "draw_remaining": 39,
+      "final": {
+        "open_tunnels": 0,
+        "visible_water": 0,
+        "trapped_water": 0,
+        "raincoats": 8,
+        "ropes": 4,
+        "exit_placed": true
+      },
+      "critical_sequence": [
+        {
+          "turn": 4,
+          "open_before": 5,
+          "open_after": 5,
+          "merge_before": 0,
+          "merge_after": 1
+        },
+        {
+          "turn": 5,
+          "open_before": 5,
+          "open_after": 6,
+          "merge_before": 1,
+          "merge_after": 3
+        },
+        {
+          "turn": 6,
+          "open_before": 6,
+          "open_after": 7,
+          "merge_before": 3,
+          "merge_after": 4
+        },
+        {
+          "turn": 7,
+          "open_before": 7,
+          "open_after": 9,
+          "merge_before": 4,
+          "merge_after": 6
+        },
+        {
+          "turn": 15,
+          "card_degree": 3,
+          "open_before": 9,
+          "open_after": 6,
+          "merge_before": 7,
+          "merge_after": 4
+        },
+        {
+          "turn": 19,
+          "card_degree": 2,
+          "open_before": 5,
+          "open_after": 3,
+          "merge_before": 4,
+          "merge_after": 3
+        },
+        {
+          "turn": 26,
+          "card_degree": 4,
+          "open_before": 3,
+          "open_after": 1,
+          "water_before": 0,
+          "water_after": 1,
+          "merge_before": 3,
+          "merge_after": 0
+        },
+        {
+          "turn": 27,
+          "card_degree": 1,
+          "open_before": 1,
+          "open_after": 0,
+          "water_before": 1,
+          "water_after": 0
+        }
+      ]
+    }
+  },
+  "interpretation": [
+    "The useful behavior is bounded setup followed by consuming multi-attachment opportunities, not unbounded growth of merge opportunities.",
+    "The winning trace peaked at 9 open tunnels during setup, then consolidated.",
+    "A replacement feature should reward creating a bounded merge bank but should not penalize consuming it and should stop rewarding setup once the open-end budget is exceeded."
+  ]
+}
