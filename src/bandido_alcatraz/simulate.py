@@ -35,7 +35,7 @@ def play_game(
     hand_size: int,
     policy: Policy,
     seed: int,
-    max_turns: int = 500,
+    max_steps: int = 1000,
 ) -> GameResult:
     if hand_size != 3:
         raise NotImplementedError(
@@ -50,7 +50,7 @@ def play_game(
         rng=rng,
     )
 
-    while state.turns < max_turns:
+    for _ in range(max_steps):
         if state.won:
             return _result(state, "win")
 
@@ -69,7 +69,7 @@ def play_game(
 
         state.apply(move)
 
-    return _result(state, "turn_limit")
+    return _result(state, "step_limit")
 
 
 def run_many(
