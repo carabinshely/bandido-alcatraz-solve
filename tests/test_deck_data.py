@@ -187,3 +187,32 @@ def test_checked_in_physical_inventory_arithmetic() -> None:
         + facts["exit_cards"]
         + inventory["start_faces_photographed"]
     ) == 71
+
+
+def test_checked_in_special_geometries_match_physical_start_and_exit() -> None:
+    observations = load_deck_observations(
+        ROOT / "data" / "deck-observations-v0.json"
+    )
+
+    assert observations.exit_geometry is not None
+    assert observations.start_easy_geometry is not None
+    assert observations.start_normal_geometry is not None
+
+    exit_card = observations.exit_geometry.definition()
+    easy = observations.start_easy_geometry.definition()
+    normal = observations.start_normal_geometry.definition()
+
+    from bandido_alcatraz.board import Board
+
+    exit_board = Board()
+    exit_board.seed(exit_card)
+    assert exit_card.is_exit
+    assert exit_board.open_tunnels == 2
+
+    easy_board = Board()
+    easy_board.seed(easy)
+    assert easy_board.open_tunnels == 5
+
+    normal_board = Board()
+    normal_board.seed(normal)
+    assert normal_board.open_tunnels == 6
