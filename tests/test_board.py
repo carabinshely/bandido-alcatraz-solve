@@ -60,3 +60,40 @@ def test_non_water_cell_cannot_be_overlapped() -> None:
     board = Board()
     board.seed(single("start", {Direction.EAST}))
     assert not board.can_place(single("x", {Direction.EAST}), (0, 0))
+
+
+def test_merge_opportunity_counts_open_ends_targeting_same_cell() -> None:
+    board = Board()
+    board.seed(
+        CardDefinition(
+            "merge-seed",
+            (
+                CellSpec(0, 0, frozenset({Direction.EAST})),
+                CellSpec(1, -1, frozenset({Direction.SOUTH})),
+            ),
+        )
+    )
+
+    assert board.open_tunnels == 2
+    assert board.open_tunnel_target_counts[(1, 0)] == 2
+    assert board.merge_opportunities == 1
+
+
+def test_water_obstruction_and_trap_are_geometric() -> None:
+    board = Board()
+    board.seed(
+        CardDefinition(
+            "trapped-water",
+            (
+                CellSpec(0, 0, frozenset(), water=True),
+                CellSpec(0, -1, frozenset()),
+                CellSpec(0, 1, frozenset()),
+                CellSpec(-1, 0, frozenset()),
+                CellSpec(1, 0, frozenset()),
+            ),
+        )
+    )
+
+    assert board.visible_water_cells == 1
+    assert board.water_obstruction == 4
+    assert board.trapped_water_cells == 1
