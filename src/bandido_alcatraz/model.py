@@ -22,11 +22,7 @@ class Material(StrEnum):
 
 @dataclass(frozen=True, slots=True)
 class CellSpec:
-    """One unit cell of a card footprint.
-
-    tunnel_edges records which of the four cell edges contain tunnel openings.
-    It intentionally does not guess internal tunnel connectivity yet.
-    """
+    """One unit cell of a card footprint."""
 
     x: int
     y: int
@@ -53,6 +49,7 @@ class CardDefinition:
     card_id: str
     cells: tuple[CellSpec, ...]
     material: Material | None = None
+    is_exit: bool = False
 
     def __post_init__(self) -> None:
         if not self.cells:
@@ -60,6 +57,8 @@ class CardDefinition:
         coords = [(cell.x, cell.y) for cell in self.cells]
         if len(coords) != len(set(coords)):
             raise ValueError("card cells must occupy unique coordinates")
+        if self.is_exit and self.material is not None:
+            raise ValueError("EXIT card cannot also be equipment")
 
     @property
     def has_water(self) -> bool:
@@ -78,4 +77,9 @@ class CardDefinition:
             )
             for cell in sorted(rotated_cells, key=lambda item: (item.y, item.x))
         )
-        return CardDefinition(self.card_id, normalized, self.material)
+        return CardDefinition(
+            self.card_id,
+            normalized,
+            self.material,
+            self.is_exit,
+        )
