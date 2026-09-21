@@ -1,0 +1,41 @@
+{
+  "experiment": "real-deck-policy-v1",
+  "authoritative_game_result": false,
+  "rules_variant": "v0-threshold-equipment",
+  "photographed_deck": true,
+  "simulator_commit": "84b6dc75b21a919682c1d926061d8604d2c7b5e4",
+  "workflow_run": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35632652918",
+  "start_side": "easy-5-exit",
+  "hand_size": 3,
+  "seed_start": 0,
+  "seed_end": 99,
+  "games_per_policy": 100,
+  "policies": {
+    "greedy_v0": {
+      "wins": 0,
+      "win_rate": 0,
+      "interval_95": {
+        "low": 0,
+        "high": 0.03699349820698568
+      }
+    },
+    "geometry_aware_v1": {
+      "wins": 0,
+      "win_rate": 0,
+      "interval_95": {
+        "low": 0,
+        "high": 0.03699349820698568
+      }
+    }
+  },
+  "paired": {
+    "greedy_v0__vs__geometry_aware_v1": {
+      "games": 100,
+      "a_only_wins": 0,
+      "b_only_wins": 0,
+      "both_win": 0,
+      "both_lose": 100
+    }
+  },
+  "conclusion": "Preserving one-port needed-equipment cards alone did not improve wins on seeds 0-99."
+}
