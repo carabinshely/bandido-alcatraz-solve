@@ -6,10 +6,13 @@ from bandido_alcatraz.model import CardDefinition, CellSpec, Direction, Material
 from bandido_alcatraz.moves import Action
 from bandido_alcatraz.policies import (
     CombinedV2Policy,
+    CombinedV3Policy,
     DiscardExcessV2Policy,
     GeometryAwareV1Policy,
     GreedyV0Policy,
+    MergeAwareV3Policy,
     WaterFirstV2Policy,
+    WaterSpaceV3Policy,
 )
 
 
@@ -239,3 +242,24 @@ def test_v2_policy_weights_are_isolated() -> None:
 
     assert combined.collect_excess == 0
     assert combined.delta_visible_water == 20_000
+
+
+def test_v3_policy_weights_are_isolated_from_combined_v2() -> None:
+    v2 = CombinedV2Policy().weights
+    merge = MergeAwareV3Policy().weights
+    water_space = WaterSpaceV3Policy().weights
+    combined = CombinedV3Policy().weights
+
+    assert merge.collect_excess == v2.collect_excess
+    assert merge.delta_visible_water == v2.delta_visible_water
+    assert merge.delta_merge_opportunities == 500
+    assert merge.delta_water_obstruction == 0
+    assert merge.new_trapped_water == 0
+
+    assert water_space.delta_merge_opportunities == 0
+    assert water_space.delta_water_obstruction == 1_000
+    assert water_space.new_trapped_water == -100_000
+
+    assert combined.delta_merge_opportunities == 500
+    assert combined.delta_water_obstruction == 1_000
+    assert combined.new_trapped_water == -100_000
