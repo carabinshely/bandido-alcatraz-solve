@@ -101,6 +101,15 @@ class GameState:
                 "no-play refresh for a hand other than 3 cards is not modeled yet"
             )
 
+        # With more than one replacement batch remaining, returning the same
+        # three-card hand to the draw pile can otherwise rotate forever when
+        # no remaining card is playable on the current board. Detect that
+        # terminal state before cycling the hand.
+        if len(self.draw_pile) > 3 and not legal_moves(
+            self.board, tuple(self.draw_pile)
+        ):
+            return False
+
         if len(self.draw_pile) <= 3:
             old_count = len(self.hand)
             self.hand = list(self.draw_pile)
