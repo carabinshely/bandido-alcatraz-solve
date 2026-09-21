@@ -31,7 +31,8 @@
           "E"
         ],
         "transcription": "visual_from_flat_official_pdf",
-        "confidence": "proxy"
+        "confidence": "proxy",
+        "internal_bridge": true
       }
     },
     {
@@ -45,7 +46,8 @@
           "W"
         ],
         "transcription": "visual_from_flat_official_pdf",
-        "confidence": "proxy"
+        "confidence": "proxy",
+        "internal_bridge": true
       }
     },
     {
@@ -59,7 +61,8 @@
           "SE"
         ],
         "transcription": "visual_from_flat_official_pdf",
-        "confidence": "proxy"
+        "confidence": "proxy",
+        "internal_bridge": true
       }
     },
     {
@@ -73,7 +76,8 @@
           "SW"
         ],
         "transcription": "visual_from_flat_official_pdf",
-        "confidence": "proxy"
+        "confidence": "proxy",
+        "internal_bridge": true
       }
     },
     {
@@ -89,7 +93,8 @@
           "SE"
         ],
         "transcription": "visual_from_flat_official_pdf",
-        "confidence": "proxy"
+        "confidence": "proxy",
+        "internal_bridge": true
       }
     },
     {
@@ -105,7 +110,8 @@
           "SW"
         ],
         "transcription": "visual_from_flat_official_pdf",
-        "confidence": "proxy"
+        "confidence": "proxy",
+        "internal_bridge": true
       }
     },
     {
@@ -120,7 +126,8 @@
           "NE"
         ],
         "transcription": "visual_from_flat_official_pdf",
-        "confidence": "proxy"
+        "confidence": "proxy",
+        "internal_bridge": true
       }
     },
     {
@@ -135,7 +142,8 @@
           "NW"
         ],
         "transcription": "visual_from_flat_official_pdf",
-        "confidence": "proxy"
+        "confidence": "proxy",
+        "internal_bridge": true
       }
     },
     {
@@ -150,7 +158,8 @@
           "SE"
         ],
         "transcription": "visual_from_flat_official_pdf",
-        "confidence": "proxy"
+        "confidence": "proxy",
+        "internal_bridge": true
       }
     },
     {
@@ -165,7 +174,8 @@
           "SW"
         ],
         "transcription": "visual_from_flat_official_pdf",
-        "confidence": "proxy"
+        "confidence": "proxy",
+        "internal_bridge": true
       }
     },
     {
