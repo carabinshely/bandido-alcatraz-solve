@@ -53,10 +53,9 @@ def wilson_interval_95(wins: int, games: int) -> WilsonInterval:
         * sqrt((p * (1 - p) / games) + (z * z) / (4 * games * games))
         / denominator
     )
-    return WilsonInterval(
-        low=max(0.0, center - half),
-        high=min(1.0, center + half),
-    )
+    low = 0.0 if wins == 0 else max(0.0, center - half)
+    high = 1.0 if wins == games else min(1.0, center + half)
+    return WilsonInterval(low=low, high=high)
 
 
 def evaluate_policies(
