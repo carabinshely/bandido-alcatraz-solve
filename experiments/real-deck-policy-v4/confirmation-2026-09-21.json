@@ -1,0 +1,151 @@
+{
+  "experiment": "real-deck-policy-v4-confirmation",
+  "date": "2026-09-21",
+  "branch": "bootstrap/model-foundation",
+  "evaluated_commit": "96ae13fabb1c52f66380c6c3b2acb1d522d49bba",
+  "workflow_merge_commit": "3ab10044d88b55c007be178817cf5bec6222d6ad",
+  "workflow_run": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35645658465",
+  "workflow_conclusion": "success",
+  "runner": "bandido-alcatraz-ci",
+  "tests_passed": 82,
+  "model": {
+    "rules_variant": "v0-threshold-equipment",
+    "photographed_deck": true,
+    "deck_file": "data/deck-v1.json",
+    "equipment_thresholds": {
+      "raincoats_min": 3,
+      "ropes_min": 2
+    },
+    "start_side": "easy-5-exit",
+    "hand_size": 3
+  },
+  "seed_range": [
+    1000,
+    1099
+  ],
+  "policies": {
+    "bounded_merge_v4_250": {
+      "class": "BoundedMergeV4Policy",
+      "parameters": {
+        "setup_weight": 250
+      }
+    },
+    "water_space_v3": {
+      "class": "WaterSpaceV3Policy",
+      "parameters": {}
+    },
+    "combined_v2": {
+      "class": "CombinedV2Policy",
+      "parameters": {}
+    }
+  },
+  "metrics": {
+    "bounded_merge_v4_250": {
+      "games": 100,
+      "wins": 5,
+      "win_rate": 0.05,
+      "wilson_95": {
+        "low": 0.02154367915436796,
+        "high": 0.11175046923191913
+      },
+      "winning_seeds": [
+        1008,
+        1049,
+        1056,
+        1087,
+        1097
+      ],
+      "mean_final_open_tunnels": 14.77,
+      "open_tunnels_le_5": 21,
+      "water_clear": 55,
+      "mean_visible_water": 0.73,
+      "equipment_ready": 99,
+      "exit_placed": 89,
+      "exit_equipment_water_ready": 45,
+      "failure_reasons": {
+        "closed_tunnels_conditions_failed": 2,
+        "deck_exhausted": 76,
+        "no_legal_move": 17
+      }
+    },
+    "water_space_v3": {
+      "games": 100,
+      "wins": 1,
+      "win_rate": 0.01,
+      "wilson_95": {
+        "low": 0.0017674320641406505,
+        "high": 0.054486196178705315
+      },
+      "winning_seeds": [
+        1094
+      ],
+      "mean_final_open_tunnels": 17.71,
+      "open_tunnels_le_5": 5,
+      "water_clear": 52,
+      "mean_visible_water": 0.74,
+      "equipment_ready": 100,
+      "exit_placed": 99,
+      "exit_equipment_water_ready": 51,
+      "failure_reasons": {
+        "closed_tunnels_conditions_failed": 1,
+        "deck_exhausted": 94,
+        "no_legal_move": 4
+      }
+    },
+    "combined_v2": {
+      "games": 100,
+      "wins": 1,
+      "win_rate": 0.01,
+      "wilson_95": {
+        "low": 0.0017674320641406505,
+        "high": 0.054486196178705315
+      },
+      "winning_seeds": [
+        1094
+      ],
+      "mean_final_open_tunnels": 16.28,
+      "open_tunnels_le_5": 5,
+      "water_clear": 13,
+      "mean_visible_water": 2.34,
+      "equipment_ready": 100,
+      "exit_placed": 99,
+      "exit_equipment_water_ready": 12,
+      "failure_reasons": {
+        "closed_tunnels_conditions_failed": 1,
+        "deck_exhausted": 95,
+        "no_legal_move": 3
+      }
+    }
+  },
+  "paired": {
+    "v4_vs_water_space_v3": {
+      "v4_only_wins": 5,
+      "control_only_wins": 1,
+      "both_win": 0,
+      "both_lose": 94
+    },
+    "v4_vs_combined_v2": {
+      "v4_only_wins": 5,
+      "control_only_wins": 1,
+      "both_win": 0,
+      "both_lose": 94
+    }
+  },
+  "invalidated_run": {
+    "evaluated_commit": "fcac9e467999c1bbcddf13e58e2f61918b9718a5",
+    "workflow_run": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35644613839",
+    "reason": "A terminal three-card refresh cycle could rotate a globally unplayable remaining draw pile until max_steps, producing step_limit artifacts. The run was not used for interpretation. The simulator was fixed and a regression test added before rerunning the exact same seeds."
+  },
+  "correctness_fix": {
+    "implementation_commit": "4ee6be495623d4977fec22109724d83c01768cad",
+    "regression_test_commit": "96ae13fabb1c52f66380c6c3b2acb1d522d49bba",
+    "effect": "Terminal refresh cycles now stop as no_legal_move when no remaining draw-pile card is playable; the valid rerun has zero step_limit outcomes."
+  },
+  "interpretation": [
+    "On this fresh 100-seed confirmation range, fixed V4 won 5 games while each control won 1.",
+    "Paired outcomes favor V4 on both comparisons: five V4-only wins versus one control-only win, with no shared wins.",
+    "V4 also finished more compactly: mean final open tunnels 14.77 and 21/100 games at <=5 open tunnels, versus 17.71/5 for WaterSpaceV3 and 16.28/5 for CombinedV2.",
+    "The candidate places EXIT less often than the controls (89/100 versus 99/100) and has fewer EXIT+equipment+water-ready end states than WaterSpaceV3 (45 versus 51), so the mechanism is not uniformly better on every diagnostic.",
+    "This confirms a positive V4 signal on a new held-out range but does not establish a final win rate; the 95% Wilson intervals remain wide and overlapping."
+  ]
+}
