@@ -13,6 +13,7 @@ from .rules import is_equipment_ready
 class MoveFeatures:
     collect_needed: int = 0
     collect_excess: int = 0
+    collect_degree_one: int = 0
     wins: int = 0
     closes_last_without_win: int = 0
     delta_open_tunnels: int = 0
@@ -25,6 +26,7 @@ class MoveFeatures:
 class PolicyWeights:
     collect_needed: int = 10_000
     collect_excess: int = -500
+    collect_degree_one: int = 0
     wins: int = 1_000_000
     closes_last_without_win: int = -1_000_000
     delta_open_tunnels: int = 100
@@ -45,6 +47,7 @@ def move_features(state: GameState, move: Move) -> MoveFeatures:
         return MoveFeatures(
             collect_needed=int(needed),
             collect_excess=int(not needed),
+            collect_degree_one=int(needed and card.external_tunnel_count == 1),
         )
 
     clone = clone_state(state)
