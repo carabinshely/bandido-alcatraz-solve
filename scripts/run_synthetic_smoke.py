@@ -2,7 +2,11 @@ from dataclasses import asdict
 import json
 
 from bandido_alcatraz.fixtures import synthetic_deck, synthetic_start
-from bandido_alcatraz.policies import MinOpenTunnelsPolicy, RandomLegalPolicy
+from bandido_alcatraz.policies import (
+    GreedyV0Policy,
+    MinOpenTunnelsPolicy,
+    RandomLegalPolicy,
+)
 from bandido_alcatraz.simulate import run_many
 
 
@@ -21,6 +25,7 @@ def main() -> None:
         "min_open_tunnels": asdict(
             run_many(policy=MinOpenTunnelsPolicy(), **common)
         ),
+        "greedy_v0": asdict(run_many(policy=GreedyV0Policy(), **common)),
     }
     print(json.dumps(result, sort_keys=True))
 
