@@ -20,3 +20,5 @@ jobs:
         run: python scripts/run_synthetic_smoke.py
       - name: Synthetic held-out weight-search smoke
         run: python scripts/run_synthetic_weight_search.py
+      - name: Proxy transcription status
+        run: python scripts/proxy_status.py
