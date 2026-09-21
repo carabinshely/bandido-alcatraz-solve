@@ -1,0 +1,37 @@
+{
+  "experiment": "synthetic-smoke-v1",
+  "authoritative_game_result": false,
+  "warning": "Synthetic fixture only; not a Bandido Alcatraz win-rate estimate.",
+  "simulator_commit": "4792bdb878534a5f2cf549958b364775e323aec7",
+  "workflow_run": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35587667165",
+  "hand_size": 3,
+  "seed_start": 0,
+  "seed_end": 199,
+  "games_per_policy": 200,
+  "policies": {
+    "random_legal": {
+      "wins": 0,
+      "win_rate": 0,
+      "mean_turns": 6.19,
+      "failure_reasons": {
+        "closed_tunnels_conditions_failed": 200
+      }
+    },
+    "min_open_tunnels": {
+      "wins": 0,
+      "win_rate": 0,
+      "mean_turns": 4.13,
+      "failure_reasons": {
+        "closed_tunnels_conditions_failed": 200
+      }
+    },
+    "greedy_v0": {
+      "wins": 20,
+      "win_rate": 0.1,
+      "mean_turns": 9.41,
+      "failure_reasons": {
+        "closed_tunnels_conditions_failed": 180
+      }
+    }
+  }
+}
