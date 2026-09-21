@@ -53,3 +53,38 @@ class GeometryAwareV1Policy(WeightedGreedyPolicy):
                 collect_degree_one=-12_000,
             )
         )
+
+
+
+class DiscardExcessV2Policy(WeightedGreedyPolicy):
+    """Use excess equipment collection to discard geometrically bad cards."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            PolicyWeights(
+                collect_excess=0,
+            )
+        )
+
+
+class WaterFirstV2Policy(WeightedGreedyPolicy):
+    """Take an available exact water-cover move before ordinary local gains."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            PolicyWeights(
+                delta_visible_water=20_000,
+            )
+        )
+
+
+class CombinedV2Policy(WeightedGreedyPolicy):
+    """Combine excess-equipment discard with strong water-cover priority."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            PolicyWeights(
+                collect_excess=0,
+                delta_visible_water=20_000,
+            )
+        )
