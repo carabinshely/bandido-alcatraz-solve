@@ -65,7 +65,7 @@
       "kind": "physical_deck_inventory",
       "claim": "Four owner-provided photographs show 71 photographed card faces: 68 ordinary cards, 1 standalone EXIT card, and both faces of the same double-sided START card. Therefore the physical set represented is 70 distinct cards total: 68 ordinary + 1 EXIT + 1 START.",
       "confidence": "direct-owner-evidence",
-      "source": "owner-provided photographs, 2026-09-21"
+      "source": "owner-photo-set:2026-09-21"
     }
   ],
   "special_geometry": {
