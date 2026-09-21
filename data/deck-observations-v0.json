@@ -69,9 +69,85 @@
     }
   ],
   "special_geometry": {
-    "exit": null,
-    "start_easy": null,
-    "start_normal": null
+    "exit": {
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "tunnel_edges": [
+            "N",
+            "S"
+          ],
+          "water": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "tunnel_edges": [
+            "N",
+            "S"
+          ],
+          "water": false
+        }
+      ],
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "observed"
+    },
+    "start_easy": {
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "tunnel_edges": [
+            "N",
+            "E",
+            "S",
+            "W"
+          ],
+          "water": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "tunnel_edges": [
+            "N",
+            "E",
+            "W"
+          ],
+          "water": false
+        }
+      ],
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "observed"
+    },
+    "start_normal": {
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "tunnel_edges": [
+            "N",
+            "E",
+            "S",
+            "W"
+          ],
+          "water": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "tunnel_edges": [
+            "N",
+            "E",
+            "S",
+            "W"
+          ],
+          "water": false
+        }
+      ],
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "observed"
+    }
   },
   "card_types": [],
   "derived_inventory": {
