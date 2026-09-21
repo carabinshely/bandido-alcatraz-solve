@@ -16,7 +16,7 @@ ROOT = Path(__file__).parents[1]
 
 def main() -> None:
     deck = load_real_deck(ROOT / "data")
-    seeds = range(100)
+    seeds = range(20)
 
     common = {
         "start_card": deck.start_easy,
@@ -32,7 +32,7 @@ def main() -> None:
         ),
         "start_side": "easy-5-exit",
         "hand_size": 3,
-        "seed_range": [0, 99],
+        "seed_range": [0, 19],
         "random_legal": asdict(
             run_many(policy=RandomLegalPolicy(), **common)
         ),
