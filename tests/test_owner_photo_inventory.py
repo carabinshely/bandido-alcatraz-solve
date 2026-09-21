@@ -65,10 +65,16 @@ def test_owner_photo_images_are_not_persisted_in_git() -> None:
     )
 
 
-def test_geometry_is_separate_from_visual_metadata_transcription() -> None:
+def test_all_ordinary_geometry_is_transcribed() -> None:
     data = _inventory()
+    ordinary = [slot for slot in data["slots"] if slot["role"] == "ordinary"]
 
-    assert all(slot["geometry"] is None for slot in data["slots"])
+    assert len(ordinary) == 68
+    assert all(slot["geometry"] is not None for slot in ordinary)
+    assert all(
+        slot["geometry"]["internal_bridge"] is True
+        for slot in ordinary
+    )
 
 
 def test_owner_photo_start_variants_are_identified() -> None:
