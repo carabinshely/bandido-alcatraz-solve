@@ -31,7 +31,7 @@ class MinOpenTunnelsPolicy:
         scored: list[tuple[int, Move]] = []
         for move in moves:
             clone = clone_state(state)
-            clone.apply(move)
+            clone.apply(move, validate=False)
             scored.append((clone.board.open_tunnels, move))
 
         best = min(score for score, _ in scored)
