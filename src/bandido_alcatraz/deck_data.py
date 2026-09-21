@@ -169,8 +169,11 @@ def validate_deck_observations(raw: dict[str, Any]) -> list[str]:
             else:
                 seen_ids.add(observation_id)
             source = observation.get("source")
-            if not isinstance(source, str) or not source.startswith("https://"):
-                errors.append(f"observations[{index}].source must be an https URL")
+            if not _valid_source_reference(source):
+                errors.append(
+                    f"observations[{index}].source must be an https URL "
+                    "or owner-photo-set reference"
+                )
 
     special = raw.get("special_geometry")
     if not isinstance(special, dict):
@@ -278,8 +281,10 @@ def _validate_geometry_record(
         errors.append(f"{prefix}.material is not allowed")
 
     source = raw.get("source")
-    if not isinstance(source, str) or not source.startswith("https://"):
-        errors.append(f"{prefix}.source must be an https URL")
+    if not _valid_source_reference(source):
+        errors.append(
+            f"{prefix}.source must be an https URL or owner-photo-set reference"
+        )
 
     confidence = raw.get("confidence")
     if confidence not in ("authoritative", "observed", "inferred", "proxy"):
@@ -328,3 +333,9 @@ def _validate_geometry_record(
             errors.append(f"{cell_prefix}.water must be boolean")
 
     return errors
+
+
+def _valid_source_reference(value: object) -> bool:
+    return isinstance(value, str) and (
+        value.startswith("https://") or value.startswith("owner-photo-set:")
+    )
