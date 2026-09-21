@@ -50,7 +50,7 @@ def move_features(state: GameState, move: Move) -> MoveFeatures:
     clone = clone_state(state)
     before_open = state.board.open_tunnels
     before_water = state.board.visible_water_cells
-    clone.apply(move)
+    clone.apply(move, validate=False)
 
     equipment_ready_before = is_equipment_ready(state.raincoats, state.ropes)
     return MoveFeatures(
