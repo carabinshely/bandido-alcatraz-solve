@@ -7,8 +7,9 @@
     "ordinary_card_inventory_complete": true,
     "ordinary_placement_geometry_complete": true,
     "canonical_geometry_grouping_complete": true,
-    "exact_water_half_overlay_compatibility_complete": false,
-    "ready_for_authoritative_win_rate": false
+    "exact_water_half_overlay_compatibility_complete": true,
+    "ready_for_authoritative_win_rate": false,
+    "authoritative_win_rate_blocker": "The v0 project intentionally uses raincoats>=3 and ropes>=2, while the Spanish rulebook says exactly 3 and 2. Real-deck simulation is ready, but results must be labeled as the v0 threshold-rules variant until that modeling choice is changed or compared."
   },
   "counts": {
     "ordinary_cards": 68,
@@ -1627,5 +1628,43 @@
       "gate_marked": false,
       "source": "owner-photo-set:2026-09-21"
     }
-  ]
+  ],
+  "water_overlay_model": {
+    "rule": "Covering card half must have exactly the same half-cell tunnel-edge pattern as the visible blue half.",
+    "verified_from_owner_photos": true,
+    "ambiguity": false,
+    "classes": [
+      {
+        "pattern": [
+          "S",
+          "W"
+        ],
+        "slots": [
+          "photo-1-r1-c3"
+        ],
+        "shape": "curve"
+      },
+      {
+        "pattern": [
+          "E",
+          "S"
+        ],
+        "slots": [
+          "photo-2-r1-c3"
+        ],
+        "shape": "mirror_curve"
+      },
+      {
+        "pattern": [
+          "N",
+          "S"
+        ],
+        "slots": [
+          "photo-1-r2-c5",
+          "photo-2-r3-c5"
+        ],
+        "shape": "straight"
+      }
+    ]
+  }
 }
