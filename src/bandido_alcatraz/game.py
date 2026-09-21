@@ -62,11 +62,11 @@ class GameState:
     def legal_moves(self) -> list[Move]:
         return legal_moves(self.board, tuple(self.hand))
 
-    def apply(self, move: Move) -> None:
+    def apply(self, move: Move, *, validate: bool = True) -> None:
         if move.hand_index < 0 or move.hand_index >= len(self.hand):
             raise IndexError("hand_index out of range")
 
-        if move not in self.legal_moves():
+        if validate and move not in self.legal_moves():
             raise ValueError("illegal move")
 
         card = self.hand.pop(move.hand_index)
