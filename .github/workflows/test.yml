@@ -22,3 +22,5 @@ jobs:
         run: python scripts/run_synthetic_weight_search.py
       - name: Proxy transcription status
         run: python scripts/proxy_status.py
+      - name: Synthetic paired evaluation
+        run: python scripts/run_synthetic_evaluation.py
