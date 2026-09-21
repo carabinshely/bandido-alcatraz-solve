@@ -77,7 +77,11 @@ def test_water_reduction_has_positive_default_value() -> None:
         ),
     )
     state = GameState(board=board, draw_pile=[], hand=[cover])
-    move = next(move for move in state.legal_moves() if move.action is Action.PLACE)
+    move = next(
+        move
+        for move in state.legal_moves()
+        if move.action is Action.PLACE and move.origin == (0, 0)
+    )
 
     features = move_features(state, move)
 
