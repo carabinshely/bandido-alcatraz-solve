@@ -354,5 +354,191 @@
       "kind": "basic",
       "geometry": null
     }
-  ]
+  ],
+  "family_inventory": [
+    {
+      "family": "I1",
+      "variant": "base",
+      "kind": "end",
+      "exits": 1,
+      "multiplicity": 2
+    },
+    {
+      "family": "J1",
+      "variant": "left",
+      "kind": "end",
+      "exits": 1,
+      "multiplicity": 1
+    },
+    {
+      "family": "J1",
+      "variant": "right",
+      "kind": "end",
+      "exits": 1,
+      "multiplicity": 1
+    },
+    {
+      "family": "cross",
+      "variant": "base",
+      "kind": "end",
+      "exits": 3,
+      "multiplicity": 2
+    },
+    {
+      "family": "L1",
+      "variant": "left",
+      "kind": "end",
+      "exits": 2,
+      "multiplicity": 2
+    },
+    {
+      "family": "L1",
+      "variant": "right",
+      "kind": "end",
+      "exits": 2,
+      "multiplicity": 2
+    },
+    {
+      "family": "U",
+      "variant": "base",
+      "kind": "basic",
+      "exits": 2,
+      "multiplicity": 1
+    },
+    {
+      "family": "I2",
+      "variant": "base",
+      "kind": "basic",
+      "exits": 2,
+      "multiplicity": 1
+    },
+    {
+      "family": "J2",
+      "variant": "left",
+      "kind": "basic",
+      "exits": 2,
+      "multiplicity": 1
+    },
+    {
+      "family": "J2",
+      "variant": "right",
+      "kind": "basic",
+      "exits": 2,
+      "multiplicity": 1
+    },
+    {
+      "family": "S",
+      "variant": "left",
+      "kind": "basic",
+      "exits": 2,
+      "multiplicity": 1
+    },
+    {
+      "family": "S",
+      "variant": "right",
+      "kind": "basic",
+      "exits": 2,
+      "multiplicity": 1
+    },
+    {
+      "family": "N",
+      "variant": "base",
+      "kind": "basic",
+      "exits": 3,
+      "multiplicity": 1
+    },
+    {
+      "family": "F",
+      "variant": "left",
+      "kind": "basic",
+      "exits": 3,
+      "multiplicity": 1
+    },
+    {
+      "family": "F",
+      "variant": "right",
+      "kind": "basic",
+      "exits": 3,
+      "multiplicity": 1
+    },
+    {
+      "family": "L3",
+      "variant": "left",
+      "kind": "basic",
+      "exits": 3,
+      "multiplicity": 1
+    },
+    {
+      "family": "L3",
+      "variant": "right",
+      "kind": "basic",
+      "exits": 3,
+      "multiplicity": 1
+    },
+    {
+      "family": "Y",
+      "variant": "left",
+      "kind": "basic",
+      "exits": 3,
+      "multiplicity": 1
+    },
+    {
+      "family": "Y",
+      "variant": "right",
+      "kind": "basic",
+      "exits": 3,
+      "multiplicity": 1
+    },
+    {
+      "family": "horse",
+      "variant": "left",
+      "kind": "basic",
+      "exits": 4,
+      "multiplicity": 1
+    },
+    {
+      "family": "horse",
+      "variant": "right",
+      "kind": "basic",
+      "exits": 4,
+      "multiplicity": 1
+    },
+    {
+      "family": "branch",
+      "variant": "left",
+      "kind": "basic",
+      "exits": 4,
+      "multiplicity": 1
+    },
+    {
+      "family": "branch",
+      "variant": "right",
+      "kind": "basic",
+      "exits": 4,
+      "multiplicity": 1
+    },
+    {
+      "family": "puppy",
+      "variant": "left",
+      "kind": "basic",
+      "exits": 4,
+      "multiplicity": 1
+    },
+    {
+      "family": "puppy",
+      "variant": "right",
+      "kind": "basic",
+      "exits": 4,
+      "multiplicity": 1
+    },
+    {
+      "family": "ladder",
+      "variant": "base",
+      "kind": "basic",
+      "exits": 4,
+      "multiplicity": 1
+    }
+  ],
+  "family_inventory_source": "https://note.com/bandido_strategy/n/n4d4ef2968a0c",
+  "family_inventory_confidence": "secondary_proxy"
 }
