@@ -131,3 +131,19 @@ class CombinedV3Policy(WeightedGreedyPolicy):
                 new_trapped_water=-100_000,
             )
         )
+
+
+
+class BoundedMergeV4Policy(WeightedGreedyPolicy):
+    """V2 water-space policy plus bounded merge-bank setup reward."""
+
+    def __init__(self, setup_weight: int = 500) -> None:
+        super().__init__(
+            PolicyWeights(
+                collect_excess=0,
+                delta_visible_water=20_000,
+                delta_water_obstruction=1_000,
+                new_trapped_water=-100_000,
+                bounded_merge_setup_gain=setup_weight,
+            )
+        )
