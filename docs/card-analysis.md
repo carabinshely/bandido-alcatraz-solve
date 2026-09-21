@@ -17,6 +17,8 @@ The ordinary deck contains 68 cards, including:
 
 There is also one double-sided start tile and one EXIT card. The EXIT card is shuffled into the draw pile.
 
+Owner photographs supplied on 2026-09-21 independently confirm the aggregate inventory: 71 photographed card faces consist of all 68 ordinary cards, the standalone EXIT card, and both faces of the same double-sided START card. That corresponds to 70 distinct physical cards total and 69 non-START draw cards (68 ordinary + EXIT).
+
 Official rulebook:
 https://fractaljuegos.cl/wp-content/uploads/2026/04/BandidoAlcatraz_Rules_Fractal_WEB.pdf
 
