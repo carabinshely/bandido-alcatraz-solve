@@ -5,7 +5,7 @@ from typing import Protocol
 
 from .game import GameState
 from .moves import Move
-from .strategy import WeightedGreedyPolicy, clone_state
+from .strategy import PolicyWeights, WeightedGreedyPolicy, clone_state
 
 
 class Policy(Protocol):
@@ -41,3 +41,15 @@ class MinOpenTunnelsPolicy:
 
 class GreedyV0Policy(WeightedGreedyPolicy):
     """Named baseline using the default stage-aware strategy weights."""
+
+
+
+class GeometryAwareV1Policy(WeightedGreedyPolicy):
+    """Preserve scarce one-port equipment cards for tunnel closure when possible."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            PolicyWeights(
+                collect_degree_one=-12_000,
+            )
+        )
