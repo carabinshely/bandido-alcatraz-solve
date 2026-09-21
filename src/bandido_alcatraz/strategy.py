@@ -21,6 +21,7 @@ class MoveFeatures:
     delta_merge_opportunities: int = 0
     delta_water_obstruction: int = 0
     new_trapped_water: int = 0
+    bounded_merge_setup_gain: int = 0
     places_exit_ready: int = 0
     places_exit_early: int = 0
 
@@ -37,6 +38,7 @@ class PolicyWeights:
     delta_merge_opportunities: int = 0
     delta_water_obstruction: int = 0
     new_trapped_water: int = 0
+    bounded_merge_setup_gain: int = 0
     places_exit_ready: int = 5_000
     places_exit_early: int = -5_000
 
@@ -62,6 +64,7 @@ def move_features(state: GameState, move: Move) -> MoveFeatures:
     before_merge = state.board.merge_opportunities
     before_obstruction = state.board.water_obstruction
     before_trapped = state.board.trapped_water_cells
+    before_bounded_merge = _bounded_merge_bank(state.board)
     clone.apply(move, validate=False)
 
     equipment_ready_before = is_equipment_ready(state.raincoats, state.ropes)
@@ -81,6 +84,10 @@ def move_features(state: GameState, move: Move) -> MoveFeatures:
         new_trapped_water=max(
             0,
             clone.board.trapped_water_cells - before_trapped,
+        ),
+        bounded_merge_setup_gain=max(
+            0,
+            _bounded_merge_bank(clone.board) - before_bounded_merge,
         ),
         places_exit_ready=int(card.is_exit and equipment_ready_before),
         places_exit_early=int(card.is_exit and not equipment_ready_before),
@@ -123,3 +130,15 @@ def clone_state(state: GameState) -> GameState:
         turns=state.turns,
         set_aside_unplayable=state.set_aside_unplayable,
     )
+
+
+
+def _bounded_merge_bank(board) -> int:
+    """Compact merge potential seen in the winning seed-24 trace.
+
+    Reward setup only while the board stays within a bounded open-end budget.
+    The cap also prevents raw merge count from being increased without limit.
+    """
+    if board.open_tunnels > 10:
+        return 0
+    return min(board.merge_opportunities, 6)
