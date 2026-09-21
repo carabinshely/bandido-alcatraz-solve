@@ -91,3 +91,26 @@ def test_short_draw_pile_sets_old_unplayable_hand_aside() -> None:
     assert len(state.hand) == 2
     assert not state.draw_pile
     assert state.set_aside_unplayable == 3
+
+
+def test_prevalidated_apply_matches_default_apply() -> None:
+    first = GameState(
+        board=board_with_east_exit(),
+        draw_pile=[],
+        hand=[card("end", {Direction.WEST})],
+    )
+    second = GameState(
+        board=board_with_east_exit(),
+        draw_pile=[],
+        hand=[card("end", {Direction.WEST})],
+    )
+
+    move = next(
+        move for move in first.legal_moves()
+        if move.action is Action.PLACE
+    )
+    first.apply(move)
+    second.apply(move, validate=False)
+
+    assert first.status == second.status
+    assert first.turns == second.turns == 1
