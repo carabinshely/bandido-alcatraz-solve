@@ -18,6 +18,9 @@ class MoveFeatures:
     closes_last_without_win: int = 0
     delta_open_tunnels: int = 0
     delta_visible_water: int = 0
+    delta_merge_opportunities: int = 0
+    delta_water_obstruction: int = 0
+    new_trapped_water: int = 0
     places_exit_ready: int = 0
     places_exit_early: int = 0
 
@@ -31,6 +34,9 @@ class PolicyWeights:
     closes_last_without_win: int = -1_000_000
     delta_open_tunnels: int = 100
     delta_visible_water: int = 5
+    delta_merge_opportunities: int = 0
+    delta_water_obstruction: int = 0
+    new_trapped_water: int = 0
     places_exit_ready: int = 5_000
     places_exit_early: int = -5_000
 
@@ -53,6 +59,9 @@ def move_features(state: GameState, move: Move) -> MoveFeatures:
     clone = clone_state(state)
     before_open = state.board.open_tunnels
     before_water = state.board.visible_water_cells
+    before_merge = state.board.merge_opportunities
+    before_obstruction = state.board.water_obstruction
+    before_trapped = state.board.trapped_water_cells
     clone.apply(move, validate=False)
 
     equipment_ready_before = is_equipment_ready(state.raincoats, state.ropes)
@@ -63,6 +72,16 @@ def move_features(state: GameState, move: Move) -> MoveFeatures:
         ),
         delta_open_tunnels=before_open - clone.board.open_tunnels,
         delta_visible_water=before_water - clone.board.visible_water_cells,
+        delta_merge_opportunities=(
+            clone.board.merge_opportunities - before_merge
+        ),
+        delta_water_obstruction=(
+            before_obstruction - clone.board.water_obstruction
+        ),
+        new_trapped_water=max(
+            0,
+            clone.board.trapped_water_cells - before_trapped,
+        ),
         places_exit_ready=int(card.is_exit and equipment_ready_before),
         places_exit_early=int(card.is_exit and not equipment_ready_before),
     )
