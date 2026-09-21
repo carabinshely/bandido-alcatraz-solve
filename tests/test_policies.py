@@ -7,6 +7,7 @@ from bandido_alcatraz.moves import Action
 from bandido_alcatraz.policies import (
     CombinedV2Policy,
     CombinedV3Policy,
+    BoundedMergeV4Policy,
     DiscardExcessV2Policy,
     GeometryAwareV1Policy,
     GreedyV0Policy,
@@ -263,3 +264,15 @@ def test_v3_policy_weights_are_isolated_from_combined_v2() -> None:
     assert combined.delta_merge_opportunities == 500
     assert combined.delta_water_obstruction == 1_000
     assert combined.new_trapped_water == -100_000
+
+
+def test_bounded_merge_v4_only_adds_bounded_setup_reward() -> None:
+    base = WaterSpaceV3Policy().weights
+    v4 = BoundedMergeV4Policy(setup_weight=500).weights
+
+    assert v4.collect_excess == base.collect_excess
+    assert v4.delta_visible_water == base.delta_visible_water
+    assert v4.delta_water_obstruction == base.delta_water_obstruction
+    assert v4.new_trapped_water == base.new_trapped_water
+    assert v4.delta_merge_opportunities == 0
+    assert v4.bounded_merge_setup_gain == 500
