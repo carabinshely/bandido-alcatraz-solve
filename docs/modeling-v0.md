@@ -2,19 +2,28 @@
 
 ## Principle
 
-Start with the smallest rules model supported by the published rules. Do not add restrictions unless an authoritative rule explicitly requires them.
+Start with the smallest useful model. Do not add restrictions that are not needed to explore strategy.
 
-## Equipment win condition
+## Equipment win condition used by v0
 
-For the initial simulator, the equipment condition is:
+The simulator v0 intentionally uses:
 
 - raincoats >= 3
 - ropes >= 2
 
 Collecting additional raincoats or ropes does not by itself prevent a win.
 
-This deliberately avoids an invented upper-bound or exact-count constraint. If an authoritative rule later explicitly says that excess equipment is illegal or prevents victory, the ruleset will be versioned and changed with a regression test.
+### Source caveat
+
+The Spanish Fractal rulebook says that by the end of the game the group must have gathered "exactamente 3 impermeables y 2 cuerdas".
+
+For the first simulator we deliberately use the simpler threshold interpretation requested for this project. This is a known modeling choice, not a claim that the Spanish wording says "at least".
+
+If later experiments show that excess equipment can materially affect policy, a strict-rule variant can be added and compared without changing the card/board model.
+
+Official rulebook:
+https://fractaljuegos.cl/wp-content/uploads/2026/04/BandidoAlcatraz_Rules_Fractal_WEB.pdf
 
 ## Scope discipline
 
-The first engine should model only what is required to determine legal moves and victory/loss. Strategy heuristics, optimization, communication modeling, and other refinements come later.
+The first engine models only what is required to determine legal moves and victory/loss. Strategy heuristics, optimization, communication modeling, and other refinements come later.
