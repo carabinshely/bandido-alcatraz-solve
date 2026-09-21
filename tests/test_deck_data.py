@@ -66,9 +66,9 @@ def test_checked_in_observations_load() -> None:
     assert observations.aggregate_facts.water_cards == 4
     assert observations.aggregate_facts.rope_cards == 8
     assert observations.aggregate_facts.raincoat_cards == 12
-    assert observations.exit_geometry is None
-    assert observations.start_easy_geometry is None
-    assert observations.start_normal_geometry is None
+    assert observations.exit_geometry is not None
+    assert observations.start_easy_geometry is not None
+    assert observations.start_normal_geometry is not None
 
 
 def test_incomplete_catalog_does_not_require_guessed_multiplicity() -> None:
@@ -125,6 +125,7 @@ def test_complete_catalog_requires_all_special_geometry() -> None:
     raw = _raw()
     raw["complete"] = True
     raw["card_types"] = [_observed_card_type(multiplicity=68)]
+    raw["special_geometry"]["exit"] = None
 
     errors = validate_deck_observations(raw)
 
