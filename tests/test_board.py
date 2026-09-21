@@ -75,7 +75,7 @@ def test_merge_opportunity_counts_open_ends_targeting_same_cell() -> None:
     )
 
     assert board.open_tunnels == 2
-    assert board.open_tunnel_target_counts[(1, 0)] == 2
+    assert board.open_tunnel_target_counts[(1, 1)] == 2
     assert board.merge_opportunities == 1
 
 
