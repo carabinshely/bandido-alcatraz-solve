@@ -59,6 +59,13 @@
       "claim": "Public gallery groups equipment, tunnel, water, and start-tile photographs; completeness of ordinary-card multiplicities is unverified.",
       "confidence": "secondary",
       "source": "https://www.zatrolene-hry.cz/spolecenska-hra/bandido-alcatraz-20210/obrazky/?sort=date"
+    },
+    {
+      "id": "owner-photo-set-2026-09-21",
+      "kind": "physical_deck_inventory",
+      "claim": "Four owner-provided photographs show 71 photographed card faces: 68 ordinary cards, 1 standalone EXIT card, and both faces of the same double-sided START card. Therefore the physical set represented is 70 distinct cards total: 68 ordinary + 1 EXIT + 1 START.",
+      "confidence": "direct-owner-evidence",
+      "source": "owner-provided photographs, 2026-09-21"
     }
   ],
   "special_geometry": {
@@ -66,5 +73,14 @@
     "start_easy": null,
     "start_normal": null
   },
-  "card_types": []
+  "card_types": [],
+  "derived_inventory": {
+    "photographed_card_faces": 71,
+    "ordinary_cards": 68,
+    "exit_cards": 1,
+    "start_physical_cards": 1,
+    "start_faces_photographed": 2,
+    "non_start_draw_cards": 69,
+    "distinct_physical_cards_total": 70
+  }
 }
