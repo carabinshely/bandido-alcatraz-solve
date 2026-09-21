@@ -82,6 +82,7 @@ def test_water_reduction_has_positive_default_value() -> None:
     features = move_features(state, move)
 
     assert features.delta_visible_water == 1
+    assert PolicyWeights().delta_visible_water > 0
     assert score_features(features, PolicyWeights()) > 0
 
 
