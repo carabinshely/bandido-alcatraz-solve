@@ -29,10 +29,26 @@ Every published experiment result must identify at least:
 
 ## Development rule
 
-The initial repository bootstrap is committed directly to `main` because the repository was empty. Subsequent changes should be made through branches and pull requests.
+The initial repository bootstrap was committed directly to `main` because the repository was empty. Subsequent changes use branches and pull requests.
 
 ## Current phase
 
-**Phase 0 — exact model acquisition.**
+**Phase 0 — model foundation + deck acquisition.**
 
-Before optimizing strategy, encode and verify the official rules and the exact multiset/geometries of the physical deck.
+Implemented now:
+
+- generic rotatable card-cell geometry;
+- aggregate validation for the published 68-card deck facts;
+- minimal victory-condition model;
+- generic board placement with tunnel/earth edge matching;
+- half-card water covering with exact-pattern validation;
+- tests for the above.
+
+Still deliberately missing:
+
+- the authoritative Alcatraz card multiset and per-geometry multiplicities;
+- exact internal connectivity for every tunnel geometry;
+- hand/deck turn engine;
+- simulation policies and strategy search.
+
+The engine is being built so that unknown deck details can be filled in later without redesigning the rules core.
