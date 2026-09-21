@@ -4,6 +4,7 @@ from pathlib import Path
 
 from bandido_alcatraz.physical_deck import load_real_deck
 from bandido_alcatraz.policies import (
+    GeometryAwareV1Policy,
     GreedyV0Policy,
     MinOpenTunnelsPolicy,
     RandomLegalPolicy,
@@ -41,6 +42,9 @@ def main() -> None:
         ),
         "greedy_v0": asdict(
             run_many(policy=GreedyV0Policy(), **common)
+        ),
+        "geometry_aware_v1": asdict(
+            run_many(policy=GeometryAwareV1Policy(), **common)
         ),
     }
     print(json.dumps(result, sort_keys=True))
