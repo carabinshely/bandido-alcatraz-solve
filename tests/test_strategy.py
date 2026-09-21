@@ -125,3 +125,11 @@ def test_weights_can_change_choice_without_changing_rules() -> None:
     assert no_collect_move is not None
     assert default_move.action is Action.COLLECT
     assert no_collect_move.action is Action.PLACE
+
+
+def test_spatial_features_default_to_zero_weight() -> None:
+    weights = PolicyWeights()
+
+    assert weights.delta_merge_opportunities == 0
+    assert weights.delta_water_obstruction == 0
+    assert weights.new_trapped_water == 0
