@@ -154,3 +154,18 @@ def test_duplicate_observation_ids_are_rejected() -> None:
     errors = validate_deck_observations(raw)
 
     assert any("duplicate observation id" in error for error in errors)
+
+
+def test_owner_photo_provenance_is_allowed_without_committing_images() -> None:
+    raw = _raw()
+    raw["observations"].append(
+        {
+            "id": "owner-photo",
+            "kind": "physical_deck_inventory",
+            "claim": "Direct physical-deck observation.",
+            "confidence": "direct-owner-evidence",
+            "source": "owner-photo-set:2026-09-21",
+        }
+    )
+
+    assert validate_deck_observations(raw) == []
