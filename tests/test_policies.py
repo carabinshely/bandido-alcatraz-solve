@@ -193,8 +193,17 @@ def test_discard_excess_prefers_collecting_branching_excess_equipment() -> None:
 
 
 def test_discard_excess_still_places_useful_closure_equipment() -> None:
-    state = state_with_one_open(
-        [
+    board = Board()
+    board.seed(
+        card(
+            "start",
+            {Direction.EAST, Direction.NORTH},
+        )
+    )
+    state = GameState(
+        board=board,
+        draw_pile=[],
+        hand=[
             card(
                 "excess-end-coat",
                 {Direction.WEST},
@@ -205,7 +214,7 @@ def test_discard_excess_still_places_useful_closure_equipment() -> None:
                 {Direction.WEST, Direction.EAST},
             ),
         ],
-        coats=3,
+        raincoats=3,
         ropes=2,
     )
 
@@ -213,7 +222,7 @@ def test_discard_excess_still_places_useful_closure_equipment() -> None:
 
     assert move is not None
     assert move.action is Action.PLACE
-    assert state.hand[move.hand_index].card_id == "straight" or state.hand[move.hand_index].card_id == "excess-end-coat"
+    assert state.hand[move.hand_index].card_id == "excess-end-coat"
 
 
 def test_v2_policy_weights_are_isolated() -> None:
