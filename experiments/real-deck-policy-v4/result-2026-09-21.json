@@ -1,0 +1,89 @@
+{
+  "experiment": "real-deck-policy-v4-pilot",
+  "rules_variant": "v0-threshold-equipment",
+  "photographed_deck": true,
+  "simulator_commit": "e3ee320ae10be0663e6fb78655fb61ddac977a0a",
+  "workflow_run": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35639199435",
+  "tests_passed": 81,
+  "start_side": "easy-5-exit",
+  "hand_size": 3,
+  "training_seed_range": [
+    0,
+    29
+  ],
+  "held_out_seed_range": [
+    100,
+    129
+  ],
+  "candidate_setup_weights": [
+    250,
+    500,
+    1000
+  ],
+  "selected_weight": 250,
+  "training": {
+    "250": {
+      "wins": 1,
+      "winning_seeds": [
+        3
+      ],
+      "mean_open_tunnels": 15.733333333333333,
+      "water_clear": 13
+    },
+    "500": {
+      "wins": 1,
+      "winning_seeds": [
+        3
+      ],
+      "mean_open_tunnels": 16.5,
+      "water_clear": 15
+    },
+    "1000": {
+      "wins": 1,
+      "winning_seeds": [
+        3
+      ],
+      "mean_open_tunnels": 16.366666666666667,
+      "water_clear": 15
+    }
+  },
+  "held_out": {
+    "bounded_merge_v4_250": {
+      "wins": 2,
+      "winning_seeds": [
+        124,
+        125
+      ],
+      "mean_open_tunnels": 16.7,
+      "water_clear": 12,
+      "exit_equipment_water_ready": 12
+    },
+    "water_space_v3": {
+      "wins": 0,
+      "winning_seeds": [],
+      "mean_open_tunnels": 18.466666666666665,
+      "water_clear": 15,
+      "exit_equipment_water_ready": 14
+    },
+    "combined_v3": {
+      "wins": 0,
+      "winning_seeds": [],
+      "mean_open_tunnels": 32.8,
+      "water_clear": 15,
+      "exit_equipment_water_ready": 14
+    },
+    "combined_v2": {
+      "wins": 0,
+      "winning_seeds": [],
+      "mean_open_tunnels": 17.633333333333333,
+      "water_clear": 2,
+      "exit_equipment_water_ready": 1
+    }
+  },
+  "conclusion": [
+    "Bounded merge-bank V4 is the first policy to win on previously unseen held-out seeds.",
+    "Weight 250 won 2/30 held-out games (seeds 124, 125); all three comparison policies won 0/30.",
+    "Unlike raw V3, bounded V4 keeps mean open tunnels near V2/V3-water-space levels instead of exploding to ~33.",
+    "Next: larger fresh held-out paired evaluation before any strategy claim."
+  ]
+}
