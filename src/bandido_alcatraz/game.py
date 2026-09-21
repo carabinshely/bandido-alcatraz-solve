@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from random import Random
 
 from .board import Board
@@ -18,7 +18,7 @@ class GameState:
     ropes: int = 0
     exit_placed: bool = False
     turns: int = 0
-    discarded_unplayable: int = 0
+    set_aside_unplayable: int = 0
 
     @classmethod
     def new(
@@ -66,8 +66,7 @@ class GameState:
         if move.hand_index < 0 or move.hand_index >= len(self.hand):
             raise IndexError("hand_index out of range")
 
-        legal = self.legal_moves()
-        if move not in legal:
+        if move not in self.legal_moves():
             raise ValueError("illegal move")
 
         card = self.hand.pop(move.hand_index)
@@ -81,26 +80,38 @@ class GameState:
         else:
             assert move.origin is not None
             self.board.place(card, move.origin, move.quarter_turns)
+            if card.is_exit:
+                self.exit_placed = True
 
         self.turns += 1
         self._draw_one()
 
-    def recycle_unplayable_hand(self) -> bool:
-        """Project-v0 fallback for a hand with no legal moves.
+    def refresh_unplayable_hand(self) -> bool:
+        """Implement the documented 3-card no-play refresh.
 
-        Return the current hand to the bottom of the draw pile, preserving
-        deterministic ordering, then draw the same number of cards.
+        The published rule explicitly describes returning/drawing three cards.
+        Six-card solo refresh semantics remain deliberately unmodeled.
         """
         if self.legal_moves():
             return False
         if not self.hand or not self.draw_pile:
             return False
+        if len(self.hand) != 3:
+            raise NotImplementedError(
+                "no-play refresh for a hand other than 3 cards is not modeled yet"
+            )
 
-        count = len(self.hand)
-        self.draw_pile = list(self.hand) + self.draw_pile
+        if len(self.draw_pile) <= 3:
+            old_count = len(self.hand)
+            self.hand = list(self.draw_pile)
+            self.draw_pile.clear()
+            self.set_aside_unplayable += old_count
+            return True
+
+        old_hand = list(self.hand)
         self.hand.clear()
-        self.discarded_unplayable += count
-        for _ in range(min(count, len(self.draw_pile))):
+        self.draw_pile = old_hand + self.draw_pile
+        for _ in range(3):
             self.hand.append(self.draw_pile.pop())
         return True
 
