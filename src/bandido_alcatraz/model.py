@@ -64,6 +64,23 @@ class CardDefinition:
     def has_water(self) -> bool:
         return any(cell.water for cell in self.cells)
 
+    @property
+    def external_tunnel_count(self) -> int:
+        cells = {(cell.x, cell.y): cell for cell in self.cells}
+        deltas = {
+            Direction.NORTH: (0, -1),
+            Direction.EAST: (1, 0),
+            Direction.SOUTH: (0, 1),
+            Direction.WEST: (-1, 0),
+        }
+        count = 0
+        for (x, y), cell in cells.items():
+            for edge in cell.tunnel_edges:
+                dx, dy = deltas[edge]
+                if (x + dx, y + dy) not in cells:
+                    count += 1
+        return count
+
     def rotated(self, quarter_turns: int) -> "CardDefinition":
         rotated_cells = [cell.rotated(quarter_turns) for cell in self.cells]
         min_x = min(cell.x for cell in rotated_cells)
