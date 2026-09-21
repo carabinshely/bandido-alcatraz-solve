@@ -8,6 +8,7 @@ from bandido_alcatraz.strategy import (
     PolicyWeights,
     WeightedGreedyPolicy,
     move_features,
+    score_features,
 )
 
 
@@ -17,10 +18,11 @@ def card(
     *,
     material: Material | None = None,
     is_exit: bool = False,
+    water: bool = False,
 ) -> CardDefinition:
     return CardDefinition(
         card_id,
-        (CellSpec(0, 0, frozenset(edges)),),
+        (CellSpec(0, 0, frozenset(edges), water=water),),
         material,
         is_exit,
     )
@@ -62,6 +64,25 @@ def test_move_features_detect_premature_seal() -> None:
 
     assert features.closes_last_without_win == 1
     assert features.delta_open_tunnels == 1
+
+
+def test_water_reduction_has_positive_default_value() -> None:
+    board = Board()
+    board.seed(card("water", {Direction.EAST, Direction.WEST}, water=True))
+    cover = CardDefinition(
+        "cover",
+        (
+            CellSpec(0, 0, frozenset({Direction.EAST, Direction.WEST})),
+            CellSpec(1, 0, frozenset({Direction.WEST})),
+        ),
+    )
+    state = GameState(board=board, draw_pile=[], hand=[cover])
+    move = next(move for move in state.legal_moves() if move.action is Action.PLACE)
+
+    features = move_features(state, move)
+
+    assert features.delta_visible_water == 1
+    assert score_features(features, PolicyWeights()) > 0
 
 
 def test_default_weighted_policy_prefers_winning_exit() -> None:
