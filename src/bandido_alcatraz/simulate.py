@@ -16,6 +16,7 @@ class GameResult:
     visible_water_cells: int
     raincoats: int
     ropes: int
+    exit_placed: bool
     reason: str
 
 
@@ -114,5 +115,6 @@ def _result(state: GameState, reason: str) -> GameResult:
         visible_water_cells=state.board.visible_water_cells,
         raincoats=state.raincoats,
         ropes=state.ropes,
+        exit_placed=state.exit_placed,
         reason=reason,
     )
