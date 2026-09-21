@@ -1,0 +1,67 @@
+{
+  "experiment": "real-deck-policy-v3",
+  "rules_variant": "v0-threshold-equipment",
+  "photographed_deck": true,
+  "simulator_commit": "78cd7c4863f899f79410dbfdc41a6fbc512076f1",
+  "workflow_run": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35637584122",
+  "start_side": "easy-5-exit",
+  "hand_size": 3,
+  "seed_start": 0,
+  "seed_end": 49,
+  "games_per_policy": 50,
+  "tests_passed": 79,
+  "policies": {
+    "combined_v2": {
+      "wins": 0,
+      "mean_open_tunnels": 16.7,
+      "open_tunnels_le_5": 2,
+      "water_clear": 4,
+      "mean_visible_water": 2.64,
+      "equipment_ready": 50,
+      "exit_placed": 49,
+      "exit_equipment_water_ready": 3
+    },
+    "merge_aware_v3": {
+      "wins": 1,
+      "winning_seeds": [
+        24
+      ],
+      "mean_open_tunnels": 31.22,
+      "open_tunnels_le_5": 4,
+      "water_clear": 15,
+      "mean_visible_water": 1.68,
+      "equipment_ready": 50,
+      "exit_placed": 46,
+      "exit_equipment_water_ready": 12
+    },
+    "water_space_v3": {
+      "wins": 0,
+      "mean_open_tunnels": 18.22,
+      "open_tunnels_le_5": 3,
+      "water_clear": 32,
+      "mean_visible_water": 0.66,
+      "equipment_ready": 50,
+      "exit_placed": 49,
+      "exit_equipment_water_ready": 31
+    },
+    "combined_v3": {
+      "wins": 1,
+      "winning_seeds": [
+        24
+      ],
+      "mean_open_tunnels": 30.86,
+      "open_tunnels_le_5": 4,
+      "water_clear": 25,
+      "mean_visible_water": 0.8,
+      "equipment_ready": 50,
+      "exit_placed": 47,
+      "exit_equipment_water_ready": 22
+    }
+  },
+  "conclusion": [
+    "V3 produced the first real-deck win, on seed 24, for both merge-aware variants.",
+    "Water-space preservation strongly improves water clearance.",
+    "The raw merge-opportunity reward is pathological: it more than doubles mean final open tunnels versus combined_v2, so it must not be accepted as-is.",
+    "Next: trace seed 24 and replace future-merge-count reward with a bounded/phase-aware mechanism that cannot profit from creating many open ends."
+  ]
+}
