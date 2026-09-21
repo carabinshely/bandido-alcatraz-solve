@@ -47,5 +47,5 @@ def _clone_state(state: GameState) -> GameState:
         ropes=state.ropes,
         exit_placed=state.exit_placed,
         turns=state.turns,
-        discarded_unplayable=state.discarded_unplayable,
+        set_aside_unplayable=state.set_aside_unplayable,
     )
