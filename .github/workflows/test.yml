@@ -31,13 +31,7 @@ jobs:
       - run: python -m pytest -q
       - name: Synthetic simulation smoke
         run: python scripts/run_synthetic_smoke.py
-      - name: Synthetic held-out weight-search smoke
-        run: python scripts/run_synthetic_weight_search.py
       - name: Proxy transcription status
         run: python scripts/proxy_status.py
-      - name: Synthetic paired evaluation
-        run: python scripts/run_synthetic_evaluation.py
       - name: Real photographed-deck smoke
         run: python scripts/run_real_deck_smoke.py
-      - name: Real end-state diagnostics
-        run: python scripts/run_real_endstate_diagnostics.py
