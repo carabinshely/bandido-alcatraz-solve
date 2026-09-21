@@ -1,8 +1,6 @@
 import json
 from pathlib import Path
 
-import pytest
-
 from bandido_alcatraz.deck_data import (
     load_deck_observations,
     validate_deck_observations,
@@ -10,6 +8,30 @@ from bandido_alcatraz.deck_data import (
 
 
 ROOT = Path(__file__).parents[1]
+
+
+def _observed_card_type(*, multiplicity: int | None) -> dict:
+    return {
+        "id": "observed-shape",
+        "multiplicity": multiplicity,
+        "material": None,
+        "cells": [
+            {
+                "x": 0,
+                "y": 0,
+                "tunnel_edges": ["E"],
+                "water": False,
+            },
+            {
+                "x": 1,
+                "y": 0,
+                "tunnel_edges": ["W"],
+                "water": False,
+            },
+        ],
+        "source": "https://example.test/source",
+        "confidence": "observed",
+    }
 
 
 def test_checked_in_observations_load() -> None:
@@ -29,9 +51,26 @@ def test_incomplete_catalog_does_not_require_guessed_multiplicity() -> None:
     raw = json.loads(
         (ROOT / "data" / "deck-observations-v0.json").read_text()
     )
-    raw["card_types"] = [{"id": "observed-shape", "multiplicity": None}]
+    raw["card_types"] = [_observed_card_type(multiplicity=None)]
 
     assert validate_deck_observations(raw) == []
+
+
+def test_card_type_parses_to_engine_definition() -> None:
+    raw = json.loads(
+        (ROOT / "data" / "deck-observations-v0.json").read_text()
+    )
+    raw["card_types"] = [_observed_card_type(multiplicity=None)]
+    temp = ROOT / "data" / "_test-deck-observations.json"
+    try:
+        temp.write_text(json.dumps(raw), encoding="utf-8")
+        observations = load_deck_observations(temp)
+    finally:
+        temp.unlink(missing_ok=True)
+
+    definition = observations.card_types[0].definition()
+    assert definition.card_id == "observed-shape"
+    assert len(definition.cells) == 2
 
 
 def test_complete_catalog_requires_total_68() -> None:
@@ -39,7 +78,7 @@ def test_complete_catalog_requires_total_68() -> None:
         (ROOT / "data" / "deck-observations-v0.json").read_text()
     )
     raw["complete"] = True
-    raw["card_types"] = [{"id": "shape", "multiplicity": 67}]
+    raw["card_types"] = [_observed_card_type(multiplicity=67)]
 
     errors = validate_deck_observations(raw)
 
