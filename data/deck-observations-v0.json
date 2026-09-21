@@ -30,7 +30,7 @@
       "kind": "deck_count",
       "claim": "68 ordinary cards: 4 water, 8 rope, 12 raincoat; plus one start tile and one EXIT card.",
       "confidence": "authoritative",
-      "source": "https://fractaljuegos.com/en/juegos/bandido-alcatraz/"
+      "source": "https://fractaljuegos.cl/en/juegos/bandido-alcatraz/"
     },
     {
       "id": "water-half-overlap",
@@ -61,5 +61,10 @@
       "source": "https://www.zatrolene-hry.cz/spolecenska-hra/bandido-alcatraz-20210/obrazky/?sort=date"
     }
   ],
+  "special_geometry": {
+    "exit": null,
+    "start_easy": null,
+    "start_normal": null
+  },
   "card_types": []
 }
