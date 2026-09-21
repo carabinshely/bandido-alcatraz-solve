@@ -31,3 +31,34 @@ def test_duplicate_cell_coordinates_are_rejected() -> None:
         assert "unique coordinates" in str(exc)
     else:
         raise AssertionError("expected ValueError")
+
+
+def test_external_tunnel_count_ignores_internal_card_edges() -> None:
+    card = CardDefinition(
+        "two-cell",
+        (
+            CellSpec(
+                0,
+                0,
+                frozenset(
+                    {
+                        Direction.NORTH,
+                        Direction.EAST,
+                        Direction.SOUTH,
+                    }
+                ),
+            ),
+            CellSpec(
+                0,
+                1,
+                frozenset(
+                    {
+                        Direction.NORTH,
+                        Direction.WEST,
+                    }
+                ),
+            ),
+        ),
+    )
+
+    assert card.external_tunnel_count == 3
