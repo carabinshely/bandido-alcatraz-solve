@@ -33,7 +33,8 @@
         "transcription": "visual_from_flat_official_pdf",
         "confidence": "proxy",
         "internal_bridge": true
-      }
+      },
+      "proxy_family": "I1"
     },
     {
       "id": "p2-r1-c2",
@@ -48,7 +49,8 @@
         "transcription": "visual_from_flat_official_pdf",
         "confidence": "proxy",
         "internal_bridge": true
-      }
+      },
+      "proxy_family": "I1"
     },
     {
       "id": "p2-r2-c1",
@@ -63,7 +65,8 @@
         "transcription": "visual_from_flat_official_pdf",
         "confidence": "proxy",
         "internal_bridge": true
-      }
+      },
+      "proxy_family": "J1"
     },
     {
       "id": "p2-r2-c2",
@@ -78,7 +81,8 @@
         "transcription": "visual_from_flat_official_pdf",
         "confidence": "proxy",
         "internal_bridge": true
-      }
+      },
+      "proxy_family": "J1"
     },
     {
       "id": "p2-r3-c1",
@@ -95,7 +99,8 @@
         "transcription": "visual_from_flat_official_pdf",
         "confidence": "proxy",
         "internal_bridge": true
-      }
+      },
+      "proxy_family": "cross"
     },
     {
       "id": "p2-r3-c2",
@@ -112,7 +117,8 @@
         "transcription": "visual_from_flat_official_pdf",
         "confidence": "proxy",
         "internal_bridge": true
-      }
+      },
+      "proxy_family": "cross"
     },
     {
       "id": "p2-r4-c1",
@@ -128,7 +134,8 @@
         "transcription": "visual_from_flat_official_pdf",
         "confidence": "proxy",
         "internal_bridge": true
-      }
+      },
+      "proxy_family": "L1"
     },
     {
       "id": "p2-r4-c2",
@@ -144,7 +151,8 @@
         "transcription": "visual_from_flat_official_pdf",
         "confidence": "proxy",
         "internal_bridge": true
-      }
+      },
+      "proxy_family": "L1"
     },
     {
       "id": "p2-r5-c1",
@@ -160,7 +168,8 @@
         "transcription": "visual_from_flat_official_pdf",
         "confidence": "proxy",
         "internal_bridge": true
-      }
+      },
+      "proxy_family": "L1"
     },
     {
       "id": "p2-r5-c2",
@@ -176,7 +185,8 @@
         "transcription": "visual_from_flat_official_pdf",
         "confidence": "proxy",
         "internal_bridge": true
-      }
+      },
+      "proxy_family": "L1"
     },
     {
       "id": "p2-r6-c1",
@@ -540,5 +550,12 @@
     }
   ],
   "family_inventory_source": "https://note.com/bandido_strategy/n/n4d4ef2968a0c",
-  "family_inventory_confidence": "secondary_proxy"
+  "family_inventory_confidence": "secondary_proxy",
+  "family_inventory_audit": {
+    "named_multiplicity_total": 30,
+    "physical_tunnel_cards_expected": 32,
+    "unresolved_gap": 2,
+    "status": "secondary_source_incomplete",
+    "note": "The secondary named-family catalog totals 30 while the official print-and-play physically contains 32 tunnel cards. Do not invent the missing two; resolve from the official PDF."
+  }
 }
