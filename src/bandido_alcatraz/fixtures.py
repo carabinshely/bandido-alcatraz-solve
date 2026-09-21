@@ -9,11 +9,13 @@ def _single(
     *,
     material: Material | None = None,
     water: bool = False,
+    is_exit: bool = False,
 ) -> CardDefinition:
     return CardDefinition(
         card_id,
         (CellSpec(0, 0, frozenset(edges), water=water),),
         material,
+        is_exit,
     )
 
 
@@ -46,4 +48,11 @@ def synthetic_deck() -> list[CardDefinition]:
             )
         )
 
+    cards.append(
+        _single(
+            "exit",
+            {Direction.WEST},
+            is_exit=True,
+        )
+    )
     return cards
