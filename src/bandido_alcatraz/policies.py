@@ -88,3 +88,46 @@ class CombinedV2Policy(WeightedGreedyPolicy):
                 delta_visible_water=20_000,
             )
         )
+
+
+
+class MergeAwareV3Policy(WeightedGreedyPolicy):
+    """Combined V2 plus future same-cell merge opportunity preservation."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            PolicyWeights(
+                collect_excess=0,
+                delta_visible_water=20_000,
+                delta_merge_opportunities=500,
+            )
+        )
+
+
+class WaterSpaceV3Policy(WeightedGreedyPolicy):
+    """Combined V2 plus protection against obstructing visible water."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            PolicyWeights(
+                collect_excess=0,
+                delta_visible_water=20_000,
+                delta_water_obstruction=1_000,
+                new_trapped_water=-100_000,
+            )
+        )
+
+
+class CombinedV3Policy(WeightedGreedyPolicy):
+    """Combine V2 with merge opportunity and water-space preservation."""
+
+    def __init__(self) -> None:
+        super().__init__(
+            PolicyWeights(
+                collect_excess=0,
+                delta_visible_water=20_000,
+                delta_merge_opportunities=500,
+                delta_water_obstruction=1_000,
+                new_trapped_water=-100_000,
+            )
+        )
