@@ -1,0 +1,280 @@
+{
+  "format_version": 1,
+  "dataset": "original-bandido-covid-print-and-play-proxy",
+  "authoritative_for": "Bandido COVID-19 print-and-play only",
+  "must_not_be_used_as": "Bandido Alcatraz deck definition",
+  "source": "https://helvetiq.com/media/hexaattachment/products/attachments/Bandido_Covid-19_EN.pdf",
+  "distribution_source": "https://en.doc.boardgamearena.com/Gamehelpbandido",
+  "complete_geometry": false,
+  "expected_counts": {
+    "tunnel_cards": 32,
+    "basic_slots": 22,
+    "end_slots": 10
+  },
+  "port_notation": {
+    "W": "left short edge",
+    "E": "right short edge",
+    "NW": "top edge of left half",
+    "NE": "top edge of right half",
+    "SW": "bottom edge of left half",
+    "SE": "bottom edge of right half"
+  },
+  "slots": [
+    {
+      "id": "p2-r1-c1",
+      "pdf_page_index": 2,
+      "row": 1,
+      "column": 1,
+      "kind": "end",
+      "geometry": null
+    },
+    {
+      "id": "p2-r1-c2",
+      "pdf_page_index": 2,
+      "row": 1,
+      "column": 2,
+      "kind": "end",
+      "geometry": null
+    },
+    {
+      "id": "p2-r2-c1",
+      "pdf_page_index": 2,
+      "row": 2,
+      "column": 1,
+      "kind": "end",
+      "geometry": null
+    },
+    {
+      "id": "p2-r2-c2",
+      "pdf_page_index": 2,
+      "row": 2,
+      "column": 2,
+      "kind": "end",
+      "geometry": null
+    },
+    {
+      "id": "p2-r3-c1",
+      "pdf_page_index": 2,
+      "row": 3,
+      "column": 1,
+      "kind": "end",
+      "geometry": null
+    },
+    {
+      "id": "p2-r3-c2",
+      "pdf_page_index": 2,
+      "row": 3,
+      "column": 2,
+      "kind": "end",
+      "geometry": null
+    },
+    {
+      "id": "p2-r4-c1",
+      "pdf_page_index": 2,
+      "row": 4,
+      "column": 1,
+      "kind": "end",
+      "geometry": null
+    },
+    {
+      "id": "p2-r4-c2",
+      "pdf_page_index": 2,
+      "row": 4,
+      "column": 2,
+      "kind": "end",
+      "geometry": null
+    },
+    {
+      "id": "p2-r5-c1",
+      "pdf_page_index": 2,
+      "row": 5,
+      "column": 1,
+      "kind": "end",
+      "geometry": null
+    },
+    {
+      "id": "p2-r5-c2",
+      "pdf_page_index": 2,
+      "row": 5,
+      "column": 2,
+      "kind": "end",
+      "geometry": null
+    },
+    {
+      "id": "p2-r6-c1",
+      "pdf_page_index": 2,
+      "row": 6,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p2-r6-c2",
+      "pdf_page_index": 2,
+      "row": 6,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r1-c1",
+      "pdf_page_index": 4,
+      "row": 1,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r1-c2",
+      "pdf_page_index": 4,
+      "row": 1,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r2-c1",
+      "pdf_page_index": 4,
+      "row": 2,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r2-c2",
+      "pdf_page_index": 4,
+      "row": 2,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r3-c1",
+      "pdf_page_index": 4,
+      "row": 3,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r3-c2",
+      "pdf_page_index": 4,
+      "row": 3,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r4-c1",
+      "pdf_page_index": 4,
+      "row": 4,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r4-c2",
+      "pdf_page_index": 4,
+      "row": 4,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r5-c1",
+      "pdf_page_index": 4,
+      "row": 5,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r5-c2",
+      "pdf_page_index": 4,
+      "row": 5,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r6-c1",
+      "pdf_page_index": 4,
+      "row": 6,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r6-c2",
+      "pdf_page_index": 4,
+      "row": 6,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p6-r1-c1",
+      "pdf_page_index": 6,
+      "row": 1,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p6-r1-c2",
+      "pdf_page_index": 6,
+      "row": 1,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p6-r2-c1",
+      "pdf_page_index": 6,
+      "row": 2,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p6-r2-c2",
+      "pdf_page_index": 6,
+      "row": 2,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p6-r3-c1",
+      "pdf_page_index": 6,
+      "row": 3,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p6-r3-c2",
+      "pdf_page_index": 6,
+      "row": 3,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p6-r4-c1",
+      "pdf_page_index": 6,
+      "row": 4,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p6-r4-c2",
+      "pdf_page_index": 6,
+      "row": 4,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    }
+  ]
+}
