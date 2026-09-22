@@ -39,3 +39,35 @@ def test_symmetric_rotations_do_not_duplicate_same_placement() -> None:
 
     assert len(placements) == 1
     assert placements[0].origin == (1, 0)
+
+
+def test_candidate_origins_are_canonicalized_before_move_ordering(monkeypatch) -> None:
+    board = Board()
+    board.seed(card("start", {Direction.EAST}))
+    symmetric = card(
+        "symmetric",
+        {
+            Direction.NORTH,
+            Direction.EAST,
+            Direction.SOUTH,
+            Direction.WEST,
+        },
+    )
+    monkeypatch.setattr(
+        board,
+        "candidate_origins",
+        lambda rotated: [(2, 0), (1, 0)],
+    )
+    monkeypatch.setattr(
+        board,
+        "can_place",
+        lambda candidate, origin, quarter_turns=0: True,
+    )
+
+    placements = [
+        move
+        for move in legal_moves(board, (symmetric,))
+        if move.action is Action.PLACE
+    ]
+
+    assert [move.origin for move in placements] == [(1, 0), (2, 0)]
