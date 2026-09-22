@@ -39,7 +39,7 @@ def legal_moves(board: Board, hand: tuple[CardDefinition, ...]) -> list[Move]:
                 )
                 for cell in rotated.cells
             )
-            for origin in board.candidate_origins(rotated):
+            for origin in sorted(board.candidate_origins(rotated)):
                 key = (fingerprint, origin)
                 if key in seen:
                     continue
