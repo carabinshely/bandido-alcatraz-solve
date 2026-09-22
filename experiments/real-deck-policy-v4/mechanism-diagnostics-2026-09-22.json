@@ -1,0 +1,137 @@
+{
+  "experiment": "real-deck-policy-v4-mechanism-diagnostics",
+  "date": "2026-09-22",
+  "status": "blocked_by_replay_nondeterminism",
+  "branch": "bootstrap/model-foundation",
+  "orchestrator_decision": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5772513909",
+  "source_worker_2_comment": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5772073757",
+  "source_worker_2_receipt": "experiments/real-deck-policy-v4/stability-holdout-2026-09-21.json",
+  "source_worker_2_run": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35693040687",
+  "starting_head": "1e7d1dd69c44b12535e865fdd87513302cc0f425",
+  "requested_replay": {
+    "seed_range": [
+      2000,
+      2399
+    ],
+    "fresh_seeds_used": false,
+    "policies": {
+      "bounded_merge_v4_250": {
+        "class": "BoundedMergeV4Policy",
+        "parameters": {
+          "setup_weight": 250
+        }
+      },
+      "water_space_v3": {
+        "class": "WaterSpaceV3Policy",
+        "parameters": {}
+      }
+    }
+  },
+  "deterministic_replay_guard": {
+    "evaluated_commit": "36fe4410dd8f283d8b0a03775714464fe7e10f29",
+    "workflow_run": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35698369921",
+    "workflow_conclusion": "failure",
+    "games_compared": 800,
+    "final_record_mismatch_count": 41,
+    "interpretation_allowed": false,
+    "note": "The one-off diagnostics intentionally stopped before mechanism aggregation because replayed final records did not exactly match the Worker #2 receipt."
+  },
+  "determinism_diagnosis": {
+    "native_play_game_probe": {
+      "workflow_run": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35699840526",
+      "cases": 20,
+      "matches_worker_2_receipt": 10,
+      "conclusion": "Mismatch is present in the uninstrumented original play_game/policy path, not introduced by the diagnostic wrapper."
+    },
+    "hash_seed_localization_probe": {
+      "workflow_run": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35700200611",
+      "policy": "bounded_merge_v4_250",
+      "seed": 2066,
+      "first_divergence_state_turn": 14,
+      "hash_seed_outcomes": {
+        "0": {
+          "open_tunnels": 18,
+          "visible_water": 0,
+          "raincoats": 7,
+          "ropes": 4
+        },
+        "1": {
+          "open_tunnels": 17,
+          "visible_water": 1,
+          "raincoats": 7,
+          "ropes": 5
+        },
+        "2": {
+          "open_tunnels": 18,
+          "visible_water": 0,
+          "raincoats": 7,
+          "ropes": 4
+        },
+        "3": {
+          "open_tunnels": 17,
+          "visible_water": 1,
+          "raincoats": 7,
+          "ropes": 5
+        }
+      },
+      "first_divergence": {
+        "card_id": "photo-3-r1-c4",
+        "action": "place",
+        "quarter_turns": 3,
+        "explanation": "The same tied best-move set was present, but two candidate origins swapped order across PYTHONHASHSEED values, so seeded rng.choice selected a different placement."
+      }
+    },
+    "root_cause": "legal_moves iterated board.candidate_origins(rotated) as an unordered set. candidate-origin insertion/iteration order could vary across Python hash seeds because upstream tunnel-edge frozenset traversal affects insertion order. Equal-scoring candidate order therefore changed across processes, making seeded tie-breaking process-dependent."
+  },
+  "correctness_fix": {
+    "implementation_commit": "4116828b8f3024932f2f9e83e9f5b3c1aef5f164",
+    "regression_commit": "ba8200dd3fcaa31857f59336f280b70b046b0f37",
+    "change": "Canonicalize candidate origins with sorted(board.candidate_origins(rotated)) before constructing legal Move order.",
+    "scoring_changed": false,
+    "setup_weight_changed": false,
+    "model_rules_changed": false,
+    "regression_test": "tests/test_moves.py::test_candidate_origins_are_canonicalized_before_move_ordering",
+    "validation": {
+      "workflow_run": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35700541040",
+      "conclusion": "success",
+      "runner": "bandido-alcatraz-ci",
+      "tests_passed": 83,
+      "hash_seeds_checked": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "hash_probe_first_divergence_after_fix": null,
+      "seed_2066_final_identical_across_hash_seeds": true,
+      "canonical_final_seed_2066": {
+        "open_tunnels": 22,
+        "visible_water": 0,
+        "raincoats": 6,
+        "ropes": 5,
+        "exit_placed": true,
+        "turns": 69,
+        "won": false
+      },
+      "sample_cases_compared_to_worker_2_receipt": 20,
+      "sample_cases_matching_worker_2_receipt_after_fix": 0
+    }
+  },
+  "mechanism_diagnosis": {
+    "status": "not_interpreted",
+    "reason": "The orchestrator required exact reproduction of all 800 Worker #2 final records before turn-level interpretation. That prerequisite failed. The historical 16 V4-only / 6 WaterSpaceV3-only groups cannot be reconstructed reliably after canonicalizing tie order, so answering the requested mechanism questions from new trajectories would mix different seed mappings.",
+    "requested_questions": {
+      "v4_no_legal_move_exit_state_split": "blocked",
+      "disproportionate_compaction_water_equipment_readiness": "blocked",
+      "v4_only_setup_then_consolidation_mechanism": "blocked",
+      "water_space_v3_only_failure_mechanism_for_v4": "blocked",
+      "single_next_mechanism": "blocked_pending_canonical_replay_baseline"
+    }
+  },
+  "worker_2_evidence_status": {
+    "historical_run_preserved": true,
+    "exact_seed_level_replay_reproducible": false,
+    "note": "Worker #2's run remains a historical record, but its per-seed trajectories and discordant seed grouping are not reproducible under the project's seeded-simulation contract. The mother/orchestrator should decide how to treat its confirmatory classification after this correctness finding."
+  },
+  "recommended_next_hypothesis": "After deterministic tie ordering is fixed, replaying the already-spent seeds 2000-2399 will establish a canonical non-confirmatory baseline from which the compactness versus EXIT/no-legal-move mechanism can be diagnosed without consuming fresh seeds."
+}
