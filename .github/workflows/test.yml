@@ -35,3 +35,7 @@ jobs:
         run: python scripts/proxy_status.py
       - name: Real photographed-deck smoke
         run: python scripts/run_real_deck_smoke.py
+      - name: V4 EXIT-phase diagnostics (one-off)
+        env:
+          PYTHONHASHSEED: "0"
+        run: python scripts/run_real_policy_v4_exit_phase_diagnostics.py
