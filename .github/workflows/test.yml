@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  canonical_baselines:
+  baseline_hash0:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
     timeout-minutes: 20
@@ -26,26 +26,41 @@ jobs:
           python-version: "3.11"
           cache: "pip"
       - run: python -m pip install -e ".[dev]"
-      - name: Report runner
-        run: python -c "import os, platform; print('Runner=' + os.environ['RUNNER_NAME']); print('Python=' + platform.python_version())"
-      - name: Two independent canonical baseline processes
-        run: |
-          PYTHONHASHSEED=0 python scripts/run_real_policy_v4_canonical_baseline.py --output /tmp/canonical-baseline-hash0.json &
-          pid0=$!
-          PYTHONHASHSEED=1 python scripts/run_real_policy_v4_canonical_baseline.py --output /tmp/canonical-baseline-hash1.json &
-          pid1=$!
-          wait $pid0
-          wait $pid1
+      - name: Canonical baseline replay hash 0
+        env:
+          PYTHONHASHSEED: "0"
+        run: python scripts/run_real_policy_v4_canonical_baseline.py --output /tmp/canonical-baseline-hash0.json
       - uses: actions/upload-artifact@v4
         with:
-          name: canonical-baselines
-          path: |
-            /tmp/canonical-baseline-hash0.json
-            /tmp/canonical-baseline-hash1.json
+          name: canonical-baseline-hash0
+          path: /tmp/canonical-baseline-hash0.json
+          if-no-files-found: error
+
+  baseline_hash1:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - run: python -m pip install -e ".[dev]"
+      - name: Canonical baseline replay hash 1
+        env:
+          PYTHONHASHSEED: "1"
+        run: python scripts/run_real_policy_v4_canonical_baseline.py --output /tmp/canonical-baseline-hash1.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: canonical-baseline-hash1
+          path: /tmp/canonical-baseline-hash1.json
           if-no-files-found: error
 
   diagnose:
-    needs: [canonical_baselines]
+    needs: [baseline_hash0, baseline_hash1]
     runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
     timeout-minutes: 20
     steps:
@@ -59,15 +74,19 @@ jobs:
       - run: python -m pip install -e ".[dev]"
       - uses: actions/download-artifact@v4
         with:
-          name: canonical-baselines
-          path: /tmp/canonical
+          name: canonical-baseline-hash0
+          path: /tmp/hash0
+      - uses: actions/download-artifact@v4
+        with:
+          name: canonical-baseline-hash1
+          path: /tmp/hash1
       - name: Canonical mechanism diagnosis after determinism gate
         env:
           PYTHONHASHSEED: "0"
         run: |
           python scripts/run_real_policy_v4_canonical_mechanism.py \
-            --baseline-zero /tmp/canonical/canonical-baseline-hash0.json \
-            --baseline-one /tmp/canonical/canonical-baseline-hash1.json \
+            --baseline-zero /tmp/hash0/canonical-baseline-hash0.json \
+            --baseline-one /tmp/hash1/canonical-baseline-hash1.json \
             --historical-receipt experiments/real-deck-policy-v4/stability-holdout-2026-09-21.json \
             --output /tmp/canonical-mechanism-replay.json
       - uses: actions/upload-artifact@v4
