@@ -965,7 +965,15 @@ def main():
         "no_legal_near_win_phase_table": no_legal_near_table,
         "per_seed_phase_summaries": per_seed_phase_summaries,
         "local_score_sensitivity_records": all_sensitivity_records,
+        "group_gate_sensitivity_summary": {
+            "v4_only_wins": summary["winner_gate_sensitivity"],
+            "v4_no_legal_move_losses": summary["no_legal_gate_sensitivity"],
+            "water_space_v3_only_seeds_v4_trajectories": summary[
+                "water_only_gate_sensitivity"
+            ],
+        },
         "v4_only_winner_results": winner_per_seed,
+        "v4_no_legal_move_results": no_legal_per_seed,
         "water_space_v3_only_seed_v4_results": water_only_per_seed,
         "selected_group_action_records": selected_action_records,
         "answers": {
