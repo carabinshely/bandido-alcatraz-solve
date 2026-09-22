@@ -35,5 +35,5 @@ jobs:
         run: python scripts/proxy_status.py
       - name: Real photographed-deck smoke
         run: python scripts/run_real_deck_smoke.py
-      - name: V4 mechanism diagnostics replay 2000-2399 (one-off)
-        run: python scripts/run_real_policy_v4_mechanism_diagnostics.py
+      - name: Replay determinism probe (one-off)
+        run: python scripts/probe_real_policy_v4_replay_determinism.py
