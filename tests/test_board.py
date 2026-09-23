@@ -56,6 +56,29 @@ def test_water_half_can_be_covered_only_with_exact_edge_pattern() -> None:
     assert board.open_tunnels == 1
 
 
+def test_water_half_covered_by_water_half_remains_visible_water() -> None:
+    board = Board()
+    board.seed(single("water", {Direction.EAST, Direction.WEST}, water=True))
+
+    water_cover = CardDefinition(
+        "water-cover",
+        (
+            CellSpec(
+                0,
+                0,
+                frozenset({Direction.EAST, Direction.WEST}),
+                water=True,
+            ),
+            CellSpec(1, 0, frozenset({Direction.WEST})),
+        ),
+    )
+
+    assert board.can_place(water_cover, (0, 0))
+    board.place(water_cover, (0, 0))
+
+    assert board.visible_water_cells == 1
+
+
 def test_non_water_cell_cannot_be_overlapped() -> None:
     board = Board()
     board.seed(single("start", {Direction.EAST}))
