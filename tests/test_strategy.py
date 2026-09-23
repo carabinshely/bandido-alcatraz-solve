@@ -482,6 +482,19 @@ def test_repair_only_available_after_refresh_is_not_visible_reserve() -> None:
         ],
     )
     before_draw = list(state.draw_pile)
+    preview = preview_ordinary_non_exit_placement_without_draw(
+        state,
+        capacity_kill_move(),
+    )
+    hypothetical_after_refresh = (
+        RetainedVisibleCard(1, repair),
+        RetainedVisibleCard(2, blocked_card("hypothetical")),
+    )
+    assert has_visible_exit_repair_reserve(
+        preview.resulting_board,
+        hypothetical_after_refresh,
+        exit_card,
+    )
 
     assert is_unsafe_capacity_kill_without_visible_repair_reserve(
         state,
