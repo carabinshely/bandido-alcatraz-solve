@@ -4,35 +4,46 @@ A reproducible simulator and strategy-search project for **Bandido: Alcatraz**.
 
 ## Goal
 
-Model the game rules and exact deck faithfully, establish reproducible baseline simulations, then search for strategies that maximize win probability.
+Model the game rules and exact photographed deck faithfully, establish reproducible baseline simulations, then search for strategies that maximize win probability.
 
 ## Source of truth and persistence
 
-Git is the canonical source of truth for:
+Git is the canonical source of truth for rules/modeling decisions, the abstract photographed-deck specification, simulator/policy code, experiment definitions, and compact manifests/summaries.
 
-- formalized rules and modeling decisions;
-- the abstract deck specification (card geometry/counts, not artwork);
-- simulator and strategy code;
-- experiment manifests;
-- compact aggregate experiment results.
+Large raw simulation traces and diagnostic payloads are stored outside Git. See [docs/persistence.md](docs/persistence.md).
 
-Large raw simulation traces, caches, generated databases, and card photographs are not committed.
-
-Every published experiment result must identify at least:
-
-- ruleset version;
-- deck version/hash;
-- strategy/policy version and parameters;
-- random seed range or deterministic seed set;
-- game count;
-- simulator commit SHA.
+Every published experiment must identify its ruleset, deck, policy parameters, deterministic seeds, game count, simulator commit, and durable raw-artifact provenance when raw data exists.
 
 ## Development rule
 
-The initial repository bootstrap is committed directly to `main` because the repository was empty. Subsequent changes should be made through branches and pull requests.
+Substantive changes use bounded branches and pull requests. Research is checkpointed into `main` instead of accumulating indefinitely on one branch.
 
-## Current phase
+## CI
 
-**Phase 0 — exact model acquisition.**
+Repository validation runs on:
 
-Before optimizing strategy, encode and verify the official rules and the exact multiset/geometries of the physical deck.
+```yaml
+runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+```
+
+There is no GitHub-hosted fallback.
+
+## Current state
+
+Implemented and validated:
+
+- generic rotatable two-half-cell card geometry;
+- exact owner-photo inventory and ordinary-card placement geometry;
+- canonical real deck `data/deck-v1.json`;
+- board placement and tunnel/earth matching;
+- water-half covering;
+- equipment/victory model;
+- deterministic three-card deck/hand/turn engine;
+- deterministic legal-move ordering across Python hash seeds;
+- seeded simulation and policy framework;
+- synthetic and real-deck smoke coverage;
+- strategy diagnostics through the current V4 research track.
+
+The current real-deck research variant remains explicitly labeled `v0-threshold-equipment` because it uses raincoats >=3 and ropes >=2, while the cited rulebook wording uses exact counts.
+
+The durable research/orchestration log is Issue #2.

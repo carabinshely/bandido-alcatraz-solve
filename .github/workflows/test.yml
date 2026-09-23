@@ -1,0 +1,37 @@
+name: tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bandido-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Report runner and Python
+        run: python -c "import os, platform, sys; print('Runner=' + os.environ['RUNNER_NAME']); print('Python=' + platform.python_version()); print('Executable=' + sys.executable); assert sys.version_info[:2] == (3, 11)"
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pytest -q
+      - name: Synthetic simulation smoke
+        run: python scripts/run_synthetic_smoke.py
+      - name: Proxy transcription status
+        run: python scripts/proxy_status.py
+      - name: Real photographed-deck smoke
+        run: python scripts/run_real_deck_smoke.py
