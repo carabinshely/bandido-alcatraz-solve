@@ -52,8 +52,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-    import runpy
-    runpy.run_path(
-        str(ROOT / "scripts" / "run_real_policy_v4_exit_placement_capacity_audit.py"),
-        run_name="__main__",
-    )
