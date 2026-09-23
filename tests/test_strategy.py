@@ -677,3 +677,36 @@ def test_unsafe_classifier_keeps_collect_and_exit_placement_normal() -> None:
         place_exit,
         exit_card,
     )
+
+
+def test_visible_repair_safety_helpers_do_not_consume_rng() -> None:
+    exit_card = synthetic_exit_card()
+    state = GameState(
+        board=board_with_two_open(),
+        draw_pile=[visible_repair_card(card_id="hidden")],
+        hand=[
+            capacity_killer_card(),
+            blocked_card("one"),
+            blocked_card("two"),
+        ],
+    )
+    rng = Random(67)
+    rng_state = rng.getstate()
+
+    assert standalone_exit_legal_move_count(state.board, exit_card) > 0
+    preview = preview_ordinary_non_exit_placement_without_draw(
+        state,
+        capacity_kill_move(),
+    )
+    assert not has_visible_exit_repair_reserve(
+        preview.resulting_board,
+        preview.retained_visible_cards,
+        exit_card,
+    )
+    assert is_unsafe_capacity_kill_without_visible_repair_reserve(
+        state,
+        capacity_kill_move(),
+        exit_card,
+    )
+
+    assert rng.getstate() == rng_state
