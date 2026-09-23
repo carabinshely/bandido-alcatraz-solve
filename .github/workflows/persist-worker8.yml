@@ -1,0 +1,30 @@
+name: persist-worker8-artifact
+
+on:
+  push:
+    branches: ["integration/solver-foundation-clean"]
+
+permissions:
+  contents: read
+
+jobs:
+  persist:
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Materialize historical Worker #8 receipt
+        run: |
+          git cat-file -e 5155c42c796ecb049d441f86f1c3801e6afa446e^{commit}
+          git show 5155c42c796ecb049d441f86f1c3801e6afa446e:experiments/real-deck-policy-v4/exit-capacity-reversibility-audit-2026-09-23.json > exit-capacity-reversibility-audit-2026-09-23.json
+          test "$(wc -c < exit-capacity-reversibility-audit-2026-09-23.json)" -eq 1203842
+          echo "aef42e22732280af79c68e8bb44b6fdbbf060f12e8caf325f85475e7a928a51b  exit-capacity-reversibility-audit-2026-09-23.json" | sha256sum -c -
+      - uses: actions/upload-artifact@v4
+        with:
+          name: worker8-raw-receipt
+          path: exit-capacity-reversibility-audit-2026-09-23.json
+          if-no-files-found: error
+          retention-days: 1
