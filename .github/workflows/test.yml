@@ -35,3 +35,15 @@ jobs:
         run: python scripts/proxy_status.py
       - name: Real photographed-deck smoke
         run: python scripts/run_real_deck_smoke.py
+      - name: Worker #10 visible repair reserve diagnostic
+        env:
+          EVALUATED_COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: python scripts/run_worker10_visible_repair_reserve.py --output artifacts/preaction-visible-repair-reserve-audit-2026-09-23.json
+      - name: Upload Worker #10 diagnostic artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: worker10-visible-repair-reserve
+          path: artifacts/preaction-visible-repair-reserve-audit-2026-09-23.json
+          if-no-files-found: warn
+          retention-days: 3
