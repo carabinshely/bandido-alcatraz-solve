@@ -17,8 +17,14 @@ class GameState:
     raincoats: int = 0
     ropes: int = 0
     exit_placed: bool = False
+    exit_seen: bool = False
     turns: int = 0
     set_aside_unplayable: int = 0
+
+    def __post_init__(self) -> None:
+        self._mark_visible_exit_seen()
+        if self.exit_placed:
+            self.exit_seen = True
 
     @classmethod
     def new(
@@ -82,6 +88,7 @@ class GameState:
             self.board.place(card, move.origin, move.quarter_turns)
             if card.is_exit:
                 self.exit_placed = True
+                self.exit_seen = True
 
         self.turns += 1
         self._draw_one()
@@ -115,6 +122,7 @@ class GameState:
             self.hand = list(self.draw_pile)
             self.draw_pile.clear()
             self.set_aside_unplayable += old_count
+            self._mark_visible_exit_seen()
             return True
 
         old_hand = list(self.hand)
@@ -122,8 +130,16 @@ class GameState:
         self.draw_pile = old_hand + self.draw_pile
         for _ in range(3):
             self.hand.append(self.draw_pile.pop())
+        self._mark_visible_exit_seen()
         return True
 
     def _draw_one(self) -> None:
         if self.draw_pile:
-            self.hand.append(self.draw_pile.pop())
+            card = self.draw_pile.pop()
+            self.hand.append(card)
+            if card.is_exit:
+                self.exit_seen = True
+
+    def _mark_visible_exit_seen(self) -> None:
+        if not self.exit_seen and any(card.is_exit for card in self.hand):
+            self.exit_seen = True
