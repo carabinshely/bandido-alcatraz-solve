@@ -1,5 +1,7 @@
 from random import Random
 
+import pytest
+
 from bandido_alcatraz.board import Board
 from bandido_alcatraz.game import GameState
 from bandido_alcatraz.model import CardDefinition, CellSpec, Direction, Material
@@ -303,3 +305,17 @@ def test_hidden_exit_in_draw_pile_does_not_set_exit_seen() -> None:
     )
 
     assert not state.exit_seen
+
+
+def test_exit_seen_cannot_be_reset_directly() -> None:
+    state = GameState(
+        board=board_with_east_exit(),
+        draw_pile=[],
+        hand=[],
+        exit_seen=True,
+    )
+
+    with pytest.raises(ValueError, match="exit_seen is monotonic"):
+        state.exit_seen = False
+
+    assert state.exit_seen
