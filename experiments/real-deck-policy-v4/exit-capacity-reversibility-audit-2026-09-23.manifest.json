@@ -1,0 +1,72 @@
+{
+  "schema": "bandido-alcatraz-experiment-manifest",
+  "schema_version": 1,
+  "experiment_id": "v4-exit-capacity-reversibility-audit",
+  "dataset_status": "already-spent / diagnostic / non-confirmatory",
+  "date": "2026-09-23",
+  "source_worker_commit": "5155c42c796ecb049d441f86f1c3801e6afa446e",
+  "evaluated_diagnostic_commit": "96e32caaf1122a515269bc89e8873c5c59b396bd",
+  "authoritative_workflow": {
+    "run_id": 35826473113,
+    "url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35826473113",
+    "conclusion": "success",
+    "runner": "bandido-alcatraz-ci"
+  },
+  "policy": "BoundedMergeV4Policy(setup_weight=250)",
+  "model": {
+    "deck_file": "data/deck-v1.json",
+    "exit_geometry_source": "data/deck-observations-v0.json",
+    "rules_variant": "v0-threshold-equipment",
+    "start_side": "easy-5-exit",
+    "hand_size": 3,
+    "raincoats_min": 3,
+    "ropes_min": 2
+  },
+  "audited_cohorts": {
+    "seed_universe": "already-spent canonical trajectories from seeds 2000-2399",
+    "persistent_class_a_failures": [2001, 2004, 2020, 2024, 2034, 2084, 2098, 2104, 2110, 2129, 2130, 2138, 2168, 2171, 2212, 2314, 2334, 2372],
+    "winning_zero_capacity_controls": [2005, 2238, 2282, 2286, 2371],
+    "winning_always_positive_controls": [2085, 2137, 2174, 2267, 2294, 2322, 2340, 2345, 2383]
+  },
+  "replay_integrity": {
+    "records_compared": 32,
+    "exact_matches": 32,
+    "mismatches": 0,
+    "passed": true
+  },
+  "major_results": {
+    "persistent_class_a": {
+      "interval_count": 18,
+      "intervals_with_any_one_step_restoring_move": 3,
+      "one_step_recoverable_states": 5,
+      "audited_visible_states": 459,
+      "recoverable_fraction": 0.010893246187363835
+    },
+    "earlier_recovered_class_a": {
+      "interval_count": 12,
+      "one_step_recoverable_states": 14,
+      "audited_visible_states": 18,
+      "recoverable_fraction": 0.7777777777777778
+    },
+    "winning_recovered": {
+      "interval_count": 5,
+      "one_step_recoverable_states": 10,
+      "audited_visible_states": 14,
+      "recoverable_fraction": 0.7142857142857143
+    },
+    "persistent_recoverable_state_score_gaps": [0, 0, 100, 100, 100],
+    "persistent_recovery_deferrals": 5,
+    "persistent_canonical_recovery_selections": 0
+  },
+  "final_classification": "zero_capacity_recovery_preference_not_supported",
+  "result_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5790203670",
+  "raw_artifact": {
+    "storage": "Google Drive",
+    "file_id": "1HxKxPgGIBASaytNz2r5De7-dS0pyyi4e",
+    "url": "https://drive.google.com/file/d/1HxKxPgGIBASaytNz2r5De7-dS0pyyi4e/view?usp=drivesdk",
+    "file_name": "exit-capacity-reversibility-audit-2026-09-23.json",
+    "byte_size": 1203842,
+    "sha256": "aef42e22732280af79c68e8bb44b6fdbbf060f12e8caf325f85475e7a928a51b",
+    "readback_verified": true
+  }
+}
