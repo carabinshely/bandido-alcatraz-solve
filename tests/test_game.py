@@ -222,6 +222,22 @@ def test_short_refresh_revealing_exit_sets_exit_seen() -> None:
     assert exit_card in state.hand
 
 
+def test_exit_seen_is_monotonic_across_later_non_exit_draw() -> None:
+    coat = card("coat", {Direction.WEST}, material=Material.RAINCOAT)
+    ordinary = card("ordinary", {Direction.WEST})
+    state = GameState(
+        board=board_with_east_exit(),
+        draw_pile=[ordinary],
+        hand=[coat],
+        exit_seen=True,
+    )
+    collect = next(move for move in state.legal_moves() if move.action is Action.COLLECT)
+
+    state.apply(collect)
+
+    assert state.exit_seen
+
+
 def test_exit_seen_is_monotonic_across_later_refresh() -> None:
     blocked = card("blocked", set())
     playable = card("playable", {Direction.WEST})
