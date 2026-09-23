@@ -52,3 +52,8 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+    import runpy
+    runpy.run_path(
+        str(ROOT / "scripts" / "run_real_policy_v4_exit_capacity_reversibility_audit.py"),
+        run_name="__main__",
+    )
