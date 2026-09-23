@@ -21,6 +21,16 @@ class GameState:
     set_aside_unplayable: int = 0
     exit_seen: bool = False
 
+    def __setattr__(self, name: str, value: object) -> None:
+        if name == "exit_seen" and value is False:
+            try:
+                already_seen = object.__getattribute__(self, "exit_seen")
+            except AttributeError:
+                already_seen = False
+            if already_seen:
+                raise ValueError("exit_seen is monotonic and cannot be reset")
+        object.__setattr__(self, name, value)
+
     def __post_init__(self) -> None:
         self._mark_visible_exit_seen()
         if self.exit_placed:
