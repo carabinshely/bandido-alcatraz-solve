@@ -1,0 +1,561 @@
+{
+  "format_version": 1,
+  "dataset": "original-bandido-covid-print-and-play-proxy",
+  "authoritative_for": "Bandido COVID-19 print-and-play only",
+  "must_not_be_used_as": "Bandido Alcatraz deck definition",
+  "source": "https://helvetiq.com/media/hexaattachment/products/attachments/Bandido_Covid-19_EN.pdf",
+  "distribution_source": "https://en.doc.boardgamearena.com/Gamehelpbandido",
+  "complete_geometry": false,
+  "expected_counts": {
+    "tunnel_cards": 32,
+    "basic_slots": 22,
+    "end_slots": 10
+  },
+  "port_notation": {
+    "W": "left short edge",
+    "E": "right short edge",
+    "NW": "top edge of left half",
+    "NE": "top edge of right half",
+    "SW": "bottom edge of left half",
+    "SE": "bottom edge of right half"
+  },
+  "slots": [
+    {
+      "id": "p2-r1-c1",
+      "pdf_page_index": 2,
+      "row": 1,
+      "column": 1,
+      "kind": "end",
+      "geometry": {
+        "external_ports": [
+          "E"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy",
+        "internal_bridge": true
+      },
+      "proxy_family": "I1"
+    },
+    {
+      "id": "p2-r1-c2",
+      "pdf_page_index": 2,
+      "row": 1,
+      "column": 2,
+      "kind": "end",
+      "geometry": {
+        "external_ports": [
+          "W"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy",
+        "internal_bridge": true
+      },
+      "proxy_family": "I1"
+    },
+    {
+      "id": "p2-r2-c1",
+      "pdf_page_index": 2,
+      "row": 2,
+      "column": 1,
+      "kind": "end",
+      "geometry": {
+        "external_ports": [
+          "SE"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy",
+        "internal_bridge": true
+      },
+      "proxy_family": "J1"
+    },
+    {
+      "id": "p2-r2-c2",
+      "pdf_page_index": 2,
+      "row": 2,
+      "column": 2,
+      "kind": "end",
+      "geometry": {
+        "external_ports": [
+          "SW"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy",
+        "internal_bridge": true
+      },
+      "proxy_family": "J1"
+    },
+    {
+      "id": "p2-r3-c1",
+      "pdf_page_index": 2,
+      "row": 3,
+      "column": 1,
+      "kind": "end",
+      "geometry": {
+        "external_ports": [
+          "E",
+          "NE",
+          "SE"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy",
+        "internal_bridge": true
+      },
+      "proxy_family": "cross"
+    },
+    {
+      "id": "p2-r3-c2",
+      "pdf_page_index": 2,
+      "row": 3,
+      "column": 2,
+      "kind": "end",
+      "geometry": {
+        "external_ports": [
+          "W",
+          "NW",
+          "SW"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy",
+        "internal_bridge": true
+      },
+      "proxy_family": "cross"
+    },
+    {
+      "id": "p2-r4-c1",
+      "pdf_page_index": 2,
+      "row": 4,
+      "column": 1,
+      "kind": "end",
+      "geometry": {
+        "external_ports": [
+          "E",
+          "NE"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy",
+        "internal_bridge": true
+      },
+      "proxy_family": "L1"
+    },
+    {
+      "id": "p2-r4-c2",
+      "pdf_page_index": 2,
+      "row": 4,
+      "column": 2,
+      "kind": "end",
+      "geometry": {
+        "external_ports": [
+          "W",
+          "NW"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy",
+        "internal_bridge": true
+      },
+      "proxy_family": "L1"
+    },
+    {
+      "id": "p2-r5-c1",
+      "pdf_page_index": 2,
+      "row": 5,
+      "column": 1,
+      "kind": "end",
+      "geometry": {
+        "external_ports": [
+          "E",
+          "SE"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy",
+        "internal_bridge": true
+      },
+      "proxy_family": "L1"
+    },
+    {
+      "id": "p2-r5-c2",
+      "pdf_page_index": 2,
+      "row": 5,
+      "column": 2,
+      "kind": "end",
+      "geometry": {
+        "external_ports": [
+          "W",
+          "SW"
+        ],
+        "transcription": "visual_from_flat_official_pdf",
+        "confidence": "proxy",
+        "internal_bridge": true
+      },
+      "proxy_family": "L1"
+    },
+    {
+      "id": "p2-r6-c1",
+      "pdf_page_index": 2,
+      "row": 6,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p2-r6-c2",
+      "pdf_page_index": 2,
+      "row": 6,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r1-c1",
+      "pdf_page_index": 4,
+      "row": 1,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r1-c2",
+      "pdf_page_index": 4,
+      "row": 1,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r2-c1",
+      "pdf_page_index": 4,
+      "row": 2,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r2-c2",
+      "pdf_page_index": 4,
+      "row": 2,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r3-c1",
+      "pdf_page_index": 4,
+      "row": 3,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r3-c2",
+      "pdf_page_index": 4,
+      "row": 3,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r4-c1",
+      "pdf_page_index": 4,
+      "row": 4,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r4-c2",
+      "pdf_page_index": 4,
+      "row": 4,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r5-c1",
+      "pdf_page_index": 4,
+      "row": 5,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r5-c2",
+      "pdf_page_index": 4,
+      "row": 5,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r6-c1",
+      "pdf_page_index": 4,
+      "row": 6,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p4-r6-c2",
+      "pdf_page_index": 4,
+      "row": 6,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p6-r1-c1",
+      "pdf_page_index": 6,
+      "row": 1,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p6-r1-c2",
+      "pdf_page_index": 6,
+      "row": 1,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p6-r2-c1",
+      "pdf_page_index": 6,
+      "row": 2,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p6-r2-c2",
+      "pdf_page_index": 6,
+      "row": 2,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p6-r3-c1",
+      "pdf_page_index": 6,
+      "row": 3,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p6-r3-c2",
+      "pdf_page_index": 6,
+      "row": 3,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p6-r4-c1",
+      "pdf_page_index": 6,
+      "row": 4,
+      "column": 1,
+      "kind": "basic",
+      "geometry": null
+    },
+    {
+      "id": "p6-r4-c2",
+      "pdf_page_index": 6,
+      "row": 4,
+      "column": 2,
+      "kind": "basic",
+      "geometry": null
+    }
+  ],
+  "family_inventory": [
+    {
+      "family": "I1",
+      "variant": "base",
+      "kind": "end",
+      "exits": 1,
+      "multiplicity": 2
+    },
+    {
+      "family": "J1",
+      "variant": "left",
+      "kind": "end",
+      "exits": 1,
+      "multiplicity": 1
+    },
+    {
+      "family": "J1",
+      "variant": "right",
+      "kind": "end",
+      "exits": 1,
+      "multiplicity": 1
+    },
+    {
+      "family": "cross",
+      "variant": "base",
+      "kind": "end",
+      "exits": 3,
+      "multiplicity": 2
+    },
+    {
+      "family": "L1",
+      "variant": "left",
+      "kind": "end",
+      "exits": 2,
+      "multiplicity": 2
+    },
+    {
+      "family": "L1",
+      "variant": "right",
+      "kind": "end",
+      "exits": 2,
+      "multiplicity": 2
+    },
+    {
+      "family": "U",
+      "variant": "base",
+      "kind": "basic",
+      "exits": 2,
+      "multiplicity": 1
+    },
+    {
+      "family": "I2",
+      "variant": "base",
+      "kind": "basic",
+      "exits": 2,
+      "multiplicity": 1
+    },
+    {
+      "family": "J2",
+      "variant": "left",
+      "kind": "basic",
+      "exits": 2,
+      "multiplicity": 1
+    },
+    {
+      "family": "J2",
+      "variant": "right",
+      "kind": "basic",
+      "exits": 2,
+      "multiplicity": 1
+    },
+    {
+      "family": "S",
+      "variant": "left",
+      "kind": "basic",
+      "exits": 2,
+      "multiplicity": 1
+    },
+    {
+      "family": "S",
+      "variant": "right",
+      "kind": "basic",
+      "exits": 2,
+      "multiplicity": 1
+    },
+    {
+      "family": "N",
+      "variant": "base",
+      "kind": "basic",
+      "exits": 3,
+      "multiplicity": 1
+    },
+    {
+      "family": "F",
+      "variant": "left",
+      "kind": "basic",
+      "exits": 3,
+      "multiplicity": 1
+    },
+    {
+      "family": "F",
+      "variant": "right",
+      "kind": "basic",
+      "exits": 3,
+      "multiplicity": 1
+    },
+    {
+      "family": "L3",
+      "variant": "left",
+      "kind": "basic",
+      "exits": 3,
+      "multiplicity": 1
+    },
+    {
+      "family": "L3",
+      "variant": "right",
+      "kind": "basic",
+      "exits": 3,
+      "multiplicity": 1
+    },
+    {
+      "family": "Y",
+      "variant": "left",
+      "kind": "basic",
+      "exits": 3,
+      "multiplicity": 1
+    },
+    {
+      "family": "Y",
+      "variant": "right",
+      "kind": "basic",
+      "exits": 3,
+      "multiplicity": 1
+    },
+    {
+      "family": "horse",
+      "variant": "left",
+      "kind": "basic",
+      "exits": 4,
+      "multiplicity": 1
+    },
+    {
+      "family": "horse",
+      "variant": "right",
+      "kind": "basic",
+      "exits": 4,
+      "multiplicity": 1
+    },
+    {
+      "family": "branch",
+      "variant": "left",
+      "kind": "basic",
+      "exits": 4,
+      "multiplicity": 1
+    },
+    {
+      "family": "branch",
+      "variant": "right",
+      "kind": "basic",
+      "exits": 4,
+      "multiplicity": 1
+    },
+    {
+      "family": "puppy",
+      "variant": "left",
+      "kind": "basic",
+      "exits": 4,
+      "multiplicity": 1
+    },
+    {
+      "family": "puppy",
+      "variant": "right",
+      "kind": "basic",
+      "exits": 4,
+      "multiplicity": 1
+    },
+    {
+      "family": "ladder",
+      "variant": "base",
+      "kind": "basic",
+      "exits": 4,
+      "multiplicity": 1
+    }
+  ],
+  "family_inventory_source": "https://note.com/bandido_strategy/n/n4d4ef2968a0c",
+  "family_inventory_confidence": "secondary_proxy",
+  "family_inventory_audit": {
+    "named_multiplicity_total": 30,
+    "physical_tunnel_cards_expected": 32,
+    "unresolved_gap": 2,
+    "status": "secondary_source_incomplete",
+    "note": "The secondary named-family catalog totals 30 while the official print-and-play physically contains 32 tunnel cards. Do not invent the missing two; resolve from the official PDF."
+  }
+}

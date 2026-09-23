@@ -1,0 +1,1631 @@
+{
+  "format_version": 1,
+  "dataset": "bandido-alcatraz-owner-photo-inventory-v0",
+  "source": "owner-photo-set:2026-09-21",
+  "images_committed": false,
+  "note": "The photographs remain outside Git. Stable photo/row/column slot IDs preserve provenance.",
+  "counts": {
+    "photographed_faces": 71,
+    "ordinary_cards": 68,
+    "exit_cards": 1,
+    "start_faces": 2,
+    "distinct_start_cards": 1,
+    "raincoat_cards": 12,
+    "rope_cards": 8,
+    "water_cards": 4,
+    "gate_marked_cards": 20
+  },
+  "slots": [
+    {
+      "id": "photo-1-r1-c1",
+      "photo": 1,
+      "row": 1,
+      "col": 1,
+      "role": "start",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "notes": "first photographed face of the same double-sided START card",
+      "geometry": null,
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "start_variant": "easy",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r1-c2",
+      "photo": 1,
+      "row": 1,
+      "col": 2,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "LU",
+          "LL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r1-c3",
+      "photo": 1,
+      "row": 1,
+      "col": 3,
+      "role": "ordinary",
+      "material": null,
+      "water": true,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "LU",
+          "LL",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": "top"
+    },
+    {
+      "id": "photo-1-r1-c4",
+      "photo": 1,
+      "row": 1,
+      "col": 4,
+      "role": "ordinary",
+      "material": "rope",
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "T"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r1-c5",
+      "photo": 1,
+      "row": 1,
+      "col": 5,
+      "role": "ordinary",
+      "material": "rope",
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "B",
+          "LU",
+          "RU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r2-c1",
+      "photo": 1,
+      "row": 2,
+      "col": 1,
+      "role": "ordinary",
+      "material": "raincoat",
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "RU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r2-c2",
+      "photo": 1,
+      "row": 2,
+      "col": 2,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "B",
+          "LU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r2-c3",
+      "photo": 1,
+      "row": 2,
+      "col": 3,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "LU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r2-c4",
+      "photo": 1,
+      "row": 2,
+      "col": 4,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "RU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r2-c5",
+      "photo": 1,
+      "row": 2,
+      "col": 5,
+      "role": "ordinary",
+      "material": null,
+      "water": true,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "LU",
+          "RU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": "bottom"
+    },
+    {
+      "id": "photo-1-r3-c1",
+      "photo": 1,
+      "row": 3,
+      "col": 1,
+      "role": "ordinary",
+      "material": "rope",
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r3-c2",
+      "photo": 1,
+      "row": 3,
+      "col": 2,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "RU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r3-c3",
+      "photo": 1,
+      "row": 3,
+      "col": 3,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "LL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r3-c4",
+      "photo": 1,
+      "row": 3,
+      "col": 4,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "RU",
+          "LL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r3-c5",
+      "photo": 1,
+      "row": 3,
+      "col": 5,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "LU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r4-c1",
+      "photo": 1,
+      "row": 4,
+      "col": 1,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "LU",
+          "LL",
+          "RU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r4-c2",
+      "photo": 1,
+      "row": 4,
+      "col": 2,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "LU",
+          "LL",
+          "RU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r4-c3",
+      "photo": 1,
+      "row": 4,
+      "col": 3,
+      "role": "ordinary",
+      "material": "raincoat",
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "LL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r4-c4",
+      "photo": 1,
+      "row": 4,
+      "col": 4,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "LU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-1-r4-c5",
+      "photo": 1,
+      "row": 4,
+      "col": 5,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "LU",
+          "RU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r1-c1",
+      "photo": 2,
+      "row": 1,
+      "col": 1,
+      "role": "start",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "notes": "second photographed face of the same double-sided START card",
+      "geometry": null,
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "start_variant": "normal",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r1-c2",
+      "photo": 2,
+      "row": 1,
+      "col": 2,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "B",
+          "LL",
+          "RU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r1-c3",
+      "photo": 2,
+      "row": 1,
+      "col": 3,
+      "role": "ordinary",
+      "material": null,
+      "water": true,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "LL",
+          "RU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": "top"
+    },
+    {
+      "id": "photo-2-r1-c4",
+      "photo": 2,
+      "row": 1,
+      "col": 4,
+      "role": "ordinary",
+      "material": "raincoat",
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "LU",
+          "LL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r1-c5",
+      "photo": 2,
+      "row": 1,
+      "col": 5,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "LL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r2-c1",
+      "photo": 2,
+      "row": 2,
+      "col": 1,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "LU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r2-c2",
+      "photo": 2,
+      "row": 2,
+      "col": 2,
+      "role": "ordinary",
+      "material": "raincoat",
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "LU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r2-c3",
+      "photo": 2,
+      "row": 2,
+      "col": 3,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "RU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r2-c4",
+      "photo": 2,
+      "row": 2,
+      "col": 4,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "LL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r2-c5",
+      "photo": 2,
+      "row": 2,
+      "col": 5,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "LL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r3-c1",
+      "photo": 2,
+      "row": 3,
+      "col": 1,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "LU",
+          "LL",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r3-c2",
+      "photo": 2,
+      "row": 3,
+      "col": 2,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "LL",
+          "RU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r3-c3",
+      "photo": 2,
+      "row": 3,
+      "col": 3,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "B",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r3-c4",
+      "photo": 2,
+      "row": 3,
+      "col": 4,
+      "role": "ordinary",
+      "material": "raincoat",
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "T"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r3-c5",
+      "photo": 2,
+      "row": 3,
+      "col": 5,
+      "role": "ordinary",
+      "material": null,
+      "water": true,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "LU",
+          "RU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": "bottom"
+    },
+    {
+      "id": "photo-2-r4-c1",
+      "photo": 2,
+      "row": 4,
+      "col": 1,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "LU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r4-c2",
+      "photo": 2,
+      "row": 4,
+      "col": 2,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "LL",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r4-c3",
+      "photo": 2,
+      "row": 4,
+      "col": 3,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "LL",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r4-c4",
+      "photo": 2,
+      "row": 4,
+      "col": 4,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "B"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-2-r4-c5",
+      "photo": 2,
+      "row": 4,
+      "col": 5,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "LL",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r1-c1",
+      "photo": 3,
+      "row": 1,
+      "col": 1,
+      "role": "ordinary",
+      "material": "rope",
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "LU",
+          "LL",
+          "RU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r1-c2",
+      "photo": 3,
+      "row": 1,
+      "col": 2,
+      "role": "ordinary",
+      "material": "raincoat",
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "LU",
+          "LL",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r1-c3",
+      "photo": 3,
+      "row": 1,
+      "col": 3,
+      "role": "ordinary",
+      "material": "rope",
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "LU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r1-c4",
+      "photo": 3,
+      "row": 1,
+      "col": 4,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "LL",
+          "RU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r1-c5",
+      "photo": 3,
+      "row": 1,
+      "col": 5,
+      "role": "ordinary",
+      "material": "raincoat",
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "LL",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r2-c1",
+      "photo": 3,
+      "row": 2,
+      "col": 1,
+      "role": "ordinary",
+      "material": "raincoat",
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "LU",
+          "LL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r2-c2",
+      "photo": 3,
+      "row": 2,
+      "col": 2,
+      "role": "ordinary",
+      "material": "rope",
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "LL",
+          "RU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r2-c3",
+      "photo": 3,
+      "row": 2,
+      "col": 3,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r2-c4",
+      "photo": 3,
+      "row": 2,
+      "col": 4,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "RU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r2-c5",
+      "photo": 3,
+      "row": 2,
+      "col": 5,
+      "role": "ordinary",
+      "material": "raincoat",
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "LU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r3-c1",
+      "photo": 3,
+      "row": 3,
+      "col": 1,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "LL",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r3-c2",
+      "photo": 3,
+      "row": 3,
+      "col": 2,
+      "role": "ordinary",
+      "material": "raincoat",
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "LL",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r3-c3",
+      "photo": 3,
+      "row": 3,
+      "col": 3,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "LU",
+          "RU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r3-c4",
+      "photo": 3,
+      "row": 3,
+      "col": 4,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "LL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r3-c5",
+      "photo": 3,
+      "row": 3,
+      "col": 5,
+      "role": "ordinary",
+      "material": "rope",
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "LU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r4-c1",
+      "photo": 3,
+      "row": 4,
+      "col": 1,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "LU",
+          "RU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r4-c2",
+      "photo": 3,
+      "row": 4,
+      "col": 2,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "LU",
+          "LL",
+          "RU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r4-c3",
+      "photo": 3,
+      "row": 4,
+      "col": 3,
+      "role": "ordinary",
+      "material": "raincoat",
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "LU",
+          "LL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r4-c4",
+      "photo": 3,
+      "row": 4,
+      "col": 4,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "B",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-3-r4-c5",
+      "photo": 3,
+      "row": 4,
+      "col": 5,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "B"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-4-r1-c1",
+      "photo": 4,
+      "row": 1,
+      "col": 1,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "B",
+          "LL",
+          "RU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-4-r1-c2",
+      "photo": 4,
+      "row": 1,
+      "col": 2,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "B",
+          "LU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-4-r1-c3",
+      "photo": 4,
+      "row": 1,
+      "col": 3,
+      "role": "exit",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": null,
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-4-r1-c4",
+      "photo": 4,
+      "row": 1,
+      "col": 4,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "LL",
+          "RU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-4-r1-c5",
+      "photo": 4,
+      "row": 1,
+      "col": 5,
+      "role": "ordinary",
+      "material": "raincoat",
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "LU",
+          "RU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-4-r2-c1",
+      "photo": 4,
+      "row": 2,
+      "col": 1,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "LU",
+          "RU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-4-r2-c2",
+      "photo": 4,
+      "row": 2,
+      "col": 2,
+      "role": "ordinary",
+      "material": "rope",
+      "water": false,
+      "gate": true,
+      "geometry": {
+        "external_ports": [
+          "RU"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-4-r2-c3",
+      "photo": 4,
+      "row": 2,
+      "col": 3,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "B",
+          "LU",
+          "RU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-4-r2-c4",
+      "photo": 4,
+      "row": 2,
+      "col": 4,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "LL",
+          "RU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-4-r2-c5",
+      "photo": 4,
+      "row": 2,
+      "col": 5,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "LU",
+          "LL",
+          "RU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    },
+    {
+      "id": "photo-4-r3-c1",
+      "photo": 4,
+      "row": 3,
+      "col": 1,
+      "role": "ordinary",
+      "material": null,
+      "water": false,
+      "gate": false,
+      "geometry": {
+        "external_ports": [
+          "T",
+          "B",
+          "RU",
+          "RL"
+        ],
+        "internal_bridge": true,
+        "transcription": "manual_visual_from_owner_photo",
+        "confidence": "observed"
+      },
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "direct-owner-evidence",
+      "water_half": null
+    }
+  ],
+  "geometry_contract": {
+    "orientation": "portrait as photographed",
+    "external_ports": {
+      "T": "top edge",
+      "B": "bottom edge",
+      "LU": "left edge, upper half",
+      "LL": "left edge, lower half",
+      "RU": "right edge, upper half",
+      "RL": "right edge, lower half"
+    },
+    "fields": [
+      "external_ports",
+      "internal_bridge"
+    ],
+    "note": "Ordinary-card geometry stays null until transcribed/reviewed. Water half is independent observed metadata."
+  },
+  "geometry_transcription_status": {
+    "ordinary_slots_total": 68,
+    "ordinary_slots_transcribed": 68,
+    "ordinary_slots_remaining": 0,
+    "all_internal_bridge": true,
+    "complete_external_geometry": true,
+    "method": "manual visual transcription with enlarged-card review"
+  }
+}

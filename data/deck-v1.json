@@ -1,0 +1,1670 @@
+{
+  "format_version": 1,
+  "deck_id": "bandido-alcatraz-owner-deck-v1",
+  "source_inventory": "data/owner-photo-inventory-v0.json",
+  "source": "owner-photo-set:2026-09-21",
+  "status": {
+    "ordinary_card_inventory_complete": true,
+    "ordinary_placement_geometry_complete": true,
+    "canonical_geometry_grouping_complete": true,
+    "exact_water_half_overlay_compatibility_complete": true,
+    "ready_for_authoritative_win_rate": false,
+    "authoritative_win_rate_blocker": "The v0 project intentionally uses raincoats>=3 and ropes>=2, while the Spanish rulebook says exactly 3 and 2. Real-deck simulation is ready, but results must be labeled as the v0 threshold-rules variant until that modeling choice is changed or compared."
+  },
+  "counts": {
+    "ordinary_cards": 68,
+    "geometry_families": 30,
+    "raincoat_cards": 12,
+    "rope_cards": 8,
+    "water_cards": 4
+  },
+  "families": [
+    {
+      "geometry_id": "G01",
+      "multiplicity": 2,
+      "representative_slot": "photo-1-r1-c3",
+      "representative_ports": [
+        "B",
+        "LU",
+        "LL",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r1-c3",
+        "photo-3-r4-c1"
+      ],
+      "material_counts": {
+        "none": 2
+      },
+      "water_half_counts": {
+        "top": 1,
+        "none": 1
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G02",
+      "multiplicity": 1,
+      "representative_slot": "photo-1-r1-c5",
+      "representative_ports": [
+        "T",
+        "B",
+        "LU",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r1-c5"
+      ],
+      "material_counts": {
+        "rope": 1
+      },
+      "water_half_counts": {
+        "none": 1
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G03",
+      "multiplicity": 1,
+      "representative_slot": "photo-2-r1-c3",
+      "representative_ports": [
+        "B",
+        "LL",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-2-r1-c3"
+      ],
+      "material_counts": {
+        "none": 1
+      },
+      "water_half_counts": {
+        "top": 1
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G04",
+      "multiplicity": 4,
+      "representative_slot": "photo-1-r4-c5",
+      "representative_ports": [
+        "T",
+        "LU",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r4-c5",
+        "photo-2-r4-c5",
+        "photo-3-r3-c1",
+        "photo-3-r3-c2"
+      ],
+      "material_counts": {
+        "none": 3,
+        "raincoat": 1
+      },
+      "water_half_counts": {
+        "none": 4
+      },
+      "gate_marked_count": 3
+    },
+    {
+      "geometry_id": "G05",
+      "multiplicity": 1,
+      "representative_slot": "photo-4-r3-c1",
+      "representative_ports": [
+        "T",
+        "B",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-4-r3-c1"
+      ],
+      "material_counts": {
+        "none": 1
+      },
+      "water_half_counts": {
+        "none": 1
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G06",
+      "multiplicity": 2,
+      "representative_slot": "photo-1-r4-c1",
+      "representative_ports": [
+        "B",
+        "LU",
+        "LL",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r4-c1",
+        "photo-3-r1-c1"
+      ],
+      "material_counts": {
+        "none": 1,
+        "rope": 1
+      },
+      "water_half_counts": {
+        "none": 2
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G07",
+      "multiplicity": 1,
+      "representative_slot": "photo-3-r4-c3",
+      "representative_ports": [
+        "B",
+        "LU",
+        "LL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-3-r4-c3"
+      ],
+      "material_counts": {
+        "raincoat": 1
+      },
+      "water_half_counts": {
+        "none": 1
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G08",
+      "multiplicity": 2,
+      "representative_slot": "photo-2-r1-c2",
+      "representative_ports": [
+        "T",
+        "B",
+        "LL",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-2-r1-c2",
+        "photo-4-r1-c1"
+      ],
+      "material_counts": {
+        "none": 2
+      },
+      "water_half_counts": {
+        "none": 2
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G09",
+      "multiplicity": 1,
+      "representative_slot": "photo-2-r3-c2",
+      "representative_ports": [
+        "T",
+        "LL",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-2-r3-c2"
+      ],
+      "material_counts": {
+        "none": 1
+      },
+      "water_half_counts": {
+        "none": 1
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G10",
+      "multiplicity": 4,
+      "representative_slot": "photo-1-r2-c1",
+      "representative_ports": [
+        "T",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r2-c1",
+        "photo-1-r4-c3",
+        "photo-2-r2-c3",
+        "photo-3-r2-c4"
+      ],
+      "material_counts": {
+        "raincoat": 2,
+        "none": 2
+      },
+      "water_half_counts": {
+        "none": 4
+      },
+      "gate_marked_count": 2
+    },
+    {
+      "geometry_id": "G11",
+      "multiplicity": 3,
+      "representative_slot": "photo-3-r1-c2",
+      "representative_ports": [
+        "T",
+        "LU",
+        "LL",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-3-r1-c2",
+        "photo-4-r2-c1",
+        "photo-4-r2-c3"
+      ],
+      "material_counts": {
+        "raincoat": 1,
+        "none": 2
+      },
+      "water_half_counts": {
+        "none": 3
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G12",
+      "multiplicity": 3,
+      "representative_slot": "photo-1-r2-c5",
+      "representative_ports": [
+        "B",
+        "LU",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r2-c5",
+        "photo-2-r3-c5",
+        "photo-2-r4-c2"
+      ],
+      "material_counts": {
+        "none": 3
+      },
+      "water_half_counts": {
+        "bottom": 2,
+        "none": 1
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G13",
+      "multiplicity": 3,
+      "representative_slot": "photo-1-r4-c2",
+      "representative_ports": [
+        "LU",
+        "LL",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r4-c2",
+        "photo-3-r4-c2",
+        "photo-4-r2-c5"
+      ],
+      "material_counts": {
+        "none": 3
+      },
+      "water_half_counts": {
+        "none": 3
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G14",
+      "multiplicity": 2,
+      "representative_slot": "photo-2-r3-c1",
+      "representative_ports": [
+        "LU",
+        "LL",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-2-r3-c1",
+        "photo-4-r1-c5"
+      ],
+      "material_counts": {
+        "none": 1,
+        "raincoat": 1
+      },
+      "water_half_counts": {
+        "none": 2
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G15",
+      "multiplicity": 3,
+      "representative_slot": "photo-3-r1-c4",
+      "representative_ports": [
+        "LL",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-3-r1-c4",
+        "photo-4-r1-c4",
+        "photo-4-r2-c4"
+      ],
+      "material_counts": {
+        "none": 3
+      },
+      "water_half_counts": {
+        "none": 3
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G16",
+      "multiplicity": 3,
+      "representative_slot": "photo-2-r4-c3",
+      "representative_ports": [
+        "LL",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-2-r4-c3",
+        "photo-3-r1-c5",
+        "photo-3-r3-c3"
+      ],
+      "material_counts": {
+        "none": 2,
+        "raincoat": 1
+      },
+      "water_half_counts": {
+        "none": 3
+      },
+      "gate_marked_count": 3
+    },
+    {
+      "geometry_id": "G17",
+      "multiplicity": 2,
+      "representative_slot": "photo-1-r2-c4",
+      "representative_ports": [
+        "B",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r2-c4",
+        "photo-3-r2-c1"
+      ],
+      "material_counts": {
+        "none": 1,
+        "raincoat": 1
+      },
+      "water_half_counts": {
+        "none": 2
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G18",
+      "multiplicity": 3,
+      "representative_slot": "photo-1-r3-c3",
+      "representative_ports": [
+        "T",
+        "LL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r3-c3",
+        "photo-2-r1-c5",
+        "photo-2-r2-c5"
+      ],
+      "material_counts": {
+        "none": 3
+      },
+      "water_half_counts": {
+        "none": 3
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G19",
+      "multiplicity": 2,
+      "representative_slot": "photo-1-r1-c2",
+      "representative_ports": [
+        "LU",
+        "LL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r1-c2",
+        "photo-2-r1-c4"
+      ],
+      "material_counts": {
+        "none": 1,
+        "raincoat": 1
+      },
+      "water_half_counts": {
+        "none": 2
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G20",
+      "multiplicity": 2,
+      "representative_slot": "photo-1-r3-c4",
+      "representative_ports": [
+        "RU",
+        "LL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r3-c4",
+        "photo-3-r2-c2"
+      ],
+      "material_counts": {
+        "none": 1,
+        "rope": 1
+      },
+      "water_half_counts": {
+        "none": 2
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G21",
+      "multiplicity": 4,
+      "representative_slot": "photo-1-r3-c2",
+      "representative_ports": [
+        "RU"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r3-c2",
+        "photo-2-r2-c4",
+        "photo-3-r3-c4",
+        "photo-4-r2-c2"
+      ],
+      "material_counts": {
+        "none": 3,
+        "rope": 1
+      },
+      "water_half_counts": {
+        "none": 4
+      },
+      "gate_marked_count": 4
+    },
+    {
+      "geometry_id": "G22",
+      "multiplicity": 2,
+      "representative_slot": "photo-1-r2-c2",
+      "representative_ports": [
+        "T",
+        "B",
+        "LU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r2-c2",
+        "photo-4-r1-c2"
+      ],
+      "material_counts": {
+        "none": 2
+      },
+      "water_half_counts": {
+        "none": 2
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G23",
+      "multiplicity": 2,
+      "representative_slot": "photo-2-r3-c3",
+      "representative_ports": [
+        "T",
+        "B",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-2-r3-c3",
+        "photo-3-r4-c4"
+      ],
+      "material_counts": {
+        "none": 2
+      },
+      "water_half_counts": {
+        "none": 2
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G24",
+      "multiplicity": 2,
+      "representative_slot": "photo-1-r3-c5",
+      "representative_ports": [
+        "B",
+        "LU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r3-c5",
+        "photo-3-r2-c5"
+      ],
+      "material_counts": {
+        "none": 1,
+        "raincoat": 1
+      },
+      "water_half_counts": {
+        "none": 2
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G25",
+      "multiplicity": 3,
+      "representative_slot": "photo-2-r2-c1",
+      "representative_ports": [
+        "T",
+        "LU"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-2-r2-c1",
+        "photo-2-r2-c2",
+        "photo-3-r2-c3"
+      ],
+      "material_counts": {
+        "none": 2,
+        "raincoat": 1
+      },
+      "water_half_counts": {
+        "none": 3
+      },
+      "gate_marked_count": 3
+    },
+    {
+      "geometry_id": "G26",
+      "multiplicity": 1,
+      "representative_slot": "photo-3-r1-c3",
+      "representative_ports": [
+        "B",
+        "LU"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-3-r1-c3"
+      ],
+      "material_counts": {
+        "rope": 1
+      },
+      "water_half_counts": {
+        "none": 1
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G27",
+      "multiplicity": 2,
+      "representative_slot": "photo-1-r4-c4",
+      "representative_ports": [
+        "LU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r4-c4",
+        "photo-2-r4-c1"
+      ],
+      "material_counts": {
+        "none": 2
+      },
+      "water_half_counts": {
+        "none": 2
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G28",
+      "multiplicity": 3,
+      "representative_slot": "photo-1-r2-c3",
+      "representative_ports": [
+        "LU"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r2-c3",
+        "photo-1-r3-c1",
+        "photo-3-r3-c5"
+      ],
+      "material_counts": {
+        "none": 1,
+        "rope": 2
+      },
+      "water_half_counts": {
+        "none": 3
+      },
+      "gate_marked_count": 3
+    },
+    {
+      "geometry_id": "G29",
+      "multiplicity": 2,
+      "representative_slot": "photo-2-r4-c4",
+      "representative_ports": [
+        "T",
+        "B"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-2-r4-c4",
+        "photo-3-r4-c5"
+      ],
+      "material_counts": {
+        "none": 2
+      },
+      "water_half_counts": {
+        "none": 2
+      },
+      "gate_marked_count": 0
+    },
+    {
+      "geometry_id": "G30",
+      "multiplicity": 2,
+      "representative_slot": "photo-1-r1-c4",
+      "representative_ports": [
+        "T"
+      ],
+      "internal_bridge": true,
+      "slots": [
+        "photo-1-r1-c4",
+        "photo-2-r3-c4"
+      ],
+      "material_counts": {
+        "rope": 1,
+        "raincoat": 1
+      },
+      "water_half_counts": {
+        "none": 2
+      },
+      "gate_marked_count": 2
+    }
+  ],
+  "instances": [
+    {
+      "card_id": "photo-1-r1-c2",
+      "geometry_id": "G19",
+      "external_ports": [
+        "LU",
+        "LL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r1-c3",
+      "geometry_id": "G01",
+      "external_ports": [
+        "B",
+        "LU",
+        "LL",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": "top",
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r1-c4",
+      "geometry_id": "G30",
+      "external_ports": [
+        "T"
+      ],
+      "internal_bridge": true,
+      "material": "rope",
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r1-c5",
+      "geometry_id": "G02",
+      "external_ports": [
+        "T",
+        "B",
+        "LU",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "material": "rope",
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r2-c1",
+      "geometry_id": "G10",
+      "external_ports": [
+        "T",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "material": "raincoat",
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r2-c2",
+      "geometry_id": "G22",
+      "external_ports": [
+        "T",
+        "B",
+        "LU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r2-c3",
+      "geometry_id": "G28",
+      "external_ports": [
+        "LU"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r2-c4",
+      "geometry_id": "G17",
+      "external_ports": [
+        "B",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r2-c5",
+      "geometry_id": "G12",
+      "external_ports": [
+        "B",
+        "LU",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": "bottom",
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r3-c1",
+      "geometry_id": "G28",
+      "external_ports": [
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": "rope",
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r3-c2",
+      "geometry_id": "G21",
+      "external_ports": [
+        "RU"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r3-c3",
+      "geometry_id": "G18",
+      "external_ports": [
+        "T",
+        "LL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r3-c4",
+      "geometry_id": "G20",
+      "external_ports": [
+        "RU",
+        "LL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r3-c5",
+      "geometry_id": "G24",
+      "external_ports": [
+        "B",
+        "LU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r4-c1",
+      "geometry_id": "G06",
+      "external_ports": [
+        "B",
+        "LU",
+        "LL",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r4-c2",
+      "geometry_id": "G13",
+      "external_ports": [
+        "LU",
+        "LL",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r4-c3",
+      "geometry_id": "G10",
+      "external_ports": [
+        "B",
+        "LL"
+      ],
+      "internal_bridge": true,
+      "material": "raincoat",
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r4-c4",
+      "geometry_id": "G27",
+      "external_ports": [
+        "LU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-1-r4-c5",
+      "geometry_id": "G04",
+      "external_ports": [
+        "T",
+        "LU",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r1-c2",
+      "geometry_id": "G08",
+      "external_ports": [
+        "T",
+        "B",
+        "LL",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r1-c3",
+      "geometry_id": "G03",
+      "external_ports": [
+        "B",
+        "LL",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": "top",
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r1-c4",
+      "geometry_id": "G19",
+      "external_ports": [
+        "LU",
+        "LL"
+      ],
+      "internal_bridge": true,
+      "material": "raincoat",
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r1-c5",
+      "geometry_id": "G18",
+      "external_ports": [
+        "T",
+        "LL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r2-c1",
+      "geometry_id": "G25",
+      "external_ports": [
+        "T",
+        "LU"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r2-c2",
+      "geometry_id": "G25",
+      "external_ports": [
+        "T",
+        "LU"
+      ],
+      "internal_bridge": true,
+      "material": "raincoat",
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r2-c3",
+      "geometry_id": "G10",
+      "external_ports": [
+        "T",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r2-c4",
+      "geometry_id": "G21",
+      "external_ports": [
+        "LL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r2-c5",
+      "geometry_id": "G18",
+      "external_ports": [
+        "T",
+        "LL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r3-c1",
+      "geometry_id": "G14",
+      "external_ports": [
+        "LU",
+        "LL",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r3-c2",
+      "geometry_id": "G09",
+      "external_ports": [
+        "T",
+        "LL",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r3-c3",
+      "geometry_id": "G23",
+      "external_ports": [
+        "T",
+        "B",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r3-c4",
+      "geometry_id": "G30",
+      "external_ports": [
+        "T"
+      ],
+      "internal_bridge": true,
+      "material": "raincoat",
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r3-c5",
+      "geometry_id": "G12",
+      "external_ports": [
+        "B",
+        "LU",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": "bottom",
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r4-c1",
+      "geometry_id": "G27",
+      "external_ports": [
+        "LU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r4-c2",
+      "geometry_id": "G12",
+      "external_ports": [
+        "T",
+        "LL",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r4-c3",
+      "geometry_id": "G16",
+      "external_ports": [
+        "LL",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r4-c4",
+      "geometry_id": "G29",
+      "external_ports": [
+        "T",
+        "B"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-2-r4-c5",
+      "geometry_id": "G04",
+      "external_ports": [
+        "B",
+        "LL",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r1-c1",
+      "geometry_id": "G06",
+      "external_ports": [
+        "B",
+        "LU",
+        "LL",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "material": "rope",
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r1-c2",
+      "geometry_id": "G11",
+      "external_ports": [
+        "T",
+        "LU",
+        "LL",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": "raincoat",
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r1-c3",
+      "geometry_id": "G26",
+      "external_ports": [
+        "B",
+        "LU"
+      ],
+      "internal_bridge": true,
+      "material": "rope",
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r1-c4",
+      "geometry_id": "G15",
+      "external_ports": [
+        "LL",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r1-c5",
+      "geometry_id": "G16",
+      "external_ports": [
+        "LL",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": "raincoat",
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r2-c1",
+      "geometry_id": "G17",
+      "external_ports": [
+        "T",
+        "LU",
+        "LL"
+      ],
+      "internal_bridge": true,
+      "material": "raincoat",
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r2-c2",
+      "geometry_id": "G20",
+      "external_ports": [
+        "LL",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "material": "rope",
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r2-c3",
+      "geometry_id": "G25",
+      "external_ports": [
+        "B",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r2-c4",
+      "geometry_id": "G10",
+      "external_ports": [
+        "T",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r2-c5",
+      "geometry_id": "G24",
+      "external_ports": [
+        "T",
+        "LU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": "raincoat",
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r3-c1",
+      "geometry_id": "G04",
+      "external_ports": [
+        "B",
+        "LL",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r3-c2",
+      "geometry_id": "G04",
+      "external_ports": [
+        "B",
+        "LL",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": "raincoat",
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r3-c3",
+      "geometry_id": "G16",
+      "external_ports": [
+        "LU",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r3-c4",
+      "geometry_id": "G21",
+      "external_ports": [
+        "LL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r3-c5",
+      "geometry_id": "G28",
+      "external_ports": [
+        "LU"
+      ],
+      "internal_bridge": true,
+      "material": "rope",
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r4-c1",
+      "geometry_id": "G01",
+      "external_ports": [
+        "T",
+        "LU",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r4-c2",
+      "geometry_id": "G13",
+      "external_ports": [
+        "LU",
+        "LL",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r4-c3",
+      "geometry_id": "G07",
+      "external_ports": [
+        "B",
+        "LU",
+        "LL"
+      ],
+      "internal_bridge": true,
+      "material": "raincoat",
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r4-c4",
+      "geometry_id": "G23",
+      "external_ports": [
+        "T",
+        "B",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-3-r4-c5",
+      "geometry_id": "G29",
+      "external_ports": [
+        "T",
+        "B"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-4-r1-c1",
+      "geometry_id": "G08",
+      "external_ports": [
+        "T",
+        "B",
+        "LL",
+        "RU"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-4-r1-c2",
+      "geometry_id": "G22",
+      "external_ports": [
+        "T",
+        "B",
+        "LU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-4-r1-c4",
+      "geometry_id": "G15",
+      "external_ports": [
+        "LL",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-4-r1-c5",
+      "geometry_id": "G14",
+      "external_ports": [
+        "LU",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": "raincoat",
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-4-r2-c1",
+      "geometry_id": "G11",
+      "external_ports": [
+        "B",
+        "LU",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-4-r2-c2",
+      "geometry_id": "G21",
+      "external_ports": [
+        "RU"
+      ],
+      "internal_bridge": true,
+      "material": "rope",
+      "water_half": null,
+      "gate_marked": true,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-4-r2-c3",
+      "geometry_id": "G11",
+      "external_ports": [
+        "B",
+        "LU",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-4-r2-c4",
+      "geometry_id": "G15",
+      "external_ports": [
+        "LL",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-4-r2-c5",
+      "geometry_id": "G13",
+      "external_ports": [
+        "LU",
+        "LL",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    },
+    {
+      "card_id": "photo-4-r3-c1",
+      "geometry_id": "G05",
+      "external_ports": [
+        "T",
+        "B",
+        "RU",
+        "RL"
+      ],
+      "internal_bridge": true,
+      "material": null,
+      "water_half": null,
+      "gate_marked": false,
+      "source": "owner-photo-set:2026-09-21"
+    }
+  ],
+  "water_overlay_model": {
+    "rule": "Covering card half must have exactly the same half-cell tunnel-edge pattern as the visible blue half.",
+    "verified_from_owner_photos": true,
+    "ambiguity": false,
+    "classes": [
+      {
+        "pattern": [
+          "S",
+          "W"
+        ],
+        "slots": [
+          "photo-1-r1-c3"
+        ],
+        "shape": "curve"
+      },
+      {
+        "pattern": [
+          "E",
+          "S"
+        ],
+        "slots": [
+          "photo-2-r1-c3"
+        ],
+        "shape": "mirror_curve"
+      },
+      {
+        "pattern": [
+          "N",
+          "S"
+        ],
+        "slots": [
+          "photo-1-r2-c5",
+          "photo-2-r3-c5"
+        ],
+        "shape": "straight"
+      }
+    ]
+  }
+}

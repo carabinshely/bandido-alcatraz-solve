@@ -1,0 +1,18 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local simulation state / raw traces
+var/
+artifacts/raw/
+artifacts/tmp/
+*.sqlite
+*.sqlite3
+*.db
+
+# Physical-card source photos are evidence/input, not repository content
+card-photos/

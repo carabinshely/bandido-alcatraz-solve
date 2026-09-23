@@ -1,0 +1,162 @@
+{
+  "format_version": 1,
+  "game": "Bandido Alcatraz",
+  "complete": false,
+  "aggregate_facts": {
+    "ordinary_cards": 68,
+    "water_cards": 4,
+    "rope_cards": 8,
+    "raincoat_cards": 12,
+    "start_tiles": 1,
+    "exit_cards": 1
+  },
+  "modeling_choices": {
+    "equipment_thresholds": {
+      "raincoats_min": 3,
+      "ropes_min": 2
+    },
+    "note": "Project v0 deliberately treats equipment as minimum thresholds."
+  },
+  "observations": [
+    {
+      "id": "publisher-goal-single-exit",
+      "kind": "rule",
+      "claim": "Build tunnels, collect equipment, cover incoming water, create dead ends, and keep a single exit route.",
+      "confidence": "authoritative",
+      "source": "https://helvetiq.com/intl/bandidoalcatraz"
+    },
+    {
+      "id": "aggregate-card-counts",
+      "kind": "deck_count",
+      "claim": "68 ordinary cards: 4 water, 8 rope, 12 raincoat; plus one start tile and one EXIT card.",
+      "confidence": "authoritative",
+      "source": "https://fractaljuegos.cl/en/juegos/bandido-alcatraz/"
+    },
+    {
+      "id": "water-half-overlap",
+      "kind": "rule",
+      "claim": "Only the blue half of a water card is covered; the replacement must preserve the tunnel/earth pattern.",
+      "confidence": "authoritative",
+      "source": "https://fractaljuegos.cl/wp-content/uploads/2026/04/BandidoAlcatraz_Rules_Fractal_WEB.pdf"
+    },
+    {
+      "id": "publisher-gameplay-photo",
+      "kind": "image",
+      "claim": "Publisher gameplay photography provides observable examples of tunnel and equipment-card geometry, but not complete deck multiplicities.",
+      "confidence": "authoritative-image",
+      "source": "https://helvetiq.com/media/catalog/product/b/a/bandidoalcatraz_gameplay.png"
+    },
+    {
+      "id": "publisher-spillshot-photo",
+      "kind": "image",
+      "claim": "Publisher spillshot shows examples including split water-card artwork.",
+      "confidence": "authoritative-image",
+      "source": "https://helvetiq.com/media/catalog/product/b/a/bandidoalcatraz_spillshot_web.png"
+    },
+    {
+      "id": "zatrolene-gallery",
+      "kind": "image_collection",
+      "claim": "Public gallery groups equipment, tunnel, water, and start-tile photographs; completeness of ordinary-card multiplicities is unverified.",
+      "confidence": "secondary",
+      "source": "https://www.zatrolene-hry.cz/spolecenska-hra/bandido-alcatraz-20210/obrazky/?sort=date"
+    },
+    {
+      "id": "owner-photo-set-2026-09-21",
+      "kind": "physical_deck_inventory",
+      "claim": "Four owner-provided photographs show 71 photographed card faces: 68 ordinary cards, 1 standalone EXIT card, and both faces of the same double-sided START card. Therefore the physical set represented is 70 distinct cards total: 68 ordinary + 1 EXIT + 1 START.",
+      "confidence": "direct-owner-evidence",
+      "source": "owner-photo-set:2026-09-21"
+    }
+  ],
+  "special_geometry": {
+    "exit": {
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "tunnel_edges": [
+            "N",
+            "S"
+          ],
+          "water": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "tunnel_edges": [
+            "N"
+          ],
+          "water": false
+        }
+      ],
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "observed",
+      "note": "The printed black path reaches the EXIT sign, but the sign-side endpoint is the escape terminal, not a normal open tunnel. Only the opposite edge is a connectable tunnel port for open-tunnel accounting."
+    },
+    "start_easy": {
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "tunnel_edges": [
+            "N",
+            "E",
+            "S",
+            "W"
+          ],
+          "water": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "tunnel_edges": [
+            "N",
+            "E",
+            "W"
+          ],
+          "water": false
+        }
+      ],
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "observed"
+    },
+    "start_normal": {
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "tunnel_edges": [
+            "N",
+            "E",
+            "S",
+            "W"
+          ],
+          "water": false
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "tunnel_edges": [
+            "N",
+            "E",
+            "S",
+            "W"
+          ],
+          "water": false
+        }
+      ],
+      "source": "owner-photo-set:2026-09-21",
+      "confidence": "observed"
+    }
+  },
+  "card_types": [],
+  "derived_inventory": {
+    "photographed_card_faces": 71,
+    "ordinary_cards": 68,
+    "exit_cards": 1,
+    "start_physical_cards": 1,
+    "start_faces_photographed": 2,
+    "non_start_draw_cards": 69,
+    "distinct_physical_cards_total": 70
+  }
+}
