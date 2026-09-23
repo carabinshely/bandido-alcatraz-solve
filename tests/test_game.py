@@ -1,3 +1,5 @@
+from random import Random
+
 from bandido_alcatraz.board import Board
 from bandido_alcatraz.game import GameState
 from bandido_alcatraz.model import CardDefinition, CellSpec, Direction, Material
@@ -130,3 +132,158 @@ def test_prevalidated_apply_matches_default_apply() -> None:
 
     assert first.status == second.status
     assert first.turns == second.turns == 1
+
+
+def test_new_initial_hand_without_exit_is_not_seen() -> None:
+    ordinary = card("ordinary", {Direction.WEST})
+    state = GameState.new(
+        start_card=card("start", {Direction.EAST}),
+        deck=[ordinary],
+        hand_size=1,
+        rng=Random(1),
+    )
+
+    assert not state.exit_seen
+
+
+def test_new_initial_hand_with_exit_is_seen() -> None:
+    exit_card = card("exit", {Direction.WEST}, is_exit=True)
+    state = GameState.new(
+        start_card=card("start", {Direction.EAST}),
+        deck=[exit_card],
+        hand_size=1,
+        rng=Random(1),
+    )
+
+    assert state.exit_seen
+    assert not state.exit_placed
+
+
+def test_non_exit_draw_does_not_set_exit_seen() -> None:
+    coat = card("coat", {Direction.WEST}, material=Material.RAINCOAT)
+    ordinary = card("ordinary", {Direction.WEST})
+    state = GameState(
+        board=board_with_east_exit(),
+        draw_pile=[ordinary],
+        hand=[coat],
+    )
+    collect = next(move for move in state.legal_moves() if move.action is Action.COLLECT)
+
+    state.apply(collect)
+
+    assert not state.exit_seen
+    assert state.hand == [ordinary]
+
+
+def test_exit_draw_sets_exit_seen() -> None:
+    coat = card("coat", {Direction.WEST}, material=Material.RAINCOAT)
+    exit_card = card("exit", {Direction.WEST}, is_exit=True)
+    state = GameState(
+        board=board_with_east_exit(),
+        draw_pile=[exit_card],
+        hand=[coat],
+    )
+    collect = next(move for move in state.legal_moves() if move.action is Action.COLLECT)
+
+    state.apply(collect)
+
+    assert state.exit_seen
+    assert state.hand == [exit_card]
+
+
+def test_long_refresh_without_exit_keeps_exit_unseen() -> None:
+    blocked = card("blocked", set())
+    playable = card("playable", {Direction.WEST})
+    state = GameState(
+        board=board_with_east_exit(),
+        draw_pile=[playable, playable, playable, playable],
+        hand=[blocked, blocked, blocked],
+    )
+
+    assert state.refresh_unplayable_hand()
+
+    assert not state.exit_seen
+    assert all(not item.is_exit for item in state.hand)
+
+
+def test_short_refresh_revealing_exit_sets_exit_seen() -> None:
+    blocked = card("blocked", set())
+    playable = card("playable", {Direction.WEST})
+    exit_card = card("exit", {Direction.WEST}, is_exit=True)
+    state = GameState(
+        board=board_with_east_exit(),
+        draw_pile=[playable, exit_card],
+        hand=[blocked, blocked, blocked],
+    )
+
+    assert state.refresh_unplayable_hand()
+
+    assert state.exit_seen
+    assert exit_card in state.hand
+
+
+def test_exit_seen_is_monotonic_across_later_refresh() -> None:
+    blocked = card("blocked", set())
+    playable = card("playable", {Direction.WEST})
+    state = GameState(
+        board=board_with_east_exit(),
+        draw_pile=[playable, playable],
+        hand=[blocked, blocked, blocked],
+        exit_seen=True,
+    )
+
+    assert state.refresh_unplayable_hand()
+
+    assert state.exit_seen
+
+
+def test_exit_placement_preserves_exit_seen() -> None:
+    exit_card = card("exit", {Direction.WEST}, is_exit=True)
+    state = GameState(
+        board=board_with_east_exit(),
+        draw_pile=[],
+        hand=[exit_card],
+        raincoats=3,
+        ropes=2,
+    )
+    assert state.exit_seen
+    place_exit = next(move for move in state.legal_moves() if move.action is Action.PLACE)
+
+    state.apply(place_exit)
+
+    assert state.exit_placed
+    assert state.exit_seen
+
+
+def test_direct_visible_exit_is_promoted_to_seen() -> None:
+    state = GameState(
+        board=board_with_east_exit(),
+        draw_pile=[],
+        hand=[card("exit", {Direction.WEST}, is_exit=True)],
+        exit_seen=False,
+    )
+
+    assert state.exit_seen
+
+
+def test_direct_placed_exit_is_promoted_to_seen() -> None:
+    state = GameState(
+        board=board_with_east_exit(),
+        draw_pile=[],
+        hand=[],
+        exit_placed=True,
+        exit_seen=False,
+    )
+
+    assert state.exit_seen
+
+
+def test_hidden_exit_in_draw_pile_does_not_set_exit_seen() -> None:
+    exit_card = card("exit", {Direction.WEST}, is_exit=True)
+    state = GameState(
+        board=board_with_east_exit(),
+        draw_pile=[exit_card],
+        hand=[card("ordinary", {Direction.WEST})],
+    )
+
+    assert not state.exit_seen
