@@ -1,0 +1,170 @@
+{
+  "schema": "bandido-alcatraz-experiment-manifest",
+  "schema_version": 1,
+  "experiment_id": "worker-9-direct-terminal-half-kill",
+  "date": "2026-09-23",
+  "dataset_status": "already-spent / diagnostic / non-confirmatory",
+  "authoritative_orchestrator_decision_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5793255157",
+  "starting_main": "87b8d3eeff3aaf53c5e887679360652a3f9e8d04",
+  "evaluated_simulator_commit": "8494f580317c8abe52034f765792139dca37711a",
+  "authoritative_workflow_run": {
+    "id": 35851084714,
+    "url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35851084714",
+    "conclusion": "success",
+    "runner": "bandido-alcatraz-ci"
+  },
+  "tests": {
+    "pytest": "85 passed",
+    "synthetic_smoke": "success",
+    "proxy_status": "success",
+    "real_photographed_deck_smoke": "success",
+    "deterministic_legal_move_ordering": "unchanged"
+  },
+  "policy": "BoundedMergeV4Policy(setup_weight=250)",
+  "model": {
+    "deck": "data/deck-v1.json",
+    "exit_geometry_source": "data/deck-observations-v0.json",
+    "rules_variant": "v0-threshold-equipment",
+    "raincoats_min": 3,
+    "ropes_min": 2,
+    "start": "easy / 5 exits",
+    "hand_size": 3
+  },
+  "transition_ids": {
+    "persistent": [
+      "2001:a25:s24",
+      "2004:a8:s7",
+      "2020:a22:s21",
+      "2024:a20:s19",
+      "2034:a18:s17",
+      "2084:a18:s17",
+      "2098:a17:s16",
+      "2104:a6:s5",
+      "2110:a15:s14",
+      "2129:a21:s20",
+      "2130:a26:s25",
+      "2138:a12:s11",
+      "2168:a35:s34",
+      "2171:a23:s22",
+      "2212:a34:s33",
+      "2314:a22:s21",
+      "2334:a13:s12",
+      "2372:a17:s16"
+    ],
+    "earlier_recovered": [
+      "2001:a16:s15",
+      "2004:a5:s4",
+      "2024:a14:s13",
+      "2034:a9:s8",
+      "2034:a15:s14",
+      "2110:a12:s11",
+      "2129:a17:s16",
+      "2130:a19:s18",
+      "2168:a26:s25",
+      "2168:a30:s29",
+      "2314:a20:s19",
+      "2372:a13:s12"
+    ],
+    "winning_recovered": [
+      "2005:a7:s6",
+      "2238:a23:s22",
+      "2282:a6:s5",
+      "2286:a10:s9",
+      "2371:a11:s10"
+    ]
+  },
+  "replay_integrity": {
+    "seed_scope": {
+      "distinct_seeds": 23,
+      "fresh_seeds_used": false,
+      "passed": true
+    },
+    "final_records": {
+      "exact_matches": 23,
+      "records_compared": 23,
+      "passed": true
+    },
+    "transition_identities": {
+      "exact_matches": 35,
+      "records_compared": 35,
+      "passed": true
+    }
+  },
+  "cohort_results": {
+    "persistent": {
+      "true_count": 0,
+      "total": 18,
+      "true_fraction": "0/18",
+      "false_count": 18
+    },
+    "earlier_recovered": {
+      "true_count": 1,
+      "total": 12,
+      "true_fraction": "1/12",
+      "false_count": 11,
+      "true_transition_ids": [
+        "2034:a9:s8"
+      ]
+    },
+    "winning_recovered": {
+      "true_count": 0,
+      "total": 5,
+      "true_fraction": "0/5",
+      "false_count": 5
+    },
+    "reversible_combined": {
+      "true_count": 1,
+      "total": 17,
+      "true_fraction": "1/17",
+      "false_count": 16,
+      "true_transition_ids": [
+        "2034:a9:s8"
+      ]
+    }
+  },
+  "persistent_false_negatives": [
+    "2001:a25:s24",
+    "2004:a8:s7",
+    "2020:a22:s21",
+    "2024:a20:s19",
+    "2034:a18:s17",
+    "2084:a18:s17",
+    "2098:a17:s16",
+    "2104:a6:s5",
+    "2110:a15:s14",
+    "2129:a21:s20",
+    "2130:a26:s25",
+    "2138:a12:s11",
+    "2168:a35:s34",
+    "2171:a23:s22",
+    "2212:a34:s33",
+    "2314:a22:s21",
+    "2334:a13:s12",
+    "2372:a17:s16"
+  ],
+  "reversible_false_positives": [
+    "2034:a9:s8"
+  ],
+  "false_case_mechanism_distribution": {
+    "frontier_removed_or_closed": 30,
+    "adjacency_changed": 0,
+    "mixed": 4,
+    "other": 0
+  },
+  "final_classification": "direct_terminal_half_kill_discriminator_not_supported",
+  "raw_artifact": {
+    "storage": "Google Drive",
+    "format": "GitHub Actions artifact ZIP containing one raw JSON file",
+    "drive_file_id": "1FYTAfuiLYmO-OrTJFndKimWQeAcZ6Vkj",
+    "drive_url": "https://drive.google.com/file/d/1FYTAfuiLYmO-OrTJFndKimWQeAcZ6Vkj/view?usp=drivesdk",
+    "parent_folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+    "byte_size": 4582,
+    "sha256": "255833b4cb46e2dad104212bec1e7c7443c7eb2eae46dff1377065347e60a008",
+    "readback_verified": true,
+    "inner_json_file": "preloss-direct-terminal-half-kill-audit-2026-09-23.json",
+    "inner_json_byte_size": 73287,
+    "inner_json_sha256": "79ab5a5f7fae3c1ffdba9a90e19c6a133031c4bb392b3fc85b8def44648d36f9"
+  },
+  "pull_request_url": "https://github.com/carabinshely/bandido-alcatraz-solve/pull/4",
+  "issue_2_result_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5793637142"
+}
