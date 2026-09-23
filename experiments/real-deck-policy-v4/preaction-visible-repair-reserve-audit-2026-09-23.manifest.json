@@ -1,0 +1,206 @@
+{
+  "schema": "bandido-alcatraz-experiment-manifest",
+  "schema_version": 1,
+  "experiment_id": "worker-10-visible-repair-reserve",
+  "date": "2026-09-23",
+  "dataset_status": "already-spent / development / diagnostic / non-confirmatory",
+  "authoritative_orchestrator_decision_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5794154223",
+  "starting_main": "ed406095f99704bd3b5a4206b34dde3345e2f542",
+  "evaluated_simulator_commit": "2048cbc6ff9b5bb8a6aa61b8f96c9a73675600f1",
+  "authoritative_workflow_run": {
+    "id": 35857275754,
+    "url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35857275754",
+    "conclusion": "success",
+    "runner": "bandido-alcatraz-ci"
+  },
+  "tests": {
+    "pytest": "85 passed",
+    "synthetic_smoke": "success",
+    "proxy_status": "success",
+    "real_photographed_deck_smoke": "success",
+    "deterministic_legal_move_ordering": "unchanged"
+  },
+  "policy": "BoundedMergeV4Policy(setup_weight=250)",
+  "model": {
+    "deck": "data/deck-v1.json",
+    "exit_geometry_source": "data/deck-observations-v0.json",
+    "rules_variant": "v0-threshold-equipment",
+    "raincoats_min": 3,
+    "ropes_min": 2,
+    "start": "easy / 5 exits",
+    "hand_size": 3
+  },
+  "transition_ids": {
+    "persistent": [
+      "2001:a25:s24",
+      "2004:a8:s7",
+      "2020:a22:s21",
+      "2024:a20:s19",
+      "2034:a18:s17",
+      "2084:a18:s17",
+      "2098:a17:s16",
+      "2104:a6:s5",
+      "2110:a15:s14",
+      "2129:a21:s20",
+      "2130:a26:s25",
+      "2138:a12:s11",
+      "2168:a35:s34",
+      "2171:a23:s22",
+      "2212:a34:s33",
+      "2314:a22:s21",
+      "2334:a13:s12",
+      "2372:a17:s16"
+    ],
+    "earlier_recovered": [
+      "2001:a16:s15",
+      "2004:a5:s4",
+      "2024:a14:s13",
+      "2034:a9:s8",
+      "2034:a15:s14",
+      "2110:a12:s11",
+      "2129:a17:s16",
+      "2130:a19:s18",
+      "2168:a26:s25",
+      "2168:a30:s29",
+      "2314:a20:s19",
+      "2372:a13:s12"
+    ],
+    "winning_recovered": [
+      "2005:a7:s6",
+      "2238:a23:s22",
+      "2282:a6:s5",
+      "2286:a10:s9",
+      "2371:a11:s10"
+    ]
+  },
+  "seed_scope": [
+    2001,
+    2004,
+    2005,
+    2020,
+    2024,
+    2034,
+    2084,
+    2098,
+    2104,
+    2110,
+    2129,
+    2130,
+    2138,
+    2168,
+    2171,
+    2212,
+    2238,
+    2282,
+    2286,
+    2314,
+    2334,
+    2371,
+    2372
+  ],
+  "replay_integrity": {
+    "seed_scope": {
+      "expected_distinct_seeds": 23,
+      "replayed_distinct_seeds": 23,
+      "fresh_seeds_used": false,
+      "passed": true
+    },
+    "final_records": {
+      "records_compared": 23,
+      "exact_matches": 23,
+      "passed": true
+    },
+    "transition_identities": {
+      "records_compared": 35,
+      "exact_matches": 35,
+      "passed": true
+    },
+    "pre_action_hands": {
+      "records_reconstructed": 35,
+      "exact_reconstructions": 35,
+      "replacement_draw_used_in_repair_audit": false,
+      "refresh_used_in_repair_audit": false,
+      "artificial_exit_injected": false,
+      "passed": true
+    },
+    "historical_action_type": {
+      "expected_place_count": 35,
+      "actual_place_count": 35,
+      "passed": true
+    }
+  },
+  "cohort_results": {
+    "persistent": {
+      "true_count": 18,
+      "total": 18,
+      "true_fraction": "18/18",
+      "false_count": 0
+    },
+    "earlier_recovered": {
+      "true_count": 5,
+      "total": 12,
+      "true_fraction": "5/12",
+      "false_count": 7
+    },
+    "winning_recovered": {
+      "true_count": 1,
+      "total": 5,
+      "true_fraction": "1/5",
+      "false_count": 4
+    },
+    "reversible_combined": {
+      "true_count": 6,
+      "total": 17,
+      "true_fraction": "6/17",
+      "false_count": 11
+    }
+  },
+  "persistent_false_negatives": [],
+  "reversible_false_positives": [
+    "2024:a14:s13",
+    "2130:a19:s18",
+    "2168:a26:s25",
+    "2168:a30:s29",
+    "2282:a6:s5",
+    "2372:a13:s12"
+  ],
+  "winning_false_positives": [
+    "2282:a6:s5"
+  ],
+  "worker8_provenance_cross_tab": {
+    "repair_already_visible_pre_action": 11,
+    "repair_appears_only_after_draw_or_visible_hand_change": 3,
+    "no_immediate_repair_in_either_view": 21
+  },
+  "final_classification": "capacity_kill_without_visible_repair_reserve_supported_for_v5_design",
+  "provenance_sources": {
+    "worker8_raw": {
+      "drive_file_id": "1HxKxPgGIBASaytNz2r5De7-dS0pyyi4e",
+      "drive_url": "https://drive.google.com/file/d/1HxKxPgGIBASaytNz2r5De7-dS0pyyi4e/view?usp=drivesdk",
+      "byte_size": 1203842,
+      "sha256": "aef42e22732280af79c68e8bb44b6fdbbf060f12e8caf325f85475e7a928a51b"
+    },
+    "worker9_manifest": "experiments/real-deck-policy-v4/preloss-direct-terminal-half-kill-audit-2026-09-23.manifest.json",
+    "worker9_raw": {
+      "drive_file_id": "1FYTAfuiLYmO-OrTJFndKimWQeAcZ6Vkj",
+      "drive_url": "https://drive.google.com/file/d/1FYTAfuiLYmO-OrTJFndKimWQeAcZ6Vkj/view?usp=drivesdk",
+      "archive_sha256": "255833b4cb46e2dad104212bec1e7c7443c7eb2eae46dff1377065347e60a008",
+      "inner_json_sha256": "79ab5a5f7fae3c1ffdba9a90e19c6a133031c4bb392b3fc85b8def44648d36f9"
+    }
+  },
+  "raw_artifact": {
+    "storage": "Google Drive",
+    "format": "ZIP containing one raw JSON file",
+    "drive_file_id": "1Cd5GL2sav26qPr8ZSkW4Qi7XnEDjhSC5",
+    "drive_url": "https://drive.google.com/file/d/1Cd5GL2sav26qPr8ZSkW4Qi7XnEDjhSC5/view?usp=drivesdk",
+    "parent_folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+    "byte_size": 5010,
+    "sha256": "b1e21969bb4b1873f7dd2938104bc1c1ebb39339a1c2bc643cd726d7dc4dc1b3",
+    "readback_verified": true,
+    "inner_json_file": "preaction-visible-repair-reserve-audit-2026-09-23.json",
+    "inner_json_byte_size": 69464,
+    "inner_json_sha256": "cf70178d1edd1e3b9326142c313c8b376986c2a08759202ec47827f060d97c2f"
+  },
+  "pull_request_url": "https://github.com/carabinshely/bandido-alcatraz-solve/pull/5",
+  "issue_2_result_url": null
+}
