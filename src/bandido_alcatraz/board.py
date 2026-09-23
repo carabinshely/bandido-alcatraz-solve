@@ -133,10 +133,10 @@ class Board:
     def place(self, card: CardDefinition, origin: Coord, quarter_turns: int = 0) -> None:
         prepared, overlaps = self._prepare_placement(card, origin, quarter_turns)
         for coord, cell in prepared.items():
-            self._cells[coord] = VisibleCell(
-                cell.tunnel_edges,
-                False if coord in overlaps else cell.water,
-            )
+            # Overlap replaces the visible half-cell. Preserve the new card's
+            # water flag: covering a water half with another water half does
+            # not make the newly visible water disappear.
+            self._cells[coord] = VisibleCell(cell.tunnel_edges, cell.water)
 
     def _prepare_placement(
         self, card: CardDefinition, origin: Coord, quarter_turns: int
