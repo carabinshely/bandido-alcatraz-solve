@@ -3,9 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from random import Random
 
+from .board import Board
 from .game import GameState
-from .model import Material
-from .moves import Action, Move
+from .model import CardDefinition, Material
+from .moves import Action, Move, legal_moves
 from .rules import is_equipment_ready
 
 
@@ -41,6 +42,117 @@ class PolicyWeights:
     bounded_merge_setup_gain: int = 0
     places_exit_ready: int = 5_000
     places_exit_early: int = -5_000
+
+
+@dataclass(frozen=True, slots=True)
+class RetainedVisibleCard:
+    hand_index: int
+    card: CardDefinition
+
+
+@dataclass(frozen=True, slots=True)
+class PlacementPreview:
+    resulting_board: Board
+    retained_visible_cards: tuple[RetainedVisibleCard, ...]
+
+
+def standalone_exit_legal_move_count(
+    board: Board,
+    exit_card: CardDefinition,
+) -> int:
+    """Return canonical standalone EXIT placement capacity without mutation."""
+    return len(legal_moves(board, (exit_card,)))
+
+
+def preview_ordinary_non_exit_placement_without_draw(
+    state: GameState,
+    move: Move,
+) -> PlacementPreview:
+    """Preview one legal ordinary non-EXIT placement without drawing."""
+    if move.action is not Action.PLACE:
+        raise ValueError("preview requires an ordinary placement move")
+    if move.hand_index < 0 or move.hand_index >= len(state.hand):
+        raise IndexError("hand_index out of range")
+    if len(state.hand) != 3:
+        raise ValueError("visible-repair preview requires a 3-card hand")
+    if move not in state.legal_moves():
+        raise ValueError("preview requires a currently legal move")
+
+    card = state.hand[move.hand_index]
+    if card.is_exit:
+        raise ValueError("preview requires a non-EXIT card")
+    if move.origin is None:
+        raise ValueError("placement move requires an origin")
+
+    resulting_board = state.board.clone()
+    resulting_board.place(card, move.origin, move.quarter_turns)
+    retained = tuple(
+        RetainedVisibleCard(hand_index=index, card=retained_card)
+        for index, retained_card in enumerate(state.hand)
+        if index != move.hand_index
+    )
+    return PlacementPreview(
+        resulting_board=resulting_board,
+        retained_visible_cards=retained,
+    )
+
+
+def has_visible_exit_repair_reserve(
+    resulting_board: Board,
+    retained_visible_cards: tuple[RetainedVisibleCard, ...],
+    exit_card: CardDefinition,
+) -> bool:
+    """Return whether one retained visible card can restore EXIT capacity."""
+    for retained in retained_visible_cards:
+        card = retained.card
+        if card.is_exit:
+            continue
+
+        for move in legal_moves(resulting_board, (card,)):
+            if move.action is not Action.PLACE:
+                continue
+            assert move.origin is not None
+            repair_board = resulting_board.clone()
+            repair_board.place(card, move.origin, move.quarter_turns)
+            if standalone_exit_legal_move_count(repair_board, exit_card) > 0:
+                return True
+
+    return False
+
+
+def is_unsafe_capacity_kill_without_visible_repair_reserve(
+    state: GameState,
+    move: Move,
+    exit_card: CardDefinition,
+) -> bool:
+    """Classify the exact Worker #10 no-draw capacity-kill property."""
+    if move.action is not Action.PLACE:
+        return False
+    if move.hand_index < 0 or move.hand_index >= len(state.hand):
+        raise IndexError("hand_index out of range")
+
+    card = state.hand[move.hand_index]
+    if card.is_exit:
+        return False
+
+    if standalone_exit_legal_move_count(state.board, exit_card) <= 0:
+        return False
+
+    preview = preview_ordinary_non_exit_placement_without_draw(state, move)
+    if (
+        standalone_exit_legal_move_count(
+            preview.resulting_board,
+            exit_card,
+        )
+        > 0
+    ):
+        return False
+
+    return not has_visible_exit_repair_reserve(
+        preview.resulting_board,
+        preview.retained_visible_cards,
+        exit_card,
+    )
 
 
 def move_features(state: GameState, move: Move) -> MoveFeatures:
@@ -127,6 +239,7 @@ def clone_state(state: GameState) -> GameState:
         raincoats=state.raincoats,
         ropes=state.ropes,
         exit_placed=state.exit_placed,
+        exit_seen=state.exit_seen,
         turns=state.turns,
         set_aside_unplayable=state.set_aside_unplayable,
     )
