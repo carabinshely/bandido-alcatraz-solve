@@ -12,6 +12,7 @@ from bandido_alcatraz.policies import (
     GeometryAwareV1Policy,
     GreedyV0Policy,
     MergeAwareV3Policy,
+    VisibleRepairReserveV5Policy,
     WaterFirstV2Policy,
     WaterSpaceV3Policy,
 )
@@ -276,3 +277,359 @@ def test_bounded_merge_v4_only_adds_bounded_setup_reward() -> None:
     assert v4.new_trapped_water == base.new_trapped_water
     assert v4.delta_merge_opportunities == 0
     assert v4.bounded_merge_setup_gain == 500
+
+
+def synthetic_exit_card() -> CardDefinition:
+    return CardDefinition(
+        "exit",
+        (
+            CellSpec(
+                0,
+                0,
+                frozenset({Direction.NORTH, Direction.SOUTH}),
+            ),
+            CellSpec(0, 1, frozenset({Direction.NORTH})),
+        ),
+        is_exit=True,
+    )
+
+
+def capacity_killer_card() -> CardDefinition:
+    return CardDefinition(
+        "capacity-killer",
+        (
+            CellSpec(0, 0, frozenset({Direction.NORTH})),
+            CellSpec(1, 0, frozenset({Direction.NORTH})),
+        ),
+    )
+
+
+def visible_repair_card() -> CardDefinition:
+    return card(
+        "repair",
+        {Direction.NORTH, Direction.EAST, Direction.SOUTH},
+    )
+
+
+def blocked_card(card_id: str = "blocked") -> CardDefinition:
+    return card(card_id, set())
+
+
+def state_with_two_open_for_v5(
+    hand: list[CardDefinition],
+    *,
+    exit_seen: bool = False,
+    exit_placed: bool = False,
+    coats: int = 0,
+    ropes: int = 0,
+) -> GameState:
+    board = Board()
+    board.seed(card("start-two-open", {Direction.NORTH, Direction.EAST}))
+    return GameState(
+        board=board,
+        draw_pile=[],
+        hand=hand,
+        raincoats=coats,
+        ropes=ropes,
+        exit_seen=exit_seen,
+        exit_placed=exit_placed,
+    )
+
+
+def state_with_one_north_open_for_v5(
+    hand: list[CardDefinition],
+) -> GameState:
+    board = Board()
+    board.seed(card("start-one-open", {Direction.NORTH}))
+    return GameState(
+        board=board,
+        draw_pile=[],
+        hand=hand,
+    )
+
+
+def test_v5_lexicographically_excludes_higher_scoring_unsafe_move() -> None:
+    exit_card = synthetic_exit_card()
+    preserving = card("preserving", {Direction.NORTH})
+    state = state_with_two_open_for_v5(
+        [preserving, capacity_killer_card(), blocked_card()]
+    )
+
+    v4_move = BoundedMergeV4Policy(setup_weight=250).choose(
+        state,
+        Random(3),
+    )
+    v5_move = VisibleRepairReserveV5Policy(exit_card=exit_card).choose(
+        state,
+        Random(3),
+    )
+
+    assert v4_move is not None
+    assert v5_move is not None
+    assert state.hand[v4_move.hand_index].card_id == "capacity-killer"
+    assert state.hand[v5_move.hand_index].card_id == "preserving"
+
+
+def test_v5_preserves_v4_scoring_among_multiple_normal_moves() -> None:
+    exit_card = synthetic_exit_card()
+    higher = card("higher-normal", {Direction.NORTH})
+    lower = visible_repair_card()
+    state = state_with_two_open_for_v5(
+        [higher, lower, blocked_card()]
+    )
+
+    v4_move = BoundedMergeV4Policy(setup_weight=250).choose(
+        state,
+        Random(5),
+    )
+    v5_move = VisibleRepairReserveV5Policy(exit_card=exit_card).choose(
+        state,
+        Random(5),
+    )
+
+    assert v5_move == v4_move
+    assert v5_move is not None
+    assert state.hand[v5_move.hand_index].card_id == "higher-normal"
+
+
+def test_v5_preserves_existing_rng_tie_semantics_for_normal_moves() -> None:
+    exit_card = synthetic_exit_card()
+    state = state_with_two_open_for_v5(
+        [
+            card("normal-a", {Direction.NORTH}),
+            card("normal-b", {Direction.NORTH}),
+            blocked_card(),
+        ]
+    )
+
+    v4_move = BoundedMergeV4Policy(setup_weight=250).choose(
+        state,
+        Random(17),
+    )
+    v5_move = VisibleRepairReserveV5Policy(exit_card=exit_card).choose(
+        state,
+        Random(17),
+    )
+
+    assert v5_move == v4_move
+
+
+def test_v5_all_unsafe_moves_fall_back_to_full_v4_selection() -> None:
+    exit_card = synthetic_exit_card()
+    state = state_with_one_north_open_for_v5(
+        [
+            card("unsafe-a", {Direction.NORTH}),
+            card("unsafe-b", {Direction.NORTH}),
+            blocked_card(),
+        ]
+    )
+
+    v4_move = BoundedMergeV4Policy(setup_weight=250).choose(
+        state,
+        Random(19),
+    )
+    v5_move = VisibleRepairReserveV5Policy(exit_card=exit_card).choose(
+        state,
+        Random(19),
+    )
+
+    assert v4_move is not None
+    assert v5_move == v4_move
+
+
+def test_v5_single_unsafe_move_falls_back_and_selects_it() -> None:
+    exit_card = synthetic_exit_card()
+    state = state_with_one_north_open_for_v5(
+        [
+            card("only-unsafe", {Direction.NORTH}),
+            blocked_card("one"),
+            blocked_card("two"),
+        ]
+    )
+
+    v5_move = VisibleRepairReserveV5Policy(exit_card=exit_card).choose(
+        state,
+        Random(23),
+    )
+
+    assert v5_move is not None
+    assert state.hand[v5_move.hand_index].card_id == "only-unsafe"
+
+
+def test_v5_capacity_already_zero_is_v4_equivalent() -> None:
+    exit_card = synthetic_exit_card()
+    board = Board()
+    board.seed(blocked_card("sealed-start"))
+    collectable = card(
+        "rope",
+        set(),
+        material=Material.ROPE,
+    )
+    state = GameState(
+        board=board,
+        draw_pile=[],
+        hand=[collectable, blocked_card("one"), blocked_card("two")],
+    )
+
+    v4_move = BoundedMergeV4Policy(setup_weight=250).choose(
+        state,
+        Random(29),
+    )
+    v5_move = VisibleRepairReserveV5Policy(exit_card=exit_card).choose(
+        state,
+        Random(29),
+    )
+
+    assert v5_move == v4_move
+    assert v5_move is not None
+    assert v5_move.action is Action.COLLECT
+
+
+def test_v5_exit_seen_is_v4_equivalent() -> None:
+    exit_card = synthetic_exit_card()
+    state = state_with_two_open_for_v5(
+        [
+            card("preserving", {Direction.NORTH}),
+            capacity_killer_card(),
+            blocked_card(),
+        ],
+        exit_seen=True,
+    )
+
+    v4_move = BoundedMergeV4Policy(setup_weight=250).choose(
+        state,
+        Random(31),
+    )
+    v5_move = VisibleRepairReserveV5Policy(exit_card=exit_card).choose(
+        state,
+        Random(31),
+    )
+
+    assert v5_move == v4_move
+
+
+def test_v5_exit_placed_is_v4_equivalent() -> None:
+    exit_card = synthetic_exit_card()
+    state = state_with_two_open_for_v5(
+        [
+            card("preserving", {Direction.NORTH}),
+            capacity_killer_card(),
+            blocked_card(),
+        ],
+        exit_placed=True,
+    )
+    assert state.exit_seen
+
+    v4_move = BoundedMergeV4Policy(setup_weight=250).choose(
+        state,
+        Random(37),
+    )
+    v5_move = VisibleRepairReserveV5Policy(exit_card=exit_card).choose(
+        state,
+        Random(37),
+    )
+
+    assert v5_move == v4_move
+
+
+def test_v5_capacity_kill_with_visible_repair_reserve_remains_normal() -> None:
+    exit_card = synthetic_exit_card()
+    state = state_with_two_open_for_v5(
+        [
+            capacity_killer_card(),
+            visible_repair_card(),
+            blocked_card(),
+        ]
+    )
+
+    v4_move = BoundedMergeV4Policy(setup_weight=250).choose(
+        state,
+        Random(41),
+    )
+    v5_move = VisibleRepairReserveV5Policy(exit_card=exit_card).choose(
+        state,
+        Random(41),
+    )
+
+    assert v5_move == v4_move
+    assert v5_move is not None
+    assert state.hand[v5_move.hand_index].card_id == "capacity-killer"
+
+
+def test_v5_capacity_preserving_move_remains_normal() -> None:
+    exit_card = synthetic_exit_card()
+    state = state_with_two_open_for_v5(
+        [
+            card("preserving", {Direction.NORTH}),
+            blocked_card("one"),
+            blocked_card("two"),
+        ]
+    )
+
+    v4_move = BoundedMergeV4Policy(setup_weight=250).choose(
+        state,
+        Random(43),
+    )
+    v5_move = VisibleRepairReserveV5Policy(exit_card=exit_card).choose(
+        state,
+        Random(43),
+    )
+
+    assert v5_move == v4_move
+    assert v5_move is not None
+    assert state.hand[v5_move.hand_index].card_id == "preserving"
+
+
+def test_v5_collection_remains_normal() -> None:
+    exit_card = synthetic_exit_card()
+    rope = card(
+        "needed-rope",
+        set(),
+        material=Material.ROPE,
+    )
+    state = state_with_two_open_for_v5(
+        [rope, card("preserving", {Direction.NORTH}), blocked_card()],
+        coats=3,
+        ropes=1,
+    )
+
+    v5_move = VisibleRepairReserveV5Policy(exit_card=exit_card).choose(
+        state,
+        Random(47),
+    )
+
+    assert v5_move is not None
+    assert v5_move.action is Action.COLLECT
+    assert state.hand[v5_move.hand_index].card_id == "needed-rope"
+
+
+def test_v5_exit_placement_remains_v4_equivalent() -> None:
+    exit_card = synthetic_exit_card()
+    state = state_with_one_north_open_for_v5(
+        [exit_card, blocked_card("one"), blocked_card("two")]
+    )
+    state.raincoats = 3
+    state.ropes = 2
+    assert state.exit_seen
+
+    v4_move = BoundedMergeV4Policy(setup_weight=250).choose(
+        state,
+        Random(53),
+    )
+    v5_move = VisibleRepairReserveV5Policy(exit_card=exit_card).choose(
+        state,
+        Random(53),
+    )
+
+    assert v5_move == v4_move
+    assert v5_move is not None
+    assert state.hand[v5_move.hand_index].is_exit
+
+
+def test_v5_weights_are_exactly_v4_250_weights() -> None:
+    exit_card = synthetic_exit_card()
+
+    assert (
+        VisibleRepairReserveV5Policy(exit_card=exit_card).weights
+        == BoundedMergeV4Policy(setup_weight=250).weights
+    )
