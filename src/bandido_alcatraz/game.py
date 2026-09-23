@@ -17,9 +17,9 @@ class GameState:
     raincoats: int = 0
     ropes: int = 0
     exit_placed: bool = False
-    exit_seen: bool = False
     turns: int = 0
     set_aside_unplayable: int = 0
+    exit_seen: bool = False
 
     def __post_init__(self) -> None:
         self._mark_visible_exit_seen()
