@@ -90,6 +90,33 @@ def test_water_reduction_has_positive_default_value() -> None:
     assert score_features(features, PolicyWeights()) > 0
 
 
+def test_water_on_water_overlap_is_not_scored_as_water_reduction() -> None:
+    board = Board()
+    board.seed(card("water", {Direction.EAST, Direction.WEST}, water=True))
+    water_cover = CardDefinition(
+        "water-cover",
+        (
+            CellSpec(
+                0,
+                0,
+                frozenset({Direction.EAST, Direction.WEST}),
+                water=True,
+            ),
+            CellSpec(1, 0, frozenset({Direction.WEST})),
+        ),
+    )
+    state = GameState(board=board, draw_pile=[], hand=[water_cover])
+    move = next(
+        move
+        for move in state.legal_moves()
+        if move.action is Action.PLACE and move.origin == (0, 0)
+    )
+
+    features = move_features(state, move)
+
+    assert features.delta_visible_water == 0
+
+
 def test_default_weighted_policy_prefers_winning_exit() -> None:
     state = state_with_one_open(
         [
