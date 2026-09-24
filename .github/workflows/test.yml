@@ -35,3 +35,13 @@ jobs:
         run: python scripts/proxy_status.py
       - name: Real photographed-deck smoke
         run: python scripts/run_real_deck_smoke.py
+      - name: Worker 14 bounded geometry debt audit
+        env:
+          EVALUATED_COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: python scripts/run_worker14_v5_geometry_debt.py --output worker14-v5-geometry-debt.json
+      - name: Upload Worker 14 raw result
+        uses: actions/upload-artifact@v4
+        with:
+          name: worker-14-v5-geometry-debt
+          path: worker14-v5-geometry-debt.json
+          if-no-files-found: error
