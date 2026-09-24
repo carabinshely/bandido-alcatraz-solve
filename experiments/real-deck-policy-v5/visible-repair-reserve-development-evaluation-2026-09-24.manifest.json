@@ -1,0 +1,306 @@
+{
+  "schema": "bandido-alcatraz-v5-development-evaluation-manifest",
+  "schema_version": 1,
+  "experiment_id": "worker-13-v5-visible-repair-reserve-development-evaluation",
+  "date": "2026-09-24",
+  "dataset_status": "already-spent / selected / development / non-confirmatory",
+  "authoritative_orchestrator_decision_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5812670550",
+  "starting_canonical_implementation_sha": "aa4344b4560fba2f2f8eebc01d7a338db5ed0ec7",
+  "evaluated_commit": "9424038cacfd594605dfb840a63160c545dbea80",
+  "authoritative_workflow_run": {
+    "id": 35992492878,
+    "url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/35992492878",
+    "conclusion": "success",
+    "runner": "bandido-alcatraz-ci",
+    "routine_tests": 131,
+    "synthetic_smoke": "success",
+    "proxy_status": "success",
+    "real_photographed_deck_smoke": "success"
+  },
+  "production_implementation_changed": false,
+  "fixed_model": {
+    "deck_file": "data/deck-v1.json",
+    "exit_geometry_source": "data/deck-observations-v0.json",
+    "rules_variant": "v0-threshold-equipment",
+    "raincoats_min": 3,
+    "ropes_min": 2,
+    "start_side": "easy-5-exit",
+    "hand_size": 3
+  },
+  "policies": {
+    "comparator": "BoundedMergeV4Policy(setup_weight=250)",
+    "treatment": "VisibleRepairReserveV5Policy(exit_card=deck.exit_card)",
+    "v5_weights_equal_v4_250": true,
+    "variants_tested": 1,
+    "weight_sweep": false
+  },
+  "seed_scope": [
+    2001,
+    2004,
+    2005,
+    2020,
+    2024,
+    2034,
+    2084,
+    2098,
+    2104,
+    2110,
+    2129,
+    2130,
+    2138,
+    2168,
+    2171,
+    2212,
+    2238,
+    2282,
+    2286,
+    2314,
+    2334,
+    2371,
+    2372
+  ],
+  "fresh_seeds_used": false,
+  "holdout_used": false,
+  "source_provenance": {
+    "worker8": {
+      "drive_file_id": "1HxKxPgGIBASaytNz2r5De7-dS0pyyi4e",
+      "bytes": 1203842,
+      "sha256": "aef42e22732280af79c68e8bb44b6fdbbf060f12e8caf325f85475e7a928a51b"
+    },
+    "worker10": {
+      "drive_file_id": "1Cd5GL2sav26qPr8ZSkW4Qi7XnEDjhSC5",
+      "archive_bytes": 5010,
+      "archive_sha256": "b1e21969bb4b1873f7dd2938104bc1c1ebb39339a1c2bc643cd726d7dc4dc1b3",
+      "inner_json_bytes": 69464,
+      "inner_json_sha256": "cf70178d1edd1e3b9326142c313c8b376986c2a08759202ec47827f060d97c2f"
+    }
+  },
+  "integrity": {
+    "repository_and_implementation": {
+      "passed": true,
+      "forbidden_changes": [],
+      "deterministic_legal_move_ordering_unchanged": true
+    },
+    "v4_final_records": {
+      "passed": true,
+      "records_compared": 23,
+      "exact_matches": 23,
+      "mismatches": []
+    },
+    "worker10_transition_identities": {
+      "passed": true,
+      "records_compared": 35,
+      "exact_matches": 35,
+      "mismatches": []
+    },
+    "exit_seen_false_at_worker10_states": {
+      "passed": true,
+      "exact_false": 35,
+      "total": 35
+    },
+    "v5_classifier_fidelity": {
+      "passed": true,
+      "exact_matches": 35,
+      "total": 35,
+      "unsafe_expected": 24,
+      "unsafe_actual": 24,
+      "normal_expected": 11,
+      "normal_actual": 11
+    }
+  },
+  "paired_outcomes": {
+    "v4_wins": 5,
+    "v5_wins": 3,
+    "class_a_rescues_out_of_18": 0,
+    "baseline_win_regressions_out_of_5": 2,
+    "unchanged_v4_wins_out_of_5": 3,
+    "paired_net_win_count_change": -2,
+    "rescue_seeds": [],
+    "regression_seeds": [
+      2238,
+      2282
+    ],
+    "unchanged_win_seeds": [
+      2005,
+      2286,
+      2371
+    ],
+    "unchanged_nonwin_count": 18
+  },
+  "persistent_targets": {
+    "preempted_out_of_18": 18,
+    "reached_and_historical_unsafe_move_suppressed": 13,
+    "not_reached_after_earlier_v5_safety_divergence": 5,
+    "reached_but_not_suppressed": 0,
+    "other": 0,
+    "reached_and_suppressed_ids": [
+      "2001:a25:s24",
+      "2004:a8:s7",
+      "2020:a22:s21",
+      "2034:a18:s17",
+      "2098:a17:s16",
+      "2104:a6:s5",
+      "2110:a15:s14",
+      "2129:a21:s20",
+      "2138:a12:s11",
+      "2171:a23:s22",
+      "2212:a34:s33",
+      "2314:a22:s21",
+      "2334:a13:s12"
+    ],
+    "not_reached_after_earlier_divergence_ids": [
+      "2024:a20:s19",
+      "2084:a18:s17",
+      "2130:a26:s25",
+      "2168:a35:s34",
+      "2372:a17:s16"
+    ]
+  },
+  "reversible_false_positives": {
+    "2024:a14:s13": {
+      "checkpoint_reached": true,
+      "historical_action_suppressed": true,
+      "earlier_v5_divergence": false,
+      "subsequent_capacity_recovery": true,
+      "v4_outcome": "nonwin",
+      "v5_outcome": "nonwin"
+    },
+    "2130:a19:s18": {
+      "checkpoint_reached": true,
+      "historical_action_suppressed": true,
+      "earlier_v5_divergence": false,
+      "subsequent_capacity_recovery": false,
+      "v4_outcome": "nonwin",
+      "v5_outcome": "nonwin"
+    },
+    "2168:a26:s25": {
+      "checkpoint_reached": true,
+      "historical_action_suppressed": true,
+      "earlier_v5_divergence": false,
+      "subsequent_capacity_recovery": false,
+      "v4_outcome": "nonwin",
+      "v5_outcome": "nonwin"
+    },
+    "2168:a30:s29": {
+      "checkpoint_reached": false,
+      "historical_action_suppressed": "not reached",
+      "earlier_v5_divergence": true,
+      "subsequent_capacity_recovery": false,
+      "v4_outcome": "nonwin",
+      "v5_outcome": "nonwin"
+    },
+    "2282:a6:s5": {
+      "checkpoint_reached": true,
+      "historical_action_suppressed": true,
+      "earlier_v5_divergence": false,
+      "subsequent_capacity_recovery": true,
+      "v4_outcome": "win",
+      "v5_outcome": "nonwin"
+    },
+    "2372:a13:s12": {
+      "checkpoint_reached": true,
+      "historical_action_suppressed": true,
+      "earlier_v5_divergence": false,
+      "subsequent_capacity_recovery": false,
+      "v4_outcome": "nonwin",
+      "v5_outcome": "nonwin"
+    }
+  },
+  "seed_2282": {
+    "checkpoint": "2282:a6:s5",
+    "checkpoint_reached": true,
+    "historical_v4_action_suppressed": true,
+    "first_divergence": {
+      "transition_id": "2282:a6:s5",
+      "current_exit_capacity": 1,
+      "normal_move_count": 2,
+      "unsafe_move_count": 3,
+      "v4_selected_move": {
+        "action": "place",
+        "card_id": "photo-1-r1-c4",
+        "hand_index": 2,
+        "origin": [
+          2,
+          -1
+        ],
+        "quarter_turns": 3
+      },
+      "v5_selected_move": {
+        "action": "collect",
+        "card_id": "photo-1-r1-c4",
+        "hand_index": 2,
+        "origin": null,
+        "quarter_turns": 0
+      },
+      "immediate_exit_capacity_after_v4_move": 0,
+      "immediate_exit_capacity_after_v5_move": 1
+    },
+    "subsequent_capacity": {
+      "zero_after_action_9": true,
+      "recovered_by_action_11": true,
+      "zero_after_action_16": true,
+      "recovered_by_action_18": true
+    },
+    "first_exit_sighting": {
+      "kind": "normal_draw",
+      "action_turn": 17
+    },
+    "exit_placement_turn": 20,
+    "v4_final": {
+      "won": true,
+      "failure_reason": "win",
+      "turns": 20,
+      "final_open_tunnels": 0,
+      "visible_water": 0,
+      "raincoats": 3,
+      "ropes": 4
+    },
+    "v5_final": {
+      "won": false,
+      "failure_reason": "deck_exhausted",
+      "turns": 69,
+      "final_open_tunnels": 17,
+      "visible_water": 2,
+      "raincoats": 5,
+      "ropes": 6
+    }
+  },
+  "safety_tier": {
+    "total_interventions": 57,
+    "total_all_unsafe_fallbacks": 1,
+    "all_unsafe_fallback_example": {
+      "seed": 2004,
+      "transition_id": "2004:a25:s24",
+      "normal_moves": 0,
+      "unsafe_moves": 2,
+      "v4_v5_choice_unchanged": true
+    },
+    "seeds_with_no_v4_v5_divergence_before_exit_first_seen": [
+      2005,
+      2286,
+      2371
+    ]
+  },
+  "final_preregistered_classification": "v5_development_signal_not_supported",
+  "classification_gate_fired_by": {
+    "class_a_rescues_lte_1": true,
+    "baseline_win_regressions_gte_2": true,
+    "paired_net_win_count_change_lte_0": true,
+    "persistent_targets_preempted_lte_12": false
+  },
+  "interpretation_limit": "Observed counts are descriptive development evidence on an intentionally selected already-spent cohort; they are not an unbiased population win-rate estimate and are non-confirmatory.",
+  "raw_artifact": {
+    "drive_file_id": "1cYGQHLh2-A8b8TaeL20_fXVH-6Kg8QfL",
+    "drive_url": "https://drive.google.com/file/d/1cYGQHLh2-A8b8TaeL20_fXVH-6Kg8QfL/view?usp=drivesdk",
+    "parent_folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+    "archive_name": "v5-visible-repair-reserve-development-evaluation-2026-09-24.zip",
+    "archive_bytes": 403282,
+    "archive_sha256": "bd300ce874b14b72c41c57a56a0230c0703ef63a50ae97a56856ba3a5d63c583",
+    "inner_filename": "worker13-v5-development-evaluation.json",
+    "inner_bytes": 19494891,
+    "inner_sha256": "f8b20de7d24d14cfd8fe33cd770057ce664a706531d4d8dbc09b3477ad3da9c2",
+    "readback_verified": true
+  },
+  "issue_result_url": null,
+  "pr_url": "https://github.com/carabinshely/bandido-alcatraz-solve/pull/8"
+}
