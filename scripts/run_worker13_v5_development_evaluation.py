@@ -92,7 +92,7 @@ def play_v5(seed,deck):
         tid=f"{seed}:a{s.turns+1}:s{s.turns}"; cap=standalone_exit_legal_move_count(s.board,deck.exit_card); phase=active(s,deck.exit_card)
         _,u,n,allunsafe=classify(s,deck.exit_card) if phase else (moves,0,len(moves),False)
         rp=Random();rp.setstate(rng.getstate()); vm=probe.choose(s,rp); m=p.choose(s,rng); vs=sig(s,m); v4s=sig(s,vm)
-        unsafe=is_unsafe_capacity_kill_without_visible_repair_reserve(s,vm,deck.exit_card); res=reserve(s,vm,deck.exit_card); filt=phase and u>0 and n>0
+        unsafe=is_unsafe_capacity_kill_without_visible_repair_reserve(s,vm,deck.exit_card) if phase else False; res=reserve(s,vm,deck.exit_card) if phase else None; filt=phase and u>0 and n>0
         interventions+=int(filt); fallbacks+=int(phase and allunsafe); v4cap=postcap(s,vm,deck.exit_card); v5cap=postcap(s,m,deck.exit_card)
         sample={"fingerprint":fp(s),"v5":vs,"v4_probe":v4s,"v4_unsafe":unsafe,"normal":n,"unsafe":u,"fallback":phase and allunsafe,"filter":filt,"v5_immediate_capacity":v5cap};samples[tid]=sample
         if vm!=m and firstdiv is None:firstdiv={"transition_id":tid,"action_turn":s.turns+1,"state_turn_before_action":s.turns,"v4_selected_move":v4s,"v5_selected_move":vs,"v4_selected_move_unsafe":unsafe,"current_exit_capacity":cap,"normal_move_count":n,"unsafe_move_count":u,"all_unsafe_fallback":phase and allunsafe,"visible_repair_reserve_for_v4_move":res,"immediate_exit_capacity_after_v4_move":v4cap,"immediate_exit_capacity_after_v5_move":v5cap,"safety_filter_applied":filt}
