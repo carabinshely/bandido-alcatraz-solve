@@ -35,3 +35,13 @@ jobs:
         run: python scripts/proxy_status.py
       - name: Real photographed-deck smoke
         run: python scripts/run_real_deck_smoke.py
+      - name: Worker 15 bounded next-hand closure reserve audit
+        env:
+          EVALUATED_COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: python scripts/run_worker15_next_hand_closure_reserve.py --output worker15-next-hand-closure-reserve.json
+      - name: Upload Worker 15 raw result
+        uses: actions/upload-artifact@v4
+        with:
+          name: worker-15-next-hand-closure-reserve
+          path: worker15-next-hand-closure-reserve.json
+          if-no-files-found: error
