@@ -1,0 +1,473 @@
+{
+  "schema": "bandido-alcatraz-v5-mixed-case-next-hand-closure-reserve-audit-manifest",
+  "schema_version": 1,
+  "experiment_id": "worker-15-v5-mixed-case-next-hand-closure-reserve-audit",
+  "date": "2026-09-25",
+  "dataset_status": "already-spent / selected / development / diagnostic / non-confirmatory",
+  "authoritative_orchestrator_decision_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5830566808",
+  "starting_main": "f9f3484a38e9e129fcf2cbcb70a9b517a20a1e29",
+  "evaluated_commit": "e4d98a64a58b4c2aa29db0794b28611724392f4f",
+  "authoritative_workflow_run": {
+    "id": 36138794554,
+    "url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/36138794554",
+    "conclusion": "success",
+    "runner": "bandido-alcatraz-ci",
+    "routine_tests": 131,
+    "synthetic_smoke": "success",
+    "proxy_status": "success",
+    "real_photographed_deck_smoke": "success"
+  },
+  "production_implementation_changed": false,
+  "fixed_model": {
+    "deck_file": "data/deck-v1.json",
+    "exit_geometry_source": "data/deck-observations-v0.json",
+    "rules_variant": "v0-threshold-equipment",
+    "raincoats_min": 3,
+    "ropes_min": 2,
+    "start_side": "easy-5-exit",
+    "hand_size": 3,
+    "v4": "BoundedMergeV4Policy(setup_weight=250)",
+    "v5": "VisibleRepairReserveV5Policy(exit_card=deck.exit_card)"
+  },
+  "primary_transition_ids": [
+    "2024:a14:s13",
+    "2098:a17:s16",
+    "2168:a26:s25",
+    "2238:a20:s19",
+    "2372:a13:s12",
+    "2372:a22:s21"
+  ],
+  "control_transition_id": "2084:a10:s9",
+  "seed_scope": [
+    2024,
+    2084,
+    2098,
+    2168,
+    2238,
+    2372
+  ],
+  "fresh_seeds_used": false,
+  "holdout_used": false,
+  "integrity": {
+    "repository": {
+      "worker14_manifest_present": true,
+      "production_or_model_changes": [],
+      "deterministic_legal_move_ordering_unchanged": true,
+      "passed": true
+    },
+    "state_reconstruction": {
+      "exact_matches": 7,
+      "total": 7,
+      "missing_ids": [],
+      "mismatches": [],
+      "passed": true
+    },
+    "primary_six_card_identity": {
+      "same_consumed_card_id": 6,
+      "same_hand_index": 6,
+      "both_place": 6,
+      "total": 6,
+      "passed": true
+    },
+    "successor_identity": {
+      "same_drawn_card_id": 6,
+      "same_successor_hand": 6,
+      "same_post_draw_pile": 6,
+      "exactly_one_draw_each": 6,
+      "exactly_one_action_each": 6,
+      "exit_seen_false_both": 6,
+      "no_refresh": true,
+      "no_second_draw": true,
+      "no_second_action": true,
+      "total": 6,
+      "mismatches": [],
+      "passed": true
+    },
+    "pre_action_state_provenance": {
+      "2024:a14:s13": {
+        "fingerprint_sha256": "f04724a6f4335fb0bccee6c730cf384139df7d3caf501b46e7855349c3cca023",
+        "draw_pile_count": 53,
+        "draw_pile_sha256": "577c461a68457df4ffe3f0347026c0b0d36a7b87833abe62cccb7cb897762868",
+        "draw_top": "photo-3-r1-c2"
+      },
+      "2098:a17:s16": {
+        "fingerprint_sha256": "cdab5702ca0062f14c03343a4fbaab58954725210f519f3967cbbdb0a03aa969",
+        "draw_pile_count": 50,
+        "draw_pile_sha256": "d6923354e4c020a7babed670baf061a525ba4640fbb649fe591232a29a1cf148",
+        "draw_top": "photo-4-r1-c5"
+      },
+      "2168:a26:s25": {
+        "fingerprint_sha256": "e25750f9672c58dc8b1dbc293ef78b6aa10abe11a00d618e34d9dbbdaaa3e635",
+        "draw_pile_count": 41,
+        "draw_pile_sha256": "df7e97bd67c0d6073e91d284cf152338338e34ddba63332a90f2c3d8fb96857e",
+        "draw_top": "photo-4-r1-c2"
+      },
+      "2238:a20:s19": {
+        "fingerprint_sha256": "8c96ad9df4548b316af8dfde0c15ac7a4c898bfc82acd7d3bdff1418c93509ef",
+        "draw_pile_count": 47,
+        "draw_pile_sha256": "d945815300a3e70cf90d76fd3dc12f714d3f983f584e678f68ffd2dcdaa6116e",
+        "draw_top": "photo-3-r2-c2"
+      },
+      "2372:a13:s12": {
+        "fingerprint_sha256": "e3e4366df42442ca5610bf5f1852ece223d2cec7be5c8607c2ce01e934c92b45",
+        "draw_pile_count": 54,
+        "draw_pile_sha256": "92bcd8bb050865470c4da771a9ac0dc5ea9f5d6251c9c60b784cf0c81afafb42",
+        "draw_top": "photo-2-r2-c2"
+      },
+      "2372:a22:s21": {
+        "fingerprint_sha256": "8b6b947aa7f5b3628c524465caff213654f7525ba1ab261b1c886992d7c8828e",
+        "draw_pile_count": 45,
+        "draw_pile_sha256": "aa64d8850aa502d349bf282986484200cf27477f0b72021e968592f52d76c961",
+        "draw_top": "photo-4-r1-c4"
+      },
+      "2084:a10:s9": {
+        "fingerprint_sha256": "1e9d0664006850b15ff7c648eae974f8f84f307fd86ef324f5fb5a08d7a6ee46",
+        "draw_pile_count": 57,
+        "draw_pile_sha256": "6e2efb2085e3d34843d27cacac091fcb4f3f94cd4b915d011ee2664af6d6a136",
+        "draw_top": "photo-2-r3-c4"
+      }
+    },
+    "passed": true
+  },
+  "primary_results": {
+    "2024:a14:s13": {
+      "worker14_immediate_class": "primary_geometry_equal",
+      "worker13_outcome": "unchanged_nonwin",
+      "replacement_draw": "photo-3-r1-c2",
+      "successor_hand": [
+        "photo-2-r4-c2",
+        "photo-1-r4-c2",
+        "photo-3-r1-c2"
+      ],
+      "v4_reserve": {
+        "max_one_step_closure_gain": 0,
+        "closure_improving_placement_count": 0,
+        "closure_capable_card_count": 0
+      },
+      "v5_reserve": {
+        "max_one_step_closure_gain": 0,
+        "closure_improving_placement_count": 0,
+        "closure_capable_card_count": 0
+      },
+      "debts": {
+        "max_gain_debt": 0,
+        "improving_move_count_debt": 0,
+        "capable_card_count_debt": 0
+      },
+      "primary_class": "next_hand_closure_reserve_equal",
+      "secondary": {
+        "v4_total_legal_placements": 0,
+        "v5_total_legal_placements": 7,
+        "v4_exit_capacity": 0,
+        "v5_exit_capacity": 1,
+        "v4_open_tunnels": 4,
+        "v5_open_tunnels": 4,
+        "v4_visible_water": 0,
+        "v5_visible_water": 0
+      }
+    },
+    "2098:a17:s16": {
+      "worker14_immediate_class": "primary_geometry_equal",
+      "worker13_outcome": "unchanged_nonwin",
+      "replacement_draw": "photo-4-r1-c5",
+      "successor_hand": [
+        "photo-1-r2-c5",
+        "photo-4-r2-c4",
+        "photo-4-r1-c5"
+      ],
+      "v4_reserve": {
+        "max_one_step_closure_gain": 0,
+        "closure_improving_placement_count": 0,
+        "closure_capable_card_count": 0
+      },
+      "v5_reserve": {
+        "max_one_step_closure_gain": 0,
+        "closure_improving_placement_count": 0,
+        "closure_capable_card_count": 0
+      },
+      "debts": {
+        "max_gain_debt": 0,
+        "improving_move_count_debt": 0,
+        "capable_card_count_debt": 0
+      },
+      "primary_class": "next_hand_closure_reserve_equal",
+      "secondary": {
+        "v4_total_legal_placements": 1,
+        "v5_total_legal_placements": 7,
+        "v4_exit_capacity": 0,
+        "v5_exit_capacity": 1,
+        "v4_open_tunnels": 5,
+        "v5_open_tunnels": 5,
+        "v4_visible_water": 0,
+        "v5_visible_water": 0
+      }
+    },
+    "2168:a26:s25": {
+      "worker14_immediate_class": "primary_geometry_improvement",
+      "worker13_outcome": "unchanged_nonwin",
+      "replacement_draw": "photo-4-r1-c2",
+      "successor_hand": [
+        "photo-2-r3-c5",
+        "photo-1-r2-c5",
+        "photo-4-r1-c2"
+      ],
+      "v4_reserve": {
+        "max_one_step_closure_gain": 0,
+        "closure_improving_placement_count": 0,
+        "closure_capable_card_count": 0
+      },
+      "v5_reserve": {
+        "max_one_step_closure_gain": 1,
+        "closure_improving_placement_count": 2,
+        "closure_capable_card_count": 2
+      },
+      "debts": {
+        "max_gain_debt": -1,
+        "improving_move_count_debt": -2,
+        "capable_card_count_debt": -2
+      },
+      "primary_class": "next_hand_closure_reserve_improvement",
+      "secondary": {
+        "v4_total_legal_placements": 1,
+        "v5_total_legal_placements": 9,
+        "v4_exit_capacity": 0,
+        "v5_exit_capacity": 1,
+        "v4_open_tunnels": 7,
+        "v5_open_tunnels": 5,
+        "v4_visible_water": 0,
+        "v5_visible_water": 0,
+        "v5_max_merge_gain": 1,
+        "v5_merge_gain_placements": 1
+      }
+    },
+    "2238:a20:s19": {
+      "worker14_immediate_class": "primary_geometry_equal",
+      "worker13_outcome": "regression",
+      "replacement_draw": "photo-3-r2-c2",
+      "successor_hand": [
+        "photo-2-r3-c5",
+        "photo-2-r4-c2",
+        "photo-3-r2-c2"
+      ],
+      "v4_reserve": {
+        "max_one_step_closure_gain": 0,
+        "closure_improving_placement_count": 0,
+        "closure_capable_card_count": 0
+      },
+      "v5_reserve": {
+        "max_one_step_closure_gain": 0,
+        "closure_improving_placement_count": 0,
+        "closure_capable_card_count": 0
+      },
+      "debts": {
+        "max_gain_debt": 0,
+        "improving_move_count_debt": 0,
+        "capable_card_count_debt": 0
+      },
+      "primary_class": "next_hand_closure_reserve_equal",
+      "secondary": {
+        "v4_total_legal_placements": 0,
+        "v5_total_legal_placements": 7,
+        "v4_exit_capacity": 0,
+        "v5_exit_capacity": 1,
+        "v4_open_tunnels": 3,
+        "v5_open_tunnels": 3,
+        "v4_visible_water": 0,
+        "v5_visible_water": 0
+      }
+    },
+    "2372:a13:s12": {
+      "worker14_immediate_class": "primary_geometry_equal",
+      "worker13_outcome": "unchanged_nonwin",
+      "replacement_draw": "photo-2-r2-c2",
+      "successor_hand": [
+        "photo-1-r2-c5",
+        "photo-2-r4-c3",
+        "photo-2-r2-c2"
+      ],
+      "v4_reserve": {
+        "max_one_step_closure_gain": 2,
+        "closure_improving_placement_count": 1,
+        "closure_capable_card_count": 1
+      },
+      "v5_reserve": {
+        "max_one_step_closure_gain": 0,
+        "closure_improving_placement_count": 0,
+        "closure_capable_card_count": 0
+      },
+      "debts": {
+        "max_gain_debt": 2,
+        "improving_move_count_debt": 1,
+        "capable_card_count_debt": 1
+      },
+      "primary_class": "strict_next_hand_closure_reserve_debt",
+      "secondary": {
+        "v4_total_legal_placements": 1,
+        "v5_total_legal_placements": 8,
+        "v4_exit_capacity": 0,
+        "v5_exit_capacity": 2,
+        "v4_open_tunnels": 6,
+        "v5_open_tunnels": 6,
+        "v4_visible_water": 0,
+        "v5_visible_water": 0
+      }
+    },
+    "2372:a22:s21": {
+      "worker14_immediate_class": "primary_geometry_improvement",
+      "worker13_outcome": "unchanged_nonwin",
+      "replacement_draw": "photo-4-r1-c4",
+      "successor_hand": [
+        "photo-1-r2-c5",
+        "photo-2-r3-c1",
+        "photo-4-r1-c4"
+      ],
+      "v4_reserve": {
+        "max_one_step_closure_gain": 0,
+        "closure_improving_placement_count": 0,
+        "closure_capable_card_count": 0
+      },
+      "v5_reserve": {
+        "max_one_step_closure_gain": 0,
+        "closure_improving_placement_count": 0,
+        "closure_capable_card_count": 0
+      },
+      "debts": {
+        "max_gain_debt": 0,
+        "improving_move_count_debt": 0,
+        "capable_card_count_debt": 0
+      },
+      "primary_class": "next_hand_closure_reserve_equal",
+      "secondary": {
+        "v4_total_legal_placements": 0,
+        "v5_total_legal_placements": 0,
+        "v4_exit_capacity": 0,
+        "v5_exit_capacity": 1,
+        "v4_open_tunnels": 6,
+        "v5_open_tunnels": 4,
+        "v4_visible_water": 0,
+        "v5_visible_water": 0
+      }
+    }
+  },
+  "primary_summary": {
+    "strict_next_hand_closure_reserve_debt": 1,
+    "next_hand_closure_reserve_tradeoff": 0,
+    "next_hand_closure_reserve_equal": 4,
+    "next_hand_closure_reserve_improvement": 1,
+    "total": 6,
+    "strict_debt_among_worker14_immediate_equal": 1,
+    "worker14_immediate_equal_total": 4
+  },
+  "worker14_immediate_equal_summary": {
+    "ids": [
+      "2024:a14:s13",
+      "2098:a17:s16",
+      "2238:a20:s19",
+      "2372:a13:s12"
+    ],
+    "strict_debt": 1,
+    "equal": 3,
+    "improvement": 0
+  },
+  "worker14_immediate_improvement_summary": {
+    "2168:a26:s25": "next_hand_closure_reserve_improvement",
+    "2372:a22:s21": "next_hand_closure_reserve_equal"
+  },
+  "seed_2238": {
+    "transition_id": "2238:a20:s19",
+    "replacement_draw": "photo-3-r2-c2",
+    "successor_hand": [
+      "photo-2-r3-c5",
+      "photo-2-r4-c2",
+      "photo-3-r2-c2"
+    ],
+    "v4_reserve": {
+      "max_one_step_closure_gain": 0,
+      "closure_improving_placement_count": 0,
+      "closure_capable_card_count": 0
+    },
+    "v5_reserve": {
+      "max_one_step_closure_gain": 0,
+      "closure_improving_placement_count": 0,
+      "closure_capable_card_count": 0
+    },
+    "debts": {
+      "max_gain_debt": 0,
+      "improving_move_count_debt": 0,
+      "capable_card_count_debt": 0
+    },
+    "primary_class": "next_hand_closure_reserve_equal",
+    "worker13_outcome": "V4 win -> V5 non-win"
+  },
+  "control_2084": {
+    "transition_id": "2084:a10:s9",
+    "excluded_from_primary_gates": true,
+    "topology_isolated": false,
+    "v4_consumed_card": "photo-3-r3-c3",
+    "v5_consumed_card": "photo-1-r3-c3",
+    "replacement_draw_v4": "photo-2-r3-c4",
+    "replacement_draw_v5": "photo-2-r3-c4",
+    "v4_successor_hand": [
+      "photo-1-r3-c3",
+      "photo-4-r3-c1",
+      "photo-2-r3-c4"
+    ],
+    "v5_successor_hand": [
+      "photo-3-r3-c3",
+      "photo-4-r3-c1",
+      "photo-2-r3-c4"
+    ],
+    "successor_hands_identical": false,
+    "v4_reserve": {
+      "max_one_step_closure_gain": 1,
+      "closure_improving_placement_count": 1,
+      "closure_capable_card_count": 1
+    },
+    "v5_reserve": {
+      "max_one_step_closure_gain": 1,
+      "closure_improving_placement_count": 1,
+      "closure_capable_card_count": 1
+    }
+  },
+  "secondary_summary": {
+    "visible_water_reduction_opportunities": "0 for both branches in all six primary cases",
+    "merge_gain_opportunities": "only 2168 V5 successor has positive merge gain: max +1 across 1 placement",
+    "successor_exit_capacity_v4": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "successor_exit_capacity_v5": [
+      1,
+      1,
+      1,
+      1,
+      2,
+      1
+    ]
+  },
+  "preregistered_gate_values": {
+    "strict_primary_cases_out_of_6": 1,
+    "strict_immediate_equal_cases_out_of_4": 1,
+    "seed_2238_class": "next_hand_closure_reserve_equal"
+  },
+  "final_preregistered_classification": "v5_mixed_case_next_hand_closure_debt_not_supported",
+  "interpretation_limit": "Selected already-spent diagnostic data only. Each local branch executes exactly one canonical action plus one replacement draw, then stops; next-hand moves are enumerated only as board-clone opportunities. No second gameplay action, fresh seed, policy change, or confirmatory claim.",
+  "raw_artifact": {
+    "drive_file_id": "1l-tM596WWoU8BMsOfm6mo3Jw_6Cw3PpT",
+    "drive_url": "https://drive.google.com/file/d/1l-tM596WWoU8BMsOfm6mo3Jw_6Cw3PpT/view?usp=drivesdk",
+    "parent_folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+    "archive_name": "v5-mixed-case-next-hand-closure-reserve-audit-2026-09-25.zip",
+    "archive_bytes": 6943,
+    "archive_sha256": "e6539f14fc67c3d43510bd59ec168377a949e1e3002e8de4bda5833d819158ff",
+    "inner_filename": "worker15-next-hand-closure-reserve.json",
+    "inner_bytes": 106975,
+    "inner_sha256": "50d27132a260f6de8eb44a4c583148c769c2b502d3a6df3cc2176332fe4aa0b1",
+    "readback_verified": true
+  },
+  "pr_url": "https://github.com/carabinshely/bandido-alcatraz-solve/pull/10",
+  "issue_result_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5832949604"
+}
