@@ -370,6 +370,13 @@ def main() -> None:
         "fresh_seeds_used": False,
         "holdout_used": False,
     }
+    artifact_dir = ROOT / "artifacts"
+    artifact_dir.mkdir(exist_ok=True)
+    artifact_path = artifact_dir / "slice18-same-card-neutral-deferral-footprint.json"
+    artifact_path.write_text(
+        json.dumps(result, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
     print("WORKER18_RESULT=" + json.dumps(result, sort_keys=True))
 
 
