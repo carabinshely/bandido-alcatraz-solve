@@ -1,0 +1,354 @@
+{
+  "schema": "bandido-alcatraz-v5-2238-next-decision-candidate-set-audit-manifest",
+  "schema_version": 1,
+  "experiment_id": "worker-16-v5-2238-next-decision-candidate-set-audit",
+  "date": "2026-09-27",
+  "dataset_status": "already-spent / selected / development / diagnostic / non-confirmatory",
+  "authoritative_orchestrator_decision_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5855733500",
+  "starting_main": "fb5e4674ebc2de276cb77c3a2e5a8c7aa2217395",
+  "evaluated_commit": "80d79f0ab22fcf03136881daeadaf747b2dddf90",
+  "authoritative_workflow_run": {
+    "id": 36336945791,
+    "url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/36336945791",
+    "conclusion": "success",
+    "runner": "bandido-alcatraz-ci",
+    "routine_tests": 131,
+    "synthetic_smoke": "success",
+    "proxy_status": "success",
+    "real_photographed_deck_smoke": "success"
+  },
+  "production_implementation_changed": false,
+  "fixed_model": {
+    "deck_file": "data/deck-v1.json",
+    "exit_geometry_source": "data/deck-observations-v0.json",
+    "rules_variant": "v0-threshold-equipment",
+    "raincoats_min": 3,
+    "ropes_min": 2,
+    "start_side": "easy-5-exit",
+    "hand_size": 3,
+    "scoring": "BoundedMergeV4Policy(setup_weight=250).weights",
+    "v5": "merged frozen VisibleRepairReserveV5Policy"
+  },
+  "primary_target": "2238:a20:s19",
+  "controls": {
+    "2024:a14:s13": {
+      "v4": {
+        "legal_moves": 1,
+        "place_count": 0,
+        "collect_count": 1,
+        "max_score": 10000,
+        "max_score_candidates": 1,
+        "max_score_place_count": 0,
+        "max_score_collect_count": 1
+      },
+      "v5": {
+        "legal_moves": 8,
+        "place_count": 7,
+        "collect_count": 1,
+        "max_score": 10000,
+        "max_score_candidates": 1,
+        "max_score_place_count": 0,
+        "max_score_collect_count": 1
+      },
+      "v4_top_tier_collect_only": true,
+      "v5_top_tier_mixed_collect_place": false,
+      "v5_added_top_tier_placement": false,
+      "historical_next_event": {
+        "transition_id": "2024:a15:s14",
+        "action": "collect",
+        "card_id": "photo-3-r1-c2",
+        "hand_index": 2
+      },
+      "historical_action_in_v5_top_tier": true
+    },
+    "2098:a17:s16": {
+      "v4": {
+        "legal_moves": 2,
+        "place_count": 1,
+        "collect_count": 1,
+        "max_score": 0,
+        "max_score_candidates": 1,
+        "max_score_place_count": 0,
+        "max_score_collect_count": 1
+      },
+      "v5": {
+        "legal_moves": 8,
+        "place_count": 7,
+        "collect_count": 1,
+        "max_score": 0,
+        "max_score_candidates": 1,
+        "max_score_place_count": 0,
+        "max_score_collect_count": 1
+      },
+      "v4_top_tier_collect_only": true,
+      "v5_top_tier_mixed_collect_place": false,
+      "v5_added_top_tier_placement": false,
+      "historical_next_event": {
+        "transition_id": "2098:a18:s17",
+        "action": "collect",
+        "card_id": "photo-4-r1-c5",
+        "hand_index": 2
+      },
+      "historical_action_in_v5_top_tier": true
+    },
+    "2372:a22:s21": {
+      "v4": {
+        "legal_moves": 0,
+        "place_count": 0,
+        "collect_count": 0,
+        "max_score": null,
+        "max_score_candidates": 0,
+        "max_score_place_count": 0,
+        "max_score_collect_count": 0
+      },
+      "v5": {
+        "legal_moves": 0,
+        "place_count": 0,
+        "collect_count": 0,
+        "max_score": null,
+        "max_score_candidates": 0,
+        "max_score_place_count": 0,
+        "max_score_collect_count": 0
+      },
+      "v4_top_tier_collect_only": false,
+      "v5_top_tier_mixed_collect_place": false,
+      "v5_added_top_tier_placement": false,
+      "historical_next_event": {
+        "event": "refresh",
+        "state_turn": 22
+      },
+      "historical_action_in_v5_top_tier": null
+    }
+  },
+  "fresh_seeds_used": false,
+  "holdout_used": false,
+  "integrity": {
+    "worker15_manifest_present": true,
+    "worker15_classification": "v5_mixed_case_next_hand_closure_debt_not_supported",
+    "exact_successor_reconstruction": {
+      "exact_cases": 4,
+      "total": 4,
+      "mismatches": []
+    },
+    "score_feature_invariance": {
+      "audited_move_count": 28,
+      "failure_count": 0
+    },
+    "production_or_model_changes": [],
+    "deterministic_legal_move_ordering_unchanged": true,
+    "next_decision_boundary": {
+      "policy_choose_called_on_successor": false,
+      "rng_consumed_on_successor": false,
+      "candidate_executed": false,
+      "refresh_executed": false,
+      "additional_draw_executed": false
+    },
+    "passed": true
+  },
+  "successor_state_provenance": {
+    "2238:a20:s19": {
+      "replacement_draw": "photo-3-r2-c2",
+      "successor_hand": [
+        "photo-2-r3-c5",
+        "photo-2-r4-c2",
+        "photo-3-r2-c2"
+      ],
+      "v4_board_fingerprint_sha256": "f022952fef4872b971e68537330600f21264659406285fa1acedb51fa8288e7f",
+      "v5_board_fingerprint_sha256": "31c4552c9b3a6146244438478f018b324b74328c52d6d6eeb7e73f635ecd6ffe",
+      "v4_open_tunnels": 3,
+      "v5_open_tunnels": 3,
+      "v4_visible_water": 0,
+      "v5_visible_water": 0,
+      "v4_exit_capacity": 0,
+      "v5_exit_capacity": 1,
+      "v4_closure_reserve": [
+        0,
+        0,
+        0
+      ],
+      "v5_closure_reserve": [
+        0,
+        0,
+        0
+      ],
+      "v4_ordinary_placements": 0,
+      "v5_ordinary_placements": 7
+    },
+    "2024:a14:s13": {
+      "replacement_draw": "photo-3-r1-c2",
+      "successor_hand": [
+        "photo-2-r4-c2",
+        "photo-1-r4-c2",
+        "photo-3-r1-c2"
+      ],
+      "v4_board_fingerprint_sha256": "7d9b86bcf2cbb983452672213bbacb7062e077a7f9827e0da187ca1762057baa",
+      "v5_board_fingerprint_sha256": "a902dba51d35383138730a173dd16e53b2df08876a204575596e1cd126ed2cbe",
+      "v4_open_tunnels": 4,
+      "v5_open_tunnels": 4,
+      "v4_visible_water": 0,
+      "v5_visible_water": 0,
+      "v4_exit_capacity": 0,
+      "v5_exit_capacity": 1,
+      "v4_closure_reserve": [
+        0,
+        0,
+        0
+      ],
+      "v5_closure_reserve": [
+        0,
+        0,
+        0
+      ],
+      "v4_ordinary_placements": 0,
+      "v5_ordinary_placements": 7
+    },
+    "2098:a17:s16": {
+      "replacement_draw": "photo-4-r1-c5",
+      "successor_hand": [
+        "photo-1-r2-c5",
+        "photo-4-r2-c4",
+        "photo-4-r1-c5"
+      ],
+      "v4_board_fingerprint_sha256": "c586ba7e7839aa1be819e960dd3f7f0d48ec851e4f2ed6c1b3e5720a92c7891a",
+      "v5_board_fingerprint_sha256": "6e1504140f2d1f61b9a5cfbc60180b5a4020e1b0223b89dbcadcb9471c8bf1d4",
+      "v4_open_tunnels": 5,
+      "v5_open_tunnels": 5,
+      "v4_visible_water": 0,
+      "v5_visible_water": 0,
+      "v4_exit_capacity": 0,
+      "v5_exit_capacity": 1,
+      "v4_closure_reserve": [
+        0,
+        0,
+        0
+      ],
+      "v5_closure_reserve": [
+        0,
+        0,
+        0
+      ],
+      "v4_ordinary_placements": 1,
+      "v5_ordinary_placements": 7
+    },
+    "2372:a22:s21": {
+      "replacement_draw": "photo-4-r1-c4",
+      "successor_hand": [
+        "photo-1-r2-c5",
+        "photo-2-r3-c1",
+        "photo-4-r1-c4"
+      ],
+      "v4_board_fingerprint_sha256": "447a3730be8d9c7ca4d059ab5f0a340325799d333f48042080227ae19a32633f",
+      "v5_board_fingerprint_sha256": "4c6051e0c7928ec352b0f6fad1c1d86c52e242927a543b6584e2e43a19ab09db",
+      "v4_open_tunnels": 6,
+      "v5_open_tunnels": 4,
+      "v4_visible_water": 0,
+      "v5_visible_water": 0,
+      "v4_exit_capacity": 0,
+      "v5_exit_capacity": 1,
+      "v4_closure_reserve": [
+        0,
+        0,
+        0
+      ],
+      "v5_closure_reserve": [
+        0,
+        0,
+        0
+      ],
+      "v4_ordinary_placements": 0,
+      "v5_ordinary_placements": 0
+    }
+  },
+  "target_2238": {
+    "v4_candidate_set": {
+      "full_legal_move_count": 1,
+      "place_count": 0,
+      "collect_count": 1,
+      "no_legal_moves": false,
+      "max_score": 0,
+      "max_score_candidate_count": 1,
+      "max_score_place_count": 0,
+      "max_score_collect_count": 1,
+      "max_score_candidates": [
+        {
+          "action": "collect",
+          "card_id": "photo-3-r2-c2",
+          "hand_index": 2,
+          "origin": null,
+          "quarter_turns": 0,
+          "score": 0
+        }
+      ]
+    },
+    "v5_candidate_set": {
+      "full_legal_move_count": 8,
+      "place_count": 7,
+      "collect_count": 1,
+      "no_legal_moves": false,
+      "max_score": 0,
+      "max_score_candidate_count": 2,
+      "max_score_place_count": 1,
+      "max_score_collect_count": 1,
+      "max_score_candidates": [
+        {
+          "action": "collect",
+          "card_id": "photo-3-r2-c2",
+          "hand_index": 2,
+          "origin": null,
+          "quarter_turns": 0,
+          "score": 0
+        },
+        {
+          "action": "place",
+          "card_id": "photo-3-r2-c2",
+          "hand_index": 2,
+          "origin": [
+            -4,
+            1
+          ],
+          "quarter_turns": 0,
+          "score": 0,
+          "closure_gain": 0,
+          "visible_water_reduction": 0,
+          "merge_opportunity_gain": 0,
+          "exact_move_legal_on_v4_successor": false
+        }
+      ]
+    },
+    "predicates": {
+      "A_v4_top_tier_collect_only": true,
+      "B_v5_top_tier_mixed_collect_place": true,
+      "C_v5_added_top_tier_placement": true,
+      "D_actual_next_v5_action_is_added_top_tier_placement": true,
+      "E_actual_added_placement_is_nonclosing": true
+    },
+    "historical_next_v5_action": {
+      "transition_id": "2238:a21:s20",
+      "action": "place",
+      "card_id": "photo-3-r2-c2",
+      "hand_index": 2,
+      "origin": [
+        -4,
+        1
+      ],
+      "quarter_turns": 0,
+      "provenance": "accepted Worker #13 raw only; not executed in Worker #16"
+    }
+  },
+  "final_preregistered_classification": "v5_2238_next_decision_tie_expansion_supported",
+  "interpretation_limit": "Target-specific candidate-set diagnosis on one already-known regression plus three selected controls, using already-spent development data only. The result identifies a topology -> candidate-set -> historical tie/RNG pathway for 2238; it does not show that changing tie-breaking would improve V5.",
+  "raw_artifact": {
+    "drive_file_id": "1og4gVr-Ft9IoE2JqfearmyYEnym62V-5",
+    "drive_url": "https://drive.google.com/file/d/1og4gVr-Ft9IoE2JqfearmyYEnym62V-5/view?usp=drivesdk",
+    "parent_folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+    "archive_name": "v5-2238-next-decision-candidate-set-audit-2026-09-27.zip",
+    "archive_bytes": 2697,
+    "archive_sha256": "7e1e59498589c840c0341296d56cd7ea709eceae5332dccbc32239d761cbda34",
+    "inner_filename": "worker16-2238-candidate-set.json",
+    "inner_bytes": 18235,
+    "inner_sha256": "ae055e65b98266fe5ffbffe9207911a68f44d9727d802c8a1b63290601556e4f",
+    "readback_verified": true
+  },
+  "pr_url": "https://github.com/carabinshely/bandido-alcatraz-solve/pull/11",
+  "issue_result_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5858124628"
+}
