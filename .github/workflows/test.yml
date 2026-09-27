@@ -37,3 +37,9 @@ jobs:
         run: python scripts/run_real_deck_smoke.py
       - name: Unified slice 18 spent tie-rule footprint audit
         run: python scripts/run_v5_same_card_neutral_deferral_audit.py
+      - name: Upload slice 18 raw diagnostic
+        uses: actions/upload-artifact@v4
+        with:
+          name: slice18-same-card-neutral-deferral-footprint
+          path: artifacts/slice18-same-card-neutral-deferral-footprint.json
+          if-no-files-found: error
