@@ -176,7 +176,7 @@ def test_no_draw_preview_remaps_all_original_hand_indexes(
     )
     assert [item.preview_hand_index for item in preview.retained_visible_cards] == [0, 1]
     assert [item.card.card_id for item in preview.retained_visible_cards] == expected_ids
-    assert [item.card.card_id for item in preview.successor.hand] == expected_ids
+    assert [item.card_id for item in preview.successor.hand] == expected_ids
 
 
 def assert_feature_equivalence(
