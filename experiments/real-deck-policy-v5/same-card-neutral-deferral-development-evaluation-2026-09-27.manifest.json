@@ -1,0 +1,940 @@
+{
+  "schema": "bandido-alcatraz-worker19-same-card-neutral-deferral-development-manifest",
+  "schema_version": 1,
+  "date": "2026-09-27",
+  "slice_id": "worker-19-same-card-neutral-deferral-development",
+  "dataset_status": "already-spent / selected / development / counterfactual / non-confirmatory",
+  "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5858632097",
+  "workflow_boundary_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5859188247",
+  "starting_main": "5a1cb27e90d1bccfdc0c5f5512be12fb36adfa58",
+  "branch": "research/same-card-neutral-deferral-development-2026-09-27",
+  "pr_url": "https://github.com/carabinshely/bandido-alcatraz-solve/pull/14",
+  "authoritative_diagnostic": {
+    "commit": "71f5d160177e1da3f0437bf22026bbf3449b0632",
+    "workflow_run_id": 36346355358,
+    "workflow_run_url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/36346355358",
+    "conclusion": "success",
+    "runner": "bandido-alcatraz-ci",
+    "python": "3.11.16",
+    "routine_tests": "131 passed",
+    "synthetic_smoke": "success",
+    "proxy_status": "success",
+    "real_photographed_deck_smoke": "success",
+    "diagnostic_step": "success",
+    "artifact_upload": "success"
+  },
+  "fixed_model": {
+    "v5": "merged VisibleRepairReserveV5Policy",
+    "scoring": "BoundedMergeV4Policy(setup_weight=250).weights",
+    "deck_file": "data/deck-v1.json",
+    "deck_sha256": "31ea3a727f082f9f6bdd971b278b24e4b5cc004a162170e198d084726ff1e89a",
+    "exit_geometry_source": "data/deck-observations-v0.json",
+    "deck_observations_sha256": "e967ca41b5ebf5883c89426c517a63e3965ad36e0e9975a0b6311cb7de20d985",
+    "rules_variant": "v0-threshold-equipment",
+    "raincoats_min": 3,
+    "ropes_min": 2,
+    "start_side": "easy-5-exit",
+    "hand_size": 3,
+    "deterministic_legal_move_ordering": "unchanged",
+    "exit_seen_semantics": "unchanged",
+    "policies_source_sha256": "2068a4980465a6e8493ef2ec9d14610d986522d755f3d76a10ba58850f74bf4f",
+    "strategy_source_sha256": "96f098630cbcfc098ae8b19b1b3373867248e06b0ef9b76cb771134fce20688d"
+  },
+  "candidate_contract": {
+    "name": "same-card neutral-placement deferral",
+    "version": "slice18-fixed-v1",
+    "source_preregistration": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5858632097",
+    "transient_script_commit": "71f5d160177e1da3f0437bf22026bbf3449b0632",
+    "transient_script_path": "scripts/run_worker19_same_card_neutral_deferral_development.py",
+    "transient_script_sha256": "e63df3ba64bd8f62ca988d6da8aa398abc4ee6e52acbc83a35813ded8cb0dcc6",
+    "candidate_choose_source_sha256": "2bc4c3c8dc011f5dcb32c508b47a628bc72b79e35ec55df2696d4f20c482317d",
+    "rule": [
+      "construct exact existing frozen-V5 eligible move set",
+      "score eligible moves with unchanged V4-250 weights",
+      "form max-score tier M",
+      "a max-tier PLACE is deferable only if M has COLLECT for the same hand_index and every non-zero-weight MoveFeatures contribution is zero",
+      "remove only those deferable placements from M",
+      "perform exactly one final rng.choice over the remaining max-tier"
+    ],
+    "no_seed_id": true,
+    "no_outcome_input": true,
+    "no_hidden_future_draw_input": true,
+    "no_v4_comparator_state": true,
+    "no_mutable_cross_policy_memory": true,
+    "extra_rng_calls_before_final_selection": 0,
+    "final_rng_choice_calls": 1,
+    "candidate_refined_after_results": false
+  },
+  "seed_scope": [
+    2001,
+    2004,
+    2005,
+    2020,
+    2024,
+    2034,
+    2084,
+    2098,
+    2104,
+    2110,
+    2129,
+    2130,
+    2138,
+    2168,
+    2171,
+    2212,
+    2238,
+    2282,
+    2286,
+    2314,
+    2334,
+    2371,
+    2372
+  ],
+  "fresh_seeds_used": false,
+  "holdout_used": false,
+  "integrity": {
+    "passed": true,
+    "frozen_v5_action_sequence_hashes_exact": "23/23",
+    "replay_mismatches": [],
+    "total_action_decisions": 1381,
+    "total_refreshes": 42,
+    "frozen_v5_wins": 3,
+    "frozen_v5_winning_seeds": [
+      2005,
+      2286,
+      2371
+    ],
+    "v5_weights_equal_v4_250": true,
+    "candidate_and_v5_model_seed_hand_size_identical": true,
+    "single_final_rng_choice_source_check": true,
+    "production_source_modified_by_candidate": false
+  },
+  "frozen_v5_summary": {
+    "wins": 3,
+    "winning_seeds": [
+      2005,
+      2286,
+      2371
+    ],
+    "failure_reason_counts": {
+      "deck_exhausted": 17,
+      "no_legal_move": 3
+    }
+  },
+  "candidate_summary": {
+    "wins": 3,
+    "winning_seeds": [
+      2005,
+      2286,
+      2371
+    ],
+    "failure_reason_counts": {
+      "deck_exhausted": 17,
+      "no_legal_move": 3
+    }
+  },
+  "paired": {
+    "gained_win_seeds": [],
+    "lost_win_seeds": [],
+    "unchanged_win_seeds": [
+      2005,
+      2286,
+      2371
+    ],
+    "unchanged_nonwin_seeds": [
+      2001,
+      2004,
+      2020,
+      2024,
+      2034,
+      2084,
+      2098,
+      2104,
+      2110,
+      2129,
+      2130,
+      2138,
+      2168,
+      2171,
+      2212,
+      2238,
+      2282,
+      2314,
+      2334,
+      2372
+    ],
+    "net_paired_win_count_change": 0,
+    "rescued_regression_count": 0,
+    "rescued_regression_seeds": []
+  },
+  "special_seed_comparison": {
+    "2005": {
+      "frozen_v5": {
+        "won": true,
+        "reason": "win",
+        "turns": 31,
+        "final_open_tunnels": 0,
+        "visible_water": 0,
+        "raincoats": 4,
+        "ropes": 2
+      },
+      "candidate": {
+        "won": true,
+        "reason": "win",
+        "turns": 31,
+        "final_open_tunnels": 0,
+        "visible_water": 0,
+        "raincoats": 4,
+        "ropes": 2
+      },
+      "filter_activations": 0,
+      "first_divergence": null
+    },
+    "2238": {
+      "frozen_v5": {
+        "won": false,
+        "reason": "deck_exhausted",
+        "turns": 69,
+        "final_open_tunnels": 18,
+        "visible_water": 3,
+        "raincoats": 6,
+        "ropes": 5
+      },
+      "candidate": {
+        "won": false,
+        "reason": "deck_exhausted",
+        "turns": 69,
+        "final_open_tunnels": 24,
+        "visible_water": 1,
+        "raincoats": 8,
+        "ropes": 6
+      },
+      "filter_activations": 4,
+      "first_divergence": "2238:a21:s20"
+    },
+    "2282": {
+      "frozen_v5": {
+        "won": false,
+        "reason": "deck_exhausted",
+        "turns": 69,
+        "final_open_tunnels": 17,
+        "visible_water": 2,
+        "raincoats": 5,
+        "ropes": 6
+      },
+      "candidate": {
+        "won": false,
+        "reason": "deck_exhausted",
+        "turns": 69,
+        "final_open_tunnels": 19,
+        "visible_water": 3,
+        "raincoats": 6,
+        "ropes": 8
+      },
+      "filter_activations": 6,
+      "first_divergence": "2282:a18:s17"
+    },
+    "2286": {
+      "frozen_v5": {
+        "won": true,
+        "reason": "win",
+        "turns": 16,
+        "final_open_tunnels": 0,
+        "visible_water": 0,
+        "raincoats": 3,
+        "ropes": 3
+      },
+      "candidate": {
+        "won": true,
+        "reason": "win",
+        "turns": 16,
+        "final_open_tunnels": 0,
+        "visible_water": 0,
+        "raincoats": 3,
+        "ropes": 3
+      },
+      "filter_activations": 0,
+      "first_divergence": null
+    },
+    "2371": {
+      "frozen_v5": {
+        "won": true,
+        "reason": "win",
+        "turns": 24,
+        "final_open_tunnels": 0,
+        "visible_water": 0,
+        "raincoats": 7,
+        "ropes": 4
+      },
+      "candidate": {
+        "won": true,
+        "reason": "win",
+        "turns": 24,
+        "final_open_tunnels": 0,
+        "visible_water": 0,
+        "raincoats": 7,
+        "ropes": 4
+      },
+      "filter_activations": 0,
+      "first_divergence": null
+    }
+  },
+  "candidate_filter_activations": {
+    "total": 89,
+    "per_seed": {
+      "2001": 5,
+      "2004": 1,
+      "2005": 0,
+      "2020": 4,
+      "2024": 2,
+      "2034": 6,
+      "2084": 3,
+      "2098": 7,
+      "2104": 5,
+      "2110": 8,
+      "2129": 5,
+      "2130": 5,
+      "2138": 1,
+      "2168": 5,
+      "2171": 4,
+      "2212": 5,
+      "2238": 4,
+      "2282": 6,
+      "2286": 0,
+      "2314": 4,
+      "2334": 5,
+      "2371": 0,
+      "2372": 4
+    },
+    "note": "These are activations on candidate trajectories. Slice #18's 91 trigger decisions were measured on frozen-V5 trajectories; post-divergence counts are not expected to remain identical."
+  },
+  "candidate_final_by_seed": {
+    "2001": {
+      "final_open_tunnels": 24,
+      "raincoats": 9,
+      "reason": "deck_exhausted",
+      "ropes": 5,
+      "turns": 69,
+      "visible_water": 2,
+      "won": false
+    },
+    "2004": {
+      "final_open_tunnels": 3,
+      "raincoats": 12,
+      "reason": "no_legal_move",
+      "ropes": 8,
+      "turns": 38,
+      "visible_water": 0,
+      "won": false
+    },
+    "2005": {
+      "final_open_tunnels": 0,
+      "raincoats": 4,
+      "reason": "win",
+      "ropes": 2,
+      "turns": 31,
+      "visible_water": 0,
+      "won": true
+    },
+    "2020": {
+      "final_open_tunnels": 20,
+      "raincoats": 10,
+      "reason": "deck_exhausted",
+      "ropes": 6,
+      "turns": 69,
+      "visible_water": 2,
+      "won": false
+    },
+    "2024": {
+      "final_open_tunnels": 1,
+      "raincoats": 9,
+      "reason": "no_legal_move",
+      "ropes": 6,
+      "turns": 47,
+      "visible_water": 0,
+      "won": false
+    },
+    "2034": {
+      "final_open_tunnels": 17,
+      "raincoats": 8,
+      "reason": "deck_exhausted",
+      "ropes": 6,
+      "turns": 69,
+      "visible_water": 2,
+      "won": false
+    },
+    "2084": {
+      "final_open_tunnels": 16,
+      "raincoats": 7,
+      "reason": "deck_exhausted",
+      "ropes": 5,
+      "turns": 69,
+      "visible_water": 1,
+      "won": false
+    },
+    "2098": {
+      "final_open_tunnels": 20,
+      "raincoats": 11,
+      "reason": "deck_exhausted",
+      "ropes": 6,
+      "turns": 69,
+      "visible_water": 2,
+      "won": false
+    },
+    "2104": {
+      "final_open_tunnels": 21,
+      "raincoats": 11,
+      "reason": "deck_exhausted",
+      "ropes": 6,
+      "turns": 69,
+      "visible_water": 1,
+      "won": false
+    },
+    "2110": {
+      "final_open_tunnels": 21,
+      "raincoats": 10,
+      "reason": "deck_exhausted",
+      "ropes": 6,
+      "turns": 69,
+      "visible_water": 2,
+      "won": false
+    },
+    "2129": {
+      "final_open_tunnels": 18,
+      "raincoats": 11,
+      "reason": "deck_exhausted",
+      "ropes": 4,
+      "turns": 69,
+      "visible_water": 3,
+      "won": false
+    },
+    "2130": {
+      "final_open_tunnels": 23,
+      "raincoats": 11,
+      "reason": "deck_exhausted",
+      "ropes": 4,
+      "turns": 69,
+      "visible_water": 3,
+      "won": false
+    },
+    "2138": {
+      "final_open_tunnels": 3,
+      "raincoats": 11,
+      "reason": "no_legal_move",
+      "ropes": 7,
+      "turns": 38,
+      "visible_water": 0,
+      "won": false
+    },
+    "2168": {
+      "final_open_tunnels": 17,
+      "raincoats": 7,
+      "reason": "deck_exhausted",
+      "ropes": 5,
+      "turns": 69,
+      "visible_water": 1,
+      "won": false
+    },
+    "2171": {
+      "final_open_tunnels": 18,
+      "raincoats": 11,
+      "reason": "deck_exhausted",
+      "ropes": 5,
+      "turns": 69,
+      "visible_water": 3,
+      "won": false
+    },
+    "2212": {
+      "final_open_tunnels": 18,
+      "raincoats": 8,
+      "reason": "deck_exhausted",
+      "ropes": 5,
+      "turns": 69,
+      "visible_water": 3,
+      "won": false
+    },
+    "2238": {
+      "final_open_tunnels": 24,
+      "raincoats": 8,
+      "reason": "deck_exhausted",
+      "ropes": 6,
+      "turns": 69,
+      "visible_water": 1,
+      "won": false
+    },
+    "2282": {
+      "final_open_tunnels": 19,
+      "raincoats": 6,
+      "reason": "deck_exhausted",
+      "ropes": 8,
+      "turns": 69,
+      "visible_water": 3,
+      "won": false
+    },
+    "2286": {
+      "final_open_tunnels": 0,
+      "raincoats": 3,
+      "reason": "win",
+      "ropes": 3,
+      "turns": 16,
+      "visible_water": 0,
+      "won": true
+    },
+    "2314": {
+      "final_open_tunnels": 23,
+      "raincoats": 7,
+      "reason": "deck_exhausted",
+      "ropes": 7,
+      "turns": 69,
+      "visible_water": 2,
+      "won": false
+    },
+    "2334": {
+      "final_open_tunnels": 20,
+      "raincoats": 10,
+      "reason": "deck_exhausted",
+      "ropes": 4,
+      "turns": 69,
+      "visible_water": 2,
+      "won": false
+    },
+    "2371": {
+      "final_open_tunnels": 0,
+      "raincoats": 7,
+      "reason": "win",
+      "ropes": 4,
+      "turns": 24,
+      "visible_water": 0,
+      "won": true
+    },
+    "2372": {
+      "final_open_tunnels": 19,
+      "raincoats": 8,
+      "reason": "deck_exhausted",
+      "ropes": 4,
+      "turns": 69,
+      "visible_water": 2,
+      "won": false
+    }
+  },
+  "first_divergence_from_frozen_v5": {
+    "2001": {
+      "transition_id": "2001:a10:s9",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-1-r2-c1",
+        "hand_index": 2,
+        "origin": [
+          0,
+          -2
+        ],
+        "quarter_turns": 2
+      },
+      "candidate_move": {
+        "action": "place",
+        "card_id": "photo-1-r3-c3",
+        "hand_index": 0,
+        "origin": [
+          1,
+          0
+        ],
+        "quarter_turns": 3
+      }
+    },
+    "2020": {
+      "transition_id": "2020:a53:s52",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-1-r2-c1",
+        "hand_index": 2,
+        "origin": [
+          -6,
+          -7
+        ],
+        "quarter_turns": 1
+      },
+      "candidate_move": {
+        "action": "collect",
+        "card_id": "photo-1-r2-c1",
+        "hand_index": 2,
+        "origin": null,
+        "quarter_turns": 0
+      }
+    },
+    "2024": {
+      "transition_id": "2024:a7:s6",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-3-r1-c3",
+        "hand_index": 2,
+        "origin": [
+          1,
+          -4
+        ],
+        "quarter_turns": 0
+      },
+      "candidate_move": {
+        "action": "collect",
+        "card_id": "photo-3-r1-c3",
+        "hand_index": 2,
+        "origin": null,
+        "quarter_turns": 0
+      }
+    },
+    "2034": {
+      "transition_id": "2034:a37:s36",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-3-r1-c3",
+        "hand_index": 2,
+        "origin": [
+          -3,
+          7
+        ],
+        "quarter_turns": 3
+      },
+      "candidate_move": {
+        "action": "collect",
+        "card_id": "photo-3-r1-c3",
+        "hand_index": 2,
+        "origin": null,
+        "quarter_turns": 0
+      }
+    },
+    "2084": {
+      "transition_id": "2084:a26:s25",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-3-r2-c2",
+        "hand_index": 2,
+        "origin": [
+          2,
+          4
+        ],
+        "quarter_turns": 1
+      },
+      "candidate_move": {
+        "action": "collect",
+        "card_id": "photo-3-r2-c2",
+        "hand_index": 2,
+        "origin": null,
+        "quarter_turns": 0
+      }
+    },
+    "2098": {
+      "transition_id": "2098:a17:s16",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-3-r1-c3",
+        "hand_index": 2,
+        "origin": [
+          -3,
+          3
+        ],
+        "quarter_turns": 1
+      },
+      "candidate_move": {
+        "action": "collect",
+        "card_id": "photo-3-r1-c3",
+        "hand_index": 2,
+        "origin": null,
+        "quarter_turns": 0
+      }
+    },
+    "2104": {
+      "transition_id": "2104:a25:s24",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-1-r4-c3",
+        "hand_index": 1,
+        "origin": [
+          -9,
+          0
+        ],
+        "quarter_turns": 1
+      },
+      "candidate_move": {
+        "action": "collect",
+        "card_id": "photo-1-r4-c3",
+        "hand_index": 1,
+        "origin": null,
+        "quarter_turns": 0
+      }
+    },
+    "2110": {
+      "transition_id": "2110:a25:s24",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-3-r2-c2",
+        "hand_index": 2,
+        "origin": [
+          -5,
+          6
+        ],
+        "quarter_turns": 1
+      },
+      "candidate_move": {
+        "action": "collect",
+        "card_id": "photo-3-r2-c2",
+        "hand_index": 2,
+        "origin": null,
+        "quarter_turns": 0
+      }
+    },
+    "2129": {
+      "transition_id": "2129:a24:s23",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-1-r4-c3",
+        "hand_index": 2,
+        "origin": [
+          -6,
+          -3
+        ],
+        "quarter_turns": 0
+      },
+      "candidate_move": {
+        "action": "collect",
+        "card_id": "photo-1-r4-c3",
+        "hand_index": 2,
+        "origin": null,
+        "quarter_turns": 0
+      }
+    },
+    "2130": {
+      "transition_id": "2130:a23:s22",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-1-r2-c1",
+        "hand_index": 2,
+        "origin": [
+          -4,
+          -5
+        ],
+        "quarter_turns": 0
+      },
+      "candidate_move": {
+        "action": "collect",
+        "card_id": "photo-1-r2-c1",
+        "hand_index": 2,
+        "origin": null,
+        "quarter_turns": 0
+      }
+    },
+    "2168": {
+      "transition_id": "2168:a19:s18",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-3-r1-c5",
+        "hand_index": 2,
+        "origin": [
+          2,
+          -1
+        ],
+        "quarter_turns": 0
+      },
+      "candidate_move": {
+        "action": "collect",
+        "card_id": "photo-3-r1-c5",
+        "hand_index": 2,
+        "origin": null,
+        "quarter_turns": 0
+      }
+    },
+    "2171": {
+      "transition_id": "2171:a29:s28",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-3-r1-c3",
+        "hand_index": 1,
+        "origin": [
+          5,
+          -1
+        ],
+        "quarter_turns": 1
+      },
+      "candidate_move": {
+        "action": "collect",
+        "card_id": "photo-3-r1-c3",
+        "hand_index": 1,
+        "origin": null,
+        "quarter_turns": 0
+      }
+    },
+    "2212": {
+      "transition_id": "2212:a24:s23",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-3-r1-c5",
+        "hand_index": 2,
+        "origin": [
+          1,
+          7
+        ],
+        "quarter_turns": 1
+      },
+      "candidate_move": {
+        "action": "collect",
+        "card_id": "photo-3-r1-c5",
+        "hand_index": 2,
+        "origin": null,
+        "quarter_turns": 0
+      }
+    },
+    "2238": {
+      "transition_id": "2238:a21:s20",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-3-r2-c2",
+        "hand_index": 2,
+        "origin": [
+          -4,
+          1
+        ],
+        "quarter_turns": 0
+      },
+      "candidate_move": {
+        "action": "collect",
+        "card_id": "photo-3-r2-c2",
+        "hand_index": 2,
+        "origin": null,
+        "quarter_turns": 0
+      }
+    },
+    "2282": {
+      "transition_id": "2282:a18:s17",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-1-r1-c5",
+        "hand_index": 1,
+        "origin": [
+          3,
+          4
+        ],
+        "quarter_turns": 0
+      },
+      "candidate_move": {
+        "action": "collect",
+        "card_id": "photo-1-r1-c5",
+        "hand_index": 1,
+        "origin": null,
+        "quarter_turns": 0
+      }
+    },
+    "2314": {
+      "transition_id": "2314:a33:s32",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-3-r1-c2",
+        "hand_index": 2,
+        "origin": [
+          5,
+          7
+        ],
+        "quarter_turns": 0
+      },
+      "candidate_move": {
+        "action": "place",
+        "card_id": "photo-4-r1-c1",
+        "hand_index": 1,
+        "origin": [
+          5,
+          7
+        ],
+        "quarter_turns": 1
+      }
+    },
+    "2334": {
+      "transition_id": "2334:a44:s43",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-3-r1-c5",
+        "hand_index": 1,
+        "origin": [
+          -4,
+          -8
+        ],
+        "quarter_turns": 0
+      },
+      "candidate_move": {
+        "action": "collect",
+        "card_id": "photo-3-r1-c5",
+        "hand_index": 1,
+        "origin": null,
+        "quarter_turns": 0
+      }
+    },
+    "2372": {
+      "transition_id": "2372:a8:s7",
+      "states_still_identical": true,
+      "frozen_v5_move": {
+        "action": "place",
+        "card_id": "photo-2-r1-c4",
+        "hand_index": 2,
+        "origin": [
+          -1,
+          -3
+        ],
+        "quarter_turns": 3
+      },
+      "candidate_move": {
+        "action": "collect",
+        "card_id": "photo-2-r1-c4",
+        "hand_index": 2,
+        "origin": null,
+        "quarter_turns": 0
+      }
+    }
+  },
+  "no_move_divergence_seeds": [
+    2004,
+    2005,
+    2138,
+    2286,
+    2371
+  ],
+  "classification": "same_card_neutral_deferral_development_not_supported",
+  "classification_gates": {
+    "A_candidate_wins_gte_4": false,
+    "A_zero_frozen_v5_wins_lost": true,
+    "A_rescues_2238_or_2282": false,
+    "B_any_frozen_v5_win_lost": false,
+    "B_candidate_wins_lt_3": false
+  },
+  "raw_artifact": {
+    "drive_file_id": "1UnpV9c7aRFg98vIdsNtcav70uec3NsAb",
+    "drive_url": "https://drive.google.com/file/d/1UnpV9c7aRFg98vIdsNtcav70uec3NsAb/view?usp=drivesdk",
+    "parent_folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+    "archive_name": "v5-same-card-neutral-deferral-development-2026-09-27.zip",
+    "archive_bytes": 183849,
+    "archive_sha256": "58be149356946c4947267a29dc860138f1b19be752b2be1c632fc083ea605dc6",
+    "inner_filename": "worker19-same-card-neutral-deferral-development.json",
+    "inner_bytes": 2121109,
+    "inner_sha256": "856d97f2baff89e20653845cb91873e20c8ba790b20c72d9ead967670c1ce620",
+    "readback_verified": true
+  },
+  "interpretation": [
+    "The fixed candidate preserved all three frozen-V5 wins but produced no gained win on the 23 selected spent seeds.",
+    "Neither known V4-win/V5-loss regression (2238 or 2282) was rescued.",
+    "Therefore the preregistered Class C gate applies: same_card_neutral_deferral_development_not_supported.",
+    "This is selected spent-data development evidence only; it is not confirmation or an unbiased population estimate."
+  ],
+  "production_implementation_changed": false
+}
