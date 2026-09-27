@@ -9,6 +9,7 @@ from .moves import Move
 from .strategy import (
     PolicyWeights,
     WeightedGreedyPolicy,
+    best_two_action_first_moves,
     clone_state,
     is_unsafe_capacity_kill_without_visible_repair_reserve,
     move_features,
@@ -196,4 +197,17 @@ class VisibleRepairReserveV5Policy(BoundedMergeV4Policy):
         ]
         best = max(score for score, _ in scored)
         candidates = [move for score, move in scored if score == best]
+        return rng.choice(candidates)
+
+
+class VisibleHandTwoActionV6Policy(BoundedMergeV4Policy):
+    """V4-250 plus exact two-action lookahead over only the visible retained hand."""
+
+    def __init__(self) -> None:
+        super().__init__(setup_weight=250)
+
+    def choose(self, state: GameState, rng: Random) -> Move | None:
+        candidates = best_two_action_first_moves(state, self.weights)
+        if not candidates:
+            return None
         return rng.choice(candidates)
