@@ -35,3 +35,13 @@ jobs:
         run: python scripts/proxy_status.py
       - name: Real photographed-deck smoke
         run: python scripts/run_real_deck_smoke.py
+      - name: Worker 16 bounded candidate-set audit
+        env:
+          EVALUATED_COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: python scripts/run_worker16_2238_candidate_set.py --output worker16-2238-candidate-set.json
+      - name: Upload Worker 16 raw result
+        uses: actions/upload-artifact@v4
+        with:
+          name: worker-16-2238-candidate-set
+          path: worker16-2238-candidate-set.json
+          if-no-files-found: error
