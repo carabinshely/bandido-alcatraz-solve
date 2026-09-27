@@ -56,6 +56,19 @@ class PlacementPreview:
     retained_visible_cards: tuple[RetainedVisibleCard, ...]
 
 
+@dataclass(frozen=True, slots=True)
+class NoDrawRetainedCard:
+    original_hand_index: int
+    preview_hand_index: int
+    card: CardDefinition
+
+
+@dataclass(frozen=True, slots=True)
+class NoDrawMovePreview:
+    successor: GameState
+    retained_visible_cards: tuple[NoDrawRetainedCard, ...]
+
+
 def standalone_exit_legal_move_count(
     board: Board,
     exit_card: CardDefinition,
@@ -93,6 +106,49 @@ def preview_ordinary_non_exit_placement_without_draw(
     )
     return PlacementPreview(
         resulting_board=resulting_board,
+        retained_visible_cards=retained,
+    )
+
+
+def preview_move_without_draw(
+    state: GameState,
+    move: Move,
+) -> NoDrawMovePreview:
+    """Apply one legal visible move to a sanitized state without hidden draw access."""
+    if move.hand_index < 0 or move.hand_index >= len(state.hand):
+        raise IndexError("hand_index out of range")
+    if move not in state.legal_moves():
+        raise ValueError("preview requires a currently legal move")
+
+    retained = tuple(
+        NoDrawRetainedCard(
+            original_hand_index=original_index,
+            preview_hand_index=preview_index,
+            card=retained_card,
+        )
+        for preview_index, (original_index, retained_card) in enumerate(
+            (item for item in enumerate(state.hand) if item[0] != move.hand_index)
+        )
+    )
+
+    successor = GameState(
+        board=state.board.clone(),
+        draw_pile=[],
+        hand=list(state.hand),
+        raincoats=state.raincoats,
+        ropes=state.ropes,
+        exit_placed=state.exit_placed,
+        exit_seen=state.exit_seen,
+        turns=state.turns,
+        set_aside_unplayable=state.set_aside_unplayable,
+    )
+    successor.apply(move, validate=False)
+
+    if tuple(successor.hand) != tuple(item.card for item in retained):
+        raise AssertionError("no-draw preview retained-card mapping mismatch")
+
+    return NoDrawMovePreview(
+        successor=successor,
         retained_visible_cards=retained,
     )
 
@@ -206,11 +262,110 @@ def move_features(state: GameState, move: Move) -> MoveFeatures:
     )
 
 
+def move_features_no_draw(state: GameState, move: Move) -> MoveFeatures:
+    """Return exact current V4 move features without reading the hidden draw pile."""
+    card = state.hand[move.hand_index]
+
+    if move.action is Action.COLLECT:
+        needed = (
+            card.material is Material.RAINCOAT and state.raincoats < 3
+        ) or (
+            card.material is Material.ROPE and state.ropes < 2
+        )
+        return MoveFeatures(
+            collect_needed=int(needed),
+            collect_excess=int(not needed),
+            collect_degree_one=int(needed and card.external_tunnel_count == 1),
+        )
+
+    before_open = state.board.open_tunnels
+    before_water = state.board.visible_water_cells
+    before_merge = state.board.merge_opportunities
+    before_obstruction = state.board.water_obstruction
+    before_trapped = state.board.trapped_water_cells
+    before_bounded_merge = _bounded_merge_bank(state.board)
+    successor = preview_move_without_draw(state, move).successor
+
+    equipment_ready_before = is_equipment_ready(state.raincoats, state.ropes)
+    return MoveFeatures(
+        wins=int(successor.won),
+        closes_last_without_win=int(
+            successor.board.open_tunnels == 0 and not successor.won
+        ),
+        delta_open_tunnels=before_open - successor.board.open_tunnels,
+        delta_visible_water=before_water - successor.board.visible_water_cells,
+        delta_merge_opportunities=(
+            successor.board.merge_opportunities - before_merge
+        ),
+        delta_water_obstruction=(
+            before_obstruction - successor.board.water_obstruction
+        ),
+        new_trapped_water=max(
+            0,
+            successor.board.trapped_water_cells - before_trapped,
+        ),
+        bounded_merge_setup_gain=max(
+            0,
+            _bounded_merge_bank(successor.board) - before_bounded_merge,
+        ),
+        places_exit_ready=int(card.is_exit and equipment_ready_before),
+        places_exit_early=int(card.is_exit and not equipment_ready_before),
+    )
+
+
 def score_features(features: MoveFeatures, weights: PolicyWeights) -> int:
     return sum(
         getattr(features, field) * getattr(weights, field)
         for field in MoveFeatures.__dataclass_fields__
     )
+
+
+def score_move_no_draw(
+    state: GameState,
+    move: Move,
+    weights: PolicyWeights,
+) -> int:
+    """Score one move with unchanged V4 features/weights and no hidden draw access."""
+    return score_features(move_features_no_draw(state, move), weights)
+
+
+def two_action_sequence_score(
+    state: GameState,
+    first_move: Move,
+    weights: PolicyWeights,
+) -> int:
+    """Score one current move plus the best retained-visible second action."""
+    score1 = score_move_no_draw(state, first_move, weights)
+    successor = preview_move_without_draw(state, first_move).successor
+
+    if successor.won or successor.board.open_tunnels == 0:
+        return score1
+
+    second_moves = successor.legal_moves()
+    if not second_moves:
+        return score1
+
+    return score1 + max(
+        score_move_no_draw(successor, second_move, weights)
+        for second_move in second_moves
+    )
+
+
+def best_two_action_first_moves(
+    state: GameState,
+    weights: PolicyWeights,
+) -> list[Move]:
+    """Return tied best current moves in existing legal-move order."""
+    first_moves = state.legal_moves()
+    if not first_moves:
+        return []
+
+    scored = [
+        (two_action_sequence_score(state, move, weights), move)
+        for move in first_moves
+    ]
+    best = max(score for score, _ in scored)
+    return [move for score, move in scored if score == best]
 
 
 class WeightedGreedyPolicy:
