@@ -1,0 +1,152 @@
+{
+  "schema": "bandido-alcatraz-v5-tie-stability-observability-diagnosis-manifest",
+  "schema_version": 1,
+  "date": "2026-09-27",
+  "slice_id": "unified-17-tie-stability-observability",
+  "dataset_status": "already-spent / selected / development / design-diagnostic / non-confirmatory",
+  "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5858379680",
+  "starting_main": "e7f42cbbe5360c86240fee1550dea4de1c1fb2d8",
+  "production_implementation_changed": false,
+  "fresh_seeds_used": false,
+  "holdout_used": false,
+  "fixed_model": {
+    "v4": "BoundedMergeV4Policy(setup_weight=250)",
+    "v5": "frozen merged VisibleRepairReserveV5Policy",
+    "deck_file": "data/deck-v1.json",
+    "exit_geometry_source": "data/deck-observations-v0.json",
+    "rules_variant": "v0-threshold-equipment",
+    "raincoats_min": 3,
+    "ropes_min": 2,
+    "start_side": "easy-5-exit",
+    "hand_size": 3,
+    "deterministic_legal_move_ordering": "unchanged",
+    "exit_seen_semantics": "unchanged"
+  },
+  "scope": {
+    "target": "2238:a20:s19",
+    "controls": [
+      "2024:a14:s13",
+      "2098:a17:s16",
+      "2372:a22:s21"
+    ],
+    "worker16_manifest": "experiments/real-deck-policy-v5/2238-next-decision-candidate-set-audit-2026-09-27.manifest.json",
+    "worker16_raw_archive_sha256": "7e1e59498589c840c0341296d56cd7ea709eceae5332dccbc32239d761cbda34",
+    "worker16_raw_inner_sha256": "ae055e65b98266fe5ffbffe9207911a68f44d9727d802c8a1b63290601556e4f"
+  },
+  "decision_time_api_audit": {
+    "visible_repair_reserve_v5_choose_inputs": [
+      "GameState",
+      "Random"
+    ],
+    "game_state_fields": [
+      "board",
+      "draw_pile",
+      "hand",
+      "raincoats",
+      "ropes",
+      "exit_placed",
+      "turns",
+      "set_aside_unplayable",
+      "exit_seen"
+    ],
+    "move_fields": [
+      "action",
+      "hand_index",
+      "origin",
+      "quarter_turns"
+    ],
+    "current_state_computable": [
+      "legal_moves",
+      "canonical_legal_move_order",
+      "MoveFeatures",
+      "V4_250_score",
+      "V5_safety_tier_filter"
+    ],
+    "absent_provenance": [
+      "candidate_was_legal_on_counterfactual_v4_successor",
+      "candidate_was_in_counterfactual_v4_max_score_tier",
+      "candidate_existed_before_topology_expansion"
+    ],
+    "repository_search_for_paired_other_board_provenance": "no production result"
+  },
+  "worker16_novelty_ground_truth": {
+    "target_v4_max_tier": [
+      {
+        "canonical_index": 0,
+        "action": "collect",
+        "card_id": "photo-3-r2-c2",
+        "hand_index": 2,
+        "score": 0
+      }
+    ],
+    "target_v5_max_tier": [
+      {
+        "canonical_index": 6,
+        "action": "collect",
+        "card_id": "photo-3-r2-c2",
+        "hand_index": 2,
+        "score": 0
+      },
+      {
+        "canonical_index": 7,
+        "action": "place",
+        "card_id": "photo-3-r2-c2",
+        "hand_index": 2,
+        "origin": [
+          -4,
+          1
+        ],
+        "quarter_turns": 0,
+        "score": 0,
+        "novelty_evidence": {
+          "exact_move_legal_on_paired_other_board": false
+        }
+      }
+    ],
+    "historical_next_v5_action": {
+      "transition_id": "2238:a21:s20",
+      "action": "place",
+      "card_id": "photo-3-r2-c2",
+      "hand_index": 2,
+      "origin": [
+        -4,
+        1
+      ],
+      "quarter_turns": 0
+    },
+    "observation": "The property 'topology-added relative to V4' was established only by paired-board comparison in the spent diagnostic, not by a field available to the live V5 decision."
+  },
+  "preregistered_gates": {
+    "current_v5_state_available": true,
+    "current_legal_moves_available": true,
+    "current_move_features_available": true,
+    "v5_safety_classification_available": true,
+    "novelty_provenance_available_locally": false,
+    "stable_pre_expansion_membership_marker_available_locally": false,
+    "exact_novelty_predicate_requires_counterfactual_or_memory": true
+  },
+  "classification": "topology_novelty_unobservable_locally",
+  "classification_reason": [
+    "A true novelty-aware preservation rule must know which tied candidate is newly legal relative to the pre-expansion comparator.",
+    "The merged live V5 choose path receives only the current GameState and RNG and constructs current legal moves/features from that state.",
+    "Neither GameState nor Move carries counterfactual-V4 or pre-expansion membership provenance.",
+    "Worker #16's target novelty evidence is explicitly relational: exact_move_legal_on_paired_other_board=false.",
+    "Reconstructing or retaining that relation would require prohibited counterfactual V4 state or mutable cross-policy trajectory memory."
+  ],
+  "interpretation_limit": "This rejects only topology-novelty-aware max-tier preservation under the frozen observability constraints. It does not reject all decision-time-local secondary tie rules. Canonical-order preference, action preference, or feature-semantic preference would be distinct behavioral hypotheses and require separate preregistration and spent-data diagnosis before implementation.",
+  "raw_persistence": {
+    "new_large_raw_artifact_created": false,
+    "drive_upload_required": false,
+    "reason": "Bounded static/current-state observability audit produced only compact evidence."
+  },
+  "integrity": {
+    "choose_executed_for_future_outcome": false,
+    "candidate_executed": false,
+    "hidden_future_draw_used": false,
+    "seed_id_used_as_rule_input": false,
+    "future_outcome_used": false,
+    "counterfactual_v4_board_used_as_proposed_rule_input": false,
+    "weights_or_thresholds_changed": false,
+    "production_or_model_changes": []
+  }
+}
