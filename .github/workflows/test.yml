@@ -35,13 +35,3 @@ jobs:
         run: python scripts/proxy_status.py
       - name: Real photographed-deck smoke
         run: python scripts/run_real_deck_smoke.py
-      - name: Worker 19 fixed same-card neutral-deferral development evaluation
-        env:
-          EVALUATED_COMMIT: ${{ github.event.pull_request.head.sha }}
-        run: python scripts/run_worker19_same_card_neutral_deferral_development.py
-      - name: Upload Worker 19 raw diagnostic
-        uses: actions/upload-artifact@v4
-        with:
-          name: worker19-same-card-neutral-deferral-development
-          path: artifacts/worker19-same-card-neutral-deferral-development.json
-          if-no-files-found: error
