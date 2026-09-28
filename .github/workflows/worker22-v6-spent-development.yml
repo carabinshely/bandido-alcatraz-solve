@@ -18,6 +18,9 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
           persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       - name: Download authoritative Worker 22 artifact
         uses: actions/download-artifact@v4
         with:
