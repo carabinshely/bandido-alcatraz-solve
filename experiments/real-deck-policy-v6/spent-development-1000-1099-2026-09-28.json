@@ -1513,5 +1513,15 @@
   },
   "v6_gained_win_seeds": null,
   "v6_metrics": null,
-  "v6_per_seed": null
+  "v6_per_seed": null,
+  "checkpoint_cleanup": {
+    "transient_evaluator_removed": true,
+    "transient_workflow_removed": true,
+    "final_diff_expected": "receipt-only",
+    "persistence_run_id": 36385174146,
+    "persistence_run_url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/36385174146",
+    "persistence_conclusion": "success",
+    "invalidated_persistence_run_id": 36385125069,
+    "invalidated_persistence_reason": "Packaging-only persistence job lacked Python setup; no evaluation or V6 run occurred."
+  }
 }
