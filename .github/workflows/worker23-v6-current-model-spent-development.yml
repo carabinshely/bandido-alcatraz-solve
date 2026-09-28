@@ -1,0 +1,40 @@
+name: Worker 23 V6 current-model spent development
+
+on:
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  evaluate:
+    if: github.head_ref == 'research/v6-current-model-spent-development-2026-09-28'
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Report runner and exact head
+        run: |
+          python -c "import os, platform; print('Runner=' + os.environ['RUNNER_NAME']); print('Python=' + platform.python_version())"
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
+      - run: python -m pip install -e ".[dev]"
+      - name: Worker 23 authoritative current-model V4-vs-V6 evaluation
+        env:
+          EVALUATED_COMMIT: ${{ github.event.pull_request.head.sha }}
+          WORKFLOW_RUN_ID: ${{ github.run_id }}
+        run: python scripts/run_worker23_v6_current_model_spent_development.py
+      - name: Upload Worker 23 result
+        uses: actions/upload-artifact@v4
+        with:
+          name: worker23-v6-current-model-spent-development
+          path: artifacts/worker23-v6-current-model-spent-development-1000-1099.json
+          if-no-files-found: error
