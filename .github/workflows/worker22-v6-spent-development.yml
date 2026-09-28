@@ -1,40 +1,95 @@
-name: Worker 22 V6 spent development
+name: Worker 22 persist diagnostic receipt
 
 on:
   pull_request:
     branches: ["main"]
 
 permissions:
-  contents: read
+  actions: read
+  contents: write
 
 jobs:
-  evaluate:
+  persist:
     if: github.head_ref == 'research/v6-spent-development-1000-1099-2026-09-28'
     runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
-    timeout-minutes: 60
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          persist-credentials: false
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: "pip"
-      - name: Report runner and exact head
-        run: |
-          python -c "import os, platform; print('Runner=' + os.environ['RUNNER_NAME']); print('Python=' + platform.python_version())"
-          git rev-parse HEAD
-          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
-      - run: python -m pip install -e ".[dev]"
-      - name: Worker 22 authoritative V4-vs-V6 spent-data evaluation
-        env:
-          EVALUATED_COMMIT: ${{ github.event.pull_request.head.sha }}
-          WORKFLOW_RUN_ID: ${{ github.run_id }}
-        run: python scripts/run_worker22_v6_spent_development.py
-      - name: Upload Worker 22 result
-        uses: actions/upload-artifact@v4
+          ref: ${{ github.head_ref }}
+          persist-credentials: true
+      - name: Download authoritative Worker 22 artifact
+        uses: actions/download-artifact@v4
         with:
           name: worker22-v6-spent-development
-          path: artifacts/worker22-v6-spent-development-1000-1099.json
-          if-no-files-found: error
+          path: artifacts/worker22
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 36384717591
+      - name: Persist fail-closed receipt and remove transient evaluator
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          source = Path("artifacts/worker22/worker22-v6-spent-development-1000-1099.json")
+          data = json.loads(source.read_text(encoding="utf-8"))
+
+          assert data["classification"] == "v6_spent_development_diagnostic_invalid"
+          assert data["v4_replay_integrity"]["passed"] is False
+          assert data["v6_metrics"] is None
+          assert data["v6_per_seed"] is None
+          assert data["paired"] is None
+
+          data["authoritative_evaluation"] = {
+              "commit": "9cd98245e766b231f8256f1debd650bca04ff712",
+              "workflow_run_id": 36384717591,
+              "workflow_run_url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/36384717591",
+              "conclusion": "success",
+              "runner": "bandido-alcatraz-ci",
+              "python": "3.11.16",
+              "artifact_id": 10954017270,
+              "artifact_zip_sha256": "6928789aeba0a375f1498b5254f5eaf2315cf37865709b26dcdbdac703fb2d0e",
+          }
+          data["diagnosis"] = {
+              "historical_evaluated_commit": "96ae13fabb1c52f66380c6c3b2acb1d522d49bba",
+              "current_main": "37173f57910f6e67e01c2bcf662e2ab5b640d6fc",
+              "deck_v1_blob_unchanged": True,
+              "deck_observations_blob_unchanged": True,
+              "historical_board_blob": "60438c4d5f9f712eb65f70bd6c90fe62805d02e1",
+              "current_board_blob": "b4f76b6f948eaffe320855156e569a596fe6c213",
+              "water_over_water_fix_commit": "87b8d3eeff3aaf53c5e887679360652a3f9e8d04",
+              "water_over_water_fix_url": "https://github.com/carabinshely/bandido-alcatraz-solve/commit/87b8d3eeff3aaf53c5e887679360652a3f9e8d04",
+              "semantic_change": (
+                  "Historical Board.place() forced any overlapped water half to water=False. "
+                  "Current canonical Board.place() preserves the newly visible replacement half's "
+                  "water flag, so water-over-water covering remains visible water."
+              ),
+              "effect": (
+                  "The historical 2026-09-21 V4 receipt is not replay-equivalent under the "
+                  "current corrected canonical board semantics. The integrity gate therefore "
+                  "fails before V6 is executed or interpreted."
+              ),
+              "other_notes": [
+                  "data/deck-v1.json blob is identical between historical evaluated commit and current main",
+                  "data/deck-observations-v0.json blob is identical between historical evaluated commit and current main",
+                  "Current V4 still has 5/100 wins, but the winning seed identity and multiple required aggregates differ",
+                  "No V6 game was run because the harness stops immediately after failed V4 replay integrity",
+              ],
+          }
+          data["interpretation_limits"].append(
+              "V6 was not executed; no V6 outcome or paired comparison exists for this slice."
+          )
+
+          out = Path("experiments/real-deck-policy-v6/spent-development-1000-1099-2026-09-28.json")
+          out.parent.mkdir(parents=True, exist_ok=True)
+          out.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+
+          git rm scripts/run_worker22_v6_spent_development.py
+          git rm .github/workflows/worker22-v6-spent-development.yml
+          git add experiments/real-deck-policy-v6/spent-development-1000-1099-2026-09-28.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Persist Worker 22 diagnostic-invalid checkpoint"
+          git push origin HEAD:${{ github.head_ref }}
