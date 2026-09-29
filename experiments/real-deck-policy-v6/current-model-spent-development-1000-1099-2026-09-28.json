@@ -2908,5 +2908,10 @@
       "visible_water": 2,
       "won": false
     }
-  ]
+  ],
+  "final_checkpoint": {
+    "receipt_only_head_parent": "89d119de24a98b71ab2408162224511014ce2579",
+    "final_ci_required": true,
+    "note": "Receipt-only metadata commit created through normal GitHub contents API so routine PR CI can execute on an exact final head."
+  }
 }
