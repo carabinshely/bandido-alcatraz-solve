@@ -1,40 +1,81 @@
-name: Worker 23 V6 current-model spent development
+name: Worker 23 persist result
 
 on:
   pull_request:
     branches: ["main"]
 
 permissions:
-  contents: read
+  actions: read
+  contents: write
 
 jobs:
-  evaluate:
+  persist:
     if: github.head_ref == 'research/v6-current-model-spent-development-2026-09-28'
     runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
-    timeout-minutes: 60
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          persist-credentials: false
+          ref: ${{ github.head_ref }}
+          persist-credentials: true
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
-      - name: Report runner and exact head
-        run: |
-          python -c "import os, platform; print('Runner=' + os.environ['RUNNER_NAME']); print('Python=' + platform.python_version())"
-          git rev-parse HEAD
-          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha }}"
-      - run: python -m pip install -e ".[dev]"
-      - name: Worker 23 authoritative current-model V4-vs-V6 evaluation
-        env:
-          EVALUATED_COMMIT: ${{ github.event.pull_request.head.sha }}
-          WORKFLOW_RUN_ID: ${{ github.run_id }}
-        run: python scripts/run_worker23_v6_current_model_spent_development.py
-      - name: Upload Worker 23 result
-        uses: actions/upload-artifact@v4
+      - name: Download authoritative Worker 23 artifact
+        uses: actions/download-artifact@v4
         with:
           name: worker23-v6-current-model-spent-development
-          path: artifacts/worker23-v6-current-model-spent-development-1000-1099.json
-          if-no-files-found: error
+          path: artifacts/worker23
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 36389539291
+      - name: Persist Worker 23 receipt and cleanup
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          source = Path("artifacts/worker23/worker23-v6-current-model-spent-development-1000-1099.json")
+          data = json.loads(source.read_text(encoding="utf-8"))
+
+          assert data["classification"] == "v6_current_model_spent_development_no_win_signal"
+          assert data["v4_replay_integrity"]["passed"] is True
+          assert data["v4_replay_integrity"]["per_seed_exact_matches"] == 100
+          assert data["v4_replay_integrity"]["aggregate_match"] is True
+          assert len(data["v4_per_seed"]) == 100
+          assert len(data["v6_per_seed"]) == 100
+          assert [x["seed"] for x in data["v4_per_seed"]] == list(range(1000, 1100))
+          assert [x["seed"] for x in data["v6_per_seed"]] == list(range(1000, 1100))
+          assert data["paired"]["v6_only_wins"] == 2
+          assert data["paired"]["v4_only_wins"] == 2
+          assert data["paired"]["both_win"] == 3
+          assert data["paired"]["both_lose"] == 93
+          assert data["paired"]["net_paired_win_count_change"] == 0
+
+          data["authoritative_evaluation"] = {
+              "commit": "a113910133b0978840638b29402036a2bea0364d",
+              "workflow_run_id": 36389539291,
+              "workflow_run_url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/36389539291",
+              "conclusion": "success",
+              "runner": "bandido-alcatraz-ci",
+              "artifact_id": 10957497317,
+              "artifact_zip_sha256": "1f13eaaaf563f4db059d63bbfa0c3afeda5f25fe80dd7a432bbcad5c69a9e151"
+          }
+          data["checkpoint_cleanup"] = {
+              "transient_evaluator_removed": True,
+              "transient_workflow_removed": True,
+              "final_diff_expected": "receipt-only"
+          }
+
+          out = Path("experiments/real-deck-policy-v6/current-model-spent-development-1000-1099-2026-09-28.json")
+          out.parent.mkdir(parents=True, exist_ok=True)
+          out.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+
+          git rm scripts/run_worker23_v6_current_model_spent_development.py
+          git rm .github/workflows/worker23-v6-current-model-spent-development.yml
+          git add experiments/real-deck-policy-v6/current-model-spent-development-1000-1099-2026-09-28.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Persist Worker 23 current-model V6 result"
+          git push origin HEAD:${{ github.head_ref }}
