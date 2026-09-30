@@ -164,6 +164,13 @@ def _simulate_v7(
             )
         )
 
+    post_manifest, post_provenance = _load_and_validate_v7_metadata()
+    if post_manifest != manifest or post_provenance != provenance:
+        raise RuntimeError(
+            "V7 source/provenance changed during deterministic re-simulation; "
+            "no SVGs were written"
+        )
+
     actual_hash = _final_records_sha256(final_rows)
     expected_hash = str(provenance["final_records_sha256"])
     if actual_hash != expected_hash:
