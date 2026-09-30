@@ -18,6 +18,7 @@ import subprocess
 import time
 import traceback
 import zipfile
+import zlib
 from bandido_alcatraz.game import GameState
 from bandido_alcatraz.moves import Move
 from bandido_alcatraz.physical_deck import load_real_deck
@@ -406,36 +407,53 @@ def check_bytes(data, size, digest, label):
     return actual
 
 
-def preflight(archive):
+def preflight(archive, progress=None):
+    # Progress is receipt metadata only; it does not affect verification or research.
+    progress = {} if progress is None else progress
+    progress['failed_check'] = 'read_worker24_provenance'
     provenance = json.loads((ROOT / PROVENANCE).read_text())
+    progress['failed_check'] = 'read_worker24_archive'
     baseline_bytes = archive.read_bytes()
+    progress['observed_archive'] = dict(bytes=len(baseline_bytes), sha256=hashlib.sha256(baseline_bytes).hexdigest())
+    progress['failed_check'] = 'read_worker24_artifact_metadata'
     meta = provenance['raw_artifact']
+    progress['expected_archive'] = meta
+    progress['failed_check'] = 'verify_worker24_archive_bytes'
     verified = {'archive': check_bytes(baseline_bytes, meta['archive_bytes'],
                                       meta['archive_sha256'], 'Worker24 ZIP')}
+    progress['failed_check'] = 'verify_worker24_archive_contents'
     with zipfile.ZipFile(archive) as z:
         if sorted(z.namelist()) != sorted(meta['inner_files']):
             raise TraceIntegrityError('unexpected Worker24 archive entries')
         inner = {}
         for name, expected in meta['inner_files'].items():
+            progress['failed_check'] = 'verify_worker24_inner_file:' + name
             data = z.read(name)
             verified[name] = check_bytes(data, expected['bytes'], expected['sha256'], name)
             inner[name] = json.loads(data)
+    progress['failed_check'] = 'verify_worker24_diagnostic_commit'
     baseline = inner['worker24-changed-outcome-trace-audit.json']
     if baseline['evaluated_commit'] != 'a463edfd2be52fe271642d5e8f07ddb008b48d6e':
         raise TraceIntegrityError('Worker24 diagnostic commit mismatch')
     # Pin all production/data files, not just the subset listed in Worker24.
     source_blobs = {}
+    progress['source_comparisons'] = {}
+    progress['failed_check'] = 'enumerate_pinned_sources'
     paths = git('ls-tree', '-r', '--name-only', STARTING_MAIN, 'src', 'data').splitlines()
     paths += [RECEIPT, PROVENANCE]
     for path in paths:
+        progress['failed_check'] = 'verify_source:' + path
         expected = git('rev-parse', f'{STARTING_MAIN}:{path}')
         actual = git('hash-object', path)
+        progress['source_comparisons'][path] = dict(expected=expected, actual=actual)
         if actual != expected:
             raise TraceIntegrityError(f'source drift: {path}')
         source_blobs[path] = actual
     for path, expected in provenance['source_blobs'].items():
+        progress['failed_check'] = 'verify_worker24_source_provenance:' + path
         if source_blobs[path] != expected:
             raise TraceIntegrityError(f'Worker24 provenance drift: {path}')
+    progress['failed_check'] = 'verify_worker23_population_and_fixed_strata'
     receipt = json.loads((ROOT / RECEIPT).read_text())
     v4, v6 = [{r['seed']: ('win' if r['won'] else r['reason'])
                for r in receipt[key]} for key in ('v4_per_seed', 'v6_per_seed')]
@@ -458,6 +476,7 @@ def preflight(archive):
              'v4_only_win2': [1012,1087], 'v6_only_win2': [1024,1083]}
     if any(strata[k] != v for k,v in exact.items()):
         raise TraceIntegrityError('fixed stratum membership mismatch')
+    progress['failed_check'] = 'verify_worker24_population'
     if sorted(t['seed'] for t in baseline['traces']) != strata['changed32']:
         raise TraceIntegrityError('Worker24 population mismatch')
     return baseline, strata, dict(verified_worker24_bytes=verified,
@@ -564,13 +583,49 @@ def write_json(path, data):
     path.write_text(json.dumps(data, sort_keys=True, indent=2)+'\n')
 
 
+
+def preflight_failure_receipt(args, error, progress, *, invalid):
+    """Persist a zero-seed CLI failure without presenting a blocker as research."""
+    provenance = dict(starting_main=STARTING_MAIN, worker24_archive_path=str(args.worker24_zip),
+                      worker24_provenance_path=PROVENANCE, worker23_receipt_path=RECEIPT,
+                      preflight_progress=progress)
+    try:
+        provenance['checkout_commit'] = git('rev-parse', 'HEAD')
+    except (OSError, subprocess.CalledProcessError) as exc:
+        provenance['checkout_commit_unavailable'] = str(exc)
+    receipt = dict(
+        schema='bandido-worker25-preflight-failure', schema_version=1,
+        classification=PREFIX+'diagnostic_invalid' if invalid else None,
+        execution_status='diagnostic_invalid' if invalid else 'execution_blocked',
+        failed_check=progress.get('failed_check', 'preflight'),
+        error=dict(type=type(error).__name__, message=str(error)),
+        provenance=provenance, research_seeds_executed=0,
+        research_interpretation='None. Preflight failed before any research seed execution.',
+        runner=os.environ.get('RUNNER_NAME'), workflow_run_id=os.environ.get('GITHUB_RUN_ID'))
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    write_json(args.output_dir/'worker25-preflight-failure.json', receipt)
+    print(json.dumps(receipt, sort_keys=True))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--worker24-zip', type=Path, required=True)
     parser.add_argument('--output-dir', type=Path, default=ROOT/'artifacts/raw/worker25')
     parser.add_argument('--preflight-only', action='store_true', help='Verify bytes, sources and fixed strata; execute no seeds')
     args = parser.parse_args()
-    baseline, strata, integrity = preflight(args.worker24_zip)
+    progress = {}
+    try:
+        baseline, strata, integrity = preflight(args.worker24_zip, progress)
+    except (OSError, subprocess.CalledProcessError) as exc:
+        # Unavailable input or Git objects are execution blockers, not observed
+        # integrity mismatches. In particular, do not label missing ZIPs invalid.
+        preflight_failure_receipt(args, exc, progress, invalid=False)
+        raise SystemExit(2) from exc
+    except (TraceIntegrityError, ValueError, KeyError, TypeError, IndexError,
+            UnicodeError, zipfile.BadZipFile, zipfile.LargeZipFile, zlib.error) as exc:
+        # Malformed decoded input, corrupt archives, and explicit gate failures.
+        preflight_failure_receipt(args, exc, progress, invalid=True)
+        raise SystemExit(1) from exc
     if args.preflight_only:
         print(json.dumps(dict(preflight=integrity, strata=strata, research_seeds_executed=0), sort_keys=True))
         return
