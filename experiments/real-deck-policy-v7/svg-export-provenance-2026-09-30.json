@@ -1,0 +1,26 @@
+{
+  "evaluated_commit": "2e532c7e8a95397d586eb03cdfa840ea6a82e534",
+  "expected_win_seeds": [
+    1008,
+    1031,
+    1047,
+    1086,
+    1088,
+    1096,
+    1097
+  ],
+  "experiment_id": "worker26-v7-immediate-tie-spent-development-2026-09-30",
+  "final_records_normalization": "sort v7 rows by integer seed; json.dumps(..., sort_keys=True, separators=(',', ':')); UTF-8",
+  "final_records_sha256": "d1921f03fa41d45140f482c4cb75ab414d09ce1de6f1a59081eecc2390d858da",
+  "historical_placement_traces_persisted": false,
+  "historical_reconstruction": "deterministic-resimulation",
+  "note": "The historical V7 artifact has final per-seed records but no physical-card placement traces. Exact boards are therefore reconstructed by rerunning the frozen deterministic inputs and verifying all 100 final records against this checksum before any SVG is written.",
+  "raw_receipt_drive_url": "https://drive.google.com/file/d/1unzOSmeLEOjqaWJ6vbdw_O4rlY4PBKT9/view",
+  "raw_receipt_sha256": "635064443ef9b27e01ff387c7a58917b85582f8d48592dc3ec2d2eae372f2e64",
+  "schema": "bandido-v7-svg-export-provenance-v1",
+  "seed_count": 100,
+  "seed_range_inclusive": [
+    1000,
+    1099
+  ]
+}
