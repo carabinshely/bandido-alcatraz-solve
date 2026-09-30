@@ -56,6 +56,23 @@ def write_json(path, value):
     temp.write_text(json.dumps(value, sort_keys=True, indent=2) + "\n")
     temp.replace(path)
 
+def preserve_previous_attempt(output):
+    previous = [output / name for name in ("receipt.json", "receipt.json.tmp", "completed.jsonl")
+                if (output / name).exists()]
+    if not previous:
+        return None
+    destination = output / "previous-attempts" / str(time.time_ns())
+    destination.mkdir(parents=True, exist_ok=False)
+    for path in previous:
+        path.rename(destination / path.name)
+    return str(destination.relative_to(output))
+
+def verify_harness_binding():
+    path = str(Path(__file__).resolve().relative_to(ROOT))
+    actual = git("hash-object", path)
+    require(actual == git("rev-parse", f"HEAD:{path}"), "harness differs from evaluated commit")
+    return actual
+
 def finalize(output, outcome, tests_outcome):
     """Persist an explicit terminal blocker when timeout interrupted the producer."""
     output.mkdir(parents=True, exist_ok=True)
@@ -80,6 +97,7 @@ def preflight():
     head = git("rev-parse", "HEAD")
     require(head == os.environ.get("EVALUATED_COMMIT"), "checkout differs from frozen execution head")
     require(os.environ.get("RUNNER_NAME") == "bandido-alcatraz-ci", "unauthorized research executor")
+    harness_blob = verify_harness_binding()
     ancestry = subprocess.run(["git", "merge-base", "--is-ancestor", STARTING_MAIN, head], cwd=ROOT)
     require(ancestry.returncode == 0, "frozen starting main is not an ancestor")
     # Read the authority from the pinned base, not an editable branch manifest.
@@ -94,6 +112,7 @@ def preflight():
     require([r["seed"] for r in rows] == list(SEEDS), "reference exact ordered population")
     require(len({r["seed"] for r in rows}) == 100, "reference duplicate seeds")
     return rows, {"head": head, "starting_main": STARTING_MAIN,
+                  "harness_blob": harness_blob,
                   "source_blobs": expected,
                   "reference_sha256": hashlib.sha256(reference_bytes).hexdigest(),
                   "harness_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}
@@ -150,7 +169,9 @@ def main():
         finalize(args.output, args.step_outcome, args.tests_outcome)
         return 0
     args.output.mkdir(parents=True, exist_ok=True)
+    previous_attempt = preserve_previous_attempt(args.output)
     receipt = {"schema": "bandido-worker26-v1", "status": "preflight",
+               "preserved_previous_attempt": previous_attempt,
                "preregistration_url": PREREGISTRATION,
                "fixed_configuration": {"rules": "v0-threshold-equipment", "hand_size": 3,
                    "start": "easy", "baseline": "BoundedMergeV4Policy(setup_weight=250)",
@@ -178,7 +199,7 @@ def main():
             return 0
         receipt["status"] = "running"
         save()
-        with (args.output / "completed.jsonl").open("a") as journal:
+        with (args.output / "completed.jsonl").open("x") as journal:
             def retain(policy, row):
                 receipt[policy].append(row)
                 receipt["completed_policy_seed_records"] += 1

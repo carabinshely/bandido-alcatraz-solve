@@ -139,4 +139,23 @@ class CandidateTests(unittest.TestCase):
             w.finalize(p,"success","success")
             self.assertEqual(json.loads((p/"receipt.json").read_text()),{"status":"complete","marker":1})
 
+    def test_dirty_harness_is_invalid_before_seed_execution(self):
+        with patch.object(w,"git",side_effect=["dirty","committed"]), patch.object(w,"one_game",side_effect=AssertionError("no research")):
+            with self.assertRaisesRegex(w.IntegrityError,"harness differs"):
+                w.verify_harness_binding()
+        with patch.object(w,"git",side_effect=["same","same"]):
+            self.assertEqual(w.verify_harness_binding(),"same")
+
+    def test_reused_output_preserves_old_attempt_without_mixing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p=Path(tmp); old_receipt=b'{"status":"execution_blocked"}\n'; old_journal=b'{"old":"record"}\n'
+            (p/"receipt.json").write_bytes(old_receipt); (p/"completed.jsonl").write_bytes(old_journal)
+            with patch.object(w,"preflight",side_effect=OSError("input inaccessible")), patch.object(w,"one_game",side_effect=AssertionError("no research")), patch("sys.argv",["test","--execute","--output",tmp]):
+                self.assertEqual(w.main(),1)
+            r=json.loads((p/"receipt.json").read_text()); archived=p/r["preserved_previous_attempt"]
+            self.assertEqual((archived/"receipt.json").read_bytes(),old_receipt)
+            self.assertEqual((archived/"completed.jsonl").read_bytes(),old_journal)
+            self.assertFalse((p/"completed.jsonl").exists())
+            self.assertEqual(r["completed_policy_seed_records"],0)
+
 if __name__ == "__main__": unittest.main()

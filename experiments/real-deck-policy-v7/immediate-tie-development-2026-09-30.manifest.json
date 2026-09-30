@@ -1,6 +1,7 @@
 {
   "candidate_freeze_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5913030134",
   "classification": "v7_immediate_tie_development_signal",
+  "dataset_status": "already-spent development; non-confirmatory",
   "evaluated_commit": "2e532c7e8a95397d586eb03cdfa840ea6a82e534",
   "execution": {
     "conclusion": "success",
@@ -11,6 +12,81 @@
     "run_url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/36727412001",
     "runner": "bandido-alcatraz-ci",
     "synthetic_tests_passed": 12
+  },
+  "experiment_id": "worker26-v7-immediate-tie-spent-development-2026-09-30",
+  "fixed_configuration": {
+    "baseline": {
+      "class": "BoundedMergeV4Policy",
+      "complete_weights": {
+        "bounded_merge_setup_gain": 250,
+        "closes_last_without_win": -1000000,
+        "collect_degree_one": 0,
+        "collect_excess": 0,
+        "collect_needed": 10000,
+        "delta_merge_opportunities": 0,
+        "delta_open_tunnels": 100,
+        "delta_visible_water": 20000,
+        "delta_water_obstruction": 1000,
+        "new_trapped_water": -100000,
+        "places_exit_early": -5000,
+        "places_exit_ready": 5000,
+        "wins": 1000000
+      },
+      "parameters": {
+        "setup_weight": 250
+      }
+    },
+    "candidate": {
+      "class": "ImmediateTieV7Policy",
+      "hidden_draw_input": false,
+      "lookahead_actions": 2,
+      "ordering": "canonical legal first-action order",
+      "parameters": {},
+      "primary_score": "existing V6 undiscounted two-action no-draw sequence reward",
+      "rng": "one final choice among lexicographic-maximal actions; zero rollout RNG",
+      "secondary_score": "immediate V4-250 no-draw reward",
+      "weights": "identical to complete baseline weights above"
+    },
+    "canonical_source_blobs": {
+      "data/README.md": "2ac91d9da6769934c78a90ba865f3d558f48bbd2",
+      "data/deck-observations-v0.json": "ee38d60277c79dafa7527876367e3e6450ccb53f",
+      "data/deck-v1.json": "9fa2066507ff9a0fb6b922d52e84529b35acb05e",
+      "data/owner-photo-inventory-v0.json": "5911fdeea4138421945d0cffd69908088cad5639",
+      "data/proxy-bandido-covid-v0.json": "a9e3013f58a94216e920637461331e3c8fccdeae",
+      "experiments/real-deck-policy-v6/changed-outcome-trace-audit-2026-09-29.manifest.json": "70a21065eabea8b4caf39e3b12a1f8432beb0009",
+      "experiments/real-deck-policy-v6/current-model-spent-development-1000-1099-2026-09-28.json": "7a6e6bfa404cc35a38b0e49a16bc0247a612d287",
+      "src/bandido_alcatraz/__init__.py": "425141547c12e61eee6ecafd5b7136322f0af6d4",
+      "src/bandido_alcatraz/board.py": "b4f76b6f948eaffe320855156e569a596fe6c213",
+      "src/bandido_alcatraz/catalog.py": "e82ca3d70310281bf5a6c4f325e10f0083d7b0b3",
+      "src/bandido_alcatraz/deck_data.py": "6e997e464736bcd0ad79f6115ff69f3967cd57f5",
+      "src/bandido_alcatraz/evaluate.py": "9674538171557345d27f6de75920253e3eab4ebf",
+      "src/bandido_alcatraz/fixtures.py": "a12d395871a6a5e2d1c2011c5ac628878a2d5dde",
+      "src/bandido_alcatraz/game.py": "73d79daa011ff5493b02966fe1157a5ada17df73",
+      "src/bandido_alcatraz/model.py": "dc469a82a5fab7574aebe25a18543494494f4b11",
+      "src/bandido_alcatraz/moves.py": "84007416428f3b2b94895765db4d17e0adda833b",
+      "src/bandido_alcatraz/optimize.py": "f6685a7d3b175f7846f96e83261962a951c3d51b",
+      "src/bandido_alcatraz/photo_geometry.py": "eb40808af9616b2d77c3e6519e010021992d364a",
+      "src/bandido_alcatraz/physical_deck.py": "7ba9df058b38f3d0300daf65a8b6cc3595845490",
+      "src/bandido_alcatraz/policies.py": "0be6b930fdf18e5aac15a75e63eb32aea71f3b68",
+      "src/bandido_alcatraz/proxy.py": "7c590565591d558e1d18d38a8471abd02bcac156",
+      "src/bandido_alcatraz/proxy_data.py": "c0d63b6d0de90626600cb0d1ca5fa6917c7908f4",
+      "src/bandido_alcatraz/rules.py": "55a9df4d73f641104b3b3d842f333e53c623c75d",
+      "src/bandido_alcatraz/simulate.py": "b2d25ecd0714b5515215047ffcaa471eede3f6e4",
+      "src/bandido_alcatraz/strategy.py": "55374c0391f0efc0f783c0b86baf12c40c79f42c"
+    },
+    "deck_blob": "9fa2066507ff9a0fb6b922d52e84529b35acb05e",
+    "deck_file": "data/deck-v1.json",
+    "development_advancement_rule": "candidate wins - baseline wins >= 2 on complete100pairedseeds",
+    "equipment_thresholds": {
+      "comparison": ">=",
+      "raincoats": 3,
+      "ropes": 2
+    },
+    "exit_geometry_blob": "ee38d60277c79dafa7527876367e3e6450ccb53f",
+    "exit_geometry_file": "data/deck-observations-v0.json",
+    "hand_size": 3,
+    "ruleset": "v0-threshold-equipment",
+    "start_side": "easy-5-exit"
   },
   "interpretation": [
     "Spent development only; no confirmatory or population-win-rate claim",
@@ -28,17 +104,32 @@
     "drive_url": "https://drive.google.com/file/d/1unzOSmeLEOjqaWJ6vbdw_O4rlY4PBKT9/view",
     "github_artifact_id": 11104292026,
     "journal_bytes": 50828,
-    "journal_sha256": "b4092189ff4b4f645f6c9dcf8c5fe1d285e0b396119ba2aa85d5e8c476b5f10c"
+    "journal_sha256": "b4092189ff4b4f645f6c9dcf8c5fe1d285e0b396119ba2aa85d5e8c476b5f10c",
+    "receipt_inner_filename": "receipt.json"
   },
   "receipt_bytes": 68165,
-  "receipt_path": "experiments/real-deck-policy-v7/immediate-tie-development-2026-09-30.json",
   "receipt_sha256": "635064443ef9b27e01ff387c7a58917b85582f8d48592dc3ec2d2eae372f2e64",
   "schema": "bandido-worker26-checkpoint-v1",
+  "schema_version": 1,
+  "seed_count_per_policy": 100,
+  "seed_range_inclusive": [
+    1000,
+    1099
+  ],
   "source": {
     "candidate_and_harness_path": "scripts/run_worker26.py",
+    "candidate_ast_equal_to_evaluated": true,
+    "candidate_ast_sha256": "23d989497dd7d6a3864f5d91a9879498c14961eb512be4513386c639f6fe64d6",
     "canonical_src_data_delta": "none",
+    "evaluated_harness_sha256": "7db9c67fd3d95efc0a29376492bb96d2779848a9891ea0e6300eb3811f2f633d",
+    "post_execution_repairs": [
+      "Bind current harness blob to HEAD before any seed and after execution",
+      "Preserve previous attempt files and exclusively create a fresh journal",
+      "No candidate/scoring/model/data change; evaluated artifact harness hash independently matches frozen source"
+    ],
     "retained_reason": "fixed candidate passed development gate; retain exact evaluated source for prospectively registered continuation",
-    "sha256": "7db9c67fd3d95efc0a29376492bb96d2779848a9891ea0e6300eb3811f2f633d",
+    "sha256": "31af6f76c02bd44c272d51ecc56c814aae98698ff8cc446d52b36acef53c089a",
+    "synthetic_test_count_current": 14,
     "synthetic_tests_moved_to_routine_pytest": "tests/test_worker26.py",
     "temporary_workflow_removed": true
   },
@@ -86,6 +177,8 @@
   "verification": {
     "baseline_exact_matches": 100,
     "complete_records": 200,
+    "evidence_rerun_required": false,
+    "evidence_validity_reason": "Actual authoritative receipt harness hash matches exact frozen source; repairs affect future preflight/retry safety and persistence metadata, not executed candidate semantics.",
     "execution_head_routine_ci": 36727411874,
     "failed_research_attempts": [],
     "final_head_ci": "required after checkpoint push; record exact run in PR acceptance",

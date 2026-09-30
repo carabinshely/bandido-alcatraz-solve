@@ -6,7 +6,7 @@
   "historically_observed_real_deck_ranges_inclusive": [
     [
       0,
-      49
+      99
     ],
     [
       100,
@@ -45,7 +45,7 @@
       "fresh_or_confirmation": false,
       "evaluated_commit": "2e532c7e8a95397d586eb03cdfa840ea6a82e534",
       "run_id": 36727412001,
-      "receipt_path": "experiments/real-deck-policy-v7/immediate-tie-development-2026-09-30.json"
+      "manifest_path": "experiments/real-deck-policy-v7/immediate-tie-development-2026-09-30.manifest.json"
     }
   ],
   "fresh_confirmation_allocations": [],
@@ -56,5 +56,21 @@
     "Observed outcomes permanently spend a cohort for confirmation",
     "Future confirmation must preregister untouched paired seeds, sample size, primary endpoint, statistical rule, minimum worthwhile improvement and independent replication",
     "Account for multiple candidate confirmation attempts prospectively"
-  ]
+  ],
+  "historical_range_evidence": {
+    "0-99": [
+      "experiments/real-deck-policy-v1/README.md",
+      "scripts/run_real_policy_comparison.py",
+      "scripts/run_real_endstate_diagnostics.py"
+    ],
+    "100-129": [
+      "scripts/run_real_policy_v4_pilot.py"
+    ],
+    "1000-1099": [
+      "scripts/run_real_policy_v4_confirmation.py"
+    ],
+    "2000-2399": [
+      "scripts/run_real_policy_v4_stability_holdout.py"
+    ]
+  }
 }
