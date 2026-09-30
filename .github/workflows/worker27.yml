@@ -1,0 +1,93 @@
+name: Worker27 fresh development
+on:
+  pull_request:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  baseline:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'research/worker27-v7-fresh-development'
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        timeout-minutes: 2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        timeout-minutes: 3
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+        timeout-minutes: 3
+      - name: Synthetic tests
+        id: synthetic
+        timeout-minutes: 2
+        run: python -m pytest -q
+      - name: Accepted spent V4 replay gate
+        id: cohort
+        timeout-minutes: 17
+        env:
+          EVALUATED_COMMIT: ${{ github.event.pull_request.head.sha }}
+          PYTHONHASHSEED: '0'
+        run: timeout --signal=TERM --kill-after=30s 900s python -m scripts.run_worker27 --baseline --output artifacts/tmp/worker27-baseline
+      - name: Finalize baseline
+        if: always()
+        timeout-minutes: 2
+        env:
+          PYTHONPATH: src:.
+        run: python -m scripts.run_worker27 --finalize --output artifacts/tmp/worker27-baseline --cohort-outcome '${{ steps.cohort.outcome }}' --tests-outcome '${{ steps.synthetic.outcome }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        timeout-minutes: 5
+        with:
+          name: worker27-baseline-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/tmp/worker27-baseline/
+          if-no-files-found: warn
+  development:
+    needs: baseline
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3]
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        timeout-minutes: 2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        timeout-minutes: 3
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+        timeout-minutes: 3
+      - name: Synthetic tests
+        id: synthetic
+        timeout-minutes: 2
+        run: python -m unittest discover -s tests -p test_worker27.py -v
+      - name: Frozen fresh development shard
+        id: cohort
+        timeout-minutes: 97
+        env:
+          EVALUATED_COMMIT: ${{ github.event.pull_request.head.sha }}
+          PYTHONHASHSEED: '0'
+        run: timeout --signal=TERM --kill-after=30s 5700s python -m scripts.run_worker27 --shard ${{ matrix.shard }} --output artifacts/tmp/worker27-shard-${{ matrix.shard }}
+      - name: Finalize shard
+        if: always()
+        timeout-minutes: 2
+        env:
+          PYTHONPATH: src:.
+        run: python -m scripts.run_worker27 --finalize --output artifacts/tmp/worker27-shard-${{ matrix.shard }} --cohort-outcome '${{ steps.cohort.outcome }}' --tests-outcome '${{ steps.synthetic.outcome }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        timeout-minutes: 5
+        with:
+          name: worker27-shard-${{ matrix.shard }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/tmp/worker27-shard-${{ matrix.shard }}/
+          if-no-files-found: warn
