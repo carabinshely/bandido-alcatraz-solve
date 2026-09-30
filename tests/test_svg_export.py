@@ -5,13 +5,16 @@ import xml.etree.ElementTree as ET
 import pytest
 
 from bandido_alcatraz.board import Board, PlacementKind
-from bandido_alcatraz.export_svg import FinalBoardExport, export_final_boards
+from bandido_alcatraz.export_svg import (
+    FinalBoardExport,
+    FinalStateCapturePolicy,
+    export_final_boards,
+)
 from bandido_alcatraz.model import CardDefinition, CellSpec, Direction
 from bandido_alcatraz.physical_deck import load_real_deck
 from bandido_alcatraz.render_svg import render_board_svg
 from bandido_alcatraz.simulate import play_game
 from scripts.export_final_boards import (
-    RecordingPolicy,
     _final_records_sha256,
     _load_and_validate_v7_metadata,
     export_v7,
@@ -330,7 +333,7 @@ def test_real_v7_win_and_water_loss_preserve_historical_outcomes_and_render() ->
 
     seen_rotations: set[int] = set()
     for seed, expected_row in expected.items():
-        recorder = RecordingPolicy(ImmediateTieV7Policy())
+        recorder = FinalStateCapturePolicy(ImmediateTieV7Policy())
         result = play_game(
             start_card=deck.start_easy,
             deck=deck.draw_deck(),
