@@ -94,6 +94,43 @@
       "manifest_path": "experiments/real-deck-policy-v7/fresh-development-1000000-1000399-2026-09-30.manifest.json",
       "classification": "v7_fresh_development_no_advancement",
       "candidate_advanced": false
+    },
+    {
+      "research_step": 28,
+      "range_inclusive": [
+        1000000,
+        1000399
+      ],
+      "role": "spent development; never confirmation",
+      "confirmation_eligible": false,
+      "fresh_or_confirmation": false,
+      "reference_step": 27,
+      "policies": [
+        "V4-250",
+        "V8 visible end-state beam, width16 horizon3"
+      ],
+      "state": "preregistered; no V8 outcomes before freeze",
+      "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5917700044",
+      "fixed_shards": [
+        [
+          1000000,
+          1000099
+        ],
+        [
+          1000100,
+          1000199
+        ],
+        [
+          1000200,
+          1000299
+        ],
+        [
+          1000300,
+          1000399
+        ]
+      ],
+      "advancement_gate_net_wins": 8,
+      "baseline_exact_replay_required": 400
     }
   ],
   "fresh_confirmation_allocations": [],

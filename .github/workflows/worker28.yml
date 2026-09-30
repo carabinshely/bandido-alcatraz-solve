@@ -1,0 +1,114 @@
+name: Worker28 end-state beam development
+on:
+  pull_request:
+    types: [opened]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  baseline:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'research/worker28-visible-end-state-beam'
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+    timeout-minutes: 50
+    env:
+      W28_OUTPUT: ${{ github.workspace }}/../bandido-worker28-evidence/${{ github.run_id }}/${{ github.run_attempt }}/baseline
+    steps:
+      - uses: actions/checkout@v4
+        timeout-minutes: 2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        timeout-minutes: 3
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+        timeout-minutes: 3
+      - name: Accepted Worker27 reference
+        uses: actions/download-artifact@v4
+        timeout-minutes: 5
+        with:
+          github-token: ${{ github.token }}
+          run-id: 36740756141
+          pattern: worker27-shard-*
+          path: artifacts/tmp/worker28-reference
+      - name: Routine and synthetic tests
+        id: synthetic
+        timeout-minutes: 6
+        run: python -m pytest -q
+      - name: Replay accepted V4 population
+        id: cohort
+        timeout-minutes: 22
+        env:
+          EVALUATED_COMMIT: ${{ github.event.pull_request.head.sha }}
+          PYTHONHASHSEED: '0'
+        run: timeout --signal=TERM --kill-after=30s 1200s python -m scripts.run_worker28 --baseline --reference-directory artifacts/tmp/worker28-reference --output "$W28_OUTPUT"
+      - name: Finalize baseline
+        if: always()
+        timeout-minutes: 2
+        env:
+          PYTHONPATH: src:.
+        run: python -m scripts.run_worker28 --finalize --output "$W28_OUTPUT" --cohort-outcome '${{ steps.cohort.outcome }}' --tests-outcome '${{ steps.synthetic.outcome }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        timeout-minutes: 5
+        with:
+          name: worker28-baseline-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.W28_OUTPUT }}/
+          if-no-files-found: warn
+  candidate:
+    needs: baseline
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3]
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+    timeout-minutes: 120
+    env:
+      W28_OUTPUT: ${{ github.workspace }}/../bandido-worker28-evidence/${{ github.run_id }}/${{ github.run_attempt }}/shard-${{ matrix.shard }}
+    steps:
+      - uses: actions/checkout@v4
+        timeout-minutes: 2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        timeout-minutes: 3
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+        timeout-minutes: 3
+      - name: Accepted Worker27 reference
+        uses: actions/download-artifact@v4
+        timeout-minutes: 5
+        with:
+          github-token: ${{ github.token }}
+          run-id: 36740756141
+          pattern: worker27-shard-*
+          path: artifacts/tmp/worker28-reference
+      - name: Synthetic tests
+        id: synthetic
+        timeout-minutes: 2
+        run: python -m unittest discover -s tests -p 'test_worker28*.py' -v
+      - name: Frozen spent candidate shard
+        id: cohort
+        timeout-minutes: 92
+        env:
+          EVALUATED_COMMIT: ${{ github.event.pull_request.head.sha }}
+          PYTHONHASHSEED: '0'
+        run: timeout --signal=TERM --kill-after=30s 5400s python -m scripts.run_worker28 --shard ${{ matrix.shard }} --reference-directory artifacts/tmp/worker28-reference --output "$W28_OUTPUT"
+      - name: Finalize shard
+        if: always()
+        timeout-minutes: 2
+        env:
+          PYTHONPATH: src:.
+        run: python -m scripts.run_worker28 --finalize --output "$W28_OUTPUT" --cohort-outcome '${{ steps.cohort.outcome }}' --tests-outcome '${{ steps.synthetic.outcome }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        timeout-minutes: 5
+        with:
+          name: worker28-shard-${{ matrix.shard }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.W28_OUTPUT }}/
+          if-no-files-found: warn
