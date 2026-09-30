@@ -5,6 +5,7 @@ from concurrent.futures import ProcessPoolExecutor
 import hashlib
 import json
 from pathlib import Path
+import subprocess
 import sys
 from typing import Any
 
@@ -45,9 +46,13 @@ class RecordingPolicy:
 
 
 def _git_blob_sha(path: Path) -> str:
-    content = path.read_bytes()
-    header = f"blob {len(content)}\0".encode()
-    return hashlib.sha1(header + content).hexdigest()
+    """Return the canonical Git blob identity, including configured clean filters."""
+    relative = path.resolve().relative_to(ROOT.resolve())
+    return subprocess.check_output(
+        ["git", "hash-object", str(relative)],
+        cwd=ROOT,
+        text=True,
+    ).strip()
 
 
 def _final_records_sha256(rows: list[dict[str, object]]) -> str:
