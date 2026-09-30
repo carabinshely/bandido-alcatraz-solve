@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ProcessPoolExecutor
 import hashlib
 import json
 from pathlib import Path
@@ -112,37 +113,56 @@ def _load_and_validate_v7_metadata() -> tuple[dict[str, object], dict[str, objec
     return manifest, provenance
 
 
-def _simulate_v7() -> tuple[
+def _simulate_v7_game(seed: int):
+    """Run one independent frozen V7 game and return its final renderable state."""
+    deck = load_real_deck(ROOT / "data")
+    recorder = RecordingPolicy(ImmediateTieV7Policy())
+    result = play_game(
+        start_card=deck.start_easy,
+        deck=deck.draw_deck(),
+        hand_size=3,
+        policy=recorder,
+        seed=seed,
+    )
+    if recorder.last_state is None:
+        raise RuntimeError(f"V7 seed {seed} terminated before policy observation")
+    return result, recorder.last_state.board, final_record(seed, result)
+
+
+def _simulate_v7(
+    *, workers: int = 4
+) -> tuple[
     list[FinalBoardExport],
     list[dict[str, object]],
     dict[str, object],
     dict[str, object],
 ]:
+    if workers <= 0:
+        raise ValueError("workers must be positive")
+
     manifest, provenance = _load_and_validate_v7_metadata()
     start_seed, end_seed = (int(value) for value in manifest["seed_range_inclusive"])
-    seeds = range(start_seed, end_seed + 1)
-    deck = load_real_deck(ROOT / "data")
+    seeds = list(range(start_seed, end_seed + 1))
+
+    if workers == 1:
+        simulated = [_simulate_v7_game(seed) for seed in seeds]
+    else:
+        # map() preserves input order. Every seed owns a fresh RNG/deck/policy,
+        # so worker scheduling cannot affect deterministic game identity.
+        with ProcessPoolExecutor(max_workers=workers) as pool:
+            simulated = list(pool.map(_simulate_v7_game, seeds))
 
     exports: list[FinalBoardExport] = []
     final_rows: list[dict[str, object]] = []
-    for game_index, seed in enumerate(seeds, start=1):
-        recorder = RecordingPolicy(ImmediateTieV7Policy())
-        result = play_game(
-            start_card=deck.start_easy,
-            deck=deck.draw_deck(),
-            hand_size=3,
-            policy=recorder,
-            seed=seed,
-        )
-        if recorder.last_state is None:
-            raise RuntimeError(f"V7 seed {seed} terminated before policy observation")
-
-        row = final_record(seed, result)
+    for game_index, (seed, (result, board, row)) in enumerate(
+        zip(seeds, simulated, strict=True),
+        start=1,
+    ):
         final_rows.append(row)
         exports.append(
             FinalBoardExport(
                 game_index=game_index,
-                board=recorder.last_state.board,
+                board=board,
                 seed=seed,
                 won=result.won,
                 turns=result.turns,
@@ -169,8 +189,12 @@ def _simulate_v7() -> tuple[
     return exports, final_rows, manifest, provenance
 
 
-def export_v7(output_dir: str | Path) -> dict[str, object]:
-    exports, final_rows, manifest, provenance = _simulate_v7()
+def export_v7(
+    output_dir: str | Path,
+    *,
+    workers: int = 4,
+) -> dict[str, object]:
+    exports, final_rows, manifest, provenance = _simulate_v7(workers=workers)
     return export_final_boards(
         exports,
         output_dir,
@@ -204,12 +228,18 @@ def main() -> int:
         type=Path,
         help="Local directory for SVG files and manifest.json.",
     )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=4,
+        help="Independent V7 game processes (default: 4; use 1 for serial replay).",
+    )
     args = parser.parse_args()
 
     if args.experiment.upper() != "V7":
         parser.error("only the V7 named reconstruction is currently supported")
 
-    manifest = export_v7(args.output_dir)
+    manifest = export_v7(args.output_dir, workers=args.workers)
     print(
         f"Wrote {manifest['game_count']} SVGs "
         f"({manifest['wins']} wins, {manifest['losses']} losses) "
