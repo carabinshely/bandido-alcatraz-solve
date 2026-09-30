@@ -42,8 +42,29 @@ Implemented and validated:
 - deterministic legal-move ordering across Python hash seeds;
 - seeded simulation and policy framework;
 - synthetic and real-deck smoke coverage;
-- strategy diagnostics through the current V4 research track.
+- static final-board SVG rendering with physical-card placement history;
+- exact deterministic V7 final-board reconstruction/export;
+- strategy diagnostics through the current research track.
 
 The current real-deck research variant remains explicitly labeled `v0-threshold-equipment` because it uses raincoats >=3 and ropes >=2, while the cited rulebook wording uses exact counts.
 
 The durable research/orchestration log is Issue #2.
+
+## Final-board SVG export
+
+See [docs/svg-final-boards.md](docs/svg-final-boards.md) for the placement-history
+model, renderer legend, generic API, and V7 provenance checks.
+
+To regenerate every V7 final board locally:
+
+```bash
+python -m pip install -e .
+python scripts/export_final_boards.py \
+  --experiment V7 \
+  --output-dir artifacts/v7-final-boards
+```
+
+The command writes 100 standalone SVG files, including both wins and losses,
+plus `manifest.json`. Historical V7 is reconstructed by exact deterministic
+re-simulation and is rejected before output if its final records no longer
+match the durable V7 receipt.
