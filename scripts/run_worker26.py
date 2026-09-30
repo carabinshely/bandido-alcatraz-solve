@@ -83,13 +83,17 @@ def finalize(output, outcome, tests_outcome):
         "run_id": os.environ.get("GITHUB_RUN_ID"), "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
         "completed_policy_seed_records": 0, "submitted_candidate_seeds": [],
         "submission_attempted_seeds": [], "v4": [], "v7": []}
-    if receipt.get("status") in ("complete", "diagnostic_invalid", "execution_blocked"):
+    status = receipt.get("status")
+    if status == "complete" and outcome == "success" and tests_outcome == "success":
         return
-    invalid = tests_outcome == "failure"
+    if status in ("diagnostic_invalid", "execution_blocked") and not receipt.get("research_interpretation_performed") and "summary" not in receipt:
+        return
+    invalid = tests_outcome == "failure" or status == "diagnostic_invalid"
+    receipt.pop("summary", None)
     receipt.update(status="diagnostic_invalid" if invalid else "execution_blocked",
                    classification="worker26_invalid" if invalid else None,
                    research_interpretation_performed=False,
-                   error=f"No complete terminal receipt; cohort step={outcome}; synthetic tests={tests_outcome}",
+                   error=f"Execution outcome does not establish success; previous status={status}; cohort step={outcome}; synthetic tests={tests_outcome}",
                    executed_count_note="Completed records only; interrupted/submitted work may have started")
     write_json(path, receipt)
 

@@ -180,4 +180,18 @@ class CandidateTests(unittest.TestCase):
                 self.assertFalse(r["research_interpretation_performed"])
                 self.assertNotIn("summary",r)
 
+    def test_finalizer_reconciles_stale_complete_with_failed_step(self):
+        for outcome, tests, expected in [("failure","success","execution_blocked"),("cancelled","success","execution_blocked"),("success","failure","diagnostic_invalid"),("unknown","success","execution_blocked")]:
+            with self.subTest(outcome=outcome,tests=tests), tempfile.TemporaryDirectory() as tmp:
+                p=Path(tmp)
+                w.write_json(p/"receipt.json", {"status":"complete","classification":"v7_immediate_tie_development_signal","research_interpretation_performed":True,"summary":{"advance":True},"completed_policy_seed_records":200,"v7":[{"seed":1000}]})
+                w.finalize(p,outcome,tests)
+                r=json.loads((p/"receipt.json").read_text())
+                self.assertEqual(r["status"],expected)
+                self.assertEqual(r["classification"],"worker26_invalid" if expected=="diagnostic_invalid" else None)
+                self.assertFalse(r["research_interpretation_performed"])
+                self.assertNotIn("summary",r)
+                self.assertEqual(r["completed_policy_seed_records"],200)
+                self.assertEqual(r["v7"],[{"seed":1000}])
+
 if __name__ == "__main__": unittest.main()
