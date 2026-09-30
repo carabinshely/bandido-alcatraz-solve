@@ -1,0 +1,5697 @@
+{
+  "authoritative_diagnostic_ci": {
+    "conclusion": "success",
+    "github_artifact_id": 11059019669,
+    "github_artifact_zip_bytes": 104224,
+    "github_artifact_zip_sha256": "4d85d6d468671005b2baf3189f5ff064a2d28fd88195f7d9651b89c6de13fbd3",
+    "python": "3.11.16",
+    "run_id": 36622733886,
+    "runner": "bandido-alcatraz-ci",
+    "url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/36622733886"
+  },
+  "authoritative_diagnostic_commit": "a463edfd2be52fe271642d5e8f07ddb008b48d6e",
+  "checkpoint_cleanup": {
+    "final_diff_expected": "manifest-only",
+    "transient_harness_removed": true,
+    "transient_workflow_removed": true
+  },
+  "classification": "v6_changed_outcome_trace_mechanism_resolved",
+  "cohorts": {
+    "all_32": {
+      "action_type_pairs_at_first_selected_divergence": {
+        "collect->place": 15,
+        "place->place": 17
+      },
+      "actual_selected_action_pairs_at_first_tier_divergence": {
+        "collect->collect": 5,
+        "collect->place": 13,
+        "place->place": 14
+      },
+      "divergence_label_counts": {
+        "tier_expansion": 32
+      },
+      "first_tier_divergence_turn_distribution": {
+        "count": 32,
+        "histogram": {
+          "0": 26,
+          "1": 4,
+          "2": 2
+        },
+        "max": 2,
+        "mean": 0.25,
+        "median": 0,
+        "min": 0
+      },
+      "first_tier_v6_preference_effect": {
+        "comparison_definition": "tie-inclusive comparison of every V6-preferred first move's no-draw first-step visible result against the actual V4-selected first move at the first deterministic tier divergence",
+        "comparisons": 192,
+        "metrics": {
+          "bounded_merge_bank": {
+            "same": 85,
+            "v6_preferred_higher": 56,
+            "v6_preferred_lower": 51
+          },
+          "open_tunnels": {
+            "same": 109,
+            "v6_preferred_higher": 60,
+            "v6_preferred_lower": 23
+          },
+          "trapped_water": {
+            "same": 192,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          },
+          "visible_water": {
+            "same": 192,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          },
+          "water_obstruction": {
+            "same": 192,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          }
+        }
+      },
+      "immediate_actual_selected_divergence_effect": {
+        "bounded_merge_bank": {
+          "deltas": [
+            -1,
+            1,
+            1,
+            -1,
+            0,
+            2,
+            0,
+            -1,
+            -1,
+            1,
+            -1,
+            1,
+            1,
+            1,
+            1,
+            -1,
+            1,
+            -1,
+            0,
+            -1,
+            -5,
+            2,
+            0,
+            0,
+            0,
+            -1,
+            1,
+            -1,
+            1,
+            -1,
+            -1,
+            0
+          ],
+          "mean_delta": -0.09375,
+          "same": 7,
+          "v6_higher": 12,
+          "v6_lower": 13
+        },
+        "open_tunnels": {
+          "deltas": [
+            0,
+            0,
+            1,
+            0,
+            1,
+            2,
+            0,
+            -1,
+            0,
+            1,
+            1,
+            0,
+            1,
+            2,
+            2,
+            -2,
+            1,
+            -1,
+            0,
+            0,
+            3,
+            2,
+            -1,
+            1,
+            1,
+            -1,
+            1,
+            0,
+            0,
+            2,
+            -1,
+            0
+          ],
+          "mean_delta": 0.46875,
+          "same": 11,
+          "v6_higher": 15,
+          "v6_lower": 6
+        },
+        "trapped_water": {
+          "deltas": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 32,
+          "v6_higher": 0,
+          "v6_lower": 0
+        },
+        "visible_water": {
+          "deltas": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 32,
+          "v6_higher": 0,
+          "v6_lower": 0
+        },
+        "water_obstruction": {
+          "deltas": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 32,
+          "v6_higher": 0,
+          "v6_lower": 0
+        }
+      },
+      "milestone_differences": {
+        "exit_placed_turn": {
+          "both_present": 16,
+          "mean_v6_minus_v4_when_both": -1.5625,
+          "neither_present": 1,
+          "same_turn": 5,
+          "v4_only_present": 7,
+          "v6_earlier": 5,
+          "v6_later": 6,
+          "v6_only_present": 8
+        },
+        "first_equipment_ready_turn": {
+          "both_present": 31,
+          "mean_v6_minus_v4_when_both": 2.225806451612903,
+          "neither_present": 0,
+          "same_turn": 7,
+          "v4_only_present": 0,
+          "v6_earlier": 3,
+          "v6_later": 21,
+          "v6_only_present": 1
+        },
+        "first_exit_seen_turn": {
+          "both_present": 32,
+          "mean_v6_minus_v4_when_both": 1.34375,
+          "neither_present": 0,
+          "same_turn": 18,
+          "v4_only_present": 0,
+          "v6_earlier": 6,
+          "v6_later": 8,
+          "v6_only_present": 0
+        },
+        "first_legal_exit_placement_turn": {
+          "both_present": 18,
+          "mean_v6_minus_v4_when_both": -1.5,
+          "neither_present": 1,
+          "same_turn": 16,
+          "v4_only_present": 7,
+          "v6_earlier": 2,
+          "v6_later": 0,
+          "v6_only_present": 6
+        },
+        "first_open_tunnels_le_10_turn_including_initial": {
+          "both_present": 32,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 32,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_open_tunnels_le_5_turn_including_initial": {
+          "both_present": 32,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 32,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_return_open_tunnels_le_10_after_above_turn": {
+          "both_present": 7,
+          "mean_v6_minus_v4_when_both": -16.857142857142858,
+          "neither_present": 6,
+          "same_turn": 0,
+          "v4_only_present": 6,
+          "v6_earlier": 7,
+          "v6_later": 0,
+          "v6_only_present": 13
+        },
+        "first_return_open_tunnels_le_5_after_above_turn": {
+          "both_present": 21,
+          "mean_v6_minus_v4_when_both": 1.8095238095238095,
+          "neither_present": 1,
+          "same_turn": 5,
+          "v4_only_present": 6,
+          "v6_earlier": 5,
+          "v6_later": 11,
+          "v6_only_present": 4
+        },
+        "first_water_clear_after_visible_turn": {
+          "both_present": 9,
+          "mean_v6_minus_v4_when_both": -9.222222222222221,
+          "neither_present": 3,
+          "same_turn": 1,
+          "v4_only_present": 5,
+          "v6_earlier": 6,
+          "v6_later": 2,
+          "v6_only_present": 15
+        },
+        "first_water_clear_turn_including_initial": {
+          "both_present": 32,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 32,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "refresh_count": {
+          "both_present": 32,
+          "mean_v6_minus_v4_when_both": -0.125,
+          "neither_present": 0,
+          "same_turn": 3,
+          "v4_only_present": 0,
+          "v6_earlier": 14,
+          "v6_later": 15,
+          "v6_only_present": 0
+        },
+        "terminal_turn": {
+          "both_present": 32,
+          "mean_v6_minus_v4_when_both": 1.34375,
+          "neither_present": 0,
+          "same_turn": 1,
+          "v4_only_present": 0,
+          "v6_earlier": 16,
+          "v6_later": 15,
+          "v6_only_present": 0
+        }
+      },
+      "seed_count": 32,
+      "seeds": [
+        1001,
+        1009,
+        1012,
+        1013,
+        1014,
+        1015,
+        1018,
+        1021,
+        1023,
+        1024,
+        1030,
+        1039,
+        1040,
+        1045,
+        1046,
+        1047,
+        1049,
+        1050,
+        1055,
+        1066,
+        1068,
+        1071,
+        1072,
+        1075,
+        1080,
+        1081,
+        1083,
+        1084,
+        1087,
+        1091,
+        1092,
+        1098
+      ],
+      "selected_divergence_relation_counts": {
+        "later": 8,
+        "same_tier_divergence_state": 24
+      },
+      "selected_divergence_tier_sets_differ_counts": {
+        "true": 32
+      },
+      "weighted_second_step_contributions": {
+        "best_second_option_count": 317,
+        "negative_option_occurrences_by_feature": {
+          "bounded_merge_setup_gain": 0,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 0,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": 136,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        },
+        "positive_option_occurrences_by_feature": {
+          "bounded_merge_setup_gain": 159,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 89,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": 26,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        },
+        "weighted_totals_by_feature": {
+          "bounded_merge_setup_gain": 59750,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 890000,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": -16300,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        }
+      }
+    },
+    "deck_exhausted_to_no_legal_move": {
+      "action_type_pairs_at_first_selected_divergence": {
+        "collect->place": 8,
+        "place->place": 6
+      },
+      "actual_selected_action_pairs_at_first_tier_divergence": {
+        "collect->collect": 3,
+        "collect->place": 8,
+        "place->place": 3
+      },
+      "divergence_label_counts": {
+        "tier_expansion": 14
+      },
+      "first_tier_divergence_turn_distribution": {
+        "count": 14,
+        "histogram": {
+          "0": 14
+        },
+        "max": 0,
+        "mean": 0,
+        "median": 0,
+        "min": 0
+      },
+      "first_tier_v6_preference_effect": {
+        "comparison_definition": "tie-inclusive comparison of every V6-preferred first move's no-draw first-step visible result against the actual V4-selected first move at the first deterministic tier divergence",
+        "comparisons": 89,
+        "metrics": {
+          "bounded_merge_bank": {
+            "same": 51,
+            "v6_preferred_higher": 27,
+            "v6_preferred_lower": 11
+          },
+          "open_tunnels": {
+            "same": 53,
+            "v6_preferred_higher": 30,
+            "v6_preferred_lower": 6
+          },
+          "trapped_water": {
+            "same": 89,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          },
+          "visible_water": {
+            "same": 89,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          },
+          "water_obstruction": {
+            "same": 89,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          }
+        }
+      },
+      "immediate_actual_selected_divergence_effect": {
+        "bounded_merge_bank": {
+          "deltas": [
+            -1,
+            2,
+            -1,
+            1,
+            1,
+            1,
+            1,
+            -1,
+            0,
+            2,
+            0,
+            -1,
+            -1,
+            0
+          ],
+          "mean_delta": 0.21428571428571427,
+          "same": 3,
+          "v6_higher": 6,
+          "v6_lower": 5
+        },
+        "open_tunnels": {
+          "deltas": [
+            0,
+            2,
+            0,
+            0,
+            1,
+            2,
+            2,
+            -2,
+            0,
+            2,
+            1,
+            0,
+            2,
+            0
+          ],
+          "mean_delta": 0.7142857142857143,
+          "same": 6,
+          "v6_higher": 7,
+          "v6_lower": 1
+        },
+        "trapped_water": {
+          "deltas": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 14,
+          "v6_higher": 0,
+          "v6_lower": 0
+        },
+        "visible_water": {
+          "deltas": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 14,
+          "v6_higher": 0,
+          "v6_lower": 0
+        },
+        "water_obstruction": {
+          "deltas": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 14,
+          "v6_higher": 0,
+          "v6_lower": 0
+        }
+      },
+      "milestone_differences": {
+        "exit_placed_turn": {
+          "both_present": 8,
+          "mean_v6_minus_v4_when_both": -3,
+          "neither_present": 0,
+          "same_turn": 4,
+          "v4_only_present": 6,
+          "v6_earlier": 2,
+          "v6_later": 2,
+          "v6_only_present": 0
+        },
+        "first_equipment_ready_turn": {
+          "both_present": 14,
+          "mean_v6_minus_v4_when_both": 0.42857142857142855,
+          "neither_present": 0,
+          "same_turn": 4,
+          "v4_only_present": 0,
+          "v6_earlier": 3,
+          "v6_later": 7,
+          "v6_only_present": 0
+        },
+        "first_exit_seen_turn": {
+          "both_present": 14,
+          "mean_v6_minus_v4_when_both": -5.285714285714286,
+          "neither_present": 0,
+          "same_turn": 8,
+          "v4_only_present": 0,
+          "v6_earlier": 6,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_legal_exit_placement_turn": {
+          "both_present": 8,
+          "mean_v6_minus_v4_when_both": -3.375,
+          "neither_present": 0,
+          "same_turn": 6,
+          "v4_only_present": 6,
+          "v6_earlier": 2,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_open_tunnels_le_10_turn_including_initial": {
+          "both_present": 14,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 14,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_open_tunnels_le_5_turn_including_initial": {
+          "both_present": 14,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 14,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_return_open_tunnels_le_10_after_above_turn": {
+          "both_present": 5,
+          "mean_v6_minus_v4_when_both": -13.4,
+          "neither_present": 1,
+          "same_turn": 0,
+          "v4_only_present": 5,
+          "v6_earlier": 5,
+          "v6_later": 0,
+          "v6_only_present": 3
+        },
+        "first_return_open_tunnels_le_5_after_above_turn": {
+          "both_present": 10,
+          "mean_v6_minus_v4_when_both": 2.6,
+          "neither_present": 1,
+          "same_turn": 3,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 7,
+          "v6_only_present": 3
+        },
+        "first_water_clear_after_visible_turn": {
+          "both_present": 6,
+          "mean_v6_minus_v4_when_both": -7,
+          "neither_present": 2,
+          "same_turn": 1,
+          "v4_only_present": 5,
+          "v6_earlier": 4,
+          "v6_later": 1,
+          "v6_only_present": 1
+        },
+        "first_water_clear_turn_including_initial": {
+          "both_present": 14,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 14,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "refresh_count": {
+          "both_present": 14,
+          "mean_v6_minus_v4_when_both": 6.5,
+          "neither_present": 0,
+          "same_turn": 2,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 12,
+          "v6_only_present": 0
+        },
+        "terminal_turn": {
+          "both_present": 14,
+          "mean_v6_minus_v4_when_both": -22.928571428571427,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 14,
+          "v6_later": 0,
+          "v6_only_present": 0
+        }
+      },
+      "seed_count": 14,
+      "seeds": [
+        1001,
+        1015,
+        1023,
+        1039,
+        1040,
+        1045,
+        1046,
+        1047,
+        1055,
+        1071,
+        1080,
+        1084,
+        1091,
+        1098
+      ],
+      "selected_divergence_relation_counts": {
+        "later": 3,
+        "same_tier_divergence_state": 11
+      },
+      "selected_divergence_tier_sets_differ_counts": {
+        "true": 14
+      },
+      "weighted_second_step_contributions": {
+        "best_second_option_count": 162,
+        "negative_option_occurrences_by_feature": {
+          "bounded_merge_setup_gain": 0,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 0,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": 51,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        },
+        "positive_option_occurrences_by_feature": {
+          "bounded_merge_setup_gain": 54,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 57,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": 21,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        },
+        "weighted_totals_by_feature": {
+          "bounded_merge_setup_gain": 17250,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 570000,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": -4800,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        }
+      }
+    },
+    "no_legal_move_to_deck_exhausted": {
+      "action_type_pairs_at_first_selected_divergence": {
+        "collect->place": 3,
+        "place->place": 7
+      },
+      "actual_selected_action_pairs_at_first_tier_divergence": {
+        "collect->collect": 2,
+        "collect->place": 1,
+        "place->place": 7
+      },
+      "divergence_label_counts": {
+        "tier_expansion": 10
+      },
+      "first_tier_divergence_turn_distribution": {
+        "count": 10,
+        "histogram": {
+          "0": 7,
+          "1": 2,
+          "2": 1
+        },
+        "max": 2,
+        "mean": 0.4,
+        "median": 0,
+        "min": 0
+      },
+      "first_tier_v6_preference_effect": {
+        "comparison_definition": "tie-inclusive comparison of every V6-preferred first move's no-draw first-step visible result against the actual V4-selected first move at the first deterministic tier divergence",
+        "comparisons": 53,
+        "metrics": {
+          "bounded_merge_bank": {
+            "same": 14,
+            "v6_preferred_higher": 5,
+            "v6_preferred_lower": 34
+          },
+          "open_tunnels": {
+            "same": 36,
+            "v6_preferred_higher": 6,
+            "v6_preferred_lower": 11
+          },
+          "trapped_water": {
+            "same": 53,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          },
+          "visible_water": {
+            "same": 53,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          },
+          "water_obstruction": {
+            "same": 53,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          }
+        }
+      },
+      "immediate_actual_selected_divergence_effect": {
+        "bounded_merge_bank": {
+          "deltas": [
+            1,
+            -1,
+            -1,
+            1,
+            -1,
+            -5,
+            0,
+            0,
+            -1,
+            -1
+          ],
+          "mean_delta": -0.8,
+          "same": 2,
+          "v6_higher": 2,
+          "v6_lower": 6
+        },
+        "open_tunnels": {
+          "deltas": [
+            0,
+            0,
+            1,
+            1,
+            0,
+            3,
+            -1,
+            1,
+            -1,
+            -1
+          ],
+          "mean_delta": 0.3,
+          "same": 3,
+          "v6_higher": 4,
+          "v6_lower": 3
+        },
+        "trapped_water": {
+          "deltas": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 10,
+          "v6_higher": 0,
+          "v6_lower": 0
+        },
+        "visible_water": {
+          "deltas": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 10,
+          "v6_higher": 0,
+          "v6_lower": 0
+        },
+        "water_obstruction": {
+          "deltas": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 10,
+          "v6_higher": 0,
+          "v6_lower": 0
+        }
+      },
+      "milestone_differences": {
+        "exit_placed_turn": {
+          "both_present": 4,
+          "mean_v6_minus_v4_when_both": -0.5,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 2,
+          "v6_later": 2,
+          "v6_only_present": 6
+        },
+        "first_equipment_ready_turn": {
+          "both_present": 10,
+          "mean_v6_minus_v4_when_both": 4.8,
+          "neither_present": 0,
+          "same_turn": 2,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 8,
+          "v6_only_present": 0
+        },
+        "first_exit_seen_turn": {
+          "both_present": 10,
+          "mean_v6_minus_v4_when_both": 11.1,
+          "neither_present": 0,
+          "same_turn": 4,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 6,
+          "v6_only_present": 0
+        },
+        "first_legal_exit_placement_turn": {
+          "both_present": 4,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 4,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 6
+        },
+        "first_open_tunnels_le_10_turn_including_initial": {
+          "both_present": 10,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 10,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_open_tunnels_le_5_turn_including_initial": {
+          "both_present": 10,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 10,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_return_open_tunnels_le_10_after_above_turn": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": -25.5,
+          "neither_present": 1,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 2,
+          "v6_later": 0,
+          "v6_only_present": 7
+        },
+        "first_return_open_tunnels_le_5_after_above_turn": {
+          "both_present": 3,
+          "mean_v6_minus_v4_when_both": 7,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 6,
+          "v6_earlier": 0,
+          "v6_later": 3,
+          "v6_only_present": 1
+        },
+        "first_water_clear_after_visible_turn": {
+          "both_present": 1,
+          "mean_v6_minus_v4_when_both": -17,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 1,
+          "v6_later": 0,
+          "v6_only_present": 9
+        },
+        "first_water_clear_turn_including_initial": {
+          "both_present": 10,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 10,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "refresh_count": {
+          "both_present": 10,
+          "mean_v6_minus_v4_when_both": -8.4,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 10,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "terminal_turn": {
+          "both_present": 10,
+          "mean_v6_minus_v4_when_both": 28.1,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 10,
+          "v6_only_present": 0
+        }
+      },
+      "seed_count": 10,
+      "seeds": [
+        1009,
+        1013,
+        1030,
+        1049,
+        1066,
+        1068,
+        1072,
+        1075,
+        1081,
+        1092
+      ],
+      "selected_divergence_relation_counts": {
+        "later": 5,
+        "same_tier_divergence_state": 5
+      },
+      "selected_divergence_tier_sets_differ_counts": {
+        "true": 10
+      },
+      "weighted_second_step_contributions": {
+        "best_second_option_count": 69,
+        "negative_option_occurrences_by_feature": {
+          "bounded_merge_setup_gain": 0,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 0,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": 44,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        },
+        "positive_option_occurrences_by_feature": {
+          "bounded_merge_setup_gain": 56,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 8,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": 5,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        },
+        "weighted_totals_by_feature": {
+          "bounded_merge_setup_gain": 25250,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 80000,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": -7100,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        }
+      }
+    },
+    "other_failure_switches": {
+      "action_type_pairs_at_first_selected_divergence": {
+        "place->place": 4
+      },
+      "actual_selected_action_pairs_at_first_tier_divergence": {
+        "place->place": 4
+      },
+      "divergence_label_counts": {
+        "tier_expansion": 4
+      },
+      "first_tier_divergence_turn_distribution": {
+        "count": 4,
+        "histogram": {
+          "0": 3,
+          "1": 1
+        },
+        "max": 1,
+        "mean": 0.25,
+        "median": 0,
+        "min": 0
+      },
+      "first_tier_v6_preference_effect": {
+        "comparison_definition": "tie-inclusive comparison of every V6-preferred first move's no-draw first-step visible result against the actual V4-selected first move at the first deterministic tier divergence",
+        "comparisons": 22,
+        "metrics": {
+          "bounded_merge_bank": {
+            "same": 16,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 6
+          },
+          "open_tunnels": {
+            "same": 12,
+            "v6_preferred_higher": 4,
+            "v6_preferred_lower": 6
+          },
+          "trapped_water": {
+            "same": 22,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          },
+          "visible_water": {
+            "same": 22,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          },
+          "water_obstruction": {
+            "same": 22,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          }
+        }
+      },
+      "immediate_actual_selected_divergence_effect": {
+        "bounded_merge_bank": {
+          "deltas": [
+            0,
+            0,
+            -1,
+            -1
+          ],
+          "mean_delta": -0.5,
+          "same": 2,
+          "v6_higher": 0,
+          "v6_lower": 2
+        },
+        "open_tunnels": {
+          "deltas": [
+            1,
+            0,
+            -1,
+            -1
+          ],
+          "mean_delta": -0.25,
+          "same": 1,
+          "v6_higher": 1,
+          "v6_lower": 2
+        },
+        "trapped_water": {
+          "deltas": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 4,
+          "v6_higher": 0,
+          "v6_lower": 0
+        },
+        "visible_water": {
+          "deltas": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 4,
+          "v6_higher": 0,
+          "v6_lower": 0
+        },
+        "water_obstruction": {
+          "deltas": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 4,
+          "v6_higher": 0,
+          "v6_lower": 0
+        }
+      },
+      "milestone_differences": {
+        "exit_placed_turn": {
+          "both_present": 0,
+          "mean_v6_minus_v4_when_both": null,
+          "neither_present": 1,
+          "same_turn": 0,
+          "v4_only_present": 1,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 2
+        },
+        "first_equipment_ready_turn": {
+          "both_present": 3,
+          "mean_v6_minus_v4_when_both": 2,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 3,
+          "v6_only_present": 1
+        },
+        "first_exit_seen_turn": {
+          "both_present": 4,
+          "mean_v6_minus_v4_when_both": 1.5,
+          "neither_present": 0,
+          "same_turn": 2,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 2,
+          "v6_only_present": 0
+        },
+        "first_legal_exit_placement_turn": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 1,
+          "same_turn": 2,
+          "v4_only_present": 1,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_open_tunnels_le_10_turn_including_initial": {
+          "both_present": 4,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 4,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_open_tunnels_le_5_turn_including_initial": {
+          "both_present": 4,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 4,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_return_open_tunnels_le_10_after_above_turn": {
+          "both_present": 0,
+          "mean_v6_minus_v4_when_both": null,
+          "neither_present": 2,
+          "same_turn": 0,
+          "v4_only_present": 1,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 1
+        },
+        "first_return_open_tunnels_le_5_after_above_turn": {
+          "both_present": 4,
+          "mean_v6_minus_v4_when_both": -1.5,
+          "neither_present": 0,
+          "same_turn": 1,
+          "v4_only_present": 0,
+          "v6_earlier": 2,
+          "v6_later": 1,
+          "v6_only_present": 0
+        },
+        "first_water_clear_after_visible_turn": {
+          "both_present": 0,
+          "mean_v6_minus_v4_when_both": null,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 4
+        },
+        "first_water_clear_turn_including_initial": {
+          "both_present": 4,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 4,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "refresh_count": {
+          "both_present": 4,
+          "mean_v6_minus_v4_when_both": 2.25,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 2,
+          "v6_later": 2,
+          "v6_only_present": 0
+        },
+        "terminal_turn": {
+          "both_present": 4,
+          "mean_v6_minus_v4_when_both": 7.75,
+          "neither_present": 0,
+          "same_turn": 1,
+          "v4_only_present": 0,
+          "v6_earlier": 1,
+          "v6_later": 2,
+          "v6_only_present": 0
+        }
+      },
+      "seed_count": 4,
+      "seeds": [
+        1014,
+        1018,
+        1021,
+        1050
+      ],
+      "selected_divergence_relation_counts": {
+        "same_tier_divergence_state": 4
+      },
+      "selected_divergence_tier_sets_differ_counts": {
+        "true": 4
+      },
+      "weighted_second_step_contributions": {
+        "best_second_option_count": 38,
+        "negative_option_occurrences_by_feature": {
+          "bounded_merge_setup_gain": 0,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 0,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": 21,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        },
+        "positive_option_occurrences_by_feature": {
+          "bounded_merge_setup_gain": 25,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 0,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": 0,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        },
+        "weighted_totals_by_feature": {
+          "bounded_merge_setup_gain": 11250,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 0,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": -2400,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        }
+      }
+    },
+    "v4_win_to_v6_loss": {
+      "action_type_pairs_at_first_selected_divergence": {
+        "collect->place": 2
+      },
+      "actual_selected_action_pairs_at_first_tier_divergence": {
+        "collect->place": 2
+      },
+      "divergence_label_counts": {
+        "tier_expansion": 2
+      },
+      "first_tier_divergence_turn_distribution": {
+        "count": 2,
+        "histogram": {
+          "0": 1,
+          "1": 1
+        },
+        "max": 1,
+        "mean": 0.5,
+        "median": 0.5,
+        "min": 0
+      },
+      "first_tier_v6_preference_effect": {
+        "comparison_definition": "tie-inclusive comparison of every V6-preferred first move's no-draw first-step visible result against the actual V4-selected first move at the first deterministic tier divergence",
+        "comparisons": 14,
+        "metrics": {
+          "bounded_merge_bank": {
+            "same": 2,
+            "v6_preferred_higher": 12,
+            "v6_preferred_lower": 0
+          },
+          "open_tunnels": {
+            "same": 6,
+            "v6_preferred_higher": 8,
+            "v6_preferred_lower": 0
+          },
+          "trapped_water": {
+            "same": 14,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          },
+          "visible_water": {
+            "same": 14,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          },
+          "water_obstruction": {
+            "same": 14,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          }
+        }
+      },
+      "immediate_actual_selected_divergence_effect": {
+        "bounded_merge_bank": {
+          "deltas": [
+            1,
+            1
+          ],
+          "mean_delta": 1,
+          "same": 0,
+          "v6_higher": 2,
+          "v6_lower": 0
+        },
+        "open_tunnels": {
+          "deltas": [
+            1,
+            0
+          ],
+          "mean_delta": 0.5,
+          "same": 1,
+          "v6_higher": 1,
+          "v6_lower": 0
+        },
+        "trapped_water": {
+          "deltas": [
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 2,
+          "v6_higher": 0,
+          "v6_lower": 0
+        },
+        "visible_water": {
+          "deltas": [
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 2,
+          "v6_higher": 0,
+          "v6_lower": 0
+        },
+        "water_obstruction": {
+          "deltas": [
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 2,
+          "v6_higher": 0,
+          "v6_lower": 0
+        }
+      },
+      "milestone_differences": {
+        "exit_placed_turn": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 1,
+          "v6_later": 1,
+          "v6_only_present": 0
+        },
+        "first_equipment_ready_turn": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": 1,
+          "neither_present": 0,
+          "same_turn": 1,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 1,
+          "v6_only_present": 0
+        },
+        "first_exit_seen_turn": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 2,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_legal_exit_placement_turn": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 2,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_open_tunnels_le_10_turn_including_initial": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 2,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_open_tunnels_le_5_turn_including_initial": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 2,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_return_open_tunnels_le_10_after_above_turn": {
+          "both_present": 0,
+          "mean_v6_minus_v4_when_both": null,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 2
+        },
+        "first_return_open_tunnels_le_5_after_above_turn": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": -1,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 2,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_water_clear_after_visible_turn": {
+          "both_present": 1,
+          "mean_v6_minus_v4_when_both": 5,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 1,
+          "v6_only_present": 1
+        },
+        "first_water_clear_turn_including_initial": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 2,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "refresh_count": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": -3.5,
+          "neither_present": 0,
+          "same_turn": 1,
+          "v4_only_present": 0,
+          "v6_earlier": 1,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "terminal_turn": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": 34.5,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 2,
+          "v6_only_present": 0
+        }
+      },
+      "seed_count": 2,
+      "seeds": [
+        1012,
+        1087
+      ],
+      "selected_divergence_relation_counts": {
+        "same_tier_divergence_state": 2
+      },
+      "selected_divergence_tier_sets_differ_counts": {
+        "true": 2
+      },
+      "weighted_second_step_contributions": {
+        "best_second_option_count": 24,
+        "negative_option_occurrences_by_feature": {
+          "bounded_merge_setup_gain": 0,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 0,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": 8,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        },
+        "positive_option_occurrences_by_feature": {
+          "bounded_merge_setup_gain": 12,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 12,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": 0,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        },
+        "weighted_totals_by_feature": {
+          "bounded_merge_setup_gain": 3000,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 120000,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": -800,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        }
+      }
+    },
+    "v6_only_wins": {
+      "action_type_pairs_at_first_selected_divergence": {
+        "collect->place": 2
+      },
+      "actual_selected_action_pairs_at_first_tier_divergence": {
+        "collect->place": 2
+      },
+      "divergence_label_counts": {
+        "tier_expansion": 2
+      },
+      "first_tier_divergence_turn_distribution": {
+        "count": 2,
+        "histogram": {
+          "0": 1,
+          "2": 1
+        },
+        "max": 2,
+        "mean": 1,
+        "median": 1,
+        "min": 0
+      },
+      "first_tier_v6_preference_effect": {
+        "comparison_definition": "tie-inclusive comparison of every V6-preferred first move's no-draw first-step visible result against the actual V4-selected first move at the first deterministic tier divergence",
+        "comparisons": 14,
+        "metrics": {
+          "bounded_merge_bank": {
+            "same": 2,
+            "v6_preferred_higher": 12,
+            "v6_preferred_lower": 0
+          },
+          "open_tunnels": {
+            "same": 2,
+            "v6_preferred_higher": 12,
+            "v6_preferred_lower": 0
+          },
+          "trapped_water": {
+            "same": 14,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          },
+          "visible_water": {
+            "same": 14,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          },
+          "water_obstruction": {
+            "same": 14,
+            "v6_preferred_higher": 0,
+            "v6_preferred_lower": 0
+          }
+        }
+      },
+      "immediate_actual_selected_divergence_effect": {
+        "bounded_merge_bank": {
+          "deltas": [
+            1,
+            1
+          ],
+          "mean_delta": 1,
+          "same": 0,
+          "v6_higher": 2,
+          "v6_lower": 0
+        },
+        "open_tunnels": {
+          "deltas": [
+            1,
+            1
+          ],
+          "mean_delta": 1,
+          "same": 0,
+          "v6_higher": 2,
+          "v6_lower": 0
+        },
+        "trapped_water": {
+          "deltas": [
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 2,
+          "v6_higher": 0,
+          "v6_lower": 0
+        },
+        "visible_water": {
+          "deltas": [
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 2,
+          "v6_higher": 0,
+          "v6_lower": 0
+        },
+        "water_obstruction": {
+          "deltas": [
+            0,
+            0
+          ],
+          "mean_delta": 0,
+          "same": 2,
+          "v6_higher": 0,
+          "v6_lower": 0
+        }
+      },
+      "milestone_differences": {
+        "exit_placed_turn": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": 0.5,
+          "neither_present": 0,
+          "same_turn": 1,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 1,
+          "v6_only_present": 0
+        },
+        "first_equipment_ready_turn": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": 3.5,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 2,
+          "v6_only_present": 0
+        },
+        "first_exit_seen_turn": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 2,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_legal_exit_placement_turn": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 2,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_open_tunnels_le_10_turn_including_initial": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 2,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_open_tunnels_le_5_turn_including_initial": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 2,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_return_open_tunnels_le_10_after_above_turn": {
+          "both_present": 0,
+          "mean_v6_minus_v4_when_both": null,
+          "neither_present": 2,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_return_open_tunnels_le_5_after_above_turn": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": -0.5,
+          "neither_present": 0,
+          "same_turn": 1,
+          "v4_only_present": 0,
+          "v6_earlier": 1,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_water_clear_after_visible_turn": {
+          "both_present": 1,
+          "mean_v6_minus_v4_when_both": -29,
+          "neither_present": 1,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 1,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "first_water_clear_turn_including_initial": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": 0,
+          "neither_present": 0,
+          "same_turn": 2,
+          "v4_only_present": 0,
+          "v6_earlier": 0,
+          "v6_later": 0,
+          "v6_only_present": 0
+        },
+        "refresh_count": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": -6.5,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 1,
+          "v6_later": 1,
+          "v6_only_present": 0
+        },
+        "terminal_turn": {
+          "both_present": 2,
+          "mean_v6_minus_v4_when_both": -8.5,
+          "neither_present": 0,
+          "same_turn": 0,
+          "v4_only_present": 0,
+          "v6_earlier": 1,
+          "v6_later": 1,
+          "v6_only_present": 0
+        }
+      },
+      "seed_count": 2,
+      "seeds": [
+        1024,
+        1083
+      ],
+      "selected_divergence_relation_counts": {
+        "same_tier_divergence_state": 2
+      },
+      "selected_divergence_tier_sets_differ_counts": {
+        "true": 2
+      },
+      "weighted_second_step_contributions": {
+        "best_second_option_count": 24,
+        "negative_option_occurrences_by_feature": {
+          "bounded_merge_setup_gain": 0,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 0,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": 12,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        },
+        "positive_option_occurrences_by_feature": {
+          "bounded_merge_setup_gain": 12,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 12,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": 0,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        },
+        "weighted_totals_by_feature": {
+          "bounded_merge_setup_gain": 3000,
+          "closes_last_without_win": 0,
+          "collect_degree_one": 0,
+          "collect_excess": 0,
+          "collect_needed": 120000,
+          "delta_merge_opportunities": 0,
+          "delta_open_tunnels": -1200,
+          "delta_visible_water": 0,
+          "delta_water_obstruction": 0,
+          "new_trapped_water": 0,
+          "places_exit_early": 0,
+          "places_exit_ready": 0,
+          "wins": 0
+        }
+      }
+    }
+  },
+  "dataset_status": "already-spent / outcome-selected diagnostic / non-confirmatory",
+  "date": "2026-09-29",
+  "fresh_seeds_used": false,
+  "hidden_draw_diagnostic_fields_logged": false,
+  "holdout_used": false,
+  "integrity": {
+    "final_record_exact_matches": 64,
+    "final_record_expected": 64,
+    "mismatches": [],
+    "passed": true,
+    "transition_label_exact_matches": 32,
+    "transition_label_expected": 32
+  },
+  "interpretation_limits": [
+    "The 32 seeds are outcome-selected from already-spent Worker #23 data.",
+    "Cohort proportions do not generalize to the 100-seed development set or any population.",
+    "This slice diagnoses mechanism only; it does not evaluate or support a new policy.",
+    "No hidden draw identity or future outcome is used as a diagnostic mechanism feature."
+  ],
+  "mechanism_summary": {
+    "all_32_first_tier_label": "tier_expansion",
+    "all_32_traceable": true,
+    "feature_contributions": {
+      "note": "Counts are tie-inclusive diagnostic associations, not single-feature causal ablations.",
+      "positive_option_occurrences_by_feature": {
+        "bounded_merge_setup_gain": 159,
+        "closes_last_without_win": 0,
+        "collect_degree_one": 0,
+        "collect_excess": 0,
+        "collect_needed": 89,
+        "delta_merge_opportunities": 0,
+        "delta_open_tunnels": 26,
+        "delta_visible_water": 0,
+        "delta_water_obstruction": 0,
+        "new_trapped_water": 0,
+        "places_exit_early": 0,
+        "places_exit_ready": 0,
+        "wins": 0
+      },
+      "ranked_positive_features": [
+        "bounded_merge_setup_gain",
+        "collect_needed",
+        "delta_open_tunnels",
+        "wins",
+        "places_exit_ready",
+        "places_exit_early",
+        "new_trapped_water",
+        "delta_water_obstruction",
+        "delta_visible_water",
+        "delta_merge_opportunities",
+        "collect_excess",
+        "collect_degree_one",
+        "closes_last_without_win"
+      ],
+      "weighted_totals_by_feature": {
+        "bounded_merge_setup_gain": 59750,
+        "closes_last_without_win": 0,
+        "collect_degree_one": 0,
+        "collect_excess": 0,
+        "collect_needed": 890000,
+        "delta_merge_opportunities": 0,
+        "delta_open_tunnels": -16300,
+        "delta_visible_water": 0,
+        "delta_water_obstruction": 0,
+        "new_trapped_water": 0,
+        "places_exit_early": 0,
+        "places_exit_ready": 0,
+        "wins": 0
+      }
+    },
+    "gain_vs_loss_first_divergence_labels": {
+      "gain_labels": [
+        "tier_expansion"
+      ],
+      "loss_labels": [
+        "tier_expansion"
+      ],
+      "same_label_set": true
+    },
+    "gained_v6_wins": {
+      "mechanisms": {
+        "1024": {
+          "label": "tier_expansion",
+          "positive_second_step_features": {
+            "bounded_merge_setup_gain": 4,
+            "collect_needed": 4
+          },
+          "selected_divergence_action_pair": "collect->place",
+          "selected_divergence_relation": "same_tier_divergence_state",
+          "tier_selected_action_pair": "collect->place",
+          "tier_turn": 2
+        },
+        "1083": {
+          "label": "tier_expansion",
+          "positive_second_step_features": {
+            "bounded_merge_setup_gain": 8,
+            "collect_needed": 8
+          },
+          "selected_divergence_action_pair": "collect->place",
+          "selected_divergence_relation": "same_tier_divergence_state",
+          "tier_selected_action_pair": "collect->place",
+          "tier_turn": 0
+        }
+      },
+      "same_first_divergence_label": true,
+      "seeds": [
+        1024,
+        1083
+      ]
+    },
+    "lost_v4_wins": {
+      "mechanisms": {
+        "1012": {
+          "label": "tier_expansion",
+          "positive_second_step_features": {
+            "bounded_merge_setup_gain": 8,
+            "collect_needed": 8
+          },
+          "selected_divergence_action_pair": "collect->place",
+          "selected_divergence_relation": "same_tier_divergence_state",
+          "tier_selected_action_pair": "collect->place",
+          "tier_turn": 0
+        },
+        "1087": {
+          "label": "tier_expansion",
+          "positive_second_step_features": {
+            "bounded_merge_setup_gain": 4,
+            "collect_needed": 4
+          },
+          "selected_divergence_action_pair": "collect->place",
+          "selected_divergence_relation": "same_tier_divergence_state",
+          "tier_selected_action_pair": "collect->place",
+          "tier_turn": 1
+        }
+      },
+      "same_first_divergence_label": true,
+      "seeds": [
+        1012,
+        1087
+      ]
+    },
+    "water_compactness_interpretation": [
+      "At first tier divergence, tied V6-preferred best-second options have zero weighted delta_visible_water, delta_water_obstruction, new_trapped_water, places_exit_ready, places_exit_early, and wins contributions in the all-32 aggregate.",
+      "The positive second-step terms most frequently associated with expansion are collect_needed and bounded_merge_setup_gain; delta_open_tunnels is mixed and net negative across tied best-second options.",
+      "The strong endpoint water/compactness differences therefore emerge downstream after the initial lookahead-induced tier expansion rather than from a direct first-divergence water reward."
+    ]
+  },
+  "per_seed_first_divergences": {
+    "1001": {
+      "expected_transition": [
+        "deck_exhausted",
+        "no_legal_move"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-1-r2-c4",
+          "hand_index": 0,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-1-r2-c4",
+          "hand_index": 0,
+          "origin": [
+            0,
+            -1
+          ],
+          "quarter_turns": 1
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "place",
+          "card_id": "photo-1-r2-c4",
+          "hand_index": 0,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-1-r2-c4",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r2-c4",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r2-c4",
+            "hand_index": 0,
+            "origin": [
+              0,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r2-c4",
+            "hand_index": 0,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r2-c4",
+            "hand_index": 0,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c3",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c3",
+            "hand_index": 1,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c3",
+            "hand_index": 1,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 3
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1009": {
+      "expected_transition": [
+        "no_legal_move",
+        "deck_exhausted"
+      ],
+      "first_selected": {
+        "decision_index": 3,
+        "tier_sets_differ_here": true,
+        "turn_index": 3,
+        "v4": {
+          "action": "collect",
+          "card_id": "photo-2-r1-c4",
+          "hand_index": 2,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-2-r2-c1",
+          "hand_index": 0,
+          "origin": [
+            1,
+            0
+          ],
+          "quarter_turns": 3
+        }
+      },
+      "first_selected_rng_before_equal": false,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "place",
+          "card_id": "photo-4-r2-c1",
+          "hand_index": 2,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c1",
+            "hand_index": 0,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c1",
+            "hand_index": 0,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c1",
+            "hand_index": 0,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c1",
+            "hand_index": 2,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c1",
+            "hand_index": 2,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c1",
+            "hand_index": 2,
+            "origin": [
+              0,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c1",
+            "hand_index": 2,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c1",
+            "hand_index": 2,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 3
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "later"
+    },
+    "1012": {
+      "expected_transition": [
+        "win",
+        "deck_exhausted"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "collect",
+          "card_id": "photo-3-r2-c1",
+          "hand_index": 0,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-1-r4-c5",
+          "hand_index": 2,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 2
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-3-r2-c1",
+          "hand_index": 0,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "collect",
+            "card_id": "photo-3-r2-c1",
+            "hand_index": 0,
+            "origin": null,
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r4-c5",
+            "hand_index": 2,
+            "origin": [
+              -1,
+              1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r4-c5",
+            "hand_index": 2,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r4-c5",
+            "hand_index": 2,
+            "origin": [
+              -2,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r4-c5",
+            "hand_index": 2,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r4-c5",
+            "hand_index": 2,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r4-c5",
+            "hand_index": 2,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r4-c5",
+            "hand_index": 2,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r4-c5",
+            "hand_index": 2,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 3
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1013": {
+      "expected_transition": [
+        "no_legal_move",
+        "deck_exhausted"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-4-r2-c1",
+          "hand_index": 0,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-4-r2-c1",
+          "hand_index": 0,
+          "origin": [
+            -2,
+            1
+          ],
+          "quarter_turns": 3
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "place",
+          "card_id": "photo-4-r2-c1",
+          "hand_index": 0,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c1",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c1",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c1",
+            "hand_index": 0,
+            "origin": [
+              0,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c1",
+            "hand_index": 0,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c1",
+            "hand_index": 0,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c1",
+            "hand_index": 2,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c1",
+            "hand_index": 2,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c1",
+            "hand_index": 2,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 3
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1014": {
+      "expected_transition": [
+        "closed_tunnels_conditions_failed",
+        "no_legal_move"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-1-r1-c2",
+          "hand_index": 1,
+          "origin": [
+            0,
+            -1
+          ],
+          "quarter_turns": 3
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-2-r3-c3",
+          "hand_index": 2,
+          "origin": [
+            -2,
+            1
+          ],
+          "quarter_turns": 3
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "place",
+          "card_id": "photo-1-r1-c2",
+          "hand_index": 1,
+          "origin": [
+            0,
+            -1
+          ],
+          "quarter_turns": 3
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c4",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c4",
+            "hand_index": 0,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r1-c2",
+            "hand_index": 1,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r1-c2",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r1-c2",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r1-c2",
+            "hand_index": 1,
+            "origin": [
+              0,
+              -1
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r3-c3",
+            "hand_index": 2,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r3-c3",
+            "hand_index": 2,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 3
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1015": {
+      "expected_transition": [
+        "deck_exhausted",
+        "no_legal_move"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "collect",
+          "card_id": "photo-3-r1-c1",
+          "hand_index": 1,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-4-r2-c1",
+          "hand_index": 2,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-3-r1-c1",
+          "hand_index": 1,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "collect",
+            "card_id": "photo-3-r1-c1",
+            "hand_index": 1,
+            "origin": null,
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c1",
+            "hand_index": 2,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1018": {
+      "expected_transition": [
+        "closed_tunnels_conditions_failed",
+        "deck_exhausted"
+      ],
+      "first_selected": {
+        "decision_index": 1,
+        "tier_sets_differ_here": true,
+        "turn_index": 1,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-2-r3-c1",
+          "hand_index": 2,
+          "origin": [
+            0,
+            -1
+          ],
+          "quarter_turns": 3
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-2-r3-c1",
+          "hand_index": 2,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 0
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 1,
+        "label": "tier_expansion",
+        "turn_index": 1,
+        "v4_selected_move": {
+          "action": "place",
+          "card_id": "photo-2-r3-c1",
+          "hand_index": 2,
+          "origin": [
+            0,
+            -1
+          ],
+          "quarter_turns": 3
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c4",
+            "hand_index": 1,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c4",
+            "hand_index": 1,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c4",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r3-c1",
+            "hand_index": 2,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r3-c1",
+            "hand_index": 2,
+            "origin": [
+              -2,
+              0
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r3-c1",
+            "hand_index": 2,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r3-c1",
+            "hand_index": 2,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r3-c1",
+            "hand_index": 2,
+            "origin": [
+              0,
+              -1
+            ],
+            "quarter_turns": 3
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": false,
+      "relation": "same_tier_divergence_state"
+    },
+    "1021": {
+      "expected_transition": [
+        "no_legal_move",
+        "closed_tunnels_conditions_failed"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-4-r3-c1",
+          "hand_index": 0,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 2
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-4-r2-c4",
+          "hand_index": 1,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "place",
+          "card_id": "photo-4-r3-c1",
+          "hand_index": 0,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 2
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-4-r3-c1",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r3-c1",
+            "hand_index": 0,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c4",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c4",
+            "hand_index": 1,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 2
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1023": {
+      "expected_transition": [
+        "deck_exhausted",
+        "no_legal_move"
+      ],
+      "first_selected": {
+        "decision_index": 2,
+        "tier_sets_differ_here": true,
+        "turn_index": 2,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-4-r2-c1",
+          "hand_index": 0,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-3-r4-c2",
+          "hand_index": 2,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 0
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-4-r1-c5",
+          "hand_index": 2,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c1",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "collect",
+            "card_id": "photo-4-r1-c5",
+            "hand_index": 2,
+            "origin": null,
+            "quarter_turns": 0
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "later"
+    },
+    "1024": {
+      "expected_transition": [
+        "deck_exhausted",
+        "win"
+      ],
+      "first_selected": {
+        "decision_index": 2,
+        "tier_sets_differ_here": true,
+        "turn_index": 2,
+        "v4": {
+          "action": "collect",
+          "card_id": "photo-3-r3-c2",
+          "hand_index": 0,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-3-r1-c4",
+          "hand_index": 1,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 2
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 2,
+        "label": "tier_expansion",
+        "turn_index": 2,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-3-r3-c2",
+          "hand_index": 0,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "collect",
+            "card_id": "photo-3-r3-c2",
+            "hand_index": 0,
+            "origin": null,
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r1-c4",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r1-c4",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r1-c4",
+            "hand_index": 1,
+            "origin": [
+              0,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r1-c4",
+            "hand_index": 1,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 2
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": false,
+      "relation": "same_tier_divergence_state"
+    },
+    "1030": {
+      "expected_transition": [
+        "no_legal_move",
+        "deck_exhausted"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-1-r2-c4",
+          "hand_index": 0,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-3-r4-c2",
+          "hand_index": 1,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 0
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "place",
+          "card_id": "photo-1-r2-c4",
+          "hand_index": 0,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-1-r2-c4",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r4-c2",
+            "hand_index": 1,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 0
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1039": {
+      "expected_transition": [
+        "deck_exhausted",
+        "no_legal_move"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "collect",
+          "card_id": "photo-2-r2-c2",
+          "hand_index": 1,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-2-r2-c1",
+          "hand_index": 0,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 2
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-2-r2-c2",
+          "hand_index": 1,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c1",
+            "hand_index": 0,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c1",
+            "hand_index": 0,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c1",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c1",
+            "hand_index": 0,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "collect",
+            "card_id": "photo-2-r2-c2",
+            "hand_index": 1,
+            "origin": null,
+            "quarter_turns": 0
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1040": {
+      "expected_transition": [
+        "deck_exhausted",
+        "no_legal_move"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "collect",
+          "card_id": "photo-3-r1-c2",
+          "hand_index": 0,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-2-r3-c3",
+          "hand_index": 2,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-3-r1-c2",
+          "hand_index": 0,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "collect",
+            "card_id": "photo-3-r1-c2",
+            "hand_index": 0,
+            "origin": null,
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r3-c3",
+            "hand_index": 2,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r3-c3",
+            "hand_index": 2,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r3-c3",
+            "hand_index": 2,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r3-c3",
+            "hand_index": 2,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 3
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1045": {
+      "expected_transition": [
+        "deck_exhausted",
+        "no_legal_move"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "collect",
+          "card_id": "photo-1-r2-c1",
+          "hand_index": 0,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-4-r1-c1",
+          "hand_index": 2,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 0
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-1-r2-c1",
+          "hand_index": 0,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "collect",
+            "card_id": "photo-1-r2-c1",
+            "hand_index": 0,
+            "origin": null,
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r4-c2",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r4-c2",
+            "hand_index": 1,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r4-c2",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r4-c2",
+            "hand_index": 1,
+            "origin": [
+              0,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r1-c1",
+            "hand_index": 2,
+            "origin": [
+              -1,
+              1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r1-c1",
+            "hand_index": 2,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r1-c1",
+            "hand_index": 2,
+            "origin": [
+              -2,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r1-c1",
+            "hand_index": 2,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 1
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1046": {
+      "expected_transition": [
+        "deck_exhausted",
+        "no_legal_move"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "collect",
+          "card_id": "photo-4-r2-c2",
+          "hand_index": 1,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-4-r1-c2",
+          "hand_index": 0,
+          "origin": [
+            1,
+            1
+          ],
+          "quarter_turns": 0
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-4-r2-c2",
+          "hand_index": 1,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-4-r1-c2",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r1-c2",
+            "hand_index": 0,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r1-c2",
+            "hand_index": 0,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r1-c2",
+            "hand_index": 0,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "collect",
+            "card_id": "photo-4-r2-c2",
+            "hand_index": 1,
+            "origin": null,
+            "quarter_turns": 0
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1047": {
+      "expected_transition": [
+        "deck_exhausted",
+        "no_legal_move"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-3-r3-c1",
+          "hand_index": 2,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-1-r3-c2",
+          "hand_index": 0,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 1
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "place",
+          "card_id": "photo-3-r3-c1",
+          "hand_index": 2,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c2",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c2",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c2",
+            "hand_index": 0,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r3-c1",
+            "hand_index": 2,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r3-c1",
+            "hand_index": 2,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r3-c1",
+            "hand_index": 2,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r3-c1",
+            "hand_index": 2,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r3-c1",
+            "hand_index": 2,
+            "origin": [
+              -1,
+              1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r3-c1",
+            "hand_index": 2,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r3-c1",
+            "hand_index": 2,
+            "origin": [
+              -2,
+              0
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r3-c1",
+            "hand_index": 2,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 3
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1049": {
+      "expected_transition": [
+        "no_legal_move",
+        "deck_exhausted"
+      ],
+      "first_selected": {
+        "decision_index": 2,
+        "tier_sets_differ_here": true,
+        "turn_index": 2,
+        "v4": {
+          "action": "collect",
+          "card_id": "photo-3-r1-c5",
+          "hand_index": 2,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-2-r3-c3",
+          "hand_index": 1,
+          "origin": [
+            1,
+            0
+          ],
+          "quarter_turns": 1
+        }
+      },
+      "first_selected_rng_before_equal": false,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "place",
+          "card_id": "photo-1-r2-c4",
+          "hand_index": 1,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-1-r2-c4",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r2-c4",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r2-c4",
+            "hand_index": 1,
+            "origin": [
+              0,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r2-c4",
+            "hand_index": 1,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r2-c4",
+            "hand_index": 1,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r3-c3",
+            "hand_index": 2,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r3-c3",
+            "hand_index": 2,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r3-c3",
+            "hand_index": 2,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 3
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "later"
+    },
+    "1050": {
+      "expected_transition": [
+        "deck_exhausted",
+        "closed_tunnels_conditions_failed"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-3-r4-c1",
+          "hand_index": 1,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 2
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-3-r1-c4",
+          "hand_index": 0,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "place",
+          "card_id": "photo-3-r4-c1",
+          "hand_index": 1,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 2
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-3-r1-c4",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r4-c1",
+            "hand_index": 1,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 2
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1055": {
+      "expected_transition": [
+        "deck_exhausted",
+        "no_legal_move"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "collect",
+          "card_id": "photo-3-r2-c2",
+          "hand_index": 2,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-1-r3-c3",
+          "hand_index": 0,
+          "origin": [
+            0,
+            -2
+          ],
+          "quarter_turns": 2
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-3-r2-c2",
+          "hand_index": 2,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c3",
+            "hand_index": 0,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c3",
+            "hand_index": 0,
+            "origin": [
+              -2,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c3",
+            "hand_index": 0,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c3",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c3",
+            "hand_index": 0,
+            "origin": [
+              0,
+              -2
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c3",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c3",
+            "hand_index": 0,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c3",
+            "hand_index": 0,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c4",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c4",
+            "hand_index": 1,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r3-c4",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "collect",
+            "card_id": "photo-3-r2-c2",
+            "hand_index": 2,
+            "origin": null,
+            "quarter_turns": 0
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1066": {
+      "expected_transition": [
+        "no_legal_move",
+        "deck_exhausted"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-4-r3-c1",
+          "hand_index": 1,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 2
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-4-r3-c1",
+          "hand_index": 1,
+          "origin": [
+            1,
+            1
+          ],
+          "quarter_turns": 3
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "place",
+          "card_id": "photo-4-r3-c1",
+          "hand_index": 1,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 2
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-4-r3-c1",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r3-c1",
+            "hand_index": 1,
+            "origin": [
+              -2,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r3-c1",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r3-c1",
+            "hand_index": 1,
+            "origin": [
+              0,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r3-c1",
+            "hand_index": 1,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r3-c1",
+            "hand_index": 1,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r3-c1",
+            "hand_index": 1,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r3-c1",
+            "hand_index": 1,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r1-c1",
+            "hand_index": 2,
+            "origin": [
+              -1,
+              1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r1-c1",
+            "hand_index": 2,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r1-c1",
+            "hand_index": 2,
+            "origin": [
+              -2,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r1-c1",
+            "hand_index": 2,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 1
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1068": {
+      "expected_transition": [
+        "no_legal_move",
+        "deck_exhausted"
+      ],
+      "first_selected": {
+        "decision_index": 2,
+        "tier_sets_differ_here": true,
+        "turn_index": 2,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-2-r2-c4",
+          "hand_index": 0,
+          "origin": [
+            2,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-3-r4-c2",
+          "hand_index": 1,
+          "origin": [
+            2,
+            0
+          ],
+          "quarter_turns": 0
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 1,
+        "label": "tier_expansion",
+        "turn_index": 1,
+        "v4_selected_move": {
+          "action": "place",
+          "card_id": "photo-3-r4-c1",
+          "hand_index": 0,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 2
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-3-r4-c1",
+            "hand_index": 0,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c4",
+            "hand_index": 1,
+            "origin": [
+              -2,
+              -1
+            ],
+            "quarter_turns": 2
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "later"
+    },
+    "1071": {
+      "expected_transition": [
+        "deck_exhausted",
+        "no_legal_move"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "collect",
+          "card_id": "photo-4-r2-c2",
+          "hand_index": 1,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-1-r4-c1",
+          "hand_index": 0,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 0
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-4-r2-c2",
+          "hand_index": 1,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-1-r4-c1",
+            "hand_index": 0,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "collect",
+            "card_id": "photo-4-r2-c2",
+            "hand_index": 1,
+            "origin": null,
+            "quarter_turns": 0
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1072": {
+      "expected_transition": [
+        "no_legal_move",
+        "deck_exhausted"
+      ],
+      "first_selected": {
+        "decision_index": 2,
+        "tier_sets_differ_here": true,
+        "turn_index": 2,
+        "v4": {
+          "action": "collect",
+          "card_id": "photo-1-r1-c4",
+          "hand_index": 0,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-3-r3-c4",
+          "hand_index": 1,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 3
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 2,
+        "label": "tier_expansion",
+        "turn_index": 2,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-1-r1-c4",
+          "hand_index": 0,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "collect",
+            "card_id": "photo-1-r1-c4",
+            "hand_index": 0,
+            "origin": null,
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r3-c4",
+            "hand_index": 1,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r3-c4",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r3-c4",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 3
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1075": {
+      "expected_transition": [
+        "no_legal_move",
+        "deck_exhausted"
+      ],
+      "first_selected": {
+        "decision_index": 2,
+        "tier_sets_differ_here": true,
+        "turn_index": 2,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-2-r4-c5",
+          "hand_index": 2,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-1-r2-c2",
+          "hand_index": 1,
+          "origin": [
+            1,
+            0
+          ],
+          "quarter_turns": 1
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 1,
+        "label": "tier_expansion",
+        "turn_index": 1,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-1-r2-c1",
+          "hand_index": 0,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "collect",
+            "card_id": "photo-1-r2-c1",
+            "hand_index": 0,
+            "origin": null,
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r2-c2",
+            "hand_index": 2,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r2-c2",
+            "hand_index": 2,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r2-c2",
+            "hand_index": 2,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-1-r2-c2",
+            "hand_index": 2,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 1
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "later"
+    },
+    "1080": {
+      "expected_transition": [
+        "deck_exhausted",
+        "no_legal_move"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "collect",
+          "card_id": "photo-4-r2-c2",
+          "hand_index": 0,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-2-r4-c2",
+          "hand_index": 1,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-4-r2-c2",
+          "hand_index": 0,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "collect",
+            "card_id": "photo-4-r2-c2",
+            "hand_index": 0,
+            "origin": null,
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c2",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c2",
+            "hand_index": 1,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c2",
+            "hand_index": 1,
+            "origin": [
+              -2,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c2",
+            "hand_index": 1,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c2",
+            "hand_index": 1,
+            "origin": [
+              0,
+              -1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c2",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c2",
+            "hand_index": 1,
+            "origin": [
+              0,
+              -2
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c2",
+            "hand_index": 1,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c2",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c2",
+            "hand_index": 1,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c2",
+            "hand_index": 1,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 3
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1081": {
+      "expected_transition": [
+        "no_legal_move",
+        "deck_exhausted"
+      ],
+      "first_selected": {
+        "decision_index": 1,
+        "tier_sets_differ_here": true,
+        "turn_index": 1,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-4-r2-c3",
+          "hand_index": 1,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-4-r1-c4",
+          "hand_index": 0,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 2
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-3-r1-c1",
+          "hand_index": 1,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "collect",
+            "card_id": "photo-3-r1-c1",
+            "hand_index": 1,
+            "origin": null,
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c3",
+            "hand_index": 2,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "later"
+    },
+    "1083": {
+      "expected_transition": [
+        "no_legal_move",
+        "win"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "collect",
+          "card_id": "photo-4-r1-c5",
+          "hand_index": 2,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-2-r4-c5",
+          "hand_index": 1,
+          "origin": [
+            1,
+            1
+          ],
+          "quarter_turns": 1
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-4-r1-c5",
+          "hand_index": 2,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c5",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c5",
+            "hand_index": 1,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c5",
+            "hand_index": 1,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c5",
+            "hand_index": 1,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c5",
+            "hand_index": 1,
+            "origin": [
+              -1,
+              1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c5",
+            "hand_index": 1,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c5",
+            "hand_index": 1,
+            "origin": [
+              -2,
+              0
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r4-c5",
+            "hand_index": 1,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "collect",
+            "card_id": "photo-4-r1-c5",
+            "hand_index": 2,
+            "origin": null,
+            "quarter_turns": 0
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1084": {
+      "expected_transition": [
+        "deck_exhausted",
+        "no_legal_move"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-3-r4-c1",
+          "hand_index": 1,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 2
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-3-r4-c2",
+          "hand_index": 2,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "place",
+          "card_id": "photo-3-r4-c1",
+          "hand_index": 1,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 2
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-3-r4-c1",
+            "hand_index": 1,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r4-c2",
+            "hand_index": 2,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1087": {
+      "expected_transition": [
+        "win",
+        "deck_exhausted"
+      ],
+      "first_selected": {
+        "decision_index": 1,
+        "tier_sets_differ_here": true,
+        "turn_index": 1,
+        "v4": {
+          "action": "collect",
+          "card_id": "photo-1-r1-c4",
+          "hand_index": 1,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-2-r2-c3",
+          "hand_index": 0,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 2
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 1,
+        "label": "tier_expansion",
+        "turn_index": 1,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-1-r1-c4",
+          "hand_index": 1,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c3",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c3",
+            "hand_index": 0,
+            "origin": [
+              -2,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c3",
+            "hand_index": 0,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r2-c3",
+            "hand_index": 0,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "collect",
+            "card_id": "photo-1-r1-c4",
+            "hand_index": 1,
+            "origin": null,
+            "quarter_turns": 0
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1091": {
+      "expected_transition": [
+        "deck_exhausted",
+        "no_legal_move"
+      ],
+      "first_selected": {
+        "decision_index": 2,
+        "tier_sets_differ_here": true,
+        "turn_index": 2,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-3-r2-c3",
+          "hand_index": 2,
+          "origin": [
+            1,
+            0
+          ],
+          "quarter_turns": 1
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-1-r2-c2",
+          "hand_index": 1,
+          "origin": [
+            0,
+            -1
+          ],
+          "quarter_turns": 1
+        }
+      },
+      "first_selected_rng_before_equal": false,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-1-r2-c1",
+          "hand_index": 1,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-3-r2-c4",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r2-c4",
+            "hand_index": 0,
+            "origin": [
+              -2,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r2-c4",
+            "hand_index": 0,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-3-r2-c4",
+            "hand_index": 0,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "collect",
+            "card_id": "photo-1-r2-c1",
+            "hand_index": 1,
+            "origin": null,
+            "quarter_turns": 0
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": false,
+      "relation": "later"
+    },
+    "1092": {
+      "expected_transition": [
+        "no_legal_move",
+        "deck_exhausted"
+      ],
+      "first_selected": {
+        "decision_index": 0,
+        "tier_sets_differ_here": true,
+        "turn_index": 0,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-4-r2-c3",
+          "hand_index": 0,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-4-r1-c4",
+          "hand_index": 1,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 2
+        }
+      },
+      "first_selected_rng_before_equal": true,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "place",
+          "card_id": "photo-4-r2-c3",
+          "hand_index": 0,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-4-r2-c3",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-4-r1-c4",
+            "hand_index": 1,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 2
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": true,
+      "relation": "same_tier_divergence_state"
+    },
+    "1098": {
+      "expected_transition": [
+        "deck_exhausted",
+        "no_legal_move"
+      ],
+      "first_selected": {
+        "decision_index": 1,
+        "tier_sets_differ_here": true,
+        "turn_index": 1,
+        "v4": {
+          "action": "place",
+          "card_id": "photo-3-r4-c2",
+          "hand_index": 2,
+          "origin": [
+            1,
+            -1
+          ],
+          "quarter_turns": 0
+        },
+        "v6": {
+          "action": "place",
+          "card_id": "photo-3-r4-c2",
+          "hand_index": 2,
+          "origin": [
+            -1,
+            -1
+          ],
+          "quarter_turns": 0
+        }
+      },
+      "first_selected_rng_before_equal": false,
+      "first_tier": {
+        "decision_index": 0,
+        "label": "tier_expansion",
+        "turn_index": 0,
+        "v4_selected_move": {
+          "action": "collect",
+          "card_id": "photo-3-r1-c1",
+          "hand_index": 2,
+          "origin": null,
+          "quarter_turns": 0
+        },
+        "v6_best_first_tier": [
+          {
+            "action": "place",
+            "card_id": "photo-2-r1-c5",
+            "hand_index": 0,
+            "origin": [
+              1,
+              -1
+            ],
+            "quarter_turns": 0
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r1-c5",
+            "hand_index": 0,
+            "origin": [
+              -2,
+              0
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r1-c5",
+            "hand_index": 0,
+            "origin": [
+              -2,
+              1
+            ],
+            "quarter_turns": 1
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r1-c5",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              1
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r1-c5",
+            "hand_index": 0,
+            "origin": [
+              0,
+              -2
+            ],
+            "quarter_turns": 2
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r1-c5",
+            "hand_index": 0,
+            "origin": [
+              -1,
+              -1
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r1-c5",
+            "hand_index": 0,
+            "origin": [
+              1,
+              0
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "place",
+            "card_id": "photo-2-r1-c5",
+            "hand_index": 0,
+            "origin": [
+              1,
+              1
+            ],
+            "quarter_turns": 3
+          },
+          {
+            "action": "collect",
+            "card_id": "photo-3-r1-c1",
+            "hand_index": 2,
+            "origin": null,
+            "quarter_turns": 0
+          }
+        ]
+      },
+      "first_tier_rng_after_equal": false,
+      "relation": "later"
+    }
+  },
+  "persistence_history": {
+    "invalidated_packaging_reason": "Persistence-only heredoc accidentally included shell git commands inside Python; authoritative diagnostic result was unaffected and was not rerun.",
+    "invalidated_packaging_run_id": 36625988915
+  },
+  "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5897161086",
+  "raw_artifact": {
+    "archive_bytes": 104224,
+    "archive_filename": "worker24-changed-outcome-trace-audit-2026-09-29.zip",
+    "archive_sha256": "4d85d6d468671005b2baf3189f5ff064a2d28fd88195f7d9651b89c6de13fbd3",
+    "drive_file_id": "1mDTjiJmDqQ0y8bFgtc8bp4b64PBZWw7I",
+    "drive_parent_folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+    "drive_url": "https://drive.google.com/file/d/1mDTjiJmDqQ0y8bFgtc8bp4b64PBZWw7I/view?usp=drivesdk",
+    "inner_files": {
+      "worker24-changed-outcome-trace-audit.json": {
+        "bytes": 1943351,
+        "sha256": "1dabf0e22dd5d4b7cf8aa2da792dc90bd7bf765d184d9839e1a80b95a360e143"
+      },
+      "worker24-changed-outcome-trace-summary.json": {
+        "bytes": 172448,
+        "sha256": "eb2cf94c69c99e1a94b472575a71d9c122914c892da530cda3bd797d0b2932d6"
+      }
+    },
+    "readback_bytes": 104224,
+    "readback_sha256": "4d85d6d468671005b2baf3189f5ff064a2d28fd88195f7d9651b89c6de13fbd3",
+    "readback_verified": true
+  },
+  "schema": "bandido-alcatraz-v6-changed-outcome-trace-audit-manifest",
+  "schema_version": 1,
+  "seed_scope": [
+    1001,
+    1009,
+    1012,
+    1013,
+    1014,
+    1015,
+    1018,
+    1021,
+    1023,
+    1024,
+    1030,
+    1039,
+    1040,
+    1045,
+    1046,
+    1047,
+    1049,
+    1050,
+    1055,
+    1066,
+    1068,
+    1071,
+    1072,
+    1075,
+    1080,
+    1081,
+    1083,
+    1084,
+    1087,
+    1091,
+    1092,
+    1098
+  ],
+  "source_blobs": {
+    "data/deck-observations-v0.json": "ee38d60277c79dafa7527876367e3e6450ccb53f",
+    "data/deck-v1.json": "9fa2066507ff9a0fb6b922d52e84529b35acb05e",
+    "src/bandido_alcatraz/board.py": "b4f76b6f948eaffe320855156e569a596fe6c213",
+    "src/bandido_alcatraz/game.py": "73d79daa011ff5493b02966fe1157a5ada17df73",
+    "src/bandido_alcatraz/policies.py": "0be6b930fdf18e5aac15a75e63eb32aea71f3b68",
+    "src/bandido_alcatraz/simulate.py": "b2d25ecd0714b5515215047ffcaa471eede3f6e4",
+    "src/bandido_alcatraz/strategy.py": "55374c0391f0efc0f783c0b86baf12c40c79f42c"
+  },
+  "starting_main": "89559d71d8b59e5c794510ea7481331c63803a8e",
+  "trace_completeness": {
+    "complete_trace": true,
+    "downstream_linked": true,
+    "seed_trace_errors": []
+  },
+  "v4_production_vs_no_draw_feature_equivalence": {
+    "checks": 1353,
+    "failures": 0,
+    "passed": true
+  },
+  "final_checkpoint": {
+    "receipt_only_head_parent": "48619dde49a9354e8764e1418c438c34ae8ba93b",
+    "final_ci_required": true,
+    "note": "Normal GitHub manifest-only metadata commit created so routine PR CI can execute on an exact final head after bot-created cleanup head produced action_required without jobs."
+  }
+}
