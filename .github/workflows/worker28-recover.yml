@@ -1,0 +1,28 @@
+name: Preserve superseded Worker28 baseline
+on:
+  push:
+    branches: [research/worker28-visible-end-state-beam]
+    paths: [.github/workflows/worker28-recover.yml]
+permissions:
+  contents: read
+jobs:
+  preserve:
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+    timeout-minutes: 10
+    steps:
+      - name: Locate existing receipt only
+        id: evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          source="$(dirname "$GITHUB_WORKSPACE")/bandido-worker28-evidence/36764823649/1/baseline"
+          source="$(realpath -e "$source")"
+          test -f "$source/receipt.json"
+          sha256sum "$source/receipt.json"
+          echo "path=$source" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        timeout-minutes: 5
+        with:
+          name: worker28-superseded-baseline-36764823649-1
+          path: ${{ steps.evidence.outputs.path }}/
+          if-no-files-found: error
