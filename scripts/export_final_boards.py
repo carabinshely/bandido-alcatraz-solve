@@ -72,6 +72,31 @@ def _load_and_validate_v7_metadata() -> tuple[dict[str, object], dict[str, objec
         raise RuntimeError("V7 seed count does not match SVG export provenance")
 
     fixed = manifest["fixed_configuration"]
+
+    # Historical V7 is only an exact board reconstruction while every
+    # simulation-relevant source remains frozen. The one intentional exception
+    # is board.py: Issue #23 adds observer-only placement history, and that exact
+    # reviewed observer blob is pinned separately.
+    for relative_path, expected_blob in sorted(
+        fixed["canonical_source_blobs"].items()
+    ):
+        if relative_path == "src/bandido_alcatraz/board.py":
+            continue
+        actual_blob = _git_blob_sha(ROOT / relative_path)
+        if actual_blob != expected_blob:
+            raise RuntimeError(
+                "V7 canonical source drift: "
+                f"{relative_path} expected {expected_blob}, got {actual_blob}"
+            )
+
+    candidate_path = ROOT / "scripts" / "run_worker26.py"
+    if _git_blob_sha(candidate_path) != provenance["candidate_and_harness_blob"]:
+        raise RuntimeError("V7 frozen candidate/harness source has drifted")
+
+    observer_board_path = ROOT / "src" / "bandido_alcatraz" / "board.py"
+    if _git_blob_sha(observer_board_path) != provenance["observer_board_blob"]:
+        raise RuntimeError("V7 placement-history Board observer source has drifted")
+
     deck_path = ROOT / str(fixed["deck_file"])
     exit_path = ROOT / str(fixed["exit_geometry_file"])
     if _git_blob_sha(deck_path) != fixed["deck_blob"]:
