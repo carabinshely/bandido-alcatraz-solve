@@ -5,11 +5,17 @@ import xml.etree.ElementTree as ET
 from bandido_alcatraz.board import Board, PlacementKind
 from bandido_alcatraz.export_svg import FinalBoardExport, export_final_boards
 from bandido_alcatraz.model import CardDefinition, CellSpec, Direction
+from bandido_alcatraz.physical_deck import load_real_deck
 from bandido_alcatraz.render_svg import render_board_svg
+from bandido_alcatraz.simulate import play_game
 from scripts.export_final_boards import (
+    RecordingPolicy,
     _final_records_sha256,
     _load_and_validate_v7_metadata,
 )
+from scripts.run_worker26 import ImmediateTieV7Policy, final_record
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def single(
@@ -273,3 +279,82 @@ def test_v7_metadata_is_exactly_pinned_without_running_the_batch() -> None:
         provenance["final_records_sha256"]
         == "d1921f03fa41d45140f482c4cb75ab414d09ce1de6f1a59081eecc2390d858da"
     )
+
+
+def test_real_v7_win_and_water_loss_preserve_historical_outcomes_and_render() -> None:
+    deck = load_real_deck(ROOT / "data")
+    expected = {
+        1008: {
+            "equipment_ready": True,
+            "exit_equipment_water_ready": True,
+            "exit_placed": True,
+            "final_open_tunnels": 0,
+            "raincoats": 5,
+            "reason": "win",
+            "ropes": 6,
+            "seed": 1008,
+            "turns": 33,
+            "visible_water": 0,
+            "won": True,
+        },
+        1099: {
+            "equipment_ready": True,
+            "exit_equipment_water_ready": False,
+            "exit_placed": True,
+            "final_open_tunnels": 17,
+            "raincoats": 5,
+            "reason": "deck_exhausted",
+            "ropes": 2,
+            "seed": 1099,
+            "turns": 69,
+            "visible_water": 2,
+            "won": False,
+        },
+    }
+
+    seen_rotations: set[int] = set()
+    for seed, expected_row in expected.items():
+        recorder = RecordingPolicy(ImmediateTieV7Policy())
+        result = play_game(
+            start_card=deck.start_easy,
+            deck=deck.draw_deck(),
+            hand_size=3,
+            policy=recorder,
+            seed=seed,
+        )
+
+        assert final_record(seed, result) == expected_row
+        assert recorder.last_state is not None
+        board = recorder.last_state.board
+        assert board.placements[0].kind is PlacementKind.START
+        assert any(
+            placement.kind is PlacementKind.EXIT
+            for placement in board.placements
+        )
+        seen_rotations.update(
+            placement.quarter_turns for placement in board.placements
+        )
+
+        root = ET.fromstring(
+            render_board_svg(
+                board,
+                metadata={
+                    "experiment": "V7",
+                    "game_index": seed - 999,
+                    "seed": seed,
+                    "outcome": "win" if result.won else "loss",
+                    "turns": result.turns,
+                },
+            )
+        )
+        assert root.attrib["data-open-tunnels"] == str(result.open_tunnels)
+        assert root.attrib["data-visible-water"] == str(
+            result.visible_water_cells
+        )
+        assert len(markers(root, "visible-water")) == result.visible_water_cells
+        assert any(
+            element.attrib.get("data-kind") == "exit"
+            for element in root.iter()
+        )
+
+    assert len(seen_rotations) >= 2
