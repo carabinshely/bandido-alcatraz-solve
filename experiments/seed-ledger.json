@@ -3,18 +3,49 @@
   "authority": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5912894282",
   "canonical_baseline": "BoundedMergeV4Policy(setup_weight=250)",
   "canonical_model_base": "c0a45313dba3b4076a529cce13a94a0e19aeb209",
-  "historically_observed_real_deck_ranges_inclusive": [[0,49],[100,129],[1000,1099],[2000,2399]],
+  "historically_observed_real_deck_ranges_inclusive": [
+    [
+      0,
+      49
+    ],
+    [
+      100,
+      129
+    ],
+    [
+      1000,
+      1099
+    ],
+    [
+      2000,
+      2399
+    ]
+  ],
   "historical_selected_subsets": "Included in these ranges; correctness invalidation never restores freshness",
-  "confirmation_ineligible_quarantine_inclusive": [[0,999999]],
+  "confirmation_ineligible_quarantine_inclusive": [
+    [
+      0,
+      999999
+    ]
+  ],
   "quarantine_meaning": "Conservative eligibility exclusion, not an assertion every seed was executed",
   "allocations": [
     {
       "research_step": 26,
-      "range_inclusive": [1000,1099],
+      "range_inclusive": [
+        1000,
+        1099
+      ],
       "role": "already-spent development",
-      "policies": ["V4-250", "V7 immediate-reward tie resolution"],
-      "state": "preregistered; execution receipt determines completion",
-      "fresh_or_confirmation": false
+      "policies": [
+        "V4-250",
+        "V7 immediate-reward tie resolution"
+      ],
+      "state": "complete",
+      "fresh_or_confirmation": false,
+      "evaluated_commit": "2e532c7e8a95397d586eb03cdfa840ea6a82e534",
+      "run_id": 36727412001,
+      "receipt_path": "experiments/real-deck-policy-v7/immediate-tie-development-2026-09-30.json"
     }
   ],
   "fresh_confirmation_allocations": [],

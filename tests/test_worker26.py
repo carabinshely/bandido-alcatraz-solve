@@ -6,7 +6,7 @@ import unittest
 from concurrent.futures import Future
 from unittest.mock import patch
 
-import run_worker26 as w
+from scripts import run_worker26 as w
 from bandido_alcatraz.board import Board
 from bandido_alcatraz.game import GameState
 from bandido_alcatraz.model import CardDefinition, CellSpec, Direction

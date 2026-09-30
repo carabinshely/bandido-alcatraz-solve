@@ -1,0 +1,96 @@
+{
+  "candidate_freeze_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5913030134",
+  "classification": "v7_immediate_tie_development_signal",
+  "evaluated_commit": "2e532c7e8a95397d586eb03cdfa840ea6a82e534",
+  "execution": {
+    "conclusion": "success",
+    "elapsed_seconds": 1512.648753674,
+    "job_id": 109927746102,
+    "run_attempt": 1,
+    "run_id": 36727412001,
+    "run_url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/36727412001",
+    "runner": "bandido-alcatraz-ci",
+    "synthetic_tests_passed": 12
+  },
+  "interpretation": [
+    "Spent development only; no confirmatory or population-win-rate claim",
+    "Fixed >=2 net-wins advancement threshold met exactly",
+    "Five gains and three lost baseline wins; no claim of winner preservation",
+    "Unchanged candidate may advance only under a separately preregistered larger development/validation design"
+  ],
+  "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5912894282",
+  "raw_artifact": {
+    "archive_bytes": 7324,
+    "archive_sha256": "734f6a271271fa4338c443f75460dd26e3e148d16c937f90ceb88eb3dae5602e",
+    "byte_readback_verified": true,
+    "drive_file_id": "1unzOSmeLEOjqaWJ6vbdw_O4rlY4PBKT9",
+    "drive_parent_folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+    "drive_url": "https://drive.google.com/file/d/1unzOSmeLEOjqaWJ6vbdw_O4rlY4PBKT9/view",
+    "github_artifact_id": 11104292026,
+    "journal_bytes": 50828,
+    "journal_sha256": "b4092189ff4b4f645f6c9dcf8c5fe1d285e0b396119ba2aa85d5e8c476b5f10c"
+  },
+  "receipt_bytes": 68165,
+  "receipt_path": "experiments/real-deck-policy-v7/immediate-tie-development-2026-09-30.json",
+  "receipt_sha256": "635064443ef9b27e01ff387c7a58917b85582f8d48592dc3ec2d2eae372f2e64",
+  "schema": "bandido-worker26-checkpoint-v1",
+  "source": {
+    "candidate_and_harness_path": "scripts/run_worker26.py",
+    "canonical_src_data_delta": "none",
+    "retained_reason": "fixed candidate passed development gate; retain exact evaluated source for prospectively registered continuation",
+    "sha256": "7db9c67fd3d95efc0a29376492bb96d2779848a9891ea0e6300eb3811f2f633d",
+    "synthetic_tests_moved_to_routine_pytest": "tests/test_worker26.py",
+    "temporary_workflow_removed": true
+  },
+  "starting_main": "c0a45313dba3b4076a529cce13a94a0e19aeb209",
+  "summary": {
+    "advance": true,
+    "both_lose": 90,
+    "both_win": [
+      1008,
+      1097
+    ],
+    "classification": "v7_immediate_tie_development_signal",
+    "gained": [
+      1031,
+      1047,
+      1086,
+      1088,
+      1096
+    ],
+    "lost": [
+      1012,
+      1056,
+      1087
+    ],
+    "net_wins": 2,
+    "v4_descriptive_rate": {
+      "interpretation": "descriptive on spent development; not confirmatory",
+      "rate": 0.05,
+      "wilson95": [
+        0.02154367915436796,
+        0.11175046923191913
+      ]
+    },
+    "v4_wins": 5,
+    "v7_descriptive_rate": {
+      "interpretation": "descriptive on spent development; not confirmatory",
+      "rate": 0.07,
+      "wilson95": [
+        0.03431926106727268,
+        0.137495147390735
+      ]
+    },
+    "v7_wins": 7
+  },
+  "verification": {
+    "baseline_exact_matches": 100,
+    "complete_records": 200,
+    "execution_head_routine_ci": 36727411874,
+    "failed_research_attempts": [],
+    "final_head_ci": "required after checkpoint push; record exact run in PR acceptance",
+    "journal_exact_matches": 200,
+    "source_and_harness_hashes_match": true,
+    "unique_seeds_per_policy": 100
+  }
+}
