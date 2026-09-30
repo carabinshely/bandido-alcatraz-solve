@@ -260,6 +260,11 @@ def main():
     except Exception as exc:
         receipt.update(status="diagnostic_invalid", classification="worker26_invalid",
                        error=f"{type(exc).__name__}: {exc}")
+    # A late save/reporting failure must not retain a stale successful interpretation.
+    receipt.pop("summary", None)
+    receipt["research_interpretation_performed"] = False
+    if receipt["status"] == "execution_blocked":
+        receipt["classification"] = None
     save()
     return 1
 

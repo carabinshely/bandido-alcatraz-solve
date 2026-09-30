@@ -125,11 +125,12 @@
     "post_execution_repairs": [
       "Bind current harness blob to HEAD before any seed and after execution",
       "Preserve previous attempt files and exclusively create a fresh journal",
-      "No candidate/scoring/model/data change; evaluated artifact harness hash independently matches frozen source"
+      "No candidate/scoring/model/data change; evaluated artifact harness hash independently matches frozen source",
+      "Clear successful interpretation fields if final persistence or reporting fails; preserve all completed records"
     ],
     "retained_reason": "fixed candidate passed development gate; retain exact evaluated source for prospectively registered continuation",
-    "sha256": "31af6f76c02bd44c272d51ecc56c814aae98698ff8cc446d52b36acef53c089a",
-    "synthetic_test_count_current": 14,
+    "sha256": "c537d6d81c2c58348bf3e5f407dad76fff62a005f1fb8535da5c85233842a130",
+    "synthetic_test_count_current": 15,
     "synthetic_tests_moved_to_routine_pytest": "tests/test_worker26.py",
     "temporary_workflow_removed": true
   },

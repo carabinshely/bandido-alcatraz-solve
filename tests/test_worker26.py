@@ -158,4 +158,26 @@ class CandidateTests(unittest.TestCase):
             self.assertFalse((p/"completed.jsonl").exists())
             self.assertEqual(r["completed_policy_seed_records"],0)
 
+    def test_late_save_and_reporting_failures_clear_interpretation(self):
+        expected=[{"seed":s,"won":False} for s in w.SEEDS]
+        class Pool:
+            def __enter__(self): return self
+            def __exit__(self,*args): return False
+            def submit(self,fn,task):
+                f=Future(); f.set_result({"seed":task[1],"won":task[1] in (1000,1001)}); return f
+        for failure in ("print", "save"):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as tmp:
+                original=w.write_json
+                def write(path, value):
+                    if failure=="save" and value.get("status")=="complete": raise OSError("final save failed")
+                    original(path,value)
+                with patch.object(w,"preflight",return_value=(expected,{})), patch.object(w,"one_game",side_effect=lambda t:{"seed":t[1],"won":False}), patch.object(w,"ProcessPoolExecutor",return_value=Pool()), patch.object(w,"write_json",side_effect=write), patch("builtins.print",side_effect=BrokenPipeError("stdout closed") if failure=="print" else None), patch("sys.argv",["test","--execute","--output",tmp]):
+                    self.assertEqual(w.main(),1)
+                r=json.loads((Path(tmp)/"receipt.json").read_text())
+                self.assertEqual(r["completed_policy_seed_records"],200)
+                self.assertEqual(r["status"],"execution_blocked")
+                self.assertIsNone(r["classification"])
+                self.assertFalse(r["research_interpretation_performed"])
+                self.assertNotIn("summary",r)
+
 if __name__ == "__main__": unittest.main()
