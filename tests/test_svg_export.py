@@ -293,6 +293,14 @@ def test_v7_metadata_is_exactly_pinned_without_running_the_batch() -> None:
         provenance["observer_board_blob"]
         == "e04e9255ecc9c8181ca49903dfb6501a67c8a482"
     )
+    assert (
+        provenance["raw_artifact_archive_sha256"]
+        == "734f6a271271fa4338c443f75460dd26e3e148d16c937f90ceb88eb3dae5602e"
+    )
+    assert (
+        provenance["receipt_json_sha256"]
+        == "635064443ef9b27e01ff387c7a58917b85582f8d48592dc3ec2d2eae372f2e64"
+    )
 
 
 def test_v7_export_rejects_invalid_worker_count_before_simulation(tmp_path: Path) -> None:
