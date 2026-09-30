@@ -213,7 +213,11 @@ def export_v7(
             "source_manifest": str(V7_MANIFEST.relative_to(ROOT)),
             "evaluated_commit": manifest["evaluated_commit"],
             "raw_receipt_drive_url": provenance["raw_receipt_drive_url"],
-            "raw_receipt_sha256": provenance["raw_receipt_sha256"],
+            "raw_artifact_archive_sha256": provenance[
+                "raw_artifact_archive_sha256"
+            ],
+            "receipt_json_name": provenance["receipt_json_name"],
+            "receipt_json_sha256": provenance["receipt_json_sha256"],
             "final_records_sha256": _final_records_sha256(final_rows),
             "final_records_checksum_verified": True,
             "seed_range_inclusive": manifest["seed_range_inclusive"],
