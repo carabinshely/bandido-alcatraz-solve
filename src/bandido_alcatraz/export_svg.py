@@ -4,9 +4,31 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 import json
 from pathlib import Path
+from random import Random
 
 from .board import Board
+from .game import GameState
+from .moves import Move
+from .policies import Policy
 from .render_svg import write_board_svg
+
+
+class FinalStateCapturePolicy:
+    """Transparent policy wrapper retaining the live final GameState reference."""
+
+    def __init__(self, inner: Policy) -> None:
+        self.inner = inner
+        self.last_state: GameState | None = None
+
+    def choose(self, state: GameState, rng: Random) -> Move | None:
+        self.last_state = state
+        return self.inner.choose(state, rng)
+
+    @property
+    def board(self) -> Board:
+        if self.last_state is None:
+            raise RuntimeError("game terminated before the policy observed a state")
+        return self.last_state.board
 
 
 @dataclass(frozen=True, slots=True)
