@@ -2,6 +2,8 @@ import json
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
+import pytest
+
 from bandido_alcatraz.board import Board, PlacementKind
 from bandido_alcatraz.export_svg import FinalBoardExport, export_final_boards
 from bandido_alcatraz.model import CardDefinition, CellSpec, Direction
@@ -12,6 +14,7 @@ from scripts.export_final_boards import (
     RecordingPolicy,
     _final_records_sha256,
     _load_and_validate_v7_metadata,
+    export_v7,
 )
 from scripts.run_worker26 import ImmediateTieV7Policy, final_record
 
@@ -279,6 +282,19 @@ def test_v7_metadata_is_exactly_pinned_without_running_the_batch() -> None:
         provenance["final_records_sha256"]
         == "d1921f03fa41d45140f482c4cb75ab414d09ce1de6f1a59081eecc2390d858da"
     )
+    assert (
+        provenance["candidate_and_harness_blob"]
+        == "94bc4ba6472404e0d414890e3e0d86145c78117a"
+    )
+    assert (
+        provenance["observer_board_blob"]
+        == "e04e9255ecc9c8181ca49903dfb6501a67c8a482"
+    )
+
+
+def test_v7_export_rejects_invalid_worker_count_before_simulation(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="workers must be positive"):
+        export_v7(tmp_path, workers=0)
 
 
 def test_real_v7_win_and_water_loss_preserve_historical_outcomes_and_render() -> None:
