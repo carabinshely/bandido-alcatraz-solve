@@ -57,14 +57,38 @@ placement information.
 
 ## Generic batch API
 
-For already-simulated final boards, construct `FinalBoardExport` records and
-call:
+To retain a final renderable board without modifying the simulation loop, wrap
+the existing policy in `FinalStateCapturePolicy`. The wrapper delegates the
+choice unchanged and only retains the live `GameState` reference that
+`play_game()` already passes to the policy:
 
 ```python
-from bandido_alcatraz.export_svg import FinalBoardExport, export_final_boards
+from bandido_alcatraz.export_svg import (
+    FinalBoardExport,
+    FinalStateCapturePolicy,
+    export_final_boards,
+)
+from bandido_alcatraz.simulate import play_game
+
+capture = FinalStateCapturePolicy(policy)
+result = play_game(
+    start_card=start_card,
+    deck=deck,
+    hand_size=3,
+    policy=capture,
+    seed=seed,
+)
+record = FinalBoardExport(
+    game_index=1,
+    board=capture.board,
+    seed=seed,
+    won=result.won,
+    turns=result.turns,
+    reason=result.reason,
+)
 
 export_final_boards(
-    records,
+    [record],
     "artifacts/final-boards",
     experiment="my-experiment",
     policy="my-policy",
@@ -73,6 +97,8 @@ export_final_boards(
 
 Records are sorted by `game_index`. The exporter does not filter losses.
 Stable filenames include game index, seed when present, and win/loss status.
+The capture wrapper adds no random-number-generator calls and does not change
+legal-move enumeration or the policy's selected move.
 
 ## V7 historical reconstruction
 
