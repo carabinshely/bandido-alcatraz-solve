@@ -16,7 +16,6 @@
   "historical_reconstruction": "deterministic-resimulation",
   "note": "The historical V7 artifact has final per-seed records but no physical-card placement traces. Exact boards are reconstructed by rerunning the frozen deterministic inputs. All canonical source blobs except the intentionally observer-augmented Board are verified; the accepted V7 candidate/harness blob and exact reviewed observer Board blob are pinned separately; all 100 final records are checksum-verified before any SVG is written.",
   "raw_receipt_drive_url": "https://drive.google.com/file/d/1unzOSmeLEOjqaWJ6vbdw_O4rlY4PBKT9/view",
-  "raw_receipt_sha256": "635064443ef9b27e01ff387c7a58917b85582f8d48592dc3ec2d2eae372f2e64",
   "schema": "bandido-v7-svg-export-provenance-v1",
   "seed_count": 100,
   "seed_range_inclusive": [
@@ -24,5 +23,10 @@
     1099
   ],
   "candidate_and_harness_blob": "94bc4ba6472404e0d414890e3e0d86145c78117a",
-  "observer_board_blob": "e04e9255ecc9c8181ca49903dfb6501a67c8a482"
+  "observer_board_blob": "e04e9255ecc9c8181ca49903dfb6501a67c8a482",
+  "raw_artifact_archive_sha256": "734f6a271271fa4338c443f75460dd26e3e148d16c937f90ceb88eb3dae5602e",
+  "raw_artifact_archive_bytes": 7324,
+  "receipt_json_name": "receipt.json",
+  "receipt_json_sha256": "635064443ef9b27e01ff387c7a58917b85582f8d48592dc3ec2d2eae372f2e64",
+  "receipt_json_bytes": 68165
 }
