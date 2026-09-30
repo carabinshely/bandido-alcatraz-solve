@@ -98,11 +98,14 @@ Pinned V7 inputs:
 - deck: `data/deck-v1.json`;
 - EXIT geometry: `data/deck-observations-v0.json`.
 
-The export command first verifies the pinned deck/EXIT Git blob identities,
-runs all 100 games with the frozen V7 policy, then compares the complete
-normalized final-record set against the SHA-256 checksum derived from the
-durable 2026-09-30 receipt. It also verifies the exact seven historical win
-seeds. If either check differs, it aborts **before writing SVGs**.
+The export command first verifies every canonical source/data Git blob from the
+V7 manifest except the intentionally observer-augmented `Board`. It separately
+pins the exact accepted V7 candidate/harness blob and the exact reviewed
+placement-history `Board` blob. It then runs all 100 games with the frozen V7
+policy and compares the complete normalized final-record set against the
+SHA-256 checksum derived from the durable 2026-09-30 receipt. It also verifies
+the exact seven historical win seeds. Any source or result mismatch aborts
+**before writing SVGs**.
 
 This is stronger than silently assuming current code still reproduces V7.
 
@@ -137,6 +140,10 @@ artifacts/v7-final-boards/
 
 The folder contains all 100 games, wins and losses alike. Open any SVG directly
 in a browser or file manager; no special viewer is required.
+
+By default the replay uses four independent worker processes. Each seed gets a
+fresh deck, policy, and random-number generator, and ordered `map()` collection
+preserves deterministic output order. For serial debugging, add `--workers 1`.
 
 ## Historical and scope limitations
 
