@@ -152,6 +152,13 @@ def _simulate_v7(
         zip(seeds, simulated, strict=True),
         start=1,
     ):
+        if (
+            board.open_tunnels != int(row["final_open_tunnels"])
+            or board.visible_water_cells != int(row["visible_water"])
+        ):
+            raise RuntimeError(
+                f"V7 seed {seed} captured board does not match its final record"
+            )
         final_rows.append(row)
         exports.append(
             FinalBoardExport(
