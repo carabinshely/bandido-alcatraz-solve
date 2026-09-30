@@ -19,6 +19,10 @@
     [
       2000,
       2399
+    ],
+    [
+      1000000,
+      1000399
     ]
   ],
   "historical_selected_subsets": "Included in these ranges; correctness invalidation never restores freshness",
@@ -26,6 +30,10 @@
     [
       0,
       999999
+    ],
+    [
+      1000000,
+      1000399
     ]
   ],
   "quarantine_meaning": "Conservative eligibility exclusion, not an assertion every seed was executed",
@@ -46,6 +54,46 @@
       "evaluated_commit": "2e532c7e8a95397d586eb03cdfa840ea6a82e534",
       "run_id": 36727412001,
       "manifest_path": "experiments/real-deck-policy-v7/immediate-tie-development-2026-09-30.manifest.json"
+    },
+    {
+      "research_step": 27,
+      "range_inclusive": [
+        1000000,
+        1000399
+      ],
+      "role": "spent development; never confirmation",
+      "confirmation_eligible": false,
+      "policies": [
+        "V4-250",
+        "unchanged V7 immediate-reward tie resolution"
+      ],
+      "state": "complete",
+      "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5914705341",
+      "fixed_shards": [
+        [
+          1000000,
+          1000099
+        ],
+        [
+          1000100,
+          1000199
+        ],
+        [
+          1000200,
+          1000299
+        ],
+        [
+          1000300,
+          1000399
+        ]
+      ],
+      "advancement_gate_net_wins": 8,
+      "allocated_as": "fresh development; never confirmation",
+      "evaluated_commit": "f99f1808de7133c31ddba53dba4a66d73f386dc8",
+      "run_id": 36740756141,
+      "manifest_path": "experiments/real-deck-policy-v7/fresh-development-1000000-1000399-2026-09-30.manifest.json",
+      "classification": "v7_fresh_development_no_advancement",
+      "candidate_advanced": false
     }
   ],
   "fresh_confirmation_allocations": [],
@@ -71,6 +119,9 @@
     ],
     "2000-2399": [
       "scripts/run_real_policy_v4_stability_holdout.py"
+    ],
+    "1000000-1000399": [
+      "experiments/real-deck-policy-v7/fresh-development-1000000-1000399-2026-09-30.manifest.json"
     ]
   }
 }

@@ -1,0 +1,314 @@
+{
+  "classification": "v7_fresh_development_no_advancement",
+  "cleanup": {
+    "canonical_source_data_policy_changes": "none",
+    "pinned_execution_source_remains_in_history": true,
+    "raw_per_seed_payload_in_git": false,
+    "transient_execution_harness_and_tests_removed": true,
+    "transient_workflow_removed": true
+  },
+  "dataset_status": "now spent development; excluded from future confirmation",
+  "evaluated_commit": "f99f1808de7133c31ddba53dba4a66d73f386dc8",
+  "execution": {
+    "all_jobs_conclusion": "success",
+    "baseline_job": 109974212946,
+    "candidate_workers_per_shard": 4,
+    "compute_limit_minutes": 95,
+    "execution_head_routine_ci": 36740755762,
+    "failed_attempts": [],
+    "fixed_shards": [
+      [
+        1000000,
+        1000099
+      ],
+      [
+        1000100,
+        1000199
+      ],
+      [
+        1000200,
+        1000299
+      ],
+      [
+        1000300,
+        1000399
+      ]
+    ],
+    "job_limit_minutes": 120,
+    "run_attempt": 1,
+    "run_id": 36740756141,
+    "run_url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/36740756141",
+    "runner": "bandido-alcatraz-ci",
+    "shard_jobs": {
+      "0": 109975707395,
+      "1": 109975707574,
+      "2": 109975707437,
+      "3": 109975707462
+    }
+  },
+  "experiment_id": "worker27-v7-fresh-development-2026-09-30",
+  "final_head_ci": "Required after checkpoint push; exact run recorded in PR acceptance",
+  "fixed_configuration": {
+    "baseline": {
+      "class": "BoundedMergeV4Policy",
+      "complete_weights": {
+        "bounded_merge_setup_gain": 250,
+        "closes_last_without_win": -1000000,
+        "collect_degree_one": 0,
+        "collect_excess": 0,
+        "collect_needed": 10000,
+        "delta_merge_opportunities": 0,
+        "delta_open_tunnels": 100,
+        "delta_visible_water": 20000,
+        "delta_water_obstruction": 1000,
+        "new_trapped_water": -100000,
+        "places_exit_early": -5000,
+        "places_exit_ready": 5000,
+        "wins": 1000000
+      },
+      "parameters": {
+        "setup_weight": 250
+      }
+    },
+    "candidate": {
+      "accepted_helper_blob": "94bc4ba6472404e0d414890e3e0d86145c78117a",
+      "class": "ImmediateTieV7Policy",
+      "hidden_draw_input": false,
+      "lookahead_actions": 2,
+      "ordering": "canonical legal first-action order",
+      "parameters": {},
+      "primary_score": "existing V6 undiscounted two-action no-draw sequence reward",
+      "rng": "one final choice among lexicographic-maximal actions; zero rollout RNG",
+      "secondary_score": "immediate V4-250 no-draw reward",
+      "weights": "identical to complete baseline weights above"
+    },
+    "canonical_source_blobs": {
+      "data/README.md": "2ac91d9da6769934c78a90ba865f3d558f48bbd2",
+      "data/deck-observations-v0.json": "ee38d60277c79dafa7527876367e3e6450ccb53f",
+      "data/deck-v1.json": "9fa2066507ff9a0fb6b922d52e84529b35acb05e",
+      "data/owner-photo-inventory-v0.json": "5911fdeea4138421945d0cffd69908088cad5639",
+      "data/proxy-bandido-covid-v0.json": "a9e3013f58a94216e920637461331e3c8fccdeae",
+      "experiments/real-deck-policy-v6/changed-outcome-trace-audit-2026-09-29.manifest.json": "70a21065eabea8b4caf39e3b12a1f8432beb0009",
+      "experiments/real-deck-policy-v6/current-model-spent-development-1000-1099-2026-09-28.json": "7a6e6bfa404cc35a38b0e49a16bc0247a612d287",
+      "src/bandido_alcatraz/__init__.py": "425141547c12e61eee6ecafd5b7136322f0af6d4",
+      "src/bandido_alcatraz/board.py": "b4f76b6f948eaffe320855156e569a596fe6c213",
+      "src/bandido_alcatraz/catalog.py": "e82ca3d70310281bf5a6c4f325e10f0083d7b0b3",
+      "src/bandido_alcatraz/deck_data.py": "6e997e464736bcd0ad79f6115ff69f3967cd57f5",
+      "src/bandido_alcatraz/evaluate.py": "9674538171557345d27f6de75920253e3eab4ebf",
+      "src/bandido_alcatraz/fixtures.py": "a12d395871a6a5e2d1c2011c5ac628878a2d5dde",
+      "src/bandido_alcatraz/game.py": "73d79daa011ff5493b02966fe1157a5ada17df73",
+      "src/bandido_alcatraz/model.py": "dc469a82a5fab7574aebe25a18543494494f4b11",
+      "src/bandido_alcatraz/moves.py": "84007416428f3b2b94895765db4d17e0adda833b",
+      "src/bandido_alcatraz/optimize.py": "f6685a7d3b175f7846f96e83261962a951c3d51b",
+      "src/bandido_alcatraz/photo_geometry.py": "eb40808af9616b2d77c3e6519e010021992d364a",
+      "src/bandido_alcatraz/physical_deck.py": "7ba9df058b38f3d0300daf65a8b6cc3595845490",
+      "src/bandido_alcatraz/policies.py": "0be6b930fdf18e5aac15a75e63eb32aea71f3b68",
+      "src/bandido_alcatraz/proxy.py": "7c590565591d558e1d18d38a8471abd02bcac156",
+      "src/bandido_alcatraz/proxy_data.py": "c0d63b6d0de90626600cb0d1ca5fa6917c7908f4",
+      "src/bandido_alcatraz/rules.py": "55a9df4d73f641104b3b3d842f333e53c623c75d",
+      "src/bandido_alcatraz/simulate.py": "b2d25ecd0714b5515215047ffcaa471eede3f6e4",
+      "src/bandido_alcatraz/strategy.py": "55374c0391f0efc0f783c0b86baf12c40c79f42c"
+    },
+    "deck_blob": "9fa2066507ff9a0fb6b922d52e84529b35acb05e",
+    "deck_file": "data/deck-v1.json",
+    "development_advancement_rule": "candidate wins - baseline wins >= 8 on all400pairedseeds",
+    "equipment_thresholds": {
+      "comparison": ">=",
+      "raincoats": 3,
+      "ropes": 2
+    },
+    "exit_geometry_blob": "ee38d60277c79dafa7527876367e3e6450ccb53f",
+    "exit_geometry_file": "data/deck-observations-v0.json",
+    "hand_size": 3,
+    "ruleset": "v0-threshold-equipment",
+    "start_side": "easy-5-exit"
+  },
+  "freeze_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5914896546",
+  "fresh_at_allocation": true,
+  "integrity": {
+    "all_source_provenance_identical": true,
+    "baseline_exact_matches": 100,
+    "baseline_replay_seeds": [
+      1000,
+      1099
+    ],
+    "complete_pairs": 400,
+    "complete_policy_records": 800,
+    "journal_pair_matches": 400,
+    "live_pinned_source_blobs_independently_verified": true,
+    "pair_sidecar_matches": 400,
+    "source_provenance": {
+      "candidate_blob": "94bc4ba6472404e0d414890e3e0d86145c78117a",
+      "canonical_source_blobs": {
+        "data/README.md": "2ac91d9da6769934c78a90ba865f3d558f48bbd2",
+        "data/deck-observations-v0.json": "ee38d60277c79dafa7527876367e3e6450ccb53f",
+        "data/deck-v1.json": "9fa2066507ff9a0fb6b922d52e84529b35acb05e",
+        "data/owner-photo-inventory-v0.json": "5911fdeea4138421945d0cffd69908088cad5639",
+        "data/proxy-bandido-covid-v0.json": "a9e3013f58a94216e920637461331e3c8fccdeae",
+        "experiments/real-deck-policy-v6/changed-outcome-trace-audit-2026-09-29.manifest.json": "70a21065eabea8b4caf39e3b12a1f8432beb0009",
+        "experiments/real-deck-policy-v6/current-model-spent-development-1000-1099-2026-09-28.json": "7a6e6bfa404cc35a38b0e49a16bc0247a612d287",
+        "src/bandido_alcatraz/__init__.py": "425141547c12e61eee6ecafd5b7136322f0af6d4",
+        "src/bandido_alcatraz/board.py": "b4f76b6f948eaffe320855156e569a596fe6c213",
+        "src/bandido_alcatraz/catalog.py": "e82ca3d70310281bf5a6c4f325e10f0083d7b0b3",
+        "src/bandido_alcatraz/deck_data.py": "6e997e464736bcd0ad79f6115ff69f3967cd57f5",
+        "src/bandido_alcatraz/evaluate.py": "9674538171557345d27f6de75920253e3eab4ebf",
+        "src/bandido_alcatraz/fixtures.py": "a12d395871a6a5e2d1c2011c5ac628878a2d5dde",
+        "src/bandido_alcatraz/game.py": "73d79daa011ff5493b02966fe1157a5ada17df73",
+        "src/bandido_alcatraz/model.py": "dc469a82a5fab7574aebe25a18543494494f4b11",
+        "src/bandido_alcatraz/moves.py": "84007416428f3b2b94895765db4d17e0adda833b",
+        "src/bandido_alcatraz/optimize.py": "f6685a7d3b175f7846f96e83261962a951c3d51b",
+        "src/bandido_alcatraz/photo_geometry.py": "eb40808af9616b2d77c3e6519e010021992d364a",
+        "src/bandido_alcatraz/physical_deck.py": "7ba9df058b38f3d0300daf65a8b6cc3595845490",
+        "src/bandido_alcatraz/policies.py": "0be6b930fdf18e5aac15a75e63eb32aea71f3b68",
+        "src/bandido_alcatraz/proxy.py": "7c590565591d558e1d18d38a8471abd02bcac156",
+        "src/bandido_alcatraz/proxy_data.py": "c0d63b6d0de90626600cb0d1ca5fa6917c7908f4",
+        "src/bandido_alcatraz/rules.py": "55a9df4d73f641104b3b3d842f333e53c623c75d",
+        "src/bandido_alcatraz/simulate.py": "b2d25ecd0714b5515215047ffcaa471eede3f6e4",
+        "src/bandido_alcatraz/strategy.py": "55374c0391f0efc0f783c0b86baf12c40c79f42c"
+      },
+      "head": "f99f1808de7133c31ddba53dba4a66d73f386dc8",
+      "ledger_blob": "0c4efc607d4677a8908c1a140bea178723d1f530",
+      "reference_sha256": "729acc183ce7b7f0d3aecb743d039c847667b45ae2b3cf029602d5931b3ed07b",
+      "worker27_harness_blob": "406fbad079e895e98798c12f3ad37e6e048817de",
+      "worker27_harness_sha256": "5da334185284f1852809f978d61c5d6f7da7be9cf2ed78dcb640f2c0707090d6"
+    }
+  },
+  "interpretation": [
+    "Net+3 is below the prospectively fixed+8 advancement gate",
+    "V7 does not advance to confirmation from this screen",
+    "Positive point difference is not proof of no effect or proof of improvement",
+    "No pooling with spent Worker26 results or post-outcome threshold change",
+    "Close this candidate refinement line and choose a separately preregistered different question after acceptance"
+  ],
+  "paired_games": 400,
+  "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5914705341",
+  "raw_artifact": {
+    "archive_bytes": 133003,
+    "archive_sha256": "d6894c6021ec749a9882f2bf11edec3a0147db10a986257c524ab7e6c70ac048",
+    "contained_actions_archives": [
+      {
+        "archive_bytes": 44399,
+        "archive_sha256": "851ac14710cfc2a343e7e66938c5c929d089aba9ded4a65db7ee675fb20749f6",
+        "artifact_id": 11117482368,
+        "label": "shard-1",
+        "receipt_bytes": 86364,
+        "receipt_sha256": "054221fd148ae14ee36addadfd495545a613d4e4bfca1306d6f4048eef7526f2"
+      },
+      {
+        "archive_bytes": 44557,
+        "archive_sha256": "9cfe2c6b7e7a11cb2dcf1a4a29fb0ef6c00a89f49b411b0dd36f9be53e496c1e",
+        "artifact_id": 11114616996,
+        "label": "shard-3",
+        "receipt_bytes": 86433,
+        "receipt_sha256": "002e9102a928bd6a4da3d88152f36fd7858874dee564bd7c4a05cf9c2cf69979"
+      },
+      {
+        "archive_bytes": 44611,
+        "archive_sha256": "46014fc71898e6ebfa873aafbbc232e693975b2dc00f51882bd84cf9ee669b2b",
+        "artifact_id": 11113900067,
+        "label": "shard-2",
+        "receipt_bytes": 86480,
+        "receipt_sha256": "7db0d663eddeb3f51ef9562332eae31050e7b0025e203fd68408959d38354799"
+      },
+      {
+        "archive_bytes": 44824,
+        "archive_sha256": "9aff9b380028f61cf9a5ef63b884d882b60053fcde1f011c964931079527ec16",
+        "artifact_id": 11110904503,
+        "label": "shard-0",
+        "receipt_bytes": 86357,
+        "receipt_sha256": "a84045f9100c1e8bce4506d9926bf212f936c8fb581749bb9eb9f2b066c07ba8"
+      },
+      {
+        "archive_bytes": 3453,
+        "archive_sha256": "f2ef3154a831a945e1b5cfe4a5de8bdaf3a8571e334167b4376d291fe28d05f3",
+        "artifact_id": 11109249737,
+        "label": "baseline",
+        "receipt_bytes": 35863,
+        "receipt_sha256": "f71cde888af0a664507310aed545bda15eedcb49b088c13ce0e147b23dd5b3a6"
+      }
+    ],
+    "drive_file_id": "1v76wC8endHNLHYVRb6yR-qZdhF-YKrD4",
+    "drive_parent_folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+    "drive_url": "https://drive.google.com/file/d/1v76wC8endHNLHYVRb6yR-qZdhF-YKrD4/view",
+    "fresh_byte_readback_verified": true
+  },
+  "reproduce": {
+    "aggregator": "scripts/aggregate_worker27.py",
+    "aggregator_sha256": "3a501fad5ffc7dd78e7443814746bace988338ffb3cc23b3ed99c704395109dc",
+    "command": "python scripts/aggregate_worker27.py <canonical-Drive-ZIP> --output <summary.json>",
+    "reference_path": "experiments/real-deck-policy-v6/current-model-spent-development-1000-1099-2026-09-28.json",
+    "reference_sha256": "729acc183ce7b7f0d3aecb743d039c847667b45ae2b3cf029602d5931b3ed07b"
+  },
+  "schema": "bandido-worker27-checkpoint-v1",
+  "schema_version": 1,
+  "seed_range_inclusive": [
+    1000000,
+    1000399
+  ],
+  "starting_main": "9324d15aec6e17f4b29c947fb0d846fe948b7fa1",
+  "summary": {
+    "advance": false,
+    "advancement_threshold_net_wins": 8,
+    "both_lose": 375,
+    "both_win": [],
+    "classification": "v7_fresh_development_no_advancement",
+    "evaluated_commit": "f99f1808de7133c31ddba53dba4a66d73f386dc8",
+    "gained": [
+      1000004,
+      1000019,
+      1000092,
+      1000097,
+      1000132,
+      1000176,
+      1000212,
+      1000228,
+      1000280,
+      1000301,
+      1000308,
+      1000315,
+      1000347,
+      1000353
+    ],
+    "interpretation": "Fixed development gate only; no pooled or confirmatory inference",
+    "lost": [
+      1000029,
+      1000099,
+      1000135,
+      1000169,
+      1000175,
+      1000179,
+      1000196,
+      1000213,
+      1000232,
+      1000276,
+      1000356
+    ],
+    "net_wins": 3,
+    "paired_games": 400,
+    "schema": "worker27-aggregate-v1",
+    "seed_range_inclusive": [
+      1000000,
+      1000399
+    ],
+    "v4": {
+      "games": 400,
+      "interpretation": "development only; non-confirmatory",
+      "rate": 0.0275,
+      "wilson95": [
+        0.015423636260295411,
+        0.048565481885614784
+      ],
+      "wins": 11
+    },
+    "v7": {
+      "games": 400,
+      "interpretation": "development only; non-confirmatory",
+      "rate": 0.035,
+      "wilson95": [
+        0.02096129419797776,
+        0.057885139532918004
+      ],
+      "wins": 14
+    }
+  }
+}
