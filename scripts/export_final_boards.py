@@ -7,14 +7,17 @@ import json
 from pathlib import Path
 import subprocess
 import sys
-from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 for entry in (ROOT, ROOT / "src"):
     if str(entry) not in sys.path:
         sys.path.insert(0, str(entry))
 
-from bandido_alcatraz.export_svg import FinalBoardExport, export_final_boards
+from bandido_alcatraz.export_svg import (
+    FinalBoardExport,
+    FinalStateCapturePolicy,
+    export_final_boards,
+)
 from bandido_alcatraz.physical_deck import load_real_deck
 from bandido_alcatraz.simulate import play_game
 from scripts.run_worker26 import ImmediateTieV7Policy, final_record
@@ -31,18 +34,6 @@ V7_EXPORT_PROVENANCE = (
     / "real-deck-policy-v7"
     / "svg-export-provenance-2026-09-30.json"
 )
-
-
-class RecordingPolicy:
-    """Delegate policy decisions while retaining the live final GameState reference."""
-
-    def __init__(self, inner: Any) -> None:
-        self.inner = inner
-        self.last_state = None
-
-    def choose(self, state, rng):
-        self.last_state = state
-        return self.inner.choose(state, rng)
 
 
 def _git_blob_sha(path: Path) -> str:
@@ -121,7 +112,7 @@ def _load_and_validate_v7_metadata() -> tuple[dict[str, object], dict[str, objec
 def _simulate_v7_game(seed: int):
     """Run one independent frozen V7 game and return its final renderable state."""
     deck = load_real_deck(ROOT / "data")
-    recorder = RecordingPolicy(ImmediateTieV7Policy())
+    recorder = FinalStateCapturePolicy(ImmediateTieV7Policy())
     result = play_game(
         start_card=deck.start_easy,
         deck=deck.draw_deck(),
@@ -129,9 +120,7 @@ def _simulate_v7_game(seed: int):
         policy=recorder,
         seed=seed,
     )
-    if recorder.last_state is None:
-        raise RuntimeError(f"V7 seed {seed} terminated before policy observation")
-    return result, recorder.last_state.board, final_record(seed, result)
+    return result, recorder.board, final_record(seed, result)
 
 
 def _simulate_v7(
