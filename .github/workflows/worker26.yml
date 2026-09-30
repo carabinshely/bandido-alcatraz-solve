@@ -1,0 +1,50 @@
+name: Worker26 spent development
+on:
+  pull_request:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  development:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'research/worker26-immediate-tie-development'
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        timeout-minutes: 2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        timeout-minutes: 3
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e '.[dev]'
+        timeout-minutes: 3
+      - name: Synthetic candidate and failure-path tests
+        id: synthetic
+        timeout-minutes: 1
+        run: python -m unittest discover -s scripts -p test_worker26.py -v
+      - name: Frozen development cohort
+        id: cohort
+        timeout-minutes: 102
+        env:
+          EVALUATED_COMMIT: ${{ github.event.pull_request.head.sha }}
+          PYTHONHASHSEED: '0'
+        run: timeout --signal=TERM --kill-after=30s 6000s python scripts/run_worker26.py --execute
+      - name: Finalize interrupted or failed receipt
+        if: always()
+        timeout-minutes: 2
+        env:
+          EVALUATED_COMMIT: ${{ github.event.pull_request.head.sha }}
+          PYTHONPATH: src
+        run: python scripts/run_worker26.py --finalize --step-outcome '${{ steps.cohort.outcome }}' --tests-outcome '${{ steps.synthetic.outcome }}'
+      - name: Preserve receipt and partial records even on failure
+        if: always()
+        timeout-minutes: 5
+        uses: actions/upload-artifact@v4
+        with:
+          name: worker26-${{ github.run_id }}-${{ github.run_attempt }}
+          path: worker26-output/
+          if-no-files-found: warn
