@@ -1,5 +1,7 @@
 # V5 visible-repair-reserve design
 
+> **Historical strategy design.** The body below is preserved under its original model. Its board/hand-only legal-move contract predates quota-limited COLLECT; current legality also depends on the public equipment counts. See [modeling-v2](../modeling-v2.md) for the current canonical rules.
+
 Status: **preregistered implementation design; not implemented or evaluated**
 
 Date: 2026-09-23

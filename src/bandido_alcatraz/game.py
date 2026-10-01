@@ -6,7 +6,7 @@ from random import Random
 from .board import Board
 from .model import CardDefinition, Material
 from .moves import Action, Move, legal_moves
-from .rules import GameStatus, is_victory
+from .rules import GameStatus, can_collect, is_victory
 from .setup import GameSetup, StartSide
 
 
@@ -50,7 +50,7 @@ class PlayerObservation:
         return is_victory(self.status)
 
     def legal_moves(self):
-        return legal_moves(self.board, self.hand)
+        return legal_moves(self.board, self.hand, raincoats=self.raincoats, ropes=self.ropes)
 
 
 @dataclass(slots=True)
@@ -165,12 +165,21 @@ class GameState:
         return not self.hand and not self.draw_pile and not self.won
 
     def legal_moves(self) -> list[Move]:
-        return legal_moves(self.board, tuple(self.hand))
+        return legal_moves(self.board, tuple(self.hand), raincoats=self.raincoats, ropes=self.ropes)
 
     def apply(self, move: Move, *, validate: bool = True) -> None:
         self.setup.require_supported_execution()
         if move.hand_index < 0 or move.hand_index >= len(self.hand):
             raise IndexError("hand_index out of range")
+
+        # A prevalidated move can become stale after the quota changes. Enforce
+        # collection legality before touching any public or private state,
+        # including the validate=False scoring/preview path.
+        card = self.hand[move.hand_index]
+        if move.action is Action.COLLECT and not can_collect(
+            card.material, raincoats=self.raincoats, ropes=self.ropes,
+        ):
+            raise ValueError("illegal collect: material absent or quota already met")
 
         if validate and move not in self.legal_moves():
             raise ValueError("illegal move")
@@ -208,11 +217,11 @@ class GameState:
         batch_size = len(self.hand)
 
         # With more than one replacement batch remaining, returning the same
-        # three-card hand to the draw pile can otherwise rotate forever when
+        # whole hand to the draw pile can otherwise rotate forever when
         # no remaining card is playable on the current board. Detect that
         # terminal state before cycling the hand.
         if len(self.draw_pile) > batch_size and not legal_moves(
-            self.board, tuple(self.draw_pile)
+            self.board, tuple(self.draw_pile), raincoats=self.raincoats, ropes=self.ropes,
         ):
             return False
 

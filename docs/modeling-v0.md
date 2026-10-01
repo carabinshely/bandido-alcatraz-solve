@@ -1,5 +1,7 @@
 # Modeling v0
 
+> **Historical model (superseded).** The threshold model below is preserved for historical provenance. Current exact-equipment and quota-limited COLLECT rules are documented in [modeling-v2](modeling-v2.md).
+
 ## Principle
 
 Start with the smallest useful model. Do not add restrictions that are not needed to explore strategy.

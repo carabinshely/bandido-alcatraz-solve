@@ -1,0 +1,102 @@
+{
+  "actions_artifact": {
+    "archive": {
+      "sha256": "f386354106cbdda716de84a01ac9568ef229d5e7b3ae26a32af3279134514e89",
+      "size_bytes": 2569475
+    },
+    "id": 11146002287,
+    "journal": {
+      "sha256": "c4b0710e8fbb3b7d949336ad4de39a152f051872c6427100a786299f3f3abe70",
+      "size_bytes": 12728300
+    },
+    "member_count": 802,
+    "receipt": {
+      "sha256": "d6ab96f88bd32ad694c9a0e89c475ca0cf36b3b5904c840e4dda002938c6fd6c",
+      "size_bytes": 26542
+    }
+  },
+  "diagnostic_only": {
+    "exact_replay_matches": 400,
+    "games_per_pass": 400,
+    "overshot_quota": 383,
+    "wins_per_pass": 14
+  },
+  "evaluated_commit": "bf7b1273f8f87b7bc50ccf1ce61acc0f97e9a7f9",
+  "execution": {
+    "conclusion": "success",
+    "job_id": 110253597109,
+    "python": "3.11.16",
+    "routine_execution_head_ci": 36826613413,
+    "run_attempt": 1,
+    "run_id": 36826613482,
+    "runner": "bandido-alcatraz-ci"
+  },
+  "historical_manifest_commit": "ff0da98b9f547c4bba88ca63cc6dc64b5502619f",
+  "historical_manifest_path": "experiments/canonical-exact-solo-baseline/baseline-2026-10-01.manifest.json",
+  "interpretation": "Reproducible under frozen v1 only; not current canonical baseline, candidate comparison or confirmation. Do not salvage a subset or require new-model outcomes to match these outcomes. Raw evidence unchanged.",
+  "model_commit": "45a17097c814e327439cb67404b75c4b4f7dd9b5",
+  "population": {
+    "confirmation_eligible": false,
+    "count": 400,
+    "order": "serial ascending, full population each pass",
+    "passes": 2,
+    "role": "spent model-validation baseline; never confirmation",
+    "seeds_inclusive": [
+      1000000,
+      1000399
+    ]
+  },
+  "raw_bundles": [
+    {
+      "bytes": 2492199,
+      "contents": [
+        "actions-artifact.zip",
+        "README.txt",
+        "metadata.json",
+        "inventory.json",
+        "accepted-source-blobs.json",
+        "verified-summary.json",
+        "baseline-job.log",
+        "verify_worker29_baseline.py"
+      ],
+      "drive_id": "1ykEIlOShV51dgofyCNFkK9OPWpFe5_uF",
+      "drive_url": "https://drive.google.com/file/d/1ykEIlOShV51dgofyCNFkK9OPWpFe5_uF/view",
+      "folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+      "fresh_byte_readback_verified": true,
+      "sha256": "14b600b246fc8248e0a7bb5581f3fd0250403223c36da18c24138d2a792d8669"
+    },
+    {
+      "bytes": 2491709,
+      "contents": [
+        "actions-artifact.zip",
+        "README.txt",
+        "metadata.json",
+        "inventory.json",
+        "accepted-source-blobs.json",
+        "verified-summary.json",
+        "baseline-job.log",
+        "verify_worker29_baseline.py"
+      ],
+      "drive_id": "1WUML6IMKv7FzCmiqKzc0L2xgJmx_tUHh",
+      "drive_url": "https://drive.google.com/file/d/1WUML6IMKv7FzCmiqKzc0L2xgJmx_tUHh/view",
+      "folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+      "fresh_byte_readback_verified": true,
+      "sha256": "d4b1b1e379fa813ba2c06ac578f07806a8708264da7fcaef1f048360311bc194",
+      "status": "Preserved preliminary verifier snapshot; raw Actions archive unchanged; superseded only by stricter offline verifier packaging."
+    }
+  ],
+  "research_step": 29,
+  "resumption_authority": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5927093199",
+  "review_status": {
+    "accepted": false,
+    "adversarial": "clean at ff0da98",
+    "ci_run": 36830539428,
+    "exhaustive": "clean at ff0da98",
+    "external": "one unresolved P2 archive/JSON post-stat bounded read; must repair if verifier is reused",
+    "external_finding_url": "https://github.com/carabinshely/bandido-alcatraz-solve/pull/30#discussion_r4152936739"
+  },
+  "ruleset": "v1-exact-equipment-full-hand-refresh",
+  "schema": "bandido-superseded-checkpoint-v1",
+  "status": "superseded before acceptance; PR30 closed unmerged",
+  "supersession_authority": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5926947312"
+}

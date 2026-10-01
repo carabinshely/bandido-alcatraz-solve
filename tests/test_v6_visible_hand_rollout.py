@@ -166,7 +166,8 @@ def test_no_draw_preview_remaps_all_original_hand_indexes(
         card("b", set(), material=Material.ROPE),
         card("c", set(), material=Material.RAINCOAT),
     ]
-    state = one_open_state(hand, coats=3, ropes=2)
+    # Leave room for either material: remapping must start with a legal COLLECT.
+    state = one_open_state(hand, coats=2, ropes=1)
     move = collect_move(state, consumed_index)
 
     preview = preview_move_without_draw(state, move)
@@ -189,7 +190,7 @@ def assert_feature_equivalence(
     return pure
 
 
-def test_feature_equivalence_needed_and_excess_collect() -> None:
+def test_feature_equivalence_needed_collect_and_rejection_of_excess() -> None:
     needed_state = one_open_state(
         [card("coat", set(), material=Material.RAINCOAT)],
         coats=2,
@@ -207,12 +208,12 @@ def test_feature_equivalence_needed_and_excess_collect() -> None:
         coats=3,
         ropes=2,
     )
-    excess = assert_feature_equivalence(
-        excess_state,
-        collect_move(excess_state, 0),
-    )
-    assert excess.collect_needed == 0
-    assert excess.collect_excess == 1
+    # Historic excess-collection features are no longer reachable by legal play.
+    excess_move = Move(Action.COLLECT, 0)
+    assert excess_move not in excess_state.legal_moves()
+    for features in (move_features, move_features_no_draw):
+        with pytest.raises(ValueError, match="illegal collect"):
+            features(excess_state, excess_move)
 
 
 def test_feature_equivalence_water_reduction() -> None:
@@ -421,7 +422,7 @@ def test_first_collect_can_switch_retained_exit_from_early_to_ready() -> None:
     assert after_features.places_exit_early == 0
 
 
-def test_terminal_first_action_win_uses_only_score1() -> None:
+def test_terminal_first_action_win_uses_only_score1(monkeypatch) -> None:
     state = one_open_state(
         [
             card("exit", {Direction.WEST}, is_exit=True),
@@ -433,6 +434,16 @@ def test_terminal_first_action_win_uses_only_score1() -> None:
     )
     move = one_open_place(state, 0)
 
+    # With exact quotas filled, the retained collections are now illegal. Check
+    # the terminal short circuit directly so this cannot pass only because the
+    # successor happens to have no legal second action.
+    original_legal_moves = GameState.legal_moves
+
+    def reject_terminal_enumeration(candidate):
+        assert not candidate.won, "winning successor must not enumerate second actions"
+        return original_legal_moves(candidate)
+
+    monkeypatch.setattr(GameState, "legal_moves", reject_terminal_enumeration)
     assert two_action_sequence_score(state, move, V4_WEIGHTS) == (
         score_move_no_draw(state, move, V4_WEIGHTS)
     )
@@ -445,10 +456,14 @@ def test_terminal_first_action_close_without_win_uses_only_score1() -> None:
             card("rope", set(), material=Material.ROPE),
             card("coat", set(), material=Material.RAINCOAT),
         ],
-        coats=3,
-        ropes=2,
+        coats=2,
+        ropes=1,
     )
     move = one_open_place(state, 0)
+    successor = preview_move_without_draw(state, move).successor
+    # Preserve the terminal short-circuit check with otherwise legal retained collections.
+    assert successor.board.open_tunnels == 0 and not successor.won
+    assert successor.legal_moves() == [Move(Action.COLLECT, 0), Move(Action.COLLECT, 1)]
 
     assert two_action_sequence_score(state, move, V4_WEIGHTS) == (
         score_move_no_draw(state, move, V4_WEIGHTS)
@@ -462,9 +477,10 @@ def test_no_legal_retained_second_action_uses_only_score1() -> None:
             blocked("a"),
             blocked("b"),
         ],
-        coats=3,
+        coats=2,
         ropes=2,
     )
+    # The first collection now fills, rather than exceeds, the raincoat quota.
     first = collect_move(state, 0)
     preview = preview_move_without_draw(state, first)
 
@@ -481,9 +497,10 @@ def test_sequence_can_use_second_place() -> None:
             card("straight", {Direction.WEST, Direction.EAST}),
             blocked("x"),
         ],
-        coats=3,
+        coats=2,
         ropes=2,
     )
+    # The first collection now fills, rather than exceeds, the raincoat quota.
     first = collect_move(state, 0)
     preview = preview_move_without_draw(state, first)
     second_moves = preview.successor.legal_moves()
@@ -506,9 +523,10 @@ def test_sequence_can_use_second_collect() -> None:
             card("rope", set(), material=Material.ROPE),
             blocked("x"),
         ],
-        coats=3,
+        coats=2,
         ropes=1,
     )
+    # The first collection now fills, rather than exceeds, the raincoat quota.
     first = collect_move(state, 0)
     preview = preview_move_without_draw(state, first)
     second_moves = preview.successor.legal_moves()
@@ -550,13 +568,14 @@ def test_sequence_can_use_second_exit_and_win() -> None:
 
 
 def tied_collect_state() -> GameState:
+    # Both first-action ties and their retained second COLLECT remain legal.
     return one_open_state(
         [
             card("coat-a", set(), material=Material.RAINCOAT),
             card("coat-b", set(), material=Material.RAINCOAT),
             blocked("x"),
         ],
-        coats=3,
+        coats=1,
         ropes=2,
     )
 

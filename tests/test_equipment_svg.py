@@ -195,9 +195,12 @@ class _CollectPolicy:
 
 @pytest.mark.parametrize("hand_size", [3, 6])
 def test_terminal_capture_includes_last_collect_and_changes_no_outcome_or_rng(hand_size):
-    cards = [item.card for item in _equipment()]
+    equipment = [item.card for item in _equipment()]
     if hand_size == 6:
-        cards += [replace(card, card_id=f"{card.card_id}-copy") for card in cards]
+        # Keep a six-card hand without the historic fourth-raincoat collection.
+        equipment += [replace(card, card_id=f"{card.card_id}-copy") for card in equipment[:2]]
+    cards = equipment + ([_card("blocked-sixth", set())] if hand_size == 6 else [])
+    expected_collections = len(equipment)
     kwargs = dict(
         start_card=_card("start", {Direction.EAST}), deck=cards, hand_size=hand_size, seed=123,
     )
@@ -208,16 +211,28 @@ def test_terminal_capture_includes_last_collect_and_changes_no_outcome_or_rng(ha
     wrapped_result = play_game(policy=capture, **kwargs)
     assert wrapped_result == plain_result
     assert wrapped_inner.draws == ordinary.draws
-    assert len(capture.collected_equipment) == hand_size
-    assert len(wrapped_inner.observations[-1].collected_equipment) == hand_size - 1
-    assert capture.last_state.turns == hand_size
+    assert len(wrapped_inner.observations[0].hand) == hand_size
+    assert len(wrapped_inner.observations) == expected_collections + (hand_size == 6)
+    assert len(capture.collected_equipment) == expected_collections
+    if hand_size == 6:
+        assert [card.card_id for card in capture.last_state.hand] == ["blocked-sixth"]
+        assert capture.last_state.legal_moves() == []
+    # The blocked sixth card adds a terminal no-choice observation after the last COLLECT.
+    last_collect_observation = next(
+        observation for observation in reversed(wrapped_inner.observations)
+        if any(move.action is Action.COLLECT for move in observation.legal_moves())
+    )
+    assert len(last_collect_observation.collected_equipment) == expected_collections - 1
+    assert last_collect_observation.collected_equipment == capture.collected_equipment[:-1]
+    assert capture.last_state.turns == expected_collections
+    assert [item.turn for item in capture.collected_equipment] == list(range(1, expected_collections + 1))
     assert not hasattr(capture.last_state, "draw_pile")
-    assert {item.card_id for item in capture.collected_equipment} == {card.card_id for card in cards}
+    assert {item.card_id for item in capture.collected_equipment} == {card.card_id for card in equipment}
     record = FinalBoardExport.from_capture(game_index=1, capture=capture, result=wrapped_result, seed=123)
     assert record.collected_equipment == capture.collected_equipment
     assert record.ruleset_id == wrapped_result.ruleset_id
     assert record.setup_id == wrapped_result.setup_id
-    assert record.turns == hand_size
+    assert record.turns == expected_collections
     assert len(record.board.placements) == 1
 
 

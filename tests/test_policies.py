@@ -169,7 +169,7 @@ def test_geometry_aware_still_collects_one_port_when_alternative_seals_board() -
     assert move.action is Action.COLLECT
 
 
-def test_discard_excess_prefers_collecting_branching_excess_equipment() -> None:
+def test_discard_excess_weights_cannot_enable_illegal_excess_collection() -> None:
     state = state_with_one_open(
         [
             card(
@@ -190,11 +190,16 @@ def test_discard_excess_prefers_collecting_branching_excess_equipment() -> None:
         ropes=2,
     )
 
-    move = DiscardExcessV2Policy().choose(state, Random(1))
+    policy = DiscardExcessV2Policy()
+    # Keep the historic policy weights, but legality now removes excess COLLECT.
+    assert policy.weights.collect_excess == 0
+    assert all(move.action is Action.PLACE for move in state.legal_moves())
+    move = policy.choose(state, Random(1))
 
     assert move is not None
-    assert move.action is Action.COLLECT
-    assert state.hand[move.hand_index].card_id == "excess-branch-coat"
+    assert move in state.legal_moves()
+    assert move.action is Action.PLACE
+    assert state.hand[move.hand_index].card_id == "straight"
 
 
 def test_discard_excess_still_places_useful_closure_equipment() -> None:

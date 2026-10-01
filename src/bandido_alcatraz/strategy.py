@@ -5,9 +5,9 @@ from random import Random
 
 from .board import Board
 from .game import GameState, PlayerObservation
-from .model import CardDefinition, Material
-from .moves import Action, Move, legal_moves
-from .rules import is_equipment_ready
+from .model import CardDefinition
+from .moves import Action, Move, placement_moves
+from .rules import can_collect, is_equipment_ready
 
 
 @dataclass(frozen=True, slots=True)
@@ -74,7 +74,7 @@ def standalone_exit_legal_move_count(
     exit_card: CardDefinition,
 ) -> int:
     """Return canonical standalone EXIT placement capacity without mutation."""
-    return len(legal_moves(board, (exit_card,)))
+    return len(placement_moves(board, (exit_card,)))
 
 
 def preview_ordinary_non_exit_placement_without_draw(
@@ -165,9 +165,7 @@ def has_visible_exit_repair_reserve(
         if card.is_exit:
             continue
 
-        for move in legal_moves(resulting_board, (card,)):
-            if move.action is not Action.PLACE:
-                continue
+        for move in placement_moves(resulting_board, (card,)):
             assert move.origin is not None
             repair_board = resulting_board.clone()
             repair_board.place(card, move.origin, move.quarter_turns)
@@ -213,19 +211,12 @@ def is_unsafe_capacity_kill_without_visible_repair_reserve(
 
 
 def move_features(state: GameState, move: Move) -> MoveFeatures:
+    if move.hand_index < 0 or move.hand_index >= len(state.hand):
+        raise IndexError("hand_index out of range")
     card = state.hand[move.hand_index]
 
     if move.action is Action.COLLECT:
-        needed = (
-            card.material is Material.RAINCOAT and state.raincoats < 3
-        ) or (
-            card.material is Material.ROPE and state.ropes < 2
-        )
-        return MoveFeatures(
-            collect_needed=int(needed),
-            collect_excess=int(not needed),
-            collect_degree_one=int(needed and card.external_tunnel_count == 1),
-        )
+        return _collect_features(state, card)
 
     clone = clone_state(state)
     before_open = state.board.open_tunnels
@@ -265,19 +256,12 @@ def move_features(state: GameState, move: Move) -> MoveFeatures:
 
 def move_features_no_draw(state: GameState, move: Move) -> MoveFeatures:
     """Return exact current V4 move features without reading the hidden draw pile."""
+    if move.hand_index < 0 or move.hand_index >= len(state.hand):
+        raise IndexError("hand_index out of range")
     card = state.hand[move.hand_index]
 
     if move.action is Action.COLLECT:
-        needed = (
-            card.material is Material.RAINCOAT and state.raincoats < 3
-        ) or (
-            card.material is Material.ROPE and state.ropes < 2
-        )
-        return MoveFeatures(
-            collect_needed=int(needed),
-            collect_excess=int(not needed),
-            collect_degree_one=int(needed and card.external_tunnel_count == 1),
-        )
+        return _collect_features(state, card)
 
     before_open = state.board.open_tunnels
     before_water = state.board.visible_water_cells
@@ -311,6 +295,18 @@ def move_features_no_draw(state: GameState, move: Move) -> MoveFeatures:
         ),
         places_exit_ready=int(card.is_exit and equipment_ready_before),
         places_exit_early=int(card.is_exit and not equipment_ready_before),
+    )
+
+
+def _collect_features(state: GameState, card: CardDefinition) -> MoveFeatures:
+    # Keep this fast path inventory-only; scoring must not enumerate geometry or
+    # inspect hidden zones. The historical collect_excess weight stays unchanged
+    # for policy provenance, but no canonical legal action can activate it.
+    if not can_collect(card.material, raincoats=state.raincoats, ropes=state.ropes):
+        raise ValueError("illegal collect: material absent or quota already met")
+    return MoveFeatures(
+        collect_needed=1,
+        collect_degree_one=int(card.external_tunnel_count == 1),
     )
 
 

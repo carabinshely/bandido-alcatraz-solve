@@ -1,5 +1,7 @@
 # V4 visible-hand two-action no-draw rollout design
 
+> **Historical strategy design.** The body below is preserved under its original frozen model. Its material-only COLLECT legality and excess-collection assumptions are not current rules. Current implementations must use quota-aware legality in both real actions and no-draw previews; see [modeling-v2](../modeling-v2.md).
+
 Date: 2026-09-27  
 Worker: #20  
 Status: design checkpoint only; no policy implementation or outcome evaluation

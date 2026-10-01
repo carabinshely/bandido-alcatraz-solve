@@ -67,7 +67,7 @@ class GeometryAwareV1Policy(WeightedGreedyPolicy):
 
 
 class DiscardExcessV2Policy(WeightedGreedyPolicy):
-    """Use excess equipment collection to discard geometrically bad cards."""
+    """Historical V2 weights; canonical legality now forbids excess collection."""
 
     def __init__(self) -> None:
         super().__init__(
@@ -89,7 +89,7 @@ class WaterFirstV2Policy(WeightedGreedyPolicy):
 
 
 class CombinedV2Policy(WeightedGreedyPolicy):
-    """Combine excess-equipment discard with strong water-cover priority."""
+    """Historical V2 collection weights plus strong water-cover priority."""
 
     def __init__(self) -> None:
         super().__init__(
