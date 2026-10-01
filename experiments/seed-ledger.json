@@ -1,8 +1,8 @@
 {
   "schema": "bandido-seed-ledger-v1",
-  "authority": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5927093199",
+  "authority": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5927438161",
   "canonical_baseline": "BoundedMergeV4Policy(setup_weight=250)",
-  "canonical_model_base": null,
+  "canonical_model_base": "d357a01bed0cccb34bae3c440cc7201ef39a2a84",
   "historically_observed_real_deck_ranges_inclusive": [
     [
       0,
@@ -135,6 +135,46 @@
       "exact_replay_matches": 400,
       "historical_classification": "canonical_exact_solo_baseline_reproduced",
       "classification": "superseded_by_quota_limited_collect_model"
+    },
+    {
+      "research_step": 30,
+      "range_inclusive": [
+        1000000,
+        1000399
+      ],
+      "role": "spent quota-limited model baseline validation; never confirmation",
+      "confirmation_eligible": false,
+      "state": "complete",
+      "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5927438161",
+      "model_base": "d357a01bed0cccb34bae3c440cc7201ef39a2a84",
+      "ruleset": "v2-exact-equipment-quota-limited-collect-full-hand-refresh",
+      "setup_id": "p1-easy-5-exit-hand6-first0-full-hand-refresh",
+      "policy": "BoundedMergeV4Policy(setup_weight=250)",
+      "passes": 2,
+      "execution_order": "two complete serial ascending-seed passes",
+      "acceptance": "400/400 normalized record equality, complete provenance, quota bounds, no step_limit; zero wins is valid; no Worker29 outcome-matching gate",
+      "preserved_attempts": [
+        {
+          "run_id": 36836684444,
+          "run_attempt": 1,
+          "execution_head": "9c33d16dba17a14d6862f936466106af46bb4e4a",
+          "status": "failed synthetic test fixtures before research; no outcome",
+          "research_seeds_executed": 0,
+          "artifact_id": 11149047974,
+          "raw_archive_sha256": "1938fcabf7fa414140c8a8311e1a31a23dd67c135833762e7a927c9b5142c269",
+          "drive_bundle_id": "13rVrqvO4JS_Fyob99-ESrRzcE2aQHS1l",
+          "drive_bundle_sha256": "f8ab28f30d03a4f63026febee6416dd85b6fa8093af690fc8e4723ab7e8e38fe",
+          "drive_bundle_bytes": 21921,
+          "fresh_byte_readback_verified": true
+        }
+      ],
+      "evaluated_commit": "7daeaba0dba2a73db21e3075199eabab6303b241",
+      "run_id": 36837736898,
+      "classification": "canonical_quota_limited_solo_baseline_reproduced",
+      "manifest_path": "experiments/canonical-quota-limited-solo-baseline/baseline-2026-10-01.manifest.json",
+      "records_per_pass": 400,
+      "exact_replay_matches": 400,
+      "quota_overshoots": 0
     }
   ],
   "fresh_confirmation_allocations": [],
@@ -181,5 +221,5 @@
   ],
   "canonical_ruleset": "v2-exact-equipment-quota-limited-collect-full-hand-refresh",
   "canonical_setup_id": "p1-easy-5-exit-hand6-first0-full-hand-refresh",
-  "canonical_model_status": "Quota-limited correction source must be frozen after reviewed merge and before baseline execution"
+  "canonical_model_status": "Accepted quota-limited model; complete reproducible baseline evidence persisted"
 }
