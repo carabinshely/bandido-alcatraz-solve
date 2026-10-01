@@ -18,7 +18,7 @@
     }
   },
   "canonical_raw_bundle": {
-    "bytes": 2491709,
+    "bytes": 2492199,
     "contents": [
       "actions-artifact.zip",
       "README.txt",
@@ -29,11 +29,11 @@
       "baseline-job.log",
       "verify_worker29_baseline.py"
     ],
-    "drive_id": "1WUML6IMKv7FzCmiqKzc0L2xgJmx_tUHh",
-    "drive_url": "https://drive.google.com/file/d/1WUML6IMKv7FzCmiqKzc0L2xgJmx_tUHh/view",
+    "drive_id": "1ykEIlOShV51dgofyCNFkK9OPWpFe5_uF",
+    "drive_url": "https://drive.google.com/file/d/1ykEIlOShV51dgofyCNFkK9OPWpFe5_uF/view",
     "folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
     "fresh_byte_readback_verified": true,
-    "sha256": "d4b1b1e379fa813ba2c06ac578f07806a8708264da7fcaef1f048360311bc194"
+    "sha256": "14b600b246fc8248e0a7bb5581f3fd0250403223c36da18c24138d2a792d8669"
   },
   "classification": "canonical_exact_solo_baseline_reproduced",
   "descriptive_diagnostics": {
@@ -60,6 +60,7 @@
     "exact_replay_matches": 400,
     "harness_blob": "4ac40f10960b71f7a14c7455f08e3b486d9b54a0",
     "harness_sha256": "b174027c2c0b6fbcc651e4390fe345853986564c2d4d735d012f6ca0105f407e",
+    "offline_verifier_sha256": "088422b4bc2faaea5c55295b6eff2aafaf8663f1680e2824f39fee21bc1b8372",
     "source_blobs": {
       "data/README.md": "2ac91d9da6769934c78a90ba865f3d558f48bbd2",
       "data/deck-observations-v0.json": "ee38d60277c79dafa7527876367e3e6450ccb53f",
@@ -107,6 +108,25 @@
       1000000,
       1000399
     ]
+  },
+  "preliminary_verifier_bundle": {
+    "bytes": 2491709,
+    "contents": [
+      "actions-artifact.zip",
+      "README.txt",
+      "metadata.json",
+      "inventory.json",
+      "accepted-source-blobs.json",
+      "verified-summary.json",
+      "baseline-job.log",
+      "verify_worker29_baseline.py"
+    ],
+    "drive_id": "1WUML6IMKv7FzCmiqKzc0L2xgJmx_tUHh",
+    "drive_url": "https://drive.google.com/file/d/1WUML6IMKv7FzCmiqKzc0L2xgJmx_tUHh/view",
+    "folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+    "fresh_byte_readback_verified": true,
+    "sha256": "d4b1b1e379fa813ba2c06ac578f07806a8708264da7fcaef1f048360311bc194",
+    "status": "Preserved preliminary verifier snapshot; raw Actions archive unchanged; superseded only by stricter offline verifier packaging."
   },
   "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5925924722",
   "reproduction": "Download canonical raw bundle, verify its SHA256, then use its README command with scripts/verify_worker29_baseline.py and accepted model data. No simulation is needed for artifact verification. Frozen execution harness remains available at evaluated_commit.",

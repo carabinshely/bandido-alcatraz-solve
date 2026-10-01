@@ -20,7 +20,8 @@ Exit 0 prints an independently recomputed, compact acceptance report. Exit 1
 rejects the evidence without changing/extracting any input or reporting a
 partial-cohort result. Failed/recovery artifacts are evidence, not valid
 negative baselines. Preserve them separately. This gate checks public final
-state consistency, not the hidden deck, policy decisions, or a legal replay.
+state consistency, including pinned card rotation and final visible geometry,
+not the hidden deck, policy decisions, or a legal replay.
 Authority/authenticity of the separately supplied inventory and GitHub metadata
 must be established by the caller; offline JSON alone cannot authenticate GitHub.
 """
@@ -55,6 +56,7 @@ EXPECTED = [(p, s) for p in (1, 2) for s in SEEDS]
 DELTAS = {"N": (0, -1), "E": (1, 0), "S": (0, 1), "W": (-1, 0)}
 OPPOSITE = {"N": "S", "S": "N", "E": "W", "W": "E"}
 MAX_BYTES = 512 * 1024 * 1024
+MAX_MODEL_DATA_BYTES = 1024 * 1024
 
 
 class Rejected(ValueError):
@@ -124,7 +126,11 @@ def load_cards(data_dir, source):
          "source manifest is not the independently pinned accepted tree map")
     data = {}
     for name in ("deck-v1.json", "deck-observations-v0.json"):
-        raw = (data_dir / name).read_bytes()
+        path = data_dir / name
+        require(path.stat().st_size <= MAX_MODEL_DATA_BYTES, "accepted model data exceeds safety bound")
+        with path.open("rb") as stream:
+            raw = stream.read(MAX_MODEL_DATA_BYTES + 1)
+        require(len(raw) <= MAX_MODEL_DATA_BYTES, "accepted model data exceeds safety bound")
         blob = hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw).hexdigest()
         same(blob, source[f"data/{name}"], f"accepted data changed: {name}")
         data[name] = strict_json(raw)
@@ -170,8 +176,7 @@ def validate_metadata(metadata, inventory):
     labels = job.get("labels")
     require(type(labels) is list and all(type(x) is str for x in labels), "runner labels")
     require({"self-hosted", "Linux", "X64", "bandido-alcatraz-ci"} <= set(labels), "runner labels")
-    if "run_attempt" in job:
-        same(job["run_attempt"], 1, "job attempt")
+    same(job.get("run_attempt"), 1, "job attempt must be present and exactly 1")
     steps = job.get("steps")
     require(type(steps) is list and steps, "missing job steps")
     names = []
@@ -281,6 +286,28 @@ def validate_cells(cells):
     return result
 
 
+
+def physical_placement(card, quarter_turns, origin):
+    """Rotate pinned cells, normalize their footprint, then translate to the board.
+
+    This reconstructs public geometry only; it does not decide move legality.
+    """
+    rotated = []
+    directions = "NESW"
+    for cell in card["cells"]:
+        x, y = cell["x"], cell["y"]
+        for _ in range(quarter_turns):
+            x, y = -y, x
+        edges = sorted(directions[(directions.index(edge) + quarter_turns) % 4]
+                       for edge in cell["tunnel_edges"])
+        rotated.append(dict(cell, x=x, y=y, tunnel_edges=edges))
+    min_x = min(cell["x"] for cell in rotated)
+    min_y = min(cell["y"] for cell in rotated)
+    return {(cell["x"] - min_x + origin[0], cell["y"] - min_y + origin[1]):
+            dict(cell, x=cell["x"] - min_x + origin[0], y=cell["y"] - min_y + origin[1])
+            for cell in rotated}
+
+
 def validate_record(record, seed, cards):
     keys(record, "seed result setup collected_equipment board", "record")
     same(record["seed"], seed, "record seed")
@@ -326,7 +353,7 @@ def validate_record(record, seed, cards):
     placements = board["placements"]
     require(type(placements) is list and placements, "missing placement history")
     same(result["turns"], len(placements) - 1 + len(collected), "action/placement/collection count")
-    occupied, last_owner = set(), {}
+    visible, last_owner = {}, {}
     for index, placement in enumerate(placements):
         keys(placement, "card_id origin quarter_turns placement_index kind cells overlaps covered_placement_index",
              "placement")
@@ -340,18 +367,18 @@ def validate_record(record, seed, cards):
         if index == 0:
             same([placement["origin"], placement["quarter_turns"]], [[0, 0], 0], "START origin/rotation")
         footprint = coordinates(placement["cells"])
-        require(len(footprint) == 2, "physical two-cell footprint")
-        require(sum(abs(a - b) for a, b in zip(*footprint)) == 1, "disconnected card footprint")
-        same(list(origin), [min(p[0] for p in footprint), min(p[1] for p in footprint)], "footprint origin")
+        geometry = physical_placement(cards[card_id], placement["quarter_turns"], origin)
+        require(footprint == sorted(geometry), "placement footprint vs pinned physical rotation")
         overlaps = coordinates(placement["overlaps"])
-        require(overlaps == sorted(set(footprint) & occupied) and len(overlaps) <= 1, "overlap history")
+        require(overlaps == sorted(set(footprint) & set(visible)) and len(overlaps) <= 1, "overlap history")
         same(placement["covered_placement_index"], last_owner[overlaps[0]] if overlaps else None, "covered placement")
-        occupied.update(footprint)
+        visible.update(geometry)
         last_owner.update({point: index for point in footprint})
         used.add(card_id)
     same(result["exit_placed"], "exit" in used, "EXIT placement count")
     observed = validate_cells(board["visible_cells"])
-    require(list(observed) == sorted(occupied), "visible board coordinates vs placement history")
+    same(board["visible_cells"], [visible[point] for point in sorted(visible)],
+         "visible board vs pinned physical placement geometry")
     open_tunnels = 0
     for (x, y), cell in observed.items():
         for edge, (dx, dy) in DELTAS.items():

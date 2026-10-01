@@ -72,8 +72,8 @@ def evidence(tmp_path, monkeypatch):
     data_dir = tmp_path / "data"
     data_dir.mkdir()
     deck = {"instances": [{"card_id": f"card-{i}", "material": "raincoat" if i < 12 else "rope" if i < 20 else None,
-                           "external_ports": ["T", "B"], "internal_bridge": True,
-                           "water_half": None} for i in range(68)]}
+                           "external_ports": ["LU", "B"] if i == 67 else ["T", "B"], "internal_bridge": True,
+                           "water_half": "top" if i == 20 else None} for i in range(68)]}
     special = {"special_geometry": {"start_easy": {"cells": [cell(0, 0, "NS"), cell(0, 1, "N")]},
                                     "exit": {"cells": [cell(0, 0, "S"), cell(0, 1, "NS")]}}}
     source = {}
@@ -107,7 +107,7 @@ def evidence(tmp_path, monkeypatch):
                 "conclusion": "success", "event": "pull_request", "path": ".github/workflows/canonical-baseline.yml",
                 "head_branch": "research/worker29-canonical-baseline", "repository": {"full_name": v.REPOSITORY},
                 "head_repository": {"full_name": v.REPOSITORY}},
-        "job": {"id": 111, "run_id": v.RUN_ID, "head_sha": v.HEAD, "name": "baseline", "status": "completed",
+        "job": {"id": 111, "run_id": v.RUN_ID, "run_attempt": 1, "head_sha": v.HEAD, "name": "baseline", "status": "completed",
                 "conclusion": "success", "runner_name": "bandido-alcatraz-ci",
                 "labels": ["self-hosted", "Linux", "X64", "bandido-alcatraz-ci"],
                 "steps": [{"name": n, "status": "completed", "conclusion": "success"} for n in names]},
@@ -392,3 +392,85 @@ def test_changed_data_is_rejected(evidence):
     path.write_bytes(path.read_bytes() + b" ")
     with pytest.raises(v.Rejected, match="accepted data changed"):
         verify(evidence)
+
+
+@pytest.mark.parametrize("mutation", ["rotation_90", "rotation_180", "wrong_card", "edge_swap", "water_swap"])
+def test_physical_geometry_rejects_coherent_full_artifact_mutations(evidence, mutation):
+    # This synthetic loss has a two-cell water card above START. Every mutation
+    # below preserves the old gate's scalar counters and final adjacency checks.
+    base = record(1000000)
+    placed = placement("card-20", 1, (0, -2))
+    placed["kind"] = "ordinary"
+    base["board"]["placements"].append(placed)
+    base["board"]["visible_cells"] = [cell(0, -2, "NS", True), cell(0, -1, "NS")] + base["board"]["visible_cells"]
+    base["result"].update(turns=1, visible_water_cells=1)
+    for row in (evidence["rows"][0], evidence["rows"][400]):
+        row["record"] = deepcopy(base)
+    evidence["receipt"]["summary"] = summary([r["record"] for r in evidence["rows"][:400]])
+    assert verify(evidence)["verified"] is True
+
+    for row in (evidence["rows"][0], evidence["rows"][400]):
+        board = row["record"]["board"]
+        if mutation == "rotation_90":
+            board["placements"][1]["quarter_turns"] = 1
+        elif mutation == "rotation_180":
+            board["placements"][1]["quarter_turns"] = 2
+        elif mutation == "wrong_card":
+            board["placements"][1]["card_id"] = "card-67"
+        elif mutation == "edge_swap":
+            board["visible_cells"][0]["tunnel_edges"] = ["S", "W"]
+        else:
+            board["visible_cells"][0]["water"] = False
+            board["visible_cells"][1]["water"] = True
+    # Rebuild both sidecars, journal, independent test-oracle summary, and full
+    # ZIP/hash inventory. Rejection must come from physical provenance, not an
+    # unrepaired producer hash or a mismatch between the two deterministic passes.
+    evidence["receipt"]["summary"] = summary([r["record"] for r in evidence["rows"][:400]])
+    with pytest.raises(v.Rejected, match="pinned physical"):
+        verify(evidence)
+
+
+@pytest.mark.parametrize("turns,expected", [
+    (0, [cell(3, -4, "NE", True), cell(3, -3, "W")]),
+    (1, [cell(3, -4, "N"), cell(4, -4, "ES", True)]),
+    (2, [cell(3, -4, "E"), cell(3, -3, "SW", True)]),
+    (3, [cell(3, -4, "NW", True), cell(4, -4, "S")]),
+])
+def test_pinned_card_rotation_normalizes_coordinates_and_preserves_water(turns, expected):
+    card = {"cells": [cell(0, 0, "NE", True), cell(0, 1, "W")]}
+    geometry = v.physical_placement(card, turns, (3, -4))
+    assert [geometry[point] for point in sorted(geometry)] == expected
+
+
+@pytest.mark.parametrize("attempt", [None, 2, True, "1"])
+def test_job_attempt_is_mandatory_exact_first_attempt(evidence, attempt):
+    if attempt is None:
+        evidence["metadata"]["job"].pop("run_attempt")
+    else:
+        evidence["metadata"]["job"]["run_attempt"] = attempt
+    with pytest.raises(v.Rejected, match="job attempt must be present and exactly 1"):
+        verify(evidence)
+
+
+def test_oversized_sparse_model_file_rejected_before_read(evidence, monkeypatch):
+    path = evidence["data_dir"] / "deck-v1.json"
+    with path.open("r+b") as stream:
+        stream.truncate(v.MAX_MODEL_DATA_BYTES + 1)
+
+    def forbid_open(*args, **kwargs):
+        pytest.fail("oversized model file must be rejected before opening/reading it")
+
+    monkeypatch.setattr(Path, "open", forbid_open)
+    with pytest.raises(v.Rejected, match="model data exceeds safety bound"):
+        v.load_cards(evidence["data_dir"], evidence["source"])
+
+
+def test_model_file_read_remains_bounded_after_size_check(evidence, monkeypatch):
+    class GrowingFile(io.BytesIO):
+        def read(self, size=-1):
+            assert size == v.MAX_MODEL_DATA_BYTES + 1
+            return b" " * size
+
+    monkeypatch.setattr(Path, "open", lambda *args, **kwargs: GrowingFile())
+    with pytest.raises(v.Rejected, match="model data exceeds safety bound"):
+        v.load_cards(evidence["data_dir"], evidence["source"])
