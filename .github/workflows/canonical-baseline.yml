@@ -1,0 +1,70 @@
+name: Worker29 canonical baseline
+on:
+  pull_request:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  baseline:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'research/worker29-canonical-baseline'
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+    timeout-minutes: 60
+    env:
+      EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+      PREREGISTRATION_URL: https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5925924722
+      PYTHONHASHSEED: '0'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONPATH: src:.
+    steps:
+      - name: Durable normalized output path
+        timeout-minutes: 1
+        run: |
+          set -euo pipefail
+          test "$RUNNER_NAME" = bandido-alcatraz-ci
+          output="$(realpath -m "$(dirname "$GITHUB_WORKSPACE")/bandido-canonical-baseline/$GITHUB_RUN_ID/$GITHUB_RUN_ATTEMPT")"
+          echo "BASELINE_OUTPUT=$output" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v4
+        timeout-minutes: 2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Initialize evidence before dependencies and tests
+        timeout-minutes: 1
+        run: python3 scripts/run_canonical_baseline.py initialize --output-dir "$BASELINE_OUTPUT" --expected-head "$EXPECTED_HEAD" --preregistration-url "$PREREGISTRATION_URL"
+      - uses: actions/setup-python@v5
+        timeout-minutes: 2
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'pytest>=8.0'
+        timeout-minutes: 2
+      - name: Routine and synthetic tests
+        id: tests
+        timeout-minutes: 2
+        run: python -m pytest -q
+      - name: Two complete fixed baseline passes
+        id: cohort
+        timeout-minutes: 42
+        run: timeout --signal=TERM --kill-after=30s 2400s python scripts/run_canonical_baseline.py run --output-dir "$BASELINE_OUTPUT" --expected-head "$EXPECTED_HEAD" --preregistration-url "$PREREGISTRATION_URL"
+      - name: Reconcile final status
+        if: always()
+        timeout-minutes: 2
+        run: |
+          if test -f scripts/run_canonical_baseline.py; then
+            python3 scripts/run_canonical_baseline.py finalize --output-dir "$BASELINE_OUTPUT" --expected-head "$EXPECTED_HEAD" --preregistration-url "$PREREGISTRATION_URL" --test-outcome '${{ steps.tests.outcome }}' --cohort-outcome '${{ steps.cohort.outcome }}'
+          else
+            mkdir -p "$BASELINE_OUTPUT"
+            python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          p = Path(os.environ['BASELINE_OUTPUT']) / 'infrastructure-blocker.json'
+          p.write_text(json.dumps({'status':'execution_blocked','error':'checkout/harness unavailable','expected_head':os.environ['EXPECTED_HEAD'],'research_seeds_executed':0 if '${{ steps.cohort.outcome }}' in ('skipped','') else None,'research_interpretation_performed':False},sort_keys=True)+'\n')
+          PY
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        timeout-minutes: 5
+        with:
+          name: worker29-canonical-baseline-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.BASELINE_OUTPUT }}/
+          if-no-files-found: error
