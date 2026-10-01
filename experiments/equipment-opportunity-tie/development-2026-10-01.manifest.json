@@ -1,0 +1,191 @@
+{
+  "accepted_base_commit": "7be68ee6eac1337663b960791812c8092c7d53e4",
+  "accepted_base_tree": "7ed3b7f1f5a8d09991542f5d22f102e0b83fe612",
+  "actions_artifact": {
+    "archive": {
+      "sha256": "48e6af6595a737be332467b436aca94744b19c4b3d96d25d5dbbfe654d98a4b2",
+      "size_bytes": 24204721
+    },
+    "expanded_bytes": 741263021,
+    "id": 11156427816,
+    "journal": {
+      "sha256": "407b97d27124b24912ce01ac6c1661ac02eaa7eee7975bff2a5ce275b01a777f",
+      "size_bytes": 18019360
+    },
+    "member_count": 2402,
+    "receipt": {
+      "sha256": "699ae3c4bfe9fb1d7b0009a816ce72cc2557577797c0c6712b2a35f4856339d4",
+      "size_bytes": 52833
+    }
+  },
+  "audit_clarification_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5928626235",
+  "baseline": {
+    "checkpoint_commit": "7be68ee6eac1337663b960791812c8092c7d53e4",
+    "class": "BoundedMergeV4Policy",
+    "setup_weight": 250
+  },
+  "candidate": {
+    "class": "EquipmentOpportunityTiePolicy",
+    "git_blob": "3c10b6253ab272fa0b91a8ef967a7c03b9939538",
+    "path": "src/bandido_alcatraz/equipment_opportunity.py",
+    "retained_in_current_tree": false,
+    "sha256": "e6f2b7d0241a2f473888222de9c3173568c97e7b77c4173ba2d1c3ad55347cce"
+  },
+  "candidate_advanced": false,
+  "candidate_status": "Closed exact candidate after failed fixed development screen; no tuning within this protocol. Source retained in frozen execution history, not current production tree.",
+  "canonical_raw_bundle": {
+    "bytes": 21858124,
+    "contents": [
+      "actions-artifact.zip",
+      "README.txt",
+      "metadata.json",
+      "inventory.json",
+      "accepted-source-blobs.json",
+      "verified-summary.json",
+      "development-job.log",
+      "scripts/verify_worker31_development.py",
+      "scripts/worker31_geometry.py"
+    ],
+    "drive_id": "1UgwD5vAnui_6jSpVg3rFJMLZa5YP-90Q",
+    "drive_url": "https://drive.google.com/file/d/1UgwD5vAnui_6jSpVg3rFJMLZa5YP-90Q/view",
+    "folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+    "fresh_byte_readback_verified": true,
+    "sha256": "8abff59855959f388bdb7dff05efc2d177a0109fa9917156aaeaec7a49c2991c"
+  },
+  "classification": "equipment_opportunity_tie_development_no_advancement",
+  "evaluated_commit": "7a2b681f2d78c9e4cef466eb5250c4bd6c6c52ed",
+  "evaluated_tree": "dc073c8484beef1f63734f177790ca46f1331a67",
+  "execution": {
+    "conclusion": "success",
+    "job_id": 110325910903,
+    "routine_execution_head_ci": 36848990119,
+    "run_attempt": 1,
+    "run_id": 36848990406,
+    "runner": "bandido-alcatraz-ci",
+    "runtime": {
+      "python_implementation": "CPython",
+      "python_version": "3.11.16"
+    }
+  },
+  "freeze_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5929472507",
+  "integrity": {
+    "candidate_replay_matches": 400,
+    "exact_control_matches": 400,
+    "geometry_helper_sha256": "a9ef3fce518ad5ce0ed02ae6cb69664f775c732a750f7f739f1ccda1e04c7bcb",
+    "harness_blob": "2615059581d5eb24ac67c9eb787cdc11a98940c3",
+    "harness_sha256": "638947894a21976c608cc9a4975db501c794d3383de4e3f6fb72a9efd2faad65",
+    "offline_verifier_sha256": "fd5d9efdf1a3b2bb1df2c77058758655049753735a93808e27b9e70c5f6664ab",
+    "quota_overshoots": 0,
+    "source_blobs": {
+      "data/README.md": "2ac91d9da6769934c78a90ba865f3d558f48bbd2",
+      "data/deck-observations-v0.json": "ee38d60277c79dafa7527876367e3e6450ccb53f",
+      "data/deck-v1.json": "9fa2066507ff9a0fb6b922d52e84529b35acb05e",
+      "data/owner-photo-inventory-v0.json": "5911fdeea4138421945d0cffd69908088cad5639",
+      "data/proxy-bandido-covid-v0.json": "a9e3013f58a94216e920637461331e3c8fccdeae",
+      "src/bandido_alcatraz/__init__.py": "425141547c12e61eee6ecafd5b7136322f0af6d4",
+      "src/bandido_alcatraz/board.py": "e04e9255ecc9c8181ca49903dfb6501a67c8a482",
+      "src/bandido_alcatraz/catalog.py": "e82ca3d70310281bf5a6c4f325e10f0083d7b0b3",
+      "src/bandido_alcatraz/deck_data.py": "6e997e464736bcd0ad79f6115ff69f3967cd57f5",
+      "src/bandido_alcatraz/evaluate.py": "49cc2da9e651dfc58f4911801b8b923da90c05b4",
+      "src/bandido_alcatraz/export_svg.py": "ab39daf4df714cc8dfe5a1244e8345f8abafbdb2",
+      "src/bandido_alcatraz/fixtures.py": "a12d395871a6a5e2d1c2011c5ac628878a2d5dde",
+      "src/bandido_alcatraz/game.py": "8df56288eded0ae96c57314589a9707b4a056054",
+      "src/bandido_alcatraz/model.py": "dc469a82a5fab7574aebe25a18543494494f4b11",
+      "src/bandido_alcatraz/moves.py": "e605897b6c0c5539d51270b9371df9cc1dfe1a1e",
+      "src/bandido_alcatraz/optimize.py": "53e9f2f0265d1e5ee542413a842caedbd67cd110",
+      "src/bandido_alcatraz/photo_geometry.py": "eb40808af9616b2d77c3e6519e010021992d364a",
+      "src/bandido_alcatraz/physical_deck.py": "87601a25bf16f181753f71b2c84dc3c0fa6fe418",
+      "src/bandido_alcatraz/policies.py": "3218817fe43cd901e5fc3de0d62c651dc5059dd5",
+      "src/bandido_alcatraz/proxy.py": "7c590565591d558e1d18d38a8471abd02bcac156",
+      "src/bandido_alcatraz/proxy_data.py": "c0d63b6d0de90626600cb0d1ca5fa6917c7908f4",
+      "src/bandido_alcatraz/render_svg.py": "2951661e5b12bb85de04c563078bfd405fbef924",
+      "src/bandido_alcatraz/rules.py": "d0fffb7b37f531e149a0d7e17800e2ac708e9890",
+      "src/bandido_alcatraz/setup.py": "b055fe799a60e499af1fbd86275d3b7e61f2b656",
+      "src/bandido_alcatraz/simulate.py": "7637bed25e3d380ff0928927b8bb97abd9a2af56",
+      "src/bandido_alcatraz/strategy.py": "57c7d173c9f173690d6c27cf546da2576cd35510"
+    },
+    "source_map_sha256": "27b4a000202d5e22b3e37ea128571cd7a5b8a4ef1a882514616c361cf2da0aed",
+    "verified_records": 1200,
+    "verified_sidecars": 1200,
+    "verified_traces": 1200
+  },
+  "interpretation": "Valid negative spent-development screen: candidate45 versus control45 wins, net0 below fixed+8. Candidate closed; no fresh confirmation, strategy improvement or PROGRAM_SUCCESS. Narrowing/selection counts are descriptive and do not establish causal geometry benefit.",
+  "population": {
+    "confirmation_eligible": false,
+    "count": 400,
+    "order": "complete serial ascending population each phase",
+    "phases": [
+      "v4_control",
+      "candidate",
+      "candidate_replay"
+    ],
+    "role": "spent development only",
+    "seeds_inclusive": [
+      1000000,
+      1000399
+    ]
+  },
+  "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5928556762",
+  "preserved_attempts": [
+    {
+      "artifact_id": 11154267184,
+      "drive_bundle_bytes": 21153,
+      "drive_bundle_id": "1YCXH3ofLvCbOD5RGb6QRQehU-DsqTRKq",
+      "drive_bundle_sha256": "1bb37b53619ace885811933b8d05ce662f91dfa9a690cecdee61c1d0be5600f9",
+      "execution_head": "4f3b2928fe65f11508730b0651602ef8c13125f2",
+      "fresh_byte_readback_verified": true,
+      "note": "Receipt status integrity_invalid from generic test failure; live job log establishes test timeout, with cohort skipped and zero attempts. Preserve receipt unchanged.",
+      "raw_archive_sha256": "b4d6f4490d8157c4acabc2145f715aece573fbb6161ba4cbe6c7acf6a3739f19",
+      "research_seeds_executed": 0,
+      "run_attempt": 1,
+      "run_id": 36847225902,
+      "status": "pre-execution test timeout; no research outcome"
+    }
+  ],
+  "reproduction": "Use canonical bundle README with streaming offline verifier, pinned geometry helper and accepted model data. No games needed for evidence verification. Frozen candidate/harness source remains at evaluated_commit.",
+  "ruleset": "v2-exact-equipment-quota-limited-collect-full-hand-refresh",
+  "schema": "bandido-paired-development-manifest-v1",
+  "setup_id": "p1-easy-5-exit-hand6-first0-full-hand-refresh",
+  "summary": {
+    "classification": "equipment_opportunity_tie_development_no_advancement",
+    "complete_seed_partitions": "All seed partitions are in the immutable raw receipt and verified-summary.json in the canonical bundle.",
+    "control_wins": 45,
+    "failure_reasons": {
+      "closed_tunnels_conditions_failed": 36,
+      "deck_exhausted": 236,
+      "no_legal_move": 83
+    },
+    "gained_seed_ids": [
+      1000046,
+      1000324
+    ],
+    "games_per_pass": 400,
+    "interpretation": "Spent development screen only; next validation requires separate preregistration",
+    "lost_seed_ids": [
+      1000090,
+      1000314
+    ],
+    "matching_records": 400,
+    "min_net_wins": 8,
+    "net_wins": 0,
+    "normalized_candidate_sha256": "43c6a08409448e8d0c8bf0b257490d73e6e9718b3e2ec4838d7b97e105fd5183",
+    "normalized_control_sha256": "a4d2d06e5592caa35c03d00337d0254c07f767d5cb8ee0777cbb51f543803021",
+    "paired_2x2": {
+      "both_lose": 353,
+      "both_win": 43,
+      "candidate_only": 2,
+      "control_only": 2
+    },
+    "quota_overshoots": 0,
+    "trace_summary": {
+      "action_difference_scope": "same seed and ordinal with identical public observation and pre-choice RNG hashes",
+      "candidate_replay_trace_matches": 400,
+      "candidate_strict_tier_narrowings": 421,
+      "matched_observation_rng_decisions": 12510,
+      "selected_action_differences_in_matched_contexts": 171
+    },
+    "win_rate": 0.1125,
+    "wins": 45
+  },
+  "worker": 31
+}
