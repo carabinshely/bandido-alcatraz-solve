@@ -152,7 +152,22 @@
       "policy": "BoundedMergeV4Policy(setup_weight=250)",
       "passes": 2,
       "execution_order": "two complete serial ascending-seed passes",
-      "acceptance": "400/400 normalized record equality, complete provenance, quota bounds, no step_limit; zero wins is valid; no Worker29 outcome-matching gate"
+      "acceptance": "400/400 normalized record equality, complete provenance, quota bounds, no step_limit; zero wins is valid; no Worker29 outcome-matching gate",
+      "preserved_attempts": [
+        {
+          "run_id": 36836684444,
+          "run_attempt": 1,
+          "execution_head": "9c33d16dba17a14d6862f936466106af46bb4e4a",
+          "status": "failed synthetic test fixtures before research; no outcome",
+          "research_seeds_executed": 0,
+          "artifact_id": 11149047974,
+          "raw_archive_sha256": "1938fcabf7fa414140c8a8311e1a31a23dd67c135833762e7a927c9b5142c269",
+          "drive_bundle_id": "13rVrqvO4JS_Fyob99-ESrRzcE2aQHS1l",
+          "drive_bundle_sha256": "f8ab28f30d03a4f63026febee6416dd85b6fa8093af690fc8e4723ab7e8e38fe",
+          "drive_bundle_bytes": 21921,
+          "fresh_byte_readback_verified": true
+        }
+      ]
     }
   ],
   "fresh_confirmation_allocations": [],

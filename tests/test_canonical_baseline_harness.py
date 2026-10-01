@@ -395,7 +395,8 @@ class BaselineHarnessTests(unittest.TestCase):
                 h.write_json(output / "receipt.json", receipt)
                 h.append_record(output, 1, record(h.SEEDS[0]))
                 raw = (output / "completed.jsonl").read_bytes()
-                self.assertEqual(h.finalize(output, HEAD, PREREG, tests, cohort), 1)
+                with patch.object(h, "verify_source", return_value=SOURCE):
+                    self.assertEqual(h.finalize(output, HEAD, PREREG, tests, cohort), 1)
                 after = h.read_receipt(output)
                 self.assertEqual(after["status"], status)
                 self.assertIsNone(after["classification"])
@@ -429,12 +430,14 @@ class BaselineHarnessTests(unittest.TestCase):
 
     def test_finalizer_cannot_bless_initialized_or_invalid_attempt(self):
         self.initialize()
-        self.assertEqual(h.finalize(self.output, HEAD, PREREG, "success", "success"), 1)
+        with patch.object(h, "verify_source", return_value=SOURCE):
+            self.assertEqual(h.finalize(self.output, HEAD, PREREG, "success", "success"), 1)
         self.assertEqual(self.receipt()["status"], "execution_blocked")
         receipt = self.receipt()
         receipt["status"] = "integrity_invalid"
         h.write_json(self.output / "receipt.json", receipt)
-        self.assertEqual(h.finalize(self.output, HEAD, PREREG, "success", "success"), 1)
+        with patch.object(h, "verify_source", return_value=SOURCE):
+            self.assertEqual(h.finalize(self.output, HEAD, PREREG, "success", "success"), 1)
         self.assertEqual(self.receipt()["status"], "integrity_invalid")
 
     def test_missing_output_directory_never_implies_zero_execution(self):
@@ -460,7 +463,8 @@ class BaselineHarnessTests(unittest.TestCase):
         path = self.output / "completed.jsonl"
         path.write_text('{"pass":1', encoding="utf-8")
         raw = path.read_bytes()
-        self.assertEqual(h.finalize(self.output, HEAD, PREREG, "success", "failure"), 1)
+        with patch.object(h, "verify_source", return_value=SOURCE):
+            self.assertEqual(h.finalize(self.output, HEAD, PREREG, "success", "failure"), 1)
         self.assertEqual(self.receipt()["status"], "execution_blocked")
         self.assertEqual(path.read_bytes(), raw)
 
@@ -641,7 +645,8 @@ class BaselineHarnessTests(unittest.TestCase):
 
     def test_missing_raw_artifact_is_infrastructure_not_bad_science(self):
         self.make_complete_receipt()
-        self.assertEqual(h.finalize(self.output, HEAD, PREREG, "success", "success"), 1)
+        with patch.object(h, "verify_source", return_value=SOURCE):
+            self.assertEqual(h.finalize(self.output, HEAD, PREREG, "success", "success"), 1)
         self.assertEqual(self.receipt()["status"], "execution_blocked")
         self.assertIsNone(self.receipt()["classification"])
 

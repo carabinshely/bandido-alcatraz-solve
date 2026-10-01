@@ -8,7 +8,7 @@ import tempfile
 
 def test_workflow_initializes_then_runs_once_with_upload_reserve():
     text=(Path(__file__).parents[1]/'.github/workflows/canonical-baseline.yml').read_text()
-    assert 'types: [opened]' in text
+    assert 'types: [opened, synchronize]' in text
     assert "PYTHONDONTWRITEBYTECODE: '1'" in text
     assert "PYTHONPYCACHEPREFIX: ''" in text
     assert "python -m pip install 'pytest>=8.0'" in text
