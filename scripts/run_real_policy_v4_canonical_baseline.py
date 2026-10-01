@@ -69,6 +69,9 @@ def aggregate(records):
 
 
 def main():
+    from bandido_alcatraz.rules import RULESET_ID
+    if RULESET_ID != 'v0-threshold-equipment':
+        raise SystemExit('Historical experiment: use its pinned historical source; current canonical rules differ. No simulation was run.')
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", required=True)
     args = parser.parse_args()

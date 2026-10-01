@@ -156,6 +156,9 @@ def classify(v4_wins, control_wins, p_value):
 
 
 def main():
+    from bandido_alcatraz.rules import RULESET_ID
+    if RULESET_ID != 'v0-threshold-equipment':
+        raise SystemExit('Historical experiment: use its pinned historical source; current canonical rules differ. No simulation was run.')
     # Sanity-check the exact test against the pre-registered prior result.
     assert exact_two_sided_paired_binomial(5, 1) == 0.21875
     assert exact_two_sided_paired_binomial(0, 0) is None

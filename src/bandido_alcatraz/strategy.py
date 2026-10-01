@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from random import Random
 
 from .board import Board
-from .game import GameState
+from .game import GameState, PlayerObservation
 from .model import CardDefinition, Material
 from .moves import Action, Move, legal_moves
 from .rules import is_equipment_ready
@@ -86,8 +86,6 @@ def preview_ordinary_non_exit_placement_without_draw(
         raise ValueError("preview requires an ordinary placement move")
     if move.hand_index < 0 or move.hand_index >= len(state.hand):
         raise IndexError("hand_index out of range")
-    if len(state.hand) != 3:
-        raise ValueError("visible-repair preview requires a 3-card hand")
     if move not in state.legal_moves():
         raise ValueError("preview requires a currently legal move")
 
@@ -141,6 +139,9 @@ def preview_move_without_draw(
         exit_seen=state.exit_seen,
         turns=state.turns,
         set_aside_unplayable=state.set_aside_unplayable,
+        collected_equipment=state.collected_equipment,
+        setup=state.setup,
+        player_index=state.player_index,
     )
     successor.apply(move, validate=False)
 
@@ -389,7 +390,7 @@ class WeightedGreedyPolicy:
 def clone_state(state: GameState) -> GameState:
     return GameState(
         board=state.board.clone(),
-        draw_pile=list(state.draw_pile),
+        draw_pile=[] if isinstance(state, PlayerObservation) else list(state.draw_pile),
         hand=list(state.hand),
         raincoats=state.raincoats,
         ropes=state.ropes,
@@ -397,6 +398,10 @@ def clone_state(state: GameState) -> GameState:
         exit_seen=state.exit_seen,
         turns=state.turns,
         set_aside_unplayable=state.set_aside_unplayable,
+        face_down_set_aside=() if isinstance(state, PlayerObservation) else state.face_down_set_aside,
+        collected_equipment=state.collected_equipment,
+        setup=state.setup,
+        player_index=state.player_index,
     )
 
 

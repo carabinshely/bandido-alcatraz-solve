@@ -38,15 +38,15 @@ Implemented and validated:
 - board placement and tunnel/earth matching;
 - water-half covering;
 - equipment/victory model;
-- deterministic three-card deck/hand/turn engine;
+- deterministic configurable three-/six-card solo deck/hand/turn engine;
 - deterministic legal-move ordering across Python hash seeds;
 - seeded simulation and policy framework;
 - synthetic and real-deck smoke coverage;
 - static final-board SVG rendering with physical-card placement history;
-- exact deterministic V7 final-board reconstruction/export;
+- public collected-equipment history and SVG set-aside thumbnails;
 - strategy diagnostics through the current research track.
 
-The current real-deck research variant remains explicitly labeled `v0-threshold-equipment` because it uses raincoats >=3 and ropes >=2, while the cited rulebook wording uses exact counts.
+The canonical model is `v1-exact-equipment-full-hand-refresh`: exactly 3 raincoats and 2 ropes. Setup axes are independent; initial research uses five-exit START and six-card solo hand. Full-hand solo refresh is an owner-selected interpretation of ambiguous publisher wording. See [modeling-v1](docs/modeling-v1.md). Historical V1–V7 results remain tied to their old source/model and do not establish current-model performance.
 
 The durable research/orchestration log is Issue #2.
 
@@ -55,9 +55,10 @@ The durable research/orchestration log is Issue #2.
 See [docs/svg-final-boards.md](docs/svg-final-boards.md) for the placement-history
 model, renderer legend, generic API, and V7 provenance checks.
 
-To regenerate every V7 final board locally:
+Historical V7 export requires the original source, rather than the current exact-rule engine:
 
 ```bash
+git checkout f26781b87451ceb49069c29276d60e03b18ba0d7
 python -m pip install -e .
 python scripts/export_final_boards.py \
   --experiment V7 \
@@ -68,3 +69,5 @@ The command writes 100 standalone SVG files, including both wins and losses,
 plus `manifest.json`. Historical V7 is reconstructed by exact deterministic
 re-simulation and is rejected before output if its final records no longer
 match the durable V7 receipt.
+
+Current-model exports accept final public observations and include explicit collected equipment identities. Multiplayer setup validation is available; multiplayer execution and communication policies remain deferred to Issue #27.

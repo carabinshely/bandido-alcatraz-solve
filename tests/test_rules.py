@@ -1,10 +1,10 @@
 from bandido_alcatraz.rules import GameStatus, is_equipment_ready, is_victory
 
 
-def test_equipment_threshold_accepts_more_than_minimum() -> None:
+def test_equipment_exact_rejects_overcollection() -> None:
     assert is_equipment_ready(3, 2)
-    assert is_equipment_ready(4, 2)
-    assert is_equipment_ready(3, 3)
+    assert not is_equipment_ready(4, 2)
+    assert not is_equipment_ready(3, 3)
 
 
 def test_victory_requires_exit_closed_tunnels_no_water_and_equipment() -> None:

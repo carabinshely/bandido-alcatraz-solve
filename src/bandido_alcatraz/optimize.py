@@ -5,6 +5,7 @@ from itertools import product
 from typing import Iterable, Mapping
 
 from .model import CardDefinition
+from .setup import GameSetup
 from .simulate import SimulationSummary, run_many
 from .strategy import PolicyWeights, WeightedGreedyPolicy
 
@@ -61,6 +62,7 @@ def search_weights(
     candidates: Iterable[PolicyWeights],
     training_seeds: range,
     evaluation_seeds: range,
+    setup: GameSetup | None = None,
 ) -> WeightSearchResult:
     candidate_list = list(candidates)
     if not candidate_list:
@@ -78,6 +80,7 @@ def search_weights(
             hand_size=hand_size,
             policy=WeightedGreedyPolicy(weights),
             seeds=training_seeds,
+            setup=setup,
         )
         trained.append(TrainingCandidate(weights=weights, summary=summary))
 
@@ -92,6 +95,7 @@ def search_weights(
         hand_size=hand_size,
         policy=WeightedGreedyPolicy(best.weights),
         seeds=evaluation_seeds,
+        setup=setup,
     )
     return WeightSearchResult(
         candidates_evaluated=len(trained),

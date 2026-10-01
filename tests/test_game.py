@@ -141,7 +141,7 @@ def test_new_initial_hand_without_exit_is_not_seen() -> None:
     state = GameState.new(
         start_card=card("start", {Direction.EAST}),
         deck=[ordinary],
-        hand_size=1,
+        hand_size=3,
         rng=Random(1),
     )
 
@@ -153,7 +153,7 @@ def test_new_initial_hand_with_exit_is_seen() -> None:
     state = GameState.new(
         start_card=card("start", {Direction.EAST}),
         deck=[exit_card],
-        hand_size=1,
+        hand_size=3,
         rng=Random(1),
     )
 

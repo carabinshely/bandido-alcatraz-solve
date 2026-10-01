@@ -10,6 +10,8 @@ from bandido_alcatraz.policies import (
     RandomLegalPolicy,
 )
 from bandido_alcatraz.simulate import run_many
+from bandido_alcatraz.rules import RULESET_ID
+from bandido_alcatraz.setup import SOLO_EASY
 
 
 ROOT = Path(__file__).parents[1]
@@ -20,19 +22,18 @@ def main() -> None:
     seeds = range(20)
 
     common = {
-        "start_card": deck.start_easy,
+        "start_card": deck.start_for_setup(SOLO_EASY),
         "deck": deck.draw_deck(),
-        "hand_size": 3,
+        "hand_size": SOLO_EASY.hand_size,
         "seeds": seeds,
+        "setup": SOLO_EASY,
     }
     result = {
-        "rules_variant": "v0-threshold-equipment",
-        "warning": (
-            "Real photographed deck, but project v0 intentionally treats "
-            "equipment as raincoats>=3 and ropes>=2."
-        ),
+        "rules_variant": RULESET_ID,
+        "setup_id": SOLO_EASY.setup_id,
+        "warning": "Routine spent-seed smoke, not performance evidence or confirmation",
         "start_side": "easy-5-exit",
-        "hand_size": 3,
+        "hand_size": SOLO_EASY.hand_size,
         "seed_range": [0, 19],
         "random_legal": asdict(
             run_many(policy=RandomLegalPolicy(), **common)

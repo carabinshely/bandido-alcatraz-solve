@@ -78,6 +78,9 @@ def selection_key(summary):
 
 
 def main():
+    from bandido_alcatraz.rules import RULESET_ID
+    if RULESET_ID != 'v0-threshold-equipment':
+        raise SystemExit('Historical experiment: use its pinned historical source; current canonical rules differ. No simulation was run.')
     deck = load_real_deck(ROOT / "data")
     training_seeds = range(30)
     held_out_seeds = range(100, 130)
