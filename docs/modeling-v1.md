@@ -1,5 +1,7 @@
 # Canonical exact-equipment model and setup migration
 
+> **Historical model (superseded).** This document preserves the v1 decision, including its now-rejected unrestricted COLLECT interpretation. The current canonical rules are [modeling-v2](modeling-v2.md); do not use this document as current legality or baseline authority.
+
 Authority: Issues #26, #27, #28 and Issue #2's 2026-10-01 migration receipt.
 Ruleset ID: `v1-exact-equipment-full-hand-refresh`.
 

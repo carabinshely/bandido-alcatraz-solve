@@ -5,7 +5,7 @@ from bandido_alcatraz.game import GameState, PlayerObservation
 from bandido_alcatraz.setup import GameSetup, StartSide
 from bandido_alcatraz.physical_deck import load_real_deck
 from bandido_alcatraz.strategy import clone_state, preview_move_without_draw
-from bandido_alcatraz.moves import Action
+from bandido_alcatraz.moves import Action, Move
 from bandido_alcatraz.simulate import play_game
 from test_game import card, board_with_east_exit
 from bandido_alcatraz.model import Direction, Material
@@ -55,15 +55,23 @@ def test_refresh_order_keeps_existing_deterministic_convention():
     assert short.refresh_unplayable_hand() and short.hand==cards[:2]
 
 
-def test_overcollection_legal_and_unwinnable_and_not_refreshable():
+def test_overcollection_rejected_but_legal_placement_prevents_refresh():
     coat=card('coat',{Direction.WEST},material=Material.RAINCOAT)
-    state=GameState(board_with_east_exit(),[],[coat],raincoats=3,ropes=2)
+    replacement=card('replacement',{Direction.WEST})
+    state=GameState(board_with_east_exit(),[replacement],[coat],raincoats=3,ropes=2)
+    # The historic excess COLLECT is now illegal; its card still has normal PLACE moves.
+    moves=state.legal_moves()
+    assert moves and all(move.action is Action.PLACE for move in moves)
     assert not state.refresh_unplayable_hand()
-    move=next(m for m in state.legal_moves() if m.action is Action.COLLECT)
-    state.apply(move)
-    assert state.raincoats==4 and not state.won
-    assert state.collected_equipment[0].card is coat
-    assert state.collected_equipment[0].turn==1
+    with pytest.raises(ValueError, match='illegal collect'):
+        state.apply(Move(Action.COLLECT,0))
+    assert state.raincoats==3 and state.ropes==2 and state.turns==0
+    assert state.hand==[coat] and state.draw_pile==[replacement]
+    assert not state.collected_equipment
+    state.apply(moves[0])
+    assert state.raincoats==3 and not state.won
+    assert state.board.open_tunnels==0 and state.turns==1
+    assert not state.collected_equipment
 
 
 def test_history_is_clone_safe_and_visible_without_hidden_draw():

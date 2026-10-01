@@ -20,7 +20,7 @@ def test_legal_moves_include_collect_and_place_for_equipment_card() -> None:
         material=Material.ROPE,
     )
 
-    moves = legal_moves(board, (equipment,))
+    moves = legal_moves(board, (equipment,), raincoats=0, ropes=0)
 
     assert any(move.action is Action.COLLECT for move in moves)
     assert any(
@@ -34,7 +34,7 @@ def test_symmetric_rotations_do_not_duplicate_same_placement() -> None:
     board.seed(card("start", {Direction.EAST}))
     dead_end = card("end", {Direction.WEST})
 
-    moves = legal_moves(board, (dead_end,))
+    moves = legal_moves(board, (dead_end,), raincoats=0, ropes=0)
     placements = [move for move in moves if move.action is Action.PLACE]
 
     assert len(placements) == 1
@@ -66,7 +66,7 @@ def test_candidate_origins_are_canonicalized_before_move_ordering(monkeypatch) -
 
     placements = [
         move
-        for move in legal_moves(board, (symmetric,))
+        for move in legal_moves(board, (symmetric,), raincoats=0, ropes=0)
         if move.action is Action.PLACE
     ]
 

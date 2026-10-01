@@ -281,7 +281,7 @@ def test_standalone_exit_capacity_matches_canonical_legal_moves() -> None:
     board = board_with_two_open()
     exit_card = synthetic_exit_card()
 
-    expected = len(legal_moves(board, (exit_card,)))
+    expected = len(legal_moves(board, (exit_card,), raincoats=3, ropes=2))
     actual = standalone_exit_legal_move_count(board, exit_card)
 
     assert expected == actual == 2
@@ -518,7 +518,7 @@ def test_equipment_collection_cannot_count_as_repair() -> None:
 
     assert any(
         move.action is Action.COLLECT
-        for move in legal_moves(preview.resulting_board, (collect_only,))
+        for move in legal_moves(preview.resulting_board, (collect_only,), raincoats=0, ropes=0)
     )
     assert not has_visible_exit_repair_reserve(
         preview.resulting_board,

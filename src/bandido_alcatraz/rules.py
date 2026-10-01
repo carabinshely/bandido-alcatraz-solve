@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-RULESET_ID = "v1-exact-equipment-full-hand-refresh"
+from .model import Material
+
+RULESET_ID = "v2-exact-equipment-quota-limited-collect-full-hand-refresh"
 
 
 @dataclass(frozen=True, slots=True)
@@ -17,6 +19,15 @@ class GameStatus:
 def is_equipment_ready(raincoats: int, ropes: int) -> bool:
     """Canonical invariant: exactly three raincoats and two ropes."""
     return raincoats == 3 and ropes == 2
+
+
+def can_collect(material: Material | None, *, raincoats: int, ropes: int) -> bool:
+    """COLLECT is available only while that material's exact quota is unmet."""
+    return (
+        material is Material.RAINCOAT and raincoats < 3
+    ) or (
+        material is Material.ROPE and ropes < 2
+    )
 
 
 def is_victory(status: GameStatus) -> bool:

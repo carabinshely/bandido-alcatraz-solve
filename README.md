@@ -46,7 +46,9 @@ Implemented and validated:
 - public collected-equipment history and SVG set-aside thumbnails;
 - strategy diagnostics through the current research track.
 
-The canonical model is `v1-exact-equipment-full-hand-refresh`: exactly 3 raincoats and 2 ropes. Setup axes are independent; initial research uses five-exit START and six-card solo hand. Full-hand solo refresh is an owner-selected interpretation of ambiguous publisher wording. See [modeling-v1](docs/modeling-v1.md). Historical V1–V7 results remain tied to their old source/model and do not establish current-model performance.
+The canonical model is `v2-exact-equipment-quota-limited-collect-full-hand-refresh`: victory requires exactly 3 raincoats and 2 ropes; COLLECT is legal only below the selected material's quota (raincoats < 3, ropes < 2). Equipment cards remain eligible for ordinary PLACE actions at or above quota. Setup axes are independent; initial research uses five-exit START and six-card solo hand. Full-hand solo refresh is an unchanged owner-selected interpretation of ambiguous publisher wording. See [modeling-v2](docs/modeling-v2.md).
+
+Historical V1–V7 results and the superseded Worker #29 / PR #30 diagnostic remain tied to their original source/model and do not establish current-model performance. The corrected baseline may rerun only the same already-spent 400 seeds, `1000000`–`1000399`, after the reviewed model is merged and its exact source, policy and setup are frozen. This correction allocates no new seeds and makes no win-rate or positive-win guarantee; see the [migration and baseline gate](docs/modeling-v2.md#migration-and-baseline-gate).
 
 The durable research/orchestration log is Issue #2.
 
