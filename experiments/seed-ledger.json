@@ -184,7 +184,7 @@
       ],
       "role": "spent paired development; never confirmation",
       "confirmation_eligible": false,
-      "state": "preregistered; not executed",
+      "state": "complete; exact candidate closed",
       "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5928556762",
       "model_base": "d357a01bed0cccb34bae3c440cc7201ef39a2a84",
       "baseline_checkpoint_commit": "7be68ee6eac1337663b960791812c8092c7d53e4",
@@ -218,7 +218,15 @@
           "fresh_byte_readback_verified": true,
           "note": "Receipt status integrity_invalid from generic test failure; live job log establishes test timeout, with cohort skipped and zero attempts. Preserve receipt unchanged."
         }
-      ]
+      ],
+      "evaluated_commit": "7a2b681f2d78c9e4cef466eb5250c4bd6c6c52ed",
+      "run_id": 36848990406,
+      "classification": "equipment_opportunity_tie_development_no_advancement",
+      "candidate_advanced": false,
+      "manifest_path": "experiments/equipment-opportunity-tie/development-2026-10-01.manifest.json",
+      "net_wins": 0,
+      "control_wins": 45,
+      "candidate_wins": 45
     }
   ],
   "fresh_confirmation_allocations": [],
