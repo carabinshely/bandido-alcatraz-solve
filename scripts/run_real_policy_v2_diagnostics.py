@@ -50,6 +50,9 @@ def summarize(results):
 
 
 def main() -> None:
+    from bandido_alcatraz.rules import RULESET_ID
+    if RULESET_ID != 'v0-threshold-equipment':
+        raise SystemExit('Historical experiment: use its pinned historical source; current canonical rules differ. No simulation was run.')
     deck = load_real_deck(ROOT / "data")
     seeds = range(50)
     policies = {

@@ -5,6 +5,7 @@ from math import sqrt
 from typing import Mapping
 
 from .model import CardDefinition
+from .setup import GameSetup
 from .policies import Policy
 from .simulate import GameResult, play_game
 
@@ -65,6 +66,7 @@ def evaluate_policies(
     hand_size: int,
     policies: Mapping[str, Policy],
     seeds: range,
+    setup: GameSetup | None = None,
 ) -> EvaluationSuite:
     names = list(policies)
     if not names:
@@ -81,6 +83,7 @@ def evaluate_policies(
                 hand_size=hand_size,
                 policy=policy,
                 seed=seed,
+                setup=setup,
             )
             for seed in seeds
         ]

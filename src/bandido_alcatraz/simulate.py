@@ -6,6 +6,8 @@ from random import Random
 from .game import GameState
 from .model import CardDefinition
 from .policies import Policy
+from .setup import GameSetup
+from .rules import RULESET_ID
 
 
 @dataclass(frozen=True, slots=True)
@@ -18,6 +20,8 @@ class GameResult:
     ropes: int
     exit_placed: bool
     reason: str
+    ruleset_id: str
+    setup_id: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -37,11 +41,12 @@ def play_game(
     policy: Policy,
     seed: int,
     max_steps: int = 1000,
+    setup: GameSetup | None = None,
 ) -> GameResult:
-    if hand_size != 3:
-        raise NotImplementedError(
-            "v0 simulation supports 3-card hands until solo-easy refresh semantics are verified"
-        )
+    setup = setup or GameSetup(hand_size=hand_size)
+    setup.require_supported_execution()
+    if setup.hand_size != hand_size:
+        raise ValueError('hand_size disagrees with setup')
 
     rng = Random(seed)
     state = GameState.new(
@@ -49,28 +54,35 @@ def play_game(
         deck=deck,
         hand_size=hand_size,
         rng=rng,
+        setup=setup,
     )
+
+    def finish(reason):
+        hook = getattr(policy, 'on_game_finished', None)
+        if hook is not None:
+            hook(state.observation())
+        return _result(state, reason)
 
     for _ in range(max_steps):
         if state.won:
-            return _result(state, "win")
+            return finish("win")
 
         if state.board.open_tunnels == 0:
-            return _result(state, "closed_tunnels_conditions_failed")
+            return finish("closed_tunnels_conditions_failed")
 
         if not state.hand and not state.draw_pile:
-            return _result(state, "deck_exhausted")
+            return finish("deck_exhausted")
 
-        move = policy.choose(state, rng)
+        move = policy.choose(state.observation(), rng)
         if move is None:
             if state.refresh_unplayable_hand():
                 continue
             reason = "deck_exhausted" if state.exhausted else "no_legal_move"
-            return _result(state, reason)
+            return finish(reason)
 
         state.apply(move)
 
-    return _result(state, "step_limit")
+    return finish("step_limit")
 
 
 def run_many(
@@ -80,6 +92,7 @@ def run_many(
     hand_size: int,
     policy: Policy,
     seeds: range,
+    setup: GameSetup | None = None,
 ) -> SimulationSummary:
     results = [
         play_game(
@@ -88,6 +101,7 @@ def run_many(
             hand_size=hand_size,
             policy=policy,
             seed=seed,
+            setup=setup,
         )
         for seed in seeds
     ]
@@ -117,4 +131,6 @@ def _result(state: GameState, reason: str) -> GameResult:
         ropes=state.ropes,
         exit_placed=state.exit_placed,
         reason=reason,
+        ruleset_id=RULESET_ID,
+        setup_id=state.setup.setup_id,
     )

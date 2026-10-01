@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+RULESET_ID = "v1-exact-equipment-full-hand-refresh"
+
 
 @dataclass(frozen=True, slots=True)
 class GameStatus:
@@ -13,8 +15,8 @@ class GameStatus:
 
 
 def is_equipment_ready(raincoats: int, ropes: int) -> bool:
-    """Project v0 rule: required equipment is a minimum threshold."""
-    return raincoats >= 3 and ropes >= 2
+    """Canonical invariant: exactly three raincoats and two ropes."""
+    return raincoats == 3 and ropes == 2
 
 
 def is_victory(status: GameStatus) -> bool:

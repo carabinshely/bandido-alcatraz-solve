@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .deck_data import load_deck_observations
 from .model import CardDefinition, Material
+from .setup import GameSetup, StartSide
 from .photo_geometry import PhotoGeometry, card_from_photo_geometry
 
 
@@ -15,6 +16,9 @@ class RealDeck:
     exit_card: CardDefinition
     start_easy: CardDefinition
     start_normal: CardDefinition
+
+    def start_for_setup(self, setup: GameSetup) -> CardDefinition:
+        return self.start_easy if setup.start_side is StartSide.EASY else self.start_normal
 
     def draw_deck(self) -> list[CardDefinition]:
         return [*self.ordinary_cards, self.exit_card]

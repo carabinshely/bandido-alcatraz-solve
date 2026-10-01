@@ -3,7 +3,7 @@ from __future__ import annotations
 from random import Random
 from typing import Protocol
 
-from .game import GameState
+from .game import GameState, PlayerObservation
 from .model import CardDefinition
 from .moves import Move
 from .strategy import (
@@ -19,7 +19,7 @@ from .strategy import (
 
 
 class Policy(Protocol):
-    def choose(self, state: GameState, rng: Random) -> Move | None: ...
+    def choose(self, state: PlayerObservation, rng: Random) -> Move | None: ...
 
 
 class RandomLegalPolicy:

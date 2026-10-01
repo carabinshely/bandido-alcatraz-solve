@@ -6,6 +6,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 
 from .board import Board, CardPlacement, PlacementKind
+from .game import CollectedEquipment
 from .model import Direction
 
 SVG_NS = "http://www.w3.org/2000/svg"
@@ -14,6 +15,8 @@ ET.register_namespace("", SVG_NS)
 _CELL = 48
 _MARGIN = 30
 _HEADER = 58
+_EQUIPMENT_TILE_WIDTH = 240
+_EQUIPMENT_TILE_HEIGHT = 150
 
 _DELTAS: dict[Direction, tuple[int, int]] = {
     Direction.NORTH: (0, -1),
@@ -75,10 +78,123 @@ def _placement_label(placement: CardPlacement) -> str:
     return f"p{placement.placement_index} {rotation}"
 
 
+def collected_equipment_metadata(
+    collected_equipment: tuple[CollectedEquipment, ...],
+) -> list[dict[str, object]]:
+    """Serialize the retained physical cards, never infer identities from counts."""
+    return [
+        {
+            "collection_index": index,
+            "card_id": item.card_id,
+            "material": item.material.value,
+            "turn": item.turn,
+            "player_index": item.player_index,
+            "cells": [
+                {
+                    "x": cell.x,
+                    "y": cell.y,
+                    "tunnel_edges": sorted(edge.value for edge in cell.tunnel_edges),
+                    "water": cell.water,
+                }
+                for cell in sorted(item.card.cells, key=lambda cell: (cell.y, cell.x))
+            ],
+        }
+        for index, item in enumerate(collected_equipment, start=1)
+    ]
+
+
+def _render_collected_equipment(
+    root: ET.Element,
+    collected_equipment: tuple[CollectedEquipment, ...],
+    *,
+    top: int,
+    columns: int,
+) -> None:
+    """Draw definition-oriented cards outside the placed-board coordinate system."""
+    panel = ET.SubElement(root, _tag("g"), {"id": "collected-equipment"})
+    ET.SubElement(
+        panel, _tag("text"),
+        {"x": str(_MARGIN), "y": str(top + 20), "font-size": "15",
+         "font-family": "sans-serif", "font-weight": "bold"},
+    ).text = "Collected equipment / set-aside"
+    if not collected_equipment:
+        ET.SubElement(
+            panel, _tag("text"),
+            {"x": str(_MARGIN), "y": str(top + 43), "font-size": "11",
+             "font-family": "sans-serif", "data-role": "empty-equipment"},
+        ).text = "No collected equipment"
+        return
+
+    for offset, item in enumerate(collected_equipment):
+        tx = _MARGIN + (offset % columns) * _EQUIPMENT_TILE_WIDTH
+        ty = top + 36 + (offset // columns) * _EQUIPMENT_TILE_HEIGHT
+        group = ET.SubElement(
+            panel, _tag("g"),
+            {"class": f"collected-card {item.material.value}",
+             "data-card-id": item.card_id, "data-material": item.material.value,
+             "data-collection-index": str(offset + 1), "data-turn": str(item.turn),
+             "data-player-index": str(item.player_index),
+             "transform": f"translate({tx} {ty})"},
+        )
+        ET.SubElement(
+            group, _tag("rect"),
+            {"x": "0", "y": "0", "width": "228", "height": "138", "rx": "6",
+             "fill": "#f1f8e9" if item.material.value == "raincoat" else "#fff3e0",
+             "stroke": "#859178", "data-role": "equipment-card-boundary"},
+        )
+        ET.SubElement(
+            group, _tag("text"),
+            {"x": "10", "y": "18", "font-size": "11",
+             "font-family": "sans-serif", "font-weight": "bold"},
+        ).text = f"#{offset + 1} {item.material.value} | turn {item.turn}"
+        id_attrs = {"x": "10", "y": "35", "font-size": "10",
+                    "font-family": "monospace", "data-role": "equipment-card-id"}
+        if len(item.card_id) > 32:
+            id_attrs.update({"textLength": "208", "lengthAdjust": "spacingAndGlyphs"})
+        ET.SubElement(group, _tag("text"), id_attrs).text = item.card_id
+        ET.SubElement(
+            group, _tag("text"),
+            {"x": "10", "y": "127", "font-size": "9",
+             "font-family": "sans-serif"},
+        ).text = f"player {item.player_index + 1} | definition orientation"
+
+        cells = item.card.cells
+        min_x, max_x = min(cell.x for cell in cells), max(cell.x for cell in cells)
+        min_y, max_y = min(cell.y for cell in cells), max(cell.y for cell in cells)
+        scale = min(30.0, 196 / (max_x - min_x + 1), 65 / (max_y - min_y + 1))
+        left = (228 - (max_x - min_x + 1) * scale) / 2
+        geometry = ET.SubElement(
+            group, _tag("g"), {"data-role": "equipment-geometry"},
+        )
+        for cell in sorted(cells, key=lambda cell: (cell.y, cell.x)):
+            x, y = left + (cell.x - min_x) * scale, 45 + (cell.y - min_y) * scale
+            ET.SubElement(
+                geometry, _tag("rect"),
+                {"x": f"{x:g}", "y": f"{y:g}", "width": f"{scale:g}",
+                 "height": f"{scale:g}", "stroke": "#777777", "stroke-width": "1",
+                 "fill": "#d8efff" if cell.water else "#ffffff",
+                 "data-coord": f"{cell.x},{cell.y}",
+                 "data-water": str(cell.water).lower()},
+            )
+            cx, cy = x + scale / 2, y + scale / 2
+            for edge in sorted(cell.tunnel_edges, key=lambda edge: edge.value):
+                dx, dy = _DELTAS[edge]
+                ET.SubElement(
+                    geometry, _tag("line"),
+                    {"x1": f"{cx:g}", "y1": f"{cy:g}",
+                     "x2": f"{cx + dx * scale / 2:g}",
+                     "y2": f"{cy + dy * scale / 2:g}",
+                     "stroke": "#222222", "stroke-width": f"{scale / 10:g}",
+                     "stroke-linecap": "round", "data-tunnel-edge": edge.value,
+                     "data-coord": f"{cell.x},{cell.y}"},
+                )
+
+
 def render_board_svg(
     board: Board,
     *,
     metadata: Mapping[str, object] | None = None,
+    collected_equipment: tuple[CollectedEquipment, ...] = (),
 ) -> str:
     """Render one final board as dependency-free standalone SVG."""
     cells = board.cells
@@ -94,8 +210,11 @@ def render_board_svg(
     min_y = min(y for _, y in all_coords)
     max_y = max(y for _, y in all_coords)
 
-    width = (max_x - min_x + 1) * _CELL + 2 * _MARGIN
-    height = (max_y - min_y + 1) * _CELL + 2 * _MARGIN + _HEADER
+    width = max(780, (max_x - min_x + 1) * _CELL + 2 * _MARGIN)
+    board_height = (max_y - min_y + 1) * _CELL + 2 * _MARGIN + _HEADER
+    equipment_columns = max(1, (width - 2 * _MARGIN) // _EQUIPMENT_TILE_WIDTH)
+    equipment_rows = (len(collected_equipment) + equipment_columns - 1) // equipment_columns
+    height = board_height + 66 + equipment_rows * _EQUIPMENT_TILE_HEIGHT
 
     payload: dict[str, object] = {
         "final_open_tunnels": board.open_tunnels,
@@ -104,6 +223,9 @@ def render_board_svg(
     }
     if metadata:
         payload.update(metadata)
+    # These identities are authoritative retained history, not caller-supplied labels.
+    payload["collected_equipment"] = collected_equipment_metadata(collected_equipment)
+    payload["collected_equipment_count"] = len(collected_equipment)
 
     root = ET.Element(
         _tag("svg"),
@@ -115,6 +237,7 @@ def render_board_svg(
             "data-renderer": "bandido-alcatraz-final-board-v1",
             "data-open-tunnels": str(board.open_tunnels),
             "data-visible-water": str(board.visible_water_cells),
+            "data-collected-equipment-count": str(len(collected_equipment)),
         },
     )
     title_bits = [
@@ -353,6 +476,9 @@ def render_board_svg(
                 },
             )
 
+    _render_collected_equipment(
+        root, collected_equipment, top=board_height, columns=equipment_columns,
+    )
     return ET.tostring(root, encoding="unicode") + "\n"
 
 
@@ -361,11 +487,12 @@ def write_board_svg(
     path: str | Path,
     *,
     metadata: Mapping[str, object] | None = None,
+    collected_equipment: tuple[CollectedEquipment, ...] = (),
 ) -> Path:
     destination = Path(path)
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(
-        render_board_svg(board, metadata=metadata),
+        render_board_svg(board, metadata=metadata, collected_equipment=collected_equipment),
         encoding="utf-8",
     )
     return destination
