@@ -119,7 +119,7 @@
       ],
       "role": "spent corrected-model baseline validation; never confirmation",
       "confirmation_eligible": false,
-      "state": "preregistered; not executed",
+      "state": "complete",
       "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5925924722",
       "model_base": "45a17097c814e327439cb67404b75c4b4f7dd9b5",
       "ruleset": "v1-exact-equipment-full-hand-refresh",
@@ -127,7 +127,13 @@
       "policy": "BoundedMergeV4Policy(setup_weight=250)",
       "passes": 2,
       "execution_order": "two complete serial ascending-seed passes",
-      "acceptance": "400/400 normalized record equality, complete provenance, no step_limit; zero wins is valid"
+      "acceptance": "400/400 normalized record equality, complete provenance, no step_limit; zero wins is valid",
+      "evaluated_commit": "bf7b1273f8f87b7bc50ccf1ce61acc0f97e9a7f9",
+      "run_id": 36826613482,
+      "classification": "canonical_exact_solo_baseline_reproduced",
+      "manifest_path": "experiments/canonical-exact-solo-baseline/baseline-2026-10-01.manifest.json",
+      "records_per_pass": 400,
+      "exact_replay_matches": 400
     }
   ],
   "fresh_confirmation_allocations": [],

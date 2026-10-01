@@ -1,0 +1,151 @@
+{
+  "accepted_model_commit": "45a17097c814e327439cb67404b75c4b4f7dd9b5",
+  "accepted_model_tree": "6fc68dfd1bded75b3cc09b81ee76add495b63928",
+  "actions_artifact": {
+    "archive": {
+      "sha256": "f386354106cbdda716de84a01ac9568ef229d5e7b3ae26a32af3279134514e89",
+      "size_bytes": 2569475
+    },
+    "id": 11146002287,
+    "journal": {
+      "sha256": "c4b0710e8fbb3b7d949336ad4de39a152f051872c6427100a786299f3f3abe70",
+      "size_bytes": 12728300
+    },
+    "member_count": 802,
+    "receipt": {
+      "sha256": "d6ab96f88bd32ad694c9a0e89c475ca0cf36b3b5904c840e4dda002938c6fd6c",
+      "size_bytes": 26542
+    }
+  },
+  "canonical_raw_bundle": {
+    "bytes": 2491709,
+    "contents": [
+      "actions-artifact.zip",
+      "README.txt",
+      "metadata.json",
+      "inventory.json",
+      "accepted-source-blobs.json",
+      "verified-summary.json",
+      "baseline-job.log",
+      "verify_worker29_baseline.py"
+    ],
+    "drive_id": "1WUML6IMKv7FzCmiqKzc0L2xgJmx_tUHh",
+    "drive_url": "https://drive.google.com/file/d/1WUML6IMKv7FzCmiqKzc0L2xgJmx_tUHh/view",
+    "folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+    "fresh_byte_readback_verified": true,
+    "sha256": "d4b1b1e379fa813ba2c06ac578f07806a8708264da7fcaef1f048360311bc194"
+  },
+  "classification": "canonical_exact_solo_baseline_reproduced",
+  "descriptive_diagnostics": {
+    "note": "Post-run description of the spent baseline only. Overshoot makes exact victory impossible, but is not proved to be the sole failure mechanism.",
+    "overshot_exact_equipment_quota": 383,
+    "wilson95_first_pass_only": [
+      0.02096129419797776,
+      0.057885139532918004
+    ]
+  },
+  "evaluated_commit": "bf7b1273f8f87b7bc50ccf1ce61acc0f97e9a7f9",
+  "execution": {
+    "conclusion": "success",
+    "job_id": 110253597109,
+    "python": "3.11.16",
+    "routine_execution_head_ci": 36826613413,
+    "run_attempt": 1,
+    "run_id": 36826613482,
+    "runner": "bandido-alcatraz-ci"
+  },
+  "experiment_id": "worker29-canonical-exact-solo-baseline-2026-10-01",
+  "freeze_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5926204540",
+  "integrity": {
+    "exact_replay_matches": 400,
+    "harness_blob": "4ac40f10960b71f7a14c7455f08e3b486d9b54a0",
+    "harness_sha256": "b174027c2c0b6fbcc651e4390fe345853986564c2d4d735d012f6ca0105f407e",
+    "source_blobs": {
+      "data/README.md": "2ac91d9da6769934c78a90ba865f3d558f48bbd2",
+      "data/deck-observations-v0.json": "ee38d60277c79dafa7527876367e3e6450ccb53f",
+      "data/deck-v1.json": "9fa2066507ff9a0fb6b922d52e84529b35acb05e",
+      "data/owner-photo-inventory-v0.json": "5911fdeea4138421945d0cffd69908088cad5639",
+      "data/proxy-bandido-covid-v0.json": "a9e3013f58a94216e920637461331e3c8fccdeae",
+      "src/bandido_alcatraz/__init__.py": "425141547c12e61eee6ecafd5b7136322f0af6d4",
+      "src/bandido_alcatraz/board.py": "e04e9255ecc9c8181ca49903dfb6501a67c8a482",
+      "src/bandido_alcatraz/catalog.py": "e82ca3d70310281bf5a6c4f325e10f0083d7b0b3",
+      "src/bandido_alcatraz/deck_data.py": "6e997e464736bcd0ad79f6115ff69f3967cd57f5",
+      "src/bandido_alcatraz/evaluate.py": "49cc2da9e651dfc58f4911801b8b923da90c05b4",
+      "src/bandido_alcatraz/export_svg.py": "ab39daf4df714cc8dfe5a1244e8345f8abafbdb2",
+      "src/bandido_alcatraz/fixtures.py": "a12d395871a6a5e2d1c2011c5ac628878a2d5dde",
+      "src/bandido_alcatraz/game.py": "7d1949dd6f21b34a011e2f7ee5a96d2129463baf",
+      "src/bandido_alcatraz/model.py": "dc469a82a5fab7574aebe25a18543494494f4b11",
+      "src/bandido_alcatraz/moves.py": "84007416428f3b2b94895765db4d17e0adda833b",
+      "src/bandido_alcatraz/optimize.py": "53e9f2f0265d1e5ee542413a842caedbd67cd110",
+      "src/bandido_alcatraz/photo_geometry.py": "eb40808af9616b2d77c3e6519e010021992d364a",
+      "src/bandido_alcatraz/physical_deck.py": "87601a25bf16f181753f71b2c84dc3c0fa6fe418",
+      "src/bandido_alcatraz/policies.py": "988cbcd476709111abca25f00c0d5469f9456a8a",
+      "src/bandido_alcatraz/proxy.py": "7c590565591d558e1d18d38a8471abd02bcac156",
+      "src/bandido_alcatraz/proxy_data.py": "c0d63b6d0de90626600cb0d1ca5fa6917c7908f4",
+      "src/bandido_alcatraz/render_svg.py": "2951661e5b12bb85de04c563078bfd405fbef924",
+      "src/bandido_alcatraz/rules.py": "f2c8c0add03ebff432945c44ef8124976548a8ad",
+      "src/bandido_alcatraz/setup.py": "b055fe799a60e499af1fbd86275d3b7e61f2b656",
+      "src/bandido_alcatraz/simulate.py": "7637bed25e3d380ff0928927b8bb97abd9a2af56",
+      "src/bandido_alcatraz/strategy.py": "f315e637508bde97c4793f43115774fa4f9b7fe7"
+    },
+    "source_map_sha256": "54156930984b646b6431b325dba6ed39e13f89c165c0d4124dab436c913f975a",
+    "verified_normalized_records": 800,
+    "verified_raw_result_sidecars": 800
+  },
+  "interpretation": "Valid reproducible corrected-model baseline. Two deterministic passes are not independent replication; no strategy improvement, confirmation or PROGRAM_SUCCESS claim.",
+  "policy": {
+    "class": "BoundedMergeV4Policy",
+    "setup_weight": 250
+  },
+  "population": {
+    "confirmation_eligible": false,
+    "count": 400,
+    "order": "serial ascending, full population each pass",
+    "passes": 2,
+    "role": "spent model-validation baseline; never confirmation",
+    "seeds_inclusive": [
+      1000000,
+      1000399
+    ]
+  },
+  "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5925924722",
+  "reproduction": "Download canonical raw bundle, verify its SHA256, then use its README command with scripts/verify_worker29_baseline.py and accepted model data. No simulation is needed for artifact verification. Frozen execution harness remains available at evaluated_commit.",
+  "ruleset": "v1-exact-equipment-full-hand-refresh",
+  "schema": "bandido-canonical-baseline-manifest-v1",
+  "setup": {
+    "hand_size": 6,
+    "player_count": 1,
+    "setup_id": "p1-easy-5-exit-hand6-first0-full-hand-refresh",
+    "start_side": "easy-5-exit",
+    "starting_player": 0
+  },
+  "summary": {
+    "failure_reasons": {
+      "closed_tunnels_conditions_failed": 32,
+      "deck_exhausted": 266,
+      "no_legal_move": 88
+    },
+    "games_per_pass": 400,
+    "interpretation": "Corrected-model baseline only; spent seeds; no improvement or confirmation claim",
+    "matching_records": 400,
+    "normalized_pass_sha256": "9838a7fa0be7eb815c5c96f34b0ddc497b95ddb83a1aa913d62892852fbd3f66",
+    "win_rate": 0.035,
+    "winning_seed_ids": [
+      1000018,
+      1000019,
+      1000104,
+      1000148,
+      1000169,
+      1000171,
+      1000219,
+      1000232,
+      1000270,
+      1000276,
+      1000289,
+      1000326,
+      1000349,
+      1000353
+    ],
+    "wins": 14
+  }
+}
