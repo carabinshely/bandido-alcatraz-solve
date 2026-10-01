@@ -1,7 +1,7 @@
 name: Worker31 equipment opportunity development
 on:
   pull_request:
-    types: [opened]
+    types: [opened, synchronize]
 permissions:
   contents: read
 jobs:
@@ -56,10 +56,10 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install 'pytest>=8.0'
         timeout-minutes: 1
-      - name: Routine and synthetic tests
+      - name: Worker31 focused synthetic tests
         id: tests
-        timeout-minutes: 2
-        run: python -m pytest -q
+        timeout-minutes: 3
+        run: python -m pytest -q tests/test_equipment_opportunity.py tests/test_equipment_development_harness.py tests/test_equipment_development_workflow.py
       - name: Three complete fixed development phases
         id: cohort
         timeout-minutes: 46

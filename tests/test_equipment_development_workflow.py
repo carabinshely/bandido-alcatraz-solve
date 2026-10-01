@@ -8,7 +8,7 @@ import tempfile
 
 def test_workflow_initializes_then_runs_once_with_upload_reserve():
     text=(Path(__file__).parents[1]/'.github/workflows/equipment-opportunity-development.yml').read_text()
-    assert 'types: [opened]' in text
+    assert 'types: [opened, synchronize]' in text
     assert "PYTHONDONTWRITEBYTECODE: '1'" in text
     assert "PYTHONPYCACHEPREFIX: ''" in text
     assert "python -m pip install 'pytest>=8.0'" in text
@@ -48,9 +48,9 @@ def test_workflow_retains_fixed_compute_kill_and_finalization_upload_budget():
     text = (Path(__file__).parents[1] / '.github/workflows/equipment-opportunity-development.yml').read_text()
     assert 'timeout --signal=TERM --kill-after=30s 2700s' in text
     assert 'timeout-minutes: 46' in text
-    assert 'synchronize' not in text and 'workflow_dispatch' not in text
+    assert 'types: [opened, synchronize]' in text and 'workflow_dispatch' not in text
     budgets = [int(value) for value in re.findall(r'^        timeout-minutes: (\d+)$', text, re.MULTILINE)]
-    assert sum(budgets) <= 59
+    assert sum(budgets) <= 60
     assert "tempfile.mkstemp(prefix='infrastructure-blocker-'" in text
     assert 'persist-credentials: false' in text
     assert 'fetch-depth: 0' in text
@@ -110,3 +110,14 @@ def test_failed_fallback_path_validation_cannot_enable_upload(tmp_path):
     assert result.returncode != 0
     assert outputs.read_text() == ''
     assert list(workspace.iterdir()) == []
+
+
+def test_research_preflight_is_focused_and_routine_ci_keeps_full_suite():
+    root = Path(__file__).parents[1]
+    research = (root / '.github/workflows/equipment-opportunity-development.yml').read_text()
+    command = 'python -m pytest -q tests/test_equipment_opportunity.py tests/test_equipment_development_harness.py tests/test_equipment_development_workflow.py'
+    assert f'run: {command}\n' in research
+    assert 'name: Worker31 focused synthetic tests\n        id: tests\n        timeout-minutes: 3' in research
+    assert '        run: python -m pytest -q\n' not in research
+    routine = (root / '.github/workflows/test.yml').read_text()
+    assert 'run: python -m pytest -q\n' in routine

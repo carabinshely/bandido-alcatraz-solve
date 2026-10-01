@@ -202,7 +202,23 @@
       "execution_order": "three complete serial ascending-seed phases",
       "advancement_gate_net_wins": 8,
       "control_normalized_sha256": "a4d2d06e5592caa35c03d00337d0254c07f767d5cb8ee0777cbb51f543803021",
-      "acceptance": "all400 control records match Worker30; full400candidate/replay records and deterministic audits identical; complete1200records and source/quota/geometry provenance; net>=8 is development advancement only"
+      "acceptance": "all400 control records match Worker30; full400candidate/replay records and deterministic audits identical; complete1200records and source/quota/geometry provenance; net>=8 is development advancement only",
+      "preserved_attempts": [
+        {
+          "run_id": 36847225902,
+          "run_attempt": 1,
+          "execution_head": "4f3b2928fe65f11508730b0651602ef8c13125f2",
+          "status": "pre-execution test timeout; no research outcome",
+          "research_seeds_executed": 0,
+          "artifact_id": 11154267184,
+          "raw_archive_sha256": "b4d6f4490d8157c4acabc2145f715aece573fbb6161ba4cbe6c7acf6a3739f19",
+          "drive_bundle_id": "1YCXH3ofLvCbOD5RGb6QRQehU-DsqTRKq",
+          "drive_bundle_sha256": "1bb37b53619ace885811933b8d05ce662f91dfa9a690cecdee61c1d0be5600f9",
+          "drive_bundle_bytes": 21153,
+          "fresh_byte_readback_verified": true,
+          "note": "Receipt status integrity_invalid from generic test failure; live job log establishes test timeout, with cohort skipped and zero attempts. Preserve receipt unchanged."
+        }
+      ]
     }
   ],
   "fresh_confirmation_allocations": [],

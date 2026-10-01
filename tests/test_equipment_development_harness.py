@@ -1003,13 +1003,23 @@ def test_candidate_audit_mismatch_is_preserved_before_rejection(tmp_path):
     assert h.read_trace(wrapped.path)[1]['audit'] == BadAudit.last_audit
 
 
+def copy_scientific_fixture(original, destination):
+    """Copy intended scientific inputs, never editable-install/build metadata."""
+    import shutil
+    inputs = [*sorted((original / 'src/bandido_alcatraz').glob('*.py')),
+              original / 'data/README.md', *sorted((original / 'data').glob('*.json'))]
+    for source in inputs:
+        target = destination / source.relative_to(original)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+
+
 def test_real_git_checkout_with_actions_context_pins_exactly_one_new_scientific_file(tmp_path, monkeypatch):
     import shutil
     root = tmp_path / 'real-checkout'
     root.mkdir()
     original = Path(h.__file__).parents[1]
-    for directory in ('src', 'data'):
-        shutil.copytree(original / directory, root / directory, ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
+    copy_scientific_fixture(original, root)
     candidate = (root / h.CANDIDATE_PATH).read_bytes()
     (root / h.CANDIDATE_PATH).unlink()
     (root / h.HARNESS_PATH).parent.mkdir()
@@ -1289,3 +1299,28 @@ def test_nested_public_trace_schema_and_scalar_types_reject_rehashed_hidden_fiel
     candidate[1]['audit']['primary_tier_sha256'] = h.digest(candidate[1]['audit']['primary_tier'])
     with pytest.raises(h.IntegrityError, match='move hand index'):
         h.validate_trace(candidate, record(seed), 2)
+
+
+def test_scientific_git_fixture_excludes_editable_install_metadata(tmp_path):
+    import shutil
+    original = Path(h.__file__).parents[1]
+    polluted = tmp_path / 'installed-tree'
+    for directory in ('src', 'data'):
+        shutil.copytree(original / directory, polluted / directory,
+                        ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
+    metadata = polluted / 'src/bandido_alcatraz_solve.egg-info'
+    metadata.mkdir(exist_ok=True)
+    for name in ('PKG-INFO', 'SOURCES.txt', 'dependency_links.txt', 'requires.txt', 'top_level.txt'):
+        (metadata / name).write_text('synthetic editable-install metadata\n')
+    wheels = polluted / 'src/bandido_alcatraz_solve-0.1.0.dist-info'
+    wheels.mkdir()
+    (wheels / 'METADATA').write_text('synthetic installed-wheel metadata\n')
+    copied = tmp_path / 'fixture'
+    copy_scientific_fixture(polluted, copied)
+    copied_files = {str(path.relative_to(copied)) for path in copied.rglob('*') if path.is_file()}
+    expected = {str(path.relative_to(original)) for path in (original / 'src/bandido_alcatraz').glob('*.py')}
+    expected |= {'data/README.md', *(str(path.relative_to(original)) for path in (original / 'data').glob('*.json'))}
+    assert copied_files == expected
+    assert len(copied_files - {h.CANDIDATE_PATH}) == h.SCIENTIFIC_FILE_COUNT == 26
+    assert all((copied / path).read_bytes() == (original / path).read_bytes() for path in copied_files)
+    assert (metadata / 'PKG-INFO').read_text() == 'synthetic editable-install metadata\n'
