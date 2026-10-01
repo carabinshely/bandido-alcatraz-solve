@@ -128,3 +128,28 @@ def test_refresh_preserves_physical_identities_across_zones():
     assert before==after and len(state.face_down_set_aside)==6
     assert state.private_hands[0] is state.hand
     assert not hasattr(state.observation(),'face_down_set_aside')
+
+
+def test_rejected_setup_preserves_caller_rng():
+    rng=Random(17);before=rng.getstate()
+    start=card('start_normal',{Direction.EAST})
+    deck=[card(str(i),{Direction.WEST}) for i in range(10)]
+    with pytest.raises(ValueError, match='START'):
+        GameState.new(start_card=start,deck=deck,hand_size=6,setup=GameSetup(),rng=rng)
+    assert rng.getstate()==before
+
+
+def test_terminal_capture_isolated_from_inner_callback_and_checks_result():
+    from dataclasses import replace
+    from bandido_alcatraz.export_svg import FinalStateCapturePolicy, FinalBoardExport
+    class Policy:
+        def choose(self,state,rng):return None
+        def on_game_finished(self,state):
+            state.board.place(card('hypothetical',{Direction.WEST}),(1,0))
+    capture=FinalStateCapturePolicy(Policy())
+    result=play_game(start_card=card('start',{Direction.EAST}),deck=[],hand_size=6,setup=GameSetup(),policy=capture,seed=0)
+    exported=FinalBoardExport.from_capture(game_index=1,capture=capture,result=result)
+    assert result.open_tunnels==exported.board.open_tunnels==1
+    assert len(exported.board.placements)==1
+    with pytest.raises(ValueError, match='mismatch'):
+        FinalBoardExport.from_capture(game_index=1,capture=capture,result=replace(result,open_tunnels=0))

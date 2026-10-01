@@ -117,12 +117,6 @@ class GameState:
         setup.require_supported_execution()
         if hand_size != setup.hand_size:
             raise ValueError('hand_size disagrees with setup')
-        draw_pile = list(deck)
-        rng.shuffle(draw_pile)
-        hand: list[CardDefinition] = []
-        for _ in range(min(hand_size, len(draw_pile))):
-            hand.append(draw_pile.pop())
-
         board = Board()
         board.seed(start_card)
         # Preserve generic synthetic fixtures while binding photographed START
@@ -130,6 +124,13 @@ class GameState:
         real_start_sides = {'start_easy': StartSide.EASY, 'start_normal': StartSide.NORMAL}
         if start_card.card_id in real_start_sides and real_start_sides[start_card.card_id] is not setup.start_side:
             raise ValueError('physical START card disagrees with setup')
+
+        draw_pile = list(deck)
+        rng.shuffle(draw_pile)
+        hand: list[CardDefinition] = []
+        for _ in range(min(hand_size, len(draw_pile))):
+            hand.append(draw_pile.pop())
+
         return cls(board=board, draw_pile=draw_pile, hand=hand, setup=setup)
 
     def observation(self, player_index: int | None = None) -> PlayerObservation:

@@ -17,7 +17,7 @@ from bandido_alcatraz.export_svg import (
     FinalStateCapturePolicy,
     export_final_boards,
 )
-from bandido_alcatraz.game import CollectedEquipment
+from bandido_alcatraz.game import CollectedEquipment, GameState
 from bandido_alcatraz.model import CardDefinition, CellSpec, Direction, Material
 from bandido_alcatraz.moves import Action, Move
 from bandido_alcatraz.render_svg import SVG_NS, render_board_svg
@@ -171,11 +171,13 @@ def test_capture_delegates_identical_choice_rng_and_terminal_hook():
     assert inner.random_value == expected
     assert rng.getstate() == expected_rng.getstate()
     assert capture.final_observation is None
-    terminal = SimpleNamespace(board=_board(), collected_equipment=_equipment())
+    terminal = GameState(board=_board(), draw_pile=[], hand=[], collected_equipment=_equipment()).observation()
     capture.on_game_finished(terminal)
-    assert capture.final_observation is terminal
-    assert capture.last_state is terminal
-    assert inner.final is terminal
+    assert capture.final_observation is not terminal
+    assert capture.last_state is capture.final_observation
+    assert inner.final is not terminal and inner.final is not capture.final_observation
+    assert inner.final.board is not capture.final_observation.board
+    assert inner.final.board.cells == terminal.board.cells == capture.board.cells
     assert capture.collected_equipment == _equipment()
     assert rng.getstate() == expected_rng.getstate()
 

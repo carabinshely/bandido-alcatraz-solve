@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import json
 from pathlib import Path
 from random import Random
@@ -11,6 +11,7 @@ from .board import Board
 from .game import CollectedEquipment, PlayerObservation
 from .moves import Move
 from .policies import Policy
+from .rules import RULESET_ID
 from .render_svg import collected_equipment_metadata, write_board_svg
 
 if TYPE_CHECKING:
@@ -36,11 +37,12 @@ class FinalStateCapturePolicy:
         return self.inner.choose(state, rng)
 
     def on_game_finished(self, observation: PlayerObservation) -> None:
-        self.last_state = observation
-        self.final_observation = observation
+        captured = replace(observation, board=observation.board.clone())
+        self.last_state = captured
+        self.final_observation = captured
         callback = getattr(self.inner, "on_game_finished", None)
         if callback is not None:
-            callback(observation)
+            callback(replace(observation, board=observation.board.clone()))
 
     @property
     def board(self) -> Board:
@@ -80,9 +82,20 @@ class FinalBoardExport:
         observation = capture.final_observation
         if observation is None:
             raise RuntimeError("no terminal observation has been captured")
+        expected = {
+            'won': observation.won, 'turns': observation.turns,
+            'open_tunnels': observation.board.open_tunnels,
+            'visible_water_cells': observation.board.visible_water_cells,
+            'raincoats': observation.raincoats, 'ropes': observation.ropes,
+            'exit_placed': observation.exit_placed, 'ruleset_id': RULESET_ID,
+            'setup_id': observation.setup.setup_id,
+        }
+        for key, value in expected.items():
+            if getattr(result, key) != value:
+                raise ValueError(f'captured observation/result mismatch: {key}')
         return cls(
             game_index=game_index,
-            board=observation.board,
+            board=observation.board.clone(),
             won=result.won,
             turns=result.turns,
             seed=seed,
