@@ -1,0 +1,196 @@
+{
+  "accepted_model_commit": "d357a01bed0cccb34bae3c440cc7201ef39a2a84",
+  "accepted_model_tree": "8f694dfff0999ba57015a6fdb2bcfc05793cf063",
+  "actions_artifact": {
+    "archive": {
+      "sha256": "7a172d6257a4b8b3e7a2677e697013b4b283247f45131779a66d731795f07243",
+      "size_bytes": 2510999
+    },
+    "id": 11150986732,
+    "journal": {
+      "sha256": "189eb214e91620147b0c20e9516553cf6251b0c292d7b138d8c97b3f6ffb23a1",
+      "size_bytes": 12027916
+    },
+    "member_count": 802,
+    "receipt": {
+      "sha256": "148226c78e7b72884a7a48de57ff5ce0142684641c6d381fbcc29830a42f4bae",
+      "size_bytes": 29519
+    }
+  },
+  "canonical_raw_bundle": {
+    "bytes": 2435536,
+    "contents": [
+      "actions-artifact.zip",
+      "README.txt",
+      "metadata.json",
+      "inventory.json",
+      "accepted-source-blobs.json",
+      "verified-summary.json",
+      "baseline-job.log",
+      "verify_worker30_baseline.py"
+    ],
+    "drive_id": "1skbtgL9UEoklb36gB_HFBwby8AgCnxTG",
+    "drive_url": "https://drive.google.com/file/d/1skbtgL9UEoklb36gB_HFBwby8AgCnxTG/view",
+    "folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+    "fresh_byte_readback_verified": true,
+    "sha256": "528ccb478895c74cf1212a087e0ec8cdab97ab8ecbc462ab14835e132a226629"
+  },
+  "classification": "canonical_quota_limited_solo_baseline_reproduced",
+  "evaluated_commit": "7daeaba0dba2a73db21e3075199eabab6303b241",
+  "execution": {
+    "conclusion": "success",
+    "job_id": 110289144609,
+    "routine_execution_head_ci": 36837736971,
+    "run_attempt": 1,
+    "run_id": 36837736898,
+    "runner": "bandido-alcatraz-ci",
+    "runtime": {
+      "python_implementation": "CPython",
+      "python_version": "3.11.16"
+    }
+  },
+  "freeze_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5927853920",
+  "integrity": {
+    "exact_replay_matches": 400,
+    "harness_blob": "bc54bdcc5cbc158ae096562ad7ec7b8ac025bb40",
+    "harness_sha256": "d15a2d74c55973863937d6f9b883ef8b59f99cd0fc5342d8d839b80400ba2110",
+    "offline_verifier_sha256": "f4157246c5a403be63f5aabc23df17b1e59be85180eba96d410b072e0b8cd12b",
+    "quota_overshoots": 0,
+    "source_blobs": {
+      "data/README.md": "2ac91d9da6769934c78a90ba865f3d558f48bbd2",
+      "data/deck-observations-v0.json": "ee38d60277c79dafa7527876367e3e6450ccb53f",
+      "data/deck-v1.json": "9fa2066507ff9a0fb6b922d52e84529b35acb05e",
+      "data/owner-photo-inventory-v0.json": "5911fdeea4138421945d0cffd69908088cad5639",
+      "data/proxy-bandido-covid-v0.json": "a9e3013f58a94216e920637461331e3c8fccdeae",
+      "src/bandido_alcatraz/__init__.py": "425141547c12e61eee6ecafd5b7136322f0af6d4",
+      "src/bandido_alcatraz/board.py": "e04e9255ecc9c8181ca49903dfb6501a67c8a482",
+      "src/bandido_alcatraz/catalog.py": "e82ca3d70310281bf5a6c4f325e10f0083d7b0b3",
+      "src/bandido_alcatraz/deck_data.py": "6e997e464736bcd0ad79f6115ff69f3967cd57f5",
+      "src/bandido_alcatraz/evaluate.py": "49cc2da9e651dfc58f4911801b8b923da90c05b4",
+      "src/bandido_alcatraz/export_svg.py": "ab39daf4df714cc8dfe5a1244e8345f8abafbdb2",
+      "src/bandido_alcatraz/fixtures.py": "a12d395871a6a5e2d1c2011c5ac628878a2d5dde",
+      "src/bandido_alcatraz/game.py": "8df56288eded0ae96c57314589a9707b4a056054",
+      "src/bandido_alcatraz/model.py": "dc469a82a5fab7574aebe25a18543494494f4b11",
+      "src/bandido_alcatraz/moves.py": "e605897b6c0c5539d51270b9371df9cc1dfe1a1e",
+      "src/bandido_alcatraz/optimize.py": "53e9f2f0265d1e5ee542413a842caedbd67cd110",
+      "src/bandido_alcatraz/photo_geometry.py": "eb40808af9616b2d77c3e6519e010021992d364a",
+      "src/bandido_alcatraz/physical_deck.py": "87601a25bf16f181753f71b2c84dc3c0fa6fe418",
+      "src/bandido_alcatraz/policies.py": "3218817fe43cd901e5fc3de0d62c651dc5059dd5",
+      "src/bandido_alcatraz/proxy.py": "7c590565591d558e1d18d38a8471abd02bcac156",
+      "src/bandido_alcatraz/proxy_data.py": "c0d63b6d0de90626600cb0d1ca5fa6917c7908f4",
+      "src/bandido_alcatraz/render_svg.py": "2951661e5b12bb85de04c563078bfd405fbef924",
+      "src/bandido_alcatraz/rules.py": "d0fffb7b37f531e149a0d7e17800e2ac708e9890",
+      "src/bandido_alcatraz/setup.py": "b055fe799a60e499af1fbd86275d3b7e61f2b656",
+      "src/bandido_alcatraz/simulate.py": "7637bed25e3d380ff0928927b8bb97abd9a2af56",
+      "src/bandido_alcatraz/strategy.py": "57c7d173c9f173690d6c27cf546da2576cd35510"
+    },
+    "source_map_sha256": "27b4a000202d5e22b3e37ea128571cd7a5b8a4ef1a882514616c361cf2da0aed",
+    "verified_normalized_records": 800,
+    "verified_raw_result_sidecars": 800
+  },
+  "interpretation": "Reproducible quota-limited v2 baseline only. Superseded v1 Worker29 is not a comparator. Two deterministic passes are not independent replication; no strategy improvement, confirmation or PROGRAM_SUCCESS claim.",
+  "max_steps": 1000,
+  "policy": {
+    "class": "BoundedMergeV4Policy",
+    "setup_weight": 250
+  },
+  "population": {
+    "confirmation_eligible": false,
+    "count": 400,
+    "order": "serial ascending full population per pass",
+    "passes": 2,
+    "role": "spent model-validation baseline; never confirmation",
+    "seeds_inclusive": [
+      1000000,
+      1000399
+    ]
+  },
+  "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5927438161",
+  "preserved_attempts": [
+    {
+      "artifact_id": 11149047974,
+      "drive_bundle_bytes": 21921,
+      "drive_bundle_id": "13rVrqvO4JS_Fyob99-ESrRzcE2aQHS1l",
+      "drive_bundle_sha256": "f8ab28f30d03a4f63026febee6416dd85b6fa8093af690fc8e4723ab7e8e38fe",
+      "execution_head": "9c33d16dba17a14d6862f936466106af46bb4e4a",
+      "fresh_byte_readback_verified": true,
+      "raw_archive_sha256": "1938fcabf7fa414140c8a8311e1a31a23dd67c135833762e7a927c9b5142c269",
+      "research_seeds_executed": 0,
+      "run_attempt": 1,
+      "run_id": 36836684444,
+      "status": "failed synthetic test fixtures before research; no outcome"
+    }
+  ],
+  "reproduction": "Verify canonical bundle SHA256 and use its README command with this offline verifier and accepted model data; no simulation needed for artifact verification. Frozen execution harness remains at evaluated_commit.",
+  "ruleset": "v2-exact-equipment-quota-limited-collect-full-hand-refresh",
+  "schema": "bandido-canonical-baseline-manifest-v2",
+  "setup": {
+    "hand_size": 6,
+    "player_count": 1,
+    "setup_id": "p1-easy-5-exit-hand6-first0-full-hand-refresh",
+    "start_side": "easy-5-exit",
+    "starting_player": 0
+  },
+  "summary": {
+    "failure_reasons": {
+      "closed_tunnels_conditions_failed": 35,
+      "deck_exhausted": 239,
+      "no_legal_move": 81
+    },
+    "games_per_pass": 400,
+    "interpretation": "Quota-corrected v2 baseline only; spent seeds; no improvement or confirmation claim",
+    "matching_records": 400,
+    "normalized_pass_sha256": "a4d2d06e5592caa35c03d00337d0254c07f767d5cb8ee0777cbb51f543803021",
+    "quota_overshoots": 0,
+    "win_rate": 0.1125,
+    "winning_seed_ids": [
+      1000008,
+      1000015,
+      1000019,
+      1000025,
+      1000066,
+      1000069,
+      1000084,
+      1000090,
+      1000100,
+      1000104,
+      1000112,
+      1000115,
+      1000120,
+      1000123,
+      1000127,
+      1000148,
+      1000157,
+      1000159,
+      1000166,
+      1000169,
+      1000171,
+      1000176,
+      1000196,
+      1000218,
+      1000219,
+      1000229,
+      1000230,
+      1000232,
+      1000236,
+      1000257,
+      1000262,
+      1000264,
+      1000270,
+      1000276,
+      1000289,
+      1000301,
+      1000304,
+      1000314,
+      1000315,
+      1000326,
+      1000349,
+      1000353,
+      1000367,
+      1000369,
+      1000378
+    ],
+    "wins": 45
+  },
+  "worker": 30
+}

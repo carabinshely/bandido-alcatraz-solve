@@ -144,7 +144,7 @@
       ],
       "role": "spent quota-limited model baseline validation; never confirmation",
       "confirmation_eligible": false,
-      "state": "preregistered; not executed",
+      "state": "complete",
       "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5927438161",
       "model_base": "d357a01bed0cccb34bae3c440cc7201ef39a2a84",
       "ruleset": "v2-exact-equipment-quota-limited-collect-full-hand-refresh",
@@ -167,7 +167,14 @@
           "drive_bundle_bytes": 21921,
           "fresh_byte_readback_verified": true
         }
-      ]
+      ],
+      "evaluated_commit": "7daeaba0dba2a73db21e3075199eabab6303b241",
+      "run_id": 36837736898,
+      "classification": "canonical_quota_limited_solo_baseline_reproduced",
+      "manifest_path": "experiments/canonical-quota-limited-solo-baseline/baseline-2026-10-01.manifest.json",
+      "records_per_pass": 400,
+      "exact_replay_matches": 400,
+      "quota_overshoots": 0
     }
   ],
   "fresh_confirmation_allocations": [],
@@ -214,5 +221,5 @@
   ],
   "canonical_ruleset": "v2-exact-equipment-quota-limited-collect-full-hand-refresh",
   "canonical_setup_id": "p1-easy-5-exit-hand6-first0-full-hand-refresh",
-  "canonical_model_status": "Accepted quota-limited model; baseline preregistered, outcomes pending"
+  "canonical_model_status": "Accepted quota-limited model; complete reproducible baseline evidence persisted"
 }
