@@ -1,6 +1,6 @@
 {
   "schema": "bandido-seed-ledger-v1",
-  "authority": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5927438161",
+  "authority": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5928556762",
   "canonical_baseline": "BoundedMergeV4Policy(setup_weight=250)",
   "canonical_model_base": "d357a01bed0cccb34bae3c440cc7201ef39a2a84",
   "historically_observed_real_deck_ranges_inclusive": [
@@ -175,6 +175,34 @@
       "records_per_pass": 400,
       "exact_replay_matches": 400,
       "quota_overshoots": 0
+    },
+    {
+      "research_step": 31,
+      "range_inclusive": [
+        1000000,
+        1000399
+      ],
+      "role": "spent paired development; never confirmation",
+      "confirmation_eligible": false,
+      "state": "preregistered; not executed",
+      "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5928556762",
+      "model_base": "d357a01bed0cccb34bae3c440cc7201ef39a2a84",
+      "baseline_checkpoint_commit": "7be68ee6eac1337663b960791812c8092c7d53e4",
+      "ruleset": "v2-exact-equipment-quota-limited-collect-full-hand-refresh",
+      "setup_id": "p1-easy-5-exit-hand6-first0-full-hand-refresh",
+      "policies": [
+        "BoundedMergeV4Policy(setup_weight=250)",
+        "EquipmentOpportunityTiePolicy"
+      ],
+      "phases": [
+        "control",
+        "candidate",
+        "candidate_replay"
+      ],
+      "execution_order": "three complete serial ascending-seed phases",
+      "advancement_gate_net_wins": 8,
+      "control_normalized_sha256": "a4d2d06e5592caa35c03d00337d0254c07f767d5cb8ee0777cbb51f543803021",
+      "acceptance": "all400 control records match Worker30; full400candidate/replay records and deterministic audits identical; complete1200records and source/quota/geometry provenance; net>=8 is development advancement only"
     }
   ],
   "fresh_confirmation_allocations": [],

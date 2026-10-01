@@ -1,0 +1,113 @@
+name: Worker31 equipment opportunity development
+on:
+  pull_request:
+    types: [opened]
+permissions:
+  contents: read
+jobs:
+  development:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'research/worker31-equipment-opportunity'
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+    timeout-minutes: 60
+    env:
+      DEVELOPMENT_OUTPUT: ${{ github.workspace }}/../bandido-equipment-development/${{ github.run_id }}/${{ github.run_attempt }}
+      EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+      PREREGISTRATION_URL: https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5928556762
+      PYTHONHASHSEED: '0'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONPYCACHEPREFIX: ''
+      PYTHONPATH: src:.
+    steps:
+      - name: Durable normalized output path
+        timeout-minutes: 1
+        run: |
+          set -euo pipefail
+          output="$(python3 - <<'PYSAFE'
+          import os, re
+          from pathlib import Path
+          def require(condition, message):
+              if not condition:
+                  raise ValueError(message)
+          workspace = Path(os.environ['GITHUB_WORKSPACE'])
+          require(workspace.is_absolute() and workspace.resolve() != Path(workspace.anchor), 'invalid checkout root')
+          run, attempt = os.environ['GITHUB_RUN_ID'], os.environ['GITHUB_RUN_ATTEMPT']
+          require(re.fullmatch(r'[1-9][0-9]*', run) and re.fullmatch(r'[1-9][0-9]*', attempt), 'invalid attempt identity')
+          expected = workspace.resolve().parent / 'bandido-equipment-development' / run / attempt
+          require(expected.resolve() == expected, 'symlinked evidence path')
+          checkout = Path(os.environ['GITHUB_WORKSPACE']).resolve()
+          require(not expected.is_relative_to(checkout) and not checkout.is_relative_to(expected), 'unsafe evidence destination')
+          print(expected)
+          PYSAFE
+          )"
+          test "$(realpath -m "$DEVELOPMENT_OUTPUT")" = "$output"
+          test "$RUNNER_NAME" = bandido-alcatraz-ci
+      - uses: actions/checkout@v4
+        timeout-minutes: 2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Initialize evidence before dependencies and tests
+        timeout-minutes: 1
+        run: python3 scripts/run_equipment_opportunity_development.py initialize --output-dir "$DEVELOPMENT_OUTPUT" --expected-head "$EXPECTED_HEAD" --preregistration-url "$PREREGISTRATION_URL"
+      - uses: actions/setup-python@v5
+        timeout-minutes: 1
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'pytest>=8.0'
+        timeout-minutes: 1
+      - name: Routine and synthetic tests
+        id: tests
+        timeout-minutes: 2
+        run: python -m pytest -q
+      - name: Three complete fixed development phases
+        id: cohort
+        timeout-minutes: 46
+        run: timeout --signal=TERM --kill-after=30s 2700s python scripts/run_equipment_opportunity_development.py run --output-dir "$DEVELOPMENT_OUTPUT" --expected-head "$EXPECTED_HEAD" --preregistration-url "$PREREGISTRATION_URL"
+      - name: Reconcile final status
+        id: evidence
+        if: always()
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          output="$(python3 - <<'PYSAFE'
+          import os, re
+          from pathlib import Path
+          def require(condition, message):
+              if not condition:
+                  raise ValueError(message)
+          workspace = Path(os.environ['GITHUB_WORKSPACE'])
+          require(workspace.is_absolute() and workspace.resolve() != Path(workspace.anchor), 'invalid checkout root')
+          run, attempt = os.environ['GITHUB_RUN_ID'], os.environ['GITHUB_RUN_ATTEMPT']
+          require(re.fullmatch(r'[1-9][0-9]*', run) and re.fullmatch(r'[1-9][0-9]*', attempt), 'invalid attempt identity')
+          expected = workspace.resolve().parent / 'bandido-equipment-development' / run / attempt
+          require(expected.resolve() == expected, 'symlinked evidence path')
+          checkout = Path(os.environ['GITHUB_WORKSPACE']).resolve()
+          require(not expected.is_relative_to(checkout) and not checkout.is_relative_to(expected), 'unsafe evidence destination')
+          print(expected)
+          PYSAFE
+          )"
+          export DEVELOPMENT_OUTPUT="$output"
+          echo "upload_path=$output" >> "$GITHUB_OUTPUT"
+          echo "safe=true" >> "$GITHUB_OUTPUT"
+          if test -f scripts/run_equipment_opportunity_development.py; then
+            python3 scripts/run_equipment_opportunity_development.py finalize --output-dir "$DEVELOPMENT_OUTPUT" --expected-head "$EXPECTED_HEAD" --preregistration-url "$PREREGISTRATION_URL" --test-outcome '${{ steps.tests.outcome }}' --cohort-outcome '${{ steps.cohort.outcome }}'
+          else
+            mkdir -p "$DEVELOPMENT_OUTPUT"
+            python3 - <<'PY'
+          import json, os, tempfile
+          from pathlib import Path
+          fd, name = tempfile.mkstemp(prefix='infrastructure-blocker-', suffix='.json', dir=os.environ['DEVELOPMENT_OUTPUT'])
+          os.close(fd)
+          p = Path(name)
+          p.write_text(json.dumps({'status':'execution_blocked','error':'checkout/harness unavailable','expected_head':os.environ['EXPECTED_HEAD'],'research_seeds_executed':0 if '${{ steps.cohort.outcome }}' in ('skipped','') else None,'research_interpretation_performed':False},sort_keys=True)+'\n')
+          PY
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.evidence.outputs.safe == 'true'
+        timeout-minutes: 3
+        with:
+          name: worker31-equipment-opportunity-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.evidence.outputs.upload_path }}/
+          if-no-files-found: error
+
