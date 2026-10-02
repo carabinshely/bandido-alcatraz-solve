@@ -145,6 +145,7 @@ def test_processlookup_signal_race_is_harmless(monkeypatch):
     (OSError(errno.ENOMEM,'synthetic'),'resource_incomplete'),
     (OSError(errno.ENOSPC,'synthetic'),'resource_incomplete'),
     (OSError(errno.EIO,'synthetic'),'integrity_invalid'),
+    (OSError(errno.ESTALE,'synthetic'),'integrity_invalid'),
     (OSError(errno.EACCES,'synthetic'),'integrity_invalid'),
     (runtime.ExecutionBlocked('input missing'),'execution_blocked'),
 ])
@@ -270,8 +271,8 @@ def test_wrapped_resource_error_is_not_mistaken_for_inaccessible_input():
     assert runtime.failure_status(blocked)=='resource_incomplete'
     blocked.__cause__=FileNotFoundError(errno.ENOENT,'synthetic unavailable input')
     assert runtime.failure_status(blocked)=='execution_blocked'
-    blocked.__cause__=OSError(errno.EIO,'synthetic I/O corruption')
-    assert runtime.failure_status(blocked)=='integrity_invalid'
+    blocked.__cause__=OSError(errno.EIO,'synthetic unavailable input')
+    assert runtime.failure_status(blocked)=='execution_blocked'
     blocked.__cause__=PermissionError(errno.EACCES,'synthetic inaccessible input')
     assert runtime.failure_status(blocked)=='execution_blocked'
 
@@ -344,3 +345,93 @@ def test_closed_group_does_not_allow_racing_live_supervisor_metadata(tmp_path):
     finally:
         supervisor.terminate();supervisor.wait(timeout=5)
     runtime.finalize(tmp_path)
+
+
+@pytest.mark.parametrize('code,status',[
+    (errno.EIO,'execution_blocked'),(errno.ESTALE,'execution_blocked'),
+    (errno.ENOENT,'execution_blocked'),(errno.EACCES,'execution_blocked'),
+    (errno.ENOMEM,'resource_incomplete'),(errno.ENOSPC,'resource_incomplete'),
+])
+def test_production_input_read_wrapper_taxonomy(tmp_path,monkeypatch,code,status):
+    from bandido_alcatraz.worker32.inputs import frozen_bytes
+    original=Path.open
+    reads=[]
+    class Unavailable:
+        def __enter__(self):return self
+        def __exit__(self,*args):pass
+        def read(self,count):
+            reads.append(count)
+            raise OSError(code,'synthetic read failure before any bytes')
+    def open_input(path,*args,**kwargs):
+        if path==tmp_path/'selected-corpus.jsonl.gz':return Unavailable()
+        return original(path,*args,**kwargs)
+    monkeypatch.setattr(Path,'open',open_input)
+    with pytest.raises(runtime.ExecutionBlocked) as failure:frozen_bytes(tmp_path)
+    assert len(reads)==1 and failure.value.__cause__.errno==code
+    assert runtime.failure_status(failure.value)==status
+
+
+def test_production_input_hash_corruption_is_integrity_invalid(tmp_path):
+    from bandido_alcatraz.worker32.inputs import frozen_bytes
+    (tmp_path/'selected-corpus.jsonl.gz').write_bytes(b'not frozen corpus bytes')
+    with pytest.raises(ValueError,match='size/hash mismatch') as failure:frozen_bytes(tmp_path)
+    assert runtime.failure_status(failure.value)=='integrity_invalid'
+
+
+def test_unrelated_nondumpable_process_does_not_block_finalization(tmp_path,monkeypatch):
+    assert runtime.run_group([sys.executable,'-c','pass'],tmp_path/'compute.log',timeout=2,grace=.1)==0
+    ready=tmp_path/'unrelated-ready'
+    code=('import ctypes,time; from pathlib import Path; '
+          'assert ctypes.CDLL(None).prctl(4,0,0,0,0)==0; '
+          f'Path({str(ready)!r}).write_text("ready"); time.sleep(60)')
+    unrelated=subprocess.Popen([sys.executable,'-c',code],start_new_session=True)
+    try:
+        wait_for(ready.exists)
+        original=Path.open
+        def forbid_unrelated_environment(path,*args,**kwargs):
+            assert path!=Path(f'/proc/{unrelated.pid}/environ'),'unrelated environment was inspected'
+            return original(path,*args,**kwargs)
+        monkeypatch.setattr(Path,'open',forbid_unrelated_environment)
+        runtime.durable(tmp_path/'regular-evidence.json',{'synthetic':True})
+        runtime.finalize(tmp_path)
+        assert unrelated.poll() is None
+        assert 'regular-evidence.json' in json.loads((tmp_path/'inventory.json').read_text())['files']
+    finally:
+        unrelated.terminate();unrelated.wait(timeout=5)
+
+
+def test_owned_unreadable_residual_still_blocks_finalization(tmp_path,monkeypatch):
+    supervisor=start_supervisor(tmp_path)
+    pids=json.loads((tmp_path/'pids.json').read_text())
+    try:
+        supervisor.kill();supervisor.wait(timeout=5)
+        child=pids[1]
+        assert alive(child)
+        # Even a stale/incorrect closed receipt cannot bypass residual inspection.
+        plan=json.loads((tmp_path/'compute.log.group.json').read_text())
+        runtime.durable(tmp_path/'compute.log.group-closed.json',dict(token=plan['token'],cleaned=True))
+        original=Path.open
+        def unreadable_owned(path,*args,**kwargs):
+            if path==Path(f'/proc/{child}/environ'):raise PermissionError(errno.EACCES,'synthetic owned unreadable residual')
+            return original(path,*args,**kwargs)
+        with monkeypatch.context() as patch:
+            patch.setattr(Path,'open',unreadable_owned)
+            with pytest.raises(ValueError,match='cannot safely inspect registered residual'):
+                runtime.finalize(tmp_path)
+        assert not (tmp_path/'inventory.json').exists()
+        assert alive(child)
+        containment.residual_gate(tmp_path,grace=.1)
+        assert not alive(child)
+        runtime.finalize(tmp_path)
+    finally:
+        if supervisor.poll() is None:supervisor.kill();supervisor.wait(timeout=5)
+        containment.residual_gate(tmp_path,grace=.1)
+
+
+def test_popen_failure_cannot_publish_cleaned_receipt(tmp_path,monkeypatch):
+    def fail(*args,**kwargs):raise OSError(errno.EAGAIN,'synthetic spawn failure')
+    monkeypatch.setattr(containment.subprocess,'Popen',fail)
+    with pytest.raises(OSError):runtime.run_group([sys.executable,'-c','pass'],tmp_path/'compute.log')
+    assert not (tmp_path/'compute.log.group-closed.json').exists()
+    with pytest.raises(RuntimeError,match='supervisor still active'):runtime.finalize(tmp_path)
+    assert not (tmp_path/'inventory.json').exists()

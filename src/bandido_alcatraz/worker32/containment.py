@@ -165,7 +165,8 @@ def run_group(command, log, timeout=1800, grace=30):
                     _cleanup(process, grace)
                 stream.flush()
                 os.fsync(stream.fileno())
-                durable(log.with_name(log.name+'.group-closed.json'), {'token':token,'cleaned':True})
+                if process is not None:
+                    durable(log.with_name(log.name+'.group-closed.json'), {'token':token,'cleaned':True})
         if received_signal is not None:
             raise SupervisorInterrupted(f'supervisor received signal {received_signal}')
         return process.returncode
@@ -187,11 +188,15 @@ def _residuals(plan, leader):
             if not p.name.isdecimal():
                 continue
             try:
-                if p.stat().st_uid != plan['uid']:
-                    continue
                 before = _stat(int(p.name))
-                if before is None or before['state'] == 'Z' or before['start'] < plan['supervisor_start'] or int(p.name) == plan['supervisor_pid']:
+                # Registration is durable before exec. Establish membership in
+                # that session before inspecting ownership or the environment.
+                if (before is None or before['state'] == 'Z'
+                    or before['session'] != leader['pid']
+                    or before['start'] < leader['start']):
                     continue
+                if p.stat().st_uid != plan['uid']:
+                    raise ValueError('cannot verify registered session ownership')
                 with (p/'environ').open('rb') as f:
                     environment = f.read(1024*1024+1)
                 if len(environment) > 1024*1024:
@@ -213,8 +218,8 @@ def _residuals(plan, leader):
             except (FileNotFoundError, ProcessLookupError):
                 continue
             except PermissionError:
-                # Same-uid processes must be inspectable on the authorized runner.
-                raise ValueError('cannot safely inspect same-uid residual process')
+                # An unreadable registered member cannot establish quiescence.
+                raise ValueError('cannot safely inspect registered residual process')
         return found
     except BaseException:
         for fd in found:

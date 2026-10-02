@@ -349,8 +349,6 @@ def failure_status(exc):
         cause = exc.__cause__
         if cause is not None and failure_status(cause) == 'resource_incomplete':
             return 'resource_incomplete'
-        if isinstance(cause,OSError) and cause.errno not in {errno.ENOENT,errno.EACCES,errno.EPERM,errno.ENOTDIR}:
-            return 'integrity_invalid'
         return 'execution_blocked'
     if isinstance(exc,(TimeoutError,subprocess.TimeoutExpired,BudgetExceeded,MemoryError,KeyboardInterrupt)):
         return 'resource_incomplete'
