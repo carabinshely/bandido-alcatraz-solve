@@ -75,8 +75,10 @@ jobs:
           else
             python3 -c 'import json,os; p=os.environ["EVIDENCE"]+"/failure.json"; f=open(p,"x"); json.dump({"status":"execution_blocked","error":"setup incomplete"},f); f.flush(); os.fsync(f.fileno())'
           fi
+          python3 -c 'import os; from pathlib import Path; d=Path(os.environ["EVIDENCE"]); assert not d.is_symlink(); assert all(p.is_file() and not p.is_symlink() for p in d.iterdir())'
+          echo "SAFE_UPLOAD=true" >> "$GITHUB_ENV"
       - uses: actions/upload-artifact@v4
-        if: always() && env.EVIDENCE != ''
+        if: always() && env.SAFE_UPLOAD == 'true'
         timeout-minutes: 8
         with:
           name: worker32-${{ github.run_id }}-${{ github.run_attempt }}

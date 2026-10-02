@@ -65,7 +65,10 @@ survive an interrupted call. An interrupted call may have no complete payload;
 its started record is never counted as completed. Result creation occurs only
 after all 160 calls and comparisons succeed. Finalization records file hashes
 without overwriting evidence and rejects symlinks/nonregular members. Upload is
-`if: always()`. Failed attempts are never valid negative mechanism evidence.
+`if: always()` with a successful regular-file safety gate; unsafe members block
+upload while retaining the durable directory. Failed attempts are never valid
+negative mechanism evidence. Any failure receipt overrides a result file; acceptance
+also requires successful terminal workflow status.
 
 `execution_blocked` means inaccessible input before verification or setup/event
 failure. `integrity_invalid` covers model/source/input/reconstruction/baseline/
