@@ -1,0 +1,36 @@
+{
+  "archives": {
+    "worker34-output-a-2026-10-02.zip": {
+      "member_count": 4,
+      "sha256": "72f088c6eceee303701232d1bb3012c17e261aaefc190a7eb35a524d90509e78",
+      "size_bytes": 4897670,
+      "uncompressed_bytes": 306371228,
+      "under_32_mib": true
+    },
+    "worker34-output-b-2026-10-02.zip": {
+      "member_count": 4,
+      "sha256": "4c029ec9dcea92d96c7744be4f987f163e9153634703db402fc639208a8ed48f",
+      "size_bytes": 4897072,
+      "uncompressed_bytes": 306370008,
+      "under_32_mib": true
+    },
+    "worker34-terminal-proof-2026-10-02.zip": {
+      "member_count": 2630,
+      "sha256": "18f4880b4d53245e8f18a85beef05b423c2ed8365876d88db7ad9652756e7bce",
+      "size_bytes": 8608952,
+      "uncompressed_bytes": 30326955,
+      "under_32_mib": true
+    }
+  },
+  "external_original": {
+    "drive_file_id": "1WJE6WVR8bW0BSTTBoqx8GWkLWm1d7MAu",
+    "sha256": "18a58ec0505d81eaf4b0cfb4798b7e38b0d9555d22ad77c5d4681b5fce89492a",
+    "size_bytes": 19184749
+  },
+  "format": "ZIP_DEFLATED level 9, sorted member order, fixed 2026-10-02 00:00:00 timestamp, regular 0644 file modes",
+  "member_count_total": 2638,
+  "raw_worker33_zip_included": false,
+  "root_directory": "worker34-terminal-proof",
+  "schema": "worker34-terminal-package-catalog-v1",
+  "uncompressed_bytes_total": 643068191
+}
