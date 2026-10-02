@@ -321,6 +321,45 @@ class InertBoardSchemaTests(unittest.TestCase):
                 with self.subTest(field=field,container=value):self.reject_board(board)
 
 
+class InertTunnelEdgeRepresentationTests(unittest.TestCase):
+    @staticmethod
+    def snapshot_with_edges(location,edges):
+        s=snapshot()
+        cell=dict(x=-17,y=100,water=False,tunnel_edges=copy.deepcopy(edges))
+        if location=='hand':
+            s['hand'][0]['cells']=[cell]
+        elif location=='collected':
+            collected=card('synthetic-collected','raincoat');collected['cells']=[cell]
+            s['collected_equipment']=[dict(card=collected,turn=1,player_index=0)]
+        else:
+            s['board']['cells']=[cell]
+        return s
+
+    def test_eight_reported_wire_gaps_rejected(self):
+        cases=[('hand',['invalid-direction']),('collected',['invalid-direction']),
+               ('hand',['N','N']),('collected',['N','N']),('board',['N','N']),
+               ('hand',['N','E']),('collected',['N','E']),('board',['N','E'])]
+        self.assertEqual(len(cases),8)
+        for location,edges in cases:
+            s=self.snapshot_with_edges(location,edges);before=b.canonical(s)
+            with self.subTest(location=location,edges=edges),self.assertRaises(b.IntegrityError):
+                b.validate_snapshot(s)
+            self.assertEqual(b.canonical(s),before)  # Reject rather than silently normalize.
+
+    def test_canonical_valid_edge_lists_preserved_in_all_three_locations(self):
+        for location in ('hand','collected','board'):
+            for edges in ([],['N'],['E','N'],['E','N','S','W']):
+                s=self.snapshot_with_edges(location,edges);before=b.canonical(s)
+                with self.subTest(location=location,edges=edges):b.validate_snapshot(s)
+                self.assertEqual(b.canonical(s),before)
+
+    def test_exact_edge_and_container_types_in_all_three_locations(self):
+        for location in ('hand','collected','board'):
+            for edges in (None,True,'N',{},[True],[1],[None],[[]],[{}]):
+                with self.subTest(location=location,edges=edges),self.assertRaises(b.IntegrityError):
+                    b.validate_snapshot(self.snapshot_with_edges(location,edges))
+
+
 class DominanceTests(unittest.TestCase):
     def test_equal_g_dominates_pp_and_tradeoff_best_first_witness(self):
         s=snapshot()

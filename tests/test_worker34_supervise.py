@@ -480,7 +480,104 @@ def test_malformed_administrative_mappings_are_blocked(tmp_path):
         assert receipt['parser_executions'] == []
 
 
+
+def check_cleanup_exception(tmp_path, integrity=False):
+    config=prepare(tmp_path, ('integrity', 'complete') if integrity else ('timeout', 'complete'))
+    extra = """import errno,time,signal
+C=s['Containment']
+original_send=C.send
+def broken_cleanup(self,until):
+    self.original_cleanup_deadline=until
+    time.sleep(.08)
+    raise OSError(errno.EIO,'synthetic cleanup inspection failure')
+def checked_send(self,signum):
+    if hasattr(self,'original_cleanup_deadline'):
+        # This would fail if recovery reset the original abort grace.
+        available=max(0,self.original_cleanup_deadline-time.monotonic())
+        assert signal.getitimer(signal.ITIMER_REAL)[0] <= available+.02
+    return original_send(self,signum)
+C.cleanup=broken_cleanup
+C.send=checked_send"""
+    receipt=execute(config,.25 if not integrity else 3.0,extra)
+    assert receipt['status'] == ('integrity_invalid' if integrity else 'resource_incomplete')
+    assert receipt['scientific_outputs_accepted'] is False
+    assert receipt['admitted'] is True
+    assert receipt['cleanup_confirmed'] is False
+    assert receipt['cleanup_recovery_confirmed'] is True
+    assert receipt['cleanup_errors'] == ['[Errno 5] synthetic cleanup inspection failure']
+    for field in ('process_control','source_sha256','runtime','parser_executions'):
+        assert field in receipt
+    assert receipt['runtime'] == SUP.runtime_fingerprint()
+    freeze=json.loads(Path(config['execution_freeze']).read_text())
+    assert receipt['source_sha256'] == freeze['sources']
+    assert receipt['process_control']['reaped']
+    assert receipt['elapsed_seconds_before_receipt_close'] < 2.25
+    assert_no_survivors({**receipt,'cleanup_confirmed':receipt['cleanup_recovery_confirmed']})
+
+
+def test_cleanup_exception_preserves_provenance_and_recovers_in_original_grace(tmp_path):
+    check_cleanup_exception(tmp_path)
+
+
+def test_cleanup_exception_preserves_established_integrity(tmp_path):
+    check_cleanup_exception(tmp_path,integrity=True)
+
+
+def check_portable_test_import(tmp_path, override):
+    temp_root=tmp_path / 'portable-tmp'
+    temp_root.mkdir()
+    explicit=tmp_path / 'explicit-evidence'
+    code=f"""import os,pathlib,runpy,tempfile,json
+os.environ.pop('WORKER34_SYNTHETIC_RECEIPTS',None)
+if {override!r}: os.environ['WORKER34_SYNTHETIC_RECEIPTS']={str(explicit)!r}
+tempfile.tempdir={str(temp_root)!r}
+original=pathlib.Path.mkdir
+def forbidden(*args,**kwargs):
+    raise AssertionError('module import attempted a directory creation')
+pathlib.Path.mkdir=forbidden
+module=runpy.run_path({str(Path(__file__).resolve())!r})
+assert module['_EVIDENCE_ROOT'] is None
+pathlib.Path.mkdir=original
+root=module['evidence_root']()
+assert module['evidence_root']() == root
+assert root.is_dir()
+if {override!r}:
+    assert root == pathlib.Path({str(explicit)!r})
+else:
+    assert root.parent == pathlib.Path({str(temp_root)!r})
+print(json.dumps({{'root':str(root)}}))
+"""
+    completed=subprocess.run([sys.executable,'-I','-B','-c',code],
+                             capture_output=True,text=True,timeout=10)
+    assert completed.returncode == 0, completed.stderr
+    root=Path(json.loads(completed.stdout)['root'])
+    assert root == explicit if override else root.parent == temp_root
+
+
+def test_module_import_is_write_free_and_default_root_is_portable(tmp_path):
+    check_portable_test_import(tmp_path,False)
+
+
+def test_explicit_evidence_root_is_lazy_and_shared(tmp_path):
+    check_portable_test_import(tmp_path,True)
+
+
 RUN_FIXTURES = []
+_EVIDENCE_ROOT = None
+
+
+def evidence_root():
+    """Create one portable output root lazily, never during test collection."""
+    global _EVIDENCE_ROOT
+    if _EVIDENCE_ROOT is None:
+        override = os.environ.get('WORKER34_SYNTHETIC_RECEIPTS')
+        if override:
+            root = Path(override)
+            root.mkdir(parents=True, exist_ok=True)
+        else:
+            root = Path(tempfile.mkdtemp(prefix='worker34-supervisor-synthetic-'))
+        _EVIDENCE_ROOT = root
+    return _EVIDENCE_ROOT
 
 
 class NativeSyntheticTests(unittest.TestCase):
@@ -488,13 +585,11 @@ class NativeSyntheticTests(unittest.TestCase):
 
 
 def _install_native_tests():
-    base = Path(os.environ.get('WORKER34_SYNTHETIC_RECEIPTS', '/workspace/shared/worker34-supervisor-synthetic'))
-    base.mkdir(parents=True, exist_ok=True)
     for name, function in list(globals().items()):
         if name.startswith('test_') and callable(function):
             def invoke(self, function=function, name=name):
                 if 'tmp_path' in inspect.signature(function).parameters:
-                    location = Path(tempfile.mkdtemp(prefix=name + '-', dir=base))
+                    location = Path(tempfile.mkdtemp(prefix=name + '-', dir=evidence_root()))
                     RUN_FIXTURES.append(location)
                     function(location)
                 else:
@@ -520,7 +615,7 @@ if __name__ == '__main__':
                                    supervisor_receipt_sha256=digest(path / 'attempt/supervisor-receipt.json'))
                               for path in RUN_FIXTURES
                               if (path / 'attempt/supervisor-receipt.json').is_file()])
-    output = Path(os.environ.get('WORKER34_SYNTHETIC_RECEIPTS', '/workspace/shared/worker34-supervisor-synthetic'))
+    output = evidence_root()
     receipt = output / ('suite-receipt-' + str(time.time_ns()) + '.json')
     SUP.write_exclusive(receipt, manifest)
     print('Synthetic suite receipt:', receipt)

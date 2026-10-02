@@ -173,6 +173,14 @@ def validate_action(action):
             integer(coord, 'PLACE coordinate')
 
 
+def validate_inert_edges(edges):
+    """Require the serializer's sorted frozenset wire representation unchanged."""
+    array(edges, 'inert tunnel edges')
+    for edge in edges:
+        demand(type(edge) is str and edge in ('N', 'E', 'S', 'W'), 'inert tunnel direction')
+    demand(edges == sorted(set(edges)), 'inert tunnel edges must be sorted and unique')
+
+
 def validate_card(card):
     exact_fields(card, {'card_id', 'cells', 'material', 'is_exit'}, 'card')
     demand(type(card['card_id']) is str and bool(card['card_id']), 'empty/nonstring card ID')
@@ -185,8 +193,7 @@ def validate_card(card):
         integer(cell['x'], 'inert cell x')
         integer(cell['y'], 'inert cell y')
         boolean(cell['water'], 'inert cell water')
-        demand(all(type(edge) is str for edge in array(cell['tunnel_edges'], 'cell edges')),
-               'inert edge type')
+        validate_inert_edges(cell['tunnel_edges'])
 
 
 
@@ -198,9 +205,7 @@ def validate_inert_board(board):
         integer(cell['x'], 'inert board cell x')
         integer(cell['y'], 'inert board cell y')
         boolean(cell['water'], 'inert board cell water')
-        for edge in array(cell['tunnel_edges'], 'inert board cell edges'):
-            demand(type(edge) is str and edge in ('N', 'E', 'S', 'W'),
-                   'inert board cell direction')
+        validate_inert_edges(cell['tunnel_edges'])
     for placement in array(board['placements'], 'inert placement history'):
         exact_fields(placement, {'card_id', 'origin', 'quarter_turns', 'placement_index',
                                 'kind', 'cells', 'overlaps', 'covered_placement_index'},

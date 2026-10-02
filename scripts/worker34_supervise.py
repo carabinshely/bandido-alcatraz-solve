@@ -394,6 +394,8 @@ def run_supervisor(config, *, _budget_seconds=BUDGET_SECONDS, _grace_seconds=GRA
     containment = None
     admitted = False
     cleanup_confirmed = True
+    cleanup_errors = []
+    cleanup_recovery_confirmed = None
     start = deadline = abort_started = None
     scope = ('Controlled serial launch, source/runtime freeze, monotonic watchdog, '
              'per-process status/rusage, streaming byte comparison and receipts only; '
@@ -541,24 +543,59 @@ def run_supervisor(config, *, _budget_seconds=BUDGET_SECONDS, _grace_seconds=GRA
         else:
             signal.signal(signal.SIGALRM, expired)
             signal.setitimer(signal.ITIMER_REAL, remaining or _grace_seconds)
-        try:
+        def refresh_administration():
+            # Provenance must not depend on a successful cleanup call. This is
+            # captured before cleanup and refreshed after every recovery path.
+            process_control = None
             if containment is not None:
-                if causes:
-                    cleanup_confirmed = containment.cleanup(grace_deadline)
-                else:
-                    containment.reap()
-                    cleanup_confirmed = not containment.descendants()
-                if not cleanup_confirmed:
-                    cause('resource_incomplete', 'cleanup could not establish no surviving descendants')
-                receipt['process_control'] = dict(
+                process_control = dict(
                     child_subreaper=True, descendant_detection='/proc PPid ancestry and pidfds',
                     observed_pids=[dict(pid=p, start_ticks=s) for p, s in sorted(containment.observed)],
                     reaped=containment.reaped, signals=containment.sent)
             receipt.update(admitted=admitted, cleanup_confirmed=cleanup_confirmed,
+                           cleanup_errors=cleanup_errors,
+                           cleanup_recovery_confirmed=cleanup_recovery_confirmed,
+                           process_control=process_control,
                            causes=causes, parser_executions=parser_records,
                            source_sha256=hashes, runtime=runtime, comparisons=comparisons,
                            elapsed_seconds_before_receipt_close=(time.monotonic() - start if start else 0),
                            supervisor_maxrss_kib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
+
+        cleanup_confirmed = containment is None
+        refresh_administration()
+        try:
+            if containment is not None:
+                try:
+                    if causes:
+                        cleanup_confirmed = containment.cleanup(grace_deadline)
+                    else:
+                        containment.reap()
+                        cleanup_confirmed = not containment.descendants()
+                except (OSError, Blocked) as error:
+                    cleanup_confirmed = False
+                    cleanup_errors.append(str(error))
+                    cause('resource_incomplete', 'cleanup unconfirmed: ' + str(error))
+                    begin_abort()
+                    # Never restart the grace. Recover only termination/reaping;
+                    # no parser, input read, or scientific comparison is retried.
+                    recovery_deadline = abort_started + _grace_seconds
+                    cleanup_recovery_confirmed = False
+                    try:
+                        while time.monotonic() < recovery_deadline:
+                            containment.send(signal.SIGKILL)
+                            containment.reap()
+                            if not containment.descendants():
+                                containment.reap()
+                                cleanup_recovery_confirmed = True
+                                break
+                            time.sleep(min(.01, max(0, recovery_deadline - time.monotonic())))
+                    except (OSError, Blocked) as recovery_error:
+                        cleanup_errors.append('recovery unconfirmed: ' + str(recovery_error))
+                    # Keep primary cleanup explicitly unconfirmed even when the
+                    # separately recorded recovery establishes no survivors.
+                if not cleanup_confirmed:
+                    cause('resource_incomplete', 'cleanup could not establish no surviving descendants')
+            refresh_administration()
             label = failure_label(causes)
             if label:
                 receipt['status'] = label
@@ -590,6 +627,7 @@ def run_supervisor(config, *, _budget_seconds=BUDGET_SECONDS, _grace_seconds=GRA
             # not only deadline exceptions. Stop children before any persistence.
             begin_abort()
             cause('resource_incomplete', exc)
+            refresh_administration()
             receipt.update(status=failure_label(causes), causes=causes,
                            elapsed_seconds_before_receipt_close=(time.monotonic() - start if start else 0),
                            scientific_outputs_accepted=False)
