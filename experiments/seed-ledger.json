@@ -230,7 +230,7 @@
     },
     {
       "research_step": 32,
-      "status": "prospective_implementation_only_not_executed",
+      "status": "resource_incomplete",
       "authority": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5930681529",
       "purpose": "Root-complete visible two-action mechanism/runtime diagnostic; no game or win-rate experiment",
       "existing_spent_cohort_inclusive": [
@@ -251,7 +251,17 @@
       "fresh_seeds_allocated": 0,
       "new_games_authorized": 0,
       "confirmation_eligible": false,
-      "note": "Permanently spent Worker31 observations. Implementation and synthetic tests only; Forge freezes exact implementation before opening draft PR. No automatic follow-up game design or result tuning."
+      "note": "Original30-minute resource diagnostic incomplete;80candidate+56reference calls preserved,137inflight. No complete mechanism outcome/game/fresh seed. Any successor needs separate prospective resource design and all160fresh calls.",
+      "completed_calls": 136,
+      "completed_candidate_calls": 80,
+      "completed_reference_calls": 56,
+      "inflight_call": 137,
+      "mechanism_classification": null,
+      "scientific_outcome_admissible": false,
+      "new_games_executed": 0,
+      "execution_head": "d21421e883cbc08d3a9e99ea8d856894c6ac41a8",
+      "run_id": 36953187535,
+      "manifest_path": "experiments/visible-two-action-diagnostic/resource-incomplete-2026-10-02.manifest.json"
     }
   ],
   "fresh_confirmation_allocations": [],

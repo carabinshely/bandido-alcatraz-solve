@@ -1,3 +1,9 @@
+# Worker32 resource-incomplete checkpoint
+
+The original diagnostic reached its fixed30-minute compute ceiling after136of160calls. All80candidate and56reference calls completed; call137started. No complete mechanism classification or game-performance result is available. See resource-incomplete-2026-10-02.manifest.json for authenticated evidence and persistence.
+
+The temporary execution workflow has been removed after this terminal attempt. The isolated, unregistered policy/reference/harness and synthetic tests are retained for reproducibility; they do not change the canonical V4 baseline or authorize another run. The implementation details below describe the frozen execution commit d21421e883cbc08d3a9e99ea8d856894c6ac41a8.
+
 # Worker32 implementation handoff
 
 Authority: [frozen preregistration](https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5930681529).
