@@ -1,0 +1,10 @@
+{
+  "drive_id": "1UgwD5vAnui_6jSpVg3rFJMLZa5YP-90Q",
+  "parent_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+  "bundle_bytes": 21858124,
+  "bundle_sha256": "8abff59855959f388bdb7dff05efc2d177a0109fa9917156aaeaec7a49c2991c",
+  "raw_bytes": 24204721,
+  "raw_sha256": "48e6af6595a737be332467b436aca94744b19c4b3d96d25d5dbbfe654d98a4b2",
+  "fresh_download_matches_existing_raw": true,
+  "verification_receipt_recorded_at": "2026-10-02T07:54:54.302752+00:00"
+}
