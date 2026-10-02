@@ -35,7 +35,12 @@ own identical initial RNG state. The reference is validation, never another game
 The temporary workflow's `opened`/`synchronize` job runs invented fixtures on
 CPython 3.11.16. It does not require or create a research admission. Its benchmark
 requires explicit candidate/reference source hashes and uses distinct
-benchmark-only wall/memory protections. These are not research ceilings.
+benchmark-only wall/memory/operation protections. It directly constructs an
+invented conserved69-card state, then invokes the production `AuditPolicy.choose`
+once under the actual whole-cohort meter. There is no game initialization,
+shuffle, selected real observation, or game loop. The measured path includes all
+three whole-cohort/decision/policy profile layers, independent checking, public
+and real-state hashes, canonical serialization, bounded journals, and fsync. These are not research ceilings.
 
 Research requires `pull_request: edited` with an absent-to-present transition of
 exact marker lines in the draft PR body, authorized repository/actor/author,
@@ -92,8 +97,13 @@ Every resource is a required positive integer, with no implicit `None`/unlimited
 
 Physical operations are observed using scoped Python profile hooks, including
 preview membership re-enumeration, standalone EXIT enumeration, independent
-checking, and engine actions/refresh. Prior Python hooks are forwarded/restored;
-unsupported noncallable native hooks fail before replacement. Actual control
+checking, and engine actions/refresh. Prior Python hooks are forwarded/restored. Each cohort, decision, and benchmark
+caller owns an explicit `try/finally` before entering its meter, including context
+entry itself. This handles exceptions raised by a forwarded profiler on either
+`Meter.__enter__` or `contextlib`'s entry-return event, even if its traceback is
+retained. Suspended timer generators are explicitly closed there too, avoiding
+deferred alarms/cleanup. Bare `with Meter()` is not used by production callers.
+Unsupported noncallable native hooks fail before replacement. Actual control
 roots/scores are observed from unchanged V4's return frame, not recomputed.
 Linux main-thread `ITIMER_REAL` and `ITIMER_PROF` enforce wall/CPU ceilings;
 `RLIMIT_AS` enforces the exact process address-space ceiling. Whole-run physical
@@ -127,7 +137,10 @@ is supported.
 
 A candidate return row contains `{ordinal,scope:"candidate",result:{chosen,
 scientific,cost}}`, with the complete AUDIT-CONTRACT scientific object stored
-exactly once before the reference runs. The reference computes its full object
+exactly once before the reference runs. Its durable append occurs inside the
+decision wrapper immediately after policy return, before post-return root/CPU
+checks and before metrics persistence; those later failures cannot discard an
+already returned scientific object. The reference computes its full object
 independently. On successful exact canonical-byte equality, its return row stores
 `{ordinal,scope:"reference",result:{chosen,scientific_sha256,cost}}`. On disagreement,
 the full differing reference object is additionally persisted before failure.
@@ -161,7 +174,11 @@ Decision resource row keys: `kind`, `pass`, `seed`, `ordinal`, `scope`,
 `failed`). Game rows omit ordinal/scope/cost and add `operations`; successful game
 status is `complete`. Both elapsed receipt fields include administration overhead
 inside their supervised phase. Failed metrics do not override an already known
-integrity failure.
+integrity failure. Only `decision-traces` have the per-game `trace_bytes` cap;
+`call-results`, `completed.jsonl`, and `resource-metrics.jsonl` share the raw
+`evidence_bytes` cap. All JSONL artifacts enforce `line_bytes`. The global
+metrics journal is streamed rather than read into a per-game trace buffer;
+producer and independent verifier use the same artifact-class bounds.
 
 ## Transport and terminal acceptance
 
@@ -179,6 +196,14 @@ outer GitHub ZIP remains below the32MiB download ceiling. Metadata/receipt are a
 small separate artifact. `artifact-manifest.json` records every original file's
 byte/hash identity, complete reassembled ZIP hash/size, and every ordered part's
 hash/size. The format label is `concatenated-zip-deflate6`.
+
+Packaging is preservation, not receipt acceptance. After validating the exact
+admission, attempt path, freeze, and resource bounds, a missing, malformed or
+identity-invalid receipt creates an additional quarantined recovery sidecar and
+a failing result. Its original bytes and every existing recovery/raw file are
+still included in the bounded transport; no damaged receipt is repaired or
+overwritten, and no scientific classification can be accepted. The raw expanded
+byte cap is checked independently of the compressed transport cap.
 
 Part limits and compressed archive overflow are resource failures. Original raw
 files and every emitted partial shard remain. No already written part is

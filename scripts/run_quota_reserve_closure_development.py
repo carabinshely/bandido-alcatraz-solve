@@ -106,6 +106,9 @@ def write_json(path, value):
     """Atomic, fsynced receipt replacement; raw records use an append-only journal."""
     if BUDGET is not None:
         BUDGET.check(path, len(encoded(value).encode()), replace=True)
+    elif FREEZE is not None and (path.name == 'receipt.json' or path.name.startswith('recovery-receipt-')):
+        if len(encoded(value).encode()) > FREEZE['resources']['receipt_bytes']:
+            raise bounded.ResourceExceeded('receipt exceeds frozen byte reserve')
     temporary = path.with_suffix(path.suffix + ".tmp")
     with temporary.open("w", encoding="utf-8") as stream:
         stream.write(encoded(value))
@@ -120,7 +123,11 @@ def write_json(path, value):
 
 
 def read_receipt(output):
-    return bounded.strict_json((output / "receipt.json").read_bytes())
+    path = output / 'receipt.json'
+    require(not path.is_symlink(), 'symlinked receipt forbidden')
+    if FREEZE is not None and path.stat().st_size > FREEZE['resources']['receipt_bytes']:
+        raise bounded.ResourceExceeded('receipt exceeds frozen byte bound')
+    return bounded.strict_json(path.read_bytes())
 
 
 def identity(expected_head, preregistration_url):
@@ -488,17 +495,26 @@ def append_metrics(path, value):
         raise
 
 
-def decision_runtime(output, pass_number, seed, ordinal, scope, invoke, rng, caps):
+def decision_runtime(output, pass_number, seed, ordinal, scope, invoke, rng, caps, persist_return):
     """Always persist scope metrics; actual outputs are saved before checking."""
     start, cpu = time.monotonic(), time.process_time()
     meter = bounded.Meter(call_caps=caps, rng=rng, capture_control=scope == 'control')
     status, cost = 'failed', None
+    previous = sys.getprofile()
+    require(previous is None or callable(previous), 'native profile hook cannot safely be forwarded')
+    wall_guard = bounded.deadline(caps['wall_seconds'], scope + ' decision')
+    cpu_guard = bounded.cpu_deadline(caps['cpu_seconds'], scope)
     try:
-        with bounded.deadline(caps['wall_seconds'], scope + ' decision'), bounded.cpu_deadline(caps['cpu_seconds'], scope), meter:
+        meter.__enter__()
+        with wall_guard, cpu_guard:
             result = invoke()
-        roots = meter.control_roots if scope == 'control' else result[1]['roots']
-        require(type(roots) is list, 'missing actual canonical roots')
-        cost = {**meter.counts, 'roots': len(roots)}
+            roots = meter.control_roots if scope == 'control' else result[1]['roots']
+            require(type(roots) is list, 'missing actual canonical roots')
+            cost = {**meter.counts, 'roots': len(roots)}
+            # Durable actual output precedes post-return CPU/root checks and the
+            # metrics finally block. A returned science object is never lost
+            # because a later resource gate or metrics write rejects the call.
+            persist_return(result, cost, meter)
         if len(roots) > caps['roots']:
             raise bounded.ResourceExceeded(scope + ': root ceiling exceeded')
         if time.process_time() - cpu > caps['cpu_seconds']:
@@ -506,6 +522,15 @@ def decision_runtime(output, pass_number, seed, ordinal, scope, invoke, rng, cap
         status = 'returned'
         return result, cost, meter
     finally:
+        # Explicit caller finally also catches a profiling exception on the
+        # return of ANY context manager's __enter__ while our hook is active.
+        try:
+            # A retained __enter__ exception may retain a yielded timer
+            # generator. Close it now rather than depend on later collection.
+            cpu_guard.gen.close()
+            wall_guard.gen.close()
+        finally:
+            sys.setprofile(previous)
         append_metrics(output / 'resource-metrics.jsonl', {'kind': 'decision', 'pass': pass_number,
             'seed': seed, 'ordinal': ordinal, 'scope': scope, 'wall_seconds': time.monotonic() - start,
             'cpu_seconds': time.process_time() - cpu,
@@ -538,6 +563,23 @@ class AuditPolicy:
     def trace_counts(self):
         return {'decision_count': self.ordinal, 'non_null_choices': self.non_null_choices}
 
+    def persist_return(self, scope, returned, observed_cost, meter, expected_science=None):
+        if scope == 'control':
+            roots = meter.control_roots
+            best = max((r['score'] for r in roots), default=None)
+            result = {'chosen': move_record(returned), 'roots': roots,
+                      'final': [i for i, r in enumerate(roots) if r['score'] == best], 'cost': observed_cost}
+        else:
+            chosen, science, cost = returned
+            result = {'chosen': move_record(chosen), 'cost': cost}
+            if scope == 'candidate':
+                result['scientific'] = science
+            else:
+                result['scientific_sha256'] = digest(science)
+                if not exact_json(expected_science, science):
+                    result['scientific'] = science
+        append_jsonl(self.calls_path, {'ordinal': self.ordinal, 'scope': scope, 'result': result})
+
     def choose(self, observation, rng):
         from bandido_alcatraz.simulate import play_game
         # Direct trusted canonical runner only in production. Invented unit
@@ -560,12 +602,11 @@ class AuditPolicy:
         reference_rng.setstate(before_state)
         if self.pass_number == 1:
             chosen, cost, meter = decision_runtime(self.output, self.pass_number, self.seed, self.ordinal,
-                'control', lambda: self.policy.choose(observation, rng), rng, self.limits['control'])
+                'control', lambda: self.policy.choose(observation, rng), rng, self.limits['control'],
+                lambda result, cost, meter: self.persist_return('control', result, cost, meter))
             roots = meter.control_roots
             best = max((r['score'] for r in roots), default=None)
             final = [i for i, r in enumerate(roots) if r['score'] == best]
-            result = {'chosen': move_record(chosen), 'roots': roots, 'final': final, 'cost': cost}
-            append_jsonl(self.calls_path, {'ordinal': self.ordinal, 'scope': 'control', 'result': result})
             audit = {'public_observation_sha256': digest(public), 'chosen_move': move_record(chosen),
                      'rng_before_sha256': before, 'rng_after_sha256': digest(rng.getstate()),
                      'roots': roots, 'final': final, 'cost': cost}
@@ -577,20 +618,16 @@ class AuditPolicy:
         else:
             returned, observed_cost, meter = decision_runtime(self.output, self.pass_number, self.seed, self.ordinal,
                 'candidate', lambda: self.policy.evaluate(observation, rng, limits=self.candidate_limits), rng,
-                self.limits['candidate'])
+                self.limits['candidate'],
+                lambda result, cost, meter: self.persist_return('candidate', result, cost, meter))
             chosen, science, cost = returned
-            append_jsonl(self.calls_path, {'ordinal': self.ordinal, 'scope': 'candidate',
-                'result': {'chosen': move_record(chosen), 'scientific': science, 'cost': cost}})
             require(exact_json(cost, observed_cost), 'candidate physical operation audit disagrees with harness')
             checked, observed_reference_cost, reference_meter = decision_runtime(self.output, self.pass_number,
                 self.seed, self.ordinal, 'reference',
                 lambda: self.reference.evaluate(copied, reference_rng, limits=self.reference_limits),
-                reference_rng, self.limits['reference'])
+                reference_rng, self.limits['reference'],
+                lambda result, cost, meter: self.persist_return('reference', result, cost, meter, science))
             other, reference_science, reference_cost = checked
-            reference_result = {'chosen': move_record(other), 'scientific_sha256': digest(reference_science), 'cost': reference_cost}
-            if not exact_json(science, reference_science):
-                reference_result['scientific'] = reference_science
-            append_jsonl(self.calls_path, {'ordinal': self.ordinal, 'scope': 'reference', 'result': reference_result})
             require(exact_json(reference_cost, observed_reference_cost), 'reference physical operation audit mismatch')
             require(exact_json(science, reference_science), 'candidate/reference scientific audit disagreement')
             require(exact_json(move_record(chosen), move_record(other)) and rng.getstate() == reference_rng.getstate(),
@@ -623,20 +660,28 @@ class AuditPolicy:
         return chosen
 
 
-def read_trace(path):
-    result = []
+def iter_jsonl(path):
     limits = FREEZE['resources']
-    require(path.stat().st_size <= limits['trace_bytes'], 'trace exceeds frozen byte bound')
+    if path.stat().st_size > bounded.jsonl_limit(path, limits):
+        raise bounded.ResourceExceeded('JSONL artifact exceeds its frozen class byte bound')
+    total = 0
     with path.open('rb') as stream:
         while True:
             line = stream.readline(limits['line_bytes'] + 1)
             if not line:
                 break
-            require(len(line) <= limits['line_bytes'], 'trace line exceeds frozen byte bound')
+            total += len(line)
+            if total > bounded.jsonl_limit(path, limits):
+                raise bounded.ResourceExceeded('JSONL artifact exceeds its frozen class byte bound')
+            if len(line) > limits['line_bytes']:
+                raise bounded.ResourceExceeded('JSONL line exceeds frozen byte bound')
             if not line.endswith(b'\n'):
                 raise InfrastructureError('interrupted trace write; original prefix preserved')
-            result.append(bounded.strict_json(line))
-    return result
+            yield bounded.strict_json(line)
+
+
+def read_trace(path):
+    return list(iter_jsonl(path))
 
 
 def schema_object(value, keys, label):
@@ -966,11 +1011,7 @@ def append_record(output, pass_number, record):
     append_jsonl(output / "completed.jsonl", {"pass": pass_number, "record": record})
 
 def read_records(output):
-    path = output / "completed.jsonl"
-    data = path.read_text(encoding="utf-8")
-    if data and not data.endswith("\n"):
-        raise InfrastructureError("interrupted raw journal write; original bytes preserved")
-    return [json.loads(line) for line in data.splitlines()]
+    return list(iter_jsonl(output / 'completed.jsonl'))
 
 
 def final_record_from_wire(seed, result, public):
@@ -1143,34 +1184,44 @@ def run(output, expected_head, preregistration_url):
         cards = geometry.load_cards(ROOT / 'data', receipt['source_before']['source_blobs'])
         meter = bounded.Meter(total_caps=FREEZE['resources']['total_operations'])
         EXECUTION_ACTIVE = True
-        with bounded.deadline(max(.000001, FREEZE['resources']['cohort_wall_seconds'] - (time.monotonic() - started)), 'whole cohort'), meter:
-            for pass_number in PASSES:
-                for seed in SEEDS:
-                    receipt['current'] = {'pass': pass_number, 'seed': seed}
-                    receipt['attempted'].append(dict(receipt['current']))
-                    write_json(output / 'receipt.json', receipt)
-                    game_start, game_cpu, status = time.monotonic(), time.process_time(), 'failed'
-                    game_operations = dict(meter.counts)
-                    try:
-                        record = one_game(seed, output=output, pass_number=pass_number)
-                        append_record(output, pass_number, record)
-                        receipt['completed_records'] += 1
+        previous = sys.getprofile()
+        require(previous is None or callable(previous), 'native profile hook cannot safely be forwarded')
+        wall_guard = bounded.deadline(max(.000001, FREEZE['resources']['cohort_wall_seconds'] - (time.monotonic() - started)), 'whole cohort')
+        try:
+            meter.__enter__()
+            with wall_guard:
+                for pass_number in PASSES:
+                    for seed in SEEDS:
+                        receipt['current'] = {'pass': pass_number, 'seed': seed}
+                        receipt['attempted'].append(dict(receipt['current']))
                         write_json(output / 'receipt.json', receipt)
-                        validate_record(record, seed)
-                        geometry.validate_record(record, seed, cards)
-                        status = 'complete'
-                    finally:
-                        append_metrics(output / 'resource-metrics.jsonl', {'kind': 'game', 'pass': pass_number,
-                            'seed': seed, 'wall_seconds': time.monotonic() - game_start,
-                            'cpu_seconds': time.process_time() - game_cpu,
-                            'peak_rss_kib': resource.getrusage(resource.RUSAGE_SELF).ru_maxrss, 'status': status,
-                            'operations': {k: meter.counts[k] - game_operations[k] for k in bounded.OPS}})
-                if pass_number == 1:
-                    control = [row['record'] for row in read_records(output)]
-                    require(digest(control) == CONTROL_ARRAY_SHA256, 'complete control differs from accepted Worker30')
-                    require(sum(row['result']['won'] for row in control) == CONTROL_WINS, 'control45-win mismatch')
-            receipt['source_after'] = verify_source(expected_head)
-            require(exact_json(receipt['source_after'], receipt['source_before']), 'source changed during execution')
+                        game_start, game_cpu, status = time.monotonic(), time.process_time(), 'failed'
+                        game_operations = dict(meter.counts)
+                        try:
+                            record = one_game(seed, output=output, pass_number=pass_number)
+                            append_record(output, pass_number, record)
+                            receipt['completed_records'] += 1
+                            write_json(output / 'receipt.json', receipt)
+                            validate_record(record, seed)
+                            geometry.validate_record(record, seed, cards)
+                            status = 'complete'
+                        finally:
+                            append_metrics(output / 'resource-metrics.jsonl', {'kind': 'game', 'pass': pass_number,
+                                'seed': seed, 'wall_seconds': time.monotonic() - game_start,
+                                'cpu_seconds': time.process_time() - game_cpu,
+                                'peak_rss_kib': resource.getrusage(resource.RUSAGE_SELF).ru_maxrss, 'status': status,
+                                'operations': {k: meter.counts[k] - game_operations[k] for k in bounded.OPS}})
+                    if pass_number == 1:
+                        control = [row['record'] for row in read_records(output)]
+                        require(digest(control) == CONTROL_ARRAY_SHA256, 'complete control differs from accepted Worker30')
+                        require(sum(row['result']['won'] for row in control) == CONTROL_WINS, 'control45-win mismatch')
+                receipt['source_after'] = verify_source(expected_head)
+                require(exact_json(receipt['source_after'], receipt['source_before']), 'source changed during execution')
+        finally:
+            try:
+                wall_guard.gen.close()
+            finally:
+                sys.setprofile(previous)
         EXECUTION_ACTIVE = False
         receipt['total_operations'] = dict(meter.counts)
         receipt['cohort_elapsed_seconds'] = time.monotonic() - started
@@ -1294,7 +1345,7 @@ def _finalize(output, expected_head, preregistration_url, test_outcome, cohort_o
 
 
 def verify_resource_metrics(output, rows, receipt):
-    metrics = iter(read_trace(output / 'resource-metrics.jsonl'))
+    metrics = iter_jsonl(output / 'resource-metrics.jsonl')
     decisions = {k: 0 for k in bounded.OPS}
     games = {k: 0 for k in bounded.OPS}
     for row in rows:
@@ -1379,6 +1430,65 @@ def load_configuration(path):
             'freeze changed preregistration or canonical comparator')
 
 
+def quarantine_receipt(output, expected_head, preregistration_url, go, error, phase):
+    """Add a failure sidecar; never repair, parse again or overwrite bad bytes."""
+    output.mkdir(parents=True, exist_ok=True)
+    original = output / 'receipt.json'
+    identity_bytes = None
+    if original.is_file() and not original.is_symlink():
+        identity_bytes = bounded.file_hash(original)
+    limited = isinstance(error, (bounded.ResourceExceeded, MemoryError, TimeoutError))
+    value = {'schema': 'worker35-quarantined-recovery-v1', **identity(expected_head, preregistration_url),
+        'execution_go': go, 'quarantined': True,
+        'status': 'resource_incomplete' if limited else 'integrity_invalid' if integrity_error(error) else 'execution_blocked',
+        'classification': None, 'research_interpretation_performed': False,
+        'original_receipt': identity_bytes,
+        'errors': [{'phase': phase, 'type': type(error).__name__, 'message': str(error)}]}
+    descriptor, name = tempfile.mkstemp(prefix='recovery-receipt-quarantined-', suffix='.json', dir=output)
+    os.close(descriptor)
+    write_json(Path(name), value)
+
+
+def package_attempt(output, expected_head, preregistration_url, go):
+    """Transport is evidence preservation, never an acceptance/receipt gate.
+
+    Caller has already validated frozen caps, exact event admission and bounded
+    attempt path. A damaged receipt is quarantined but cannot hide its raw tree.
+    """
+    receipt, quarantined = None, False
+    try:
+        receipt = read_receipt(output)
+        check_identity(receipt, expected_head, preregistration_url)
+    except Exception as error:
+        quarantined = True
+        try:
+            quarantine_receipt(output, expected_head, preregistration_url, go, error, 'receipt_before_packaging')
+        except Exception as recovery_error:
+            # Even an unavailable/full recovery reserve cannot hide already
+            # existing raw bytes. The package and workflow still fail closed.
+            print('QUARANTINED: recovery sidecar unavailable: ' + str(recovery_error), file=sys.stderr)
+    try:
+        bounded.package_evidence(output, output.with_name(output.name + '-transport'), FREEZE['resources'])
+        return 1 if quarantined else 0
+    except Exception as error:
+        if quarantined:
+            try:
+                quarantine_receipt(output, expected_head, preregistration_url, go, error, 'quarantined_packaging')
+            except Exception as recovery_error:
+                print('QUARANTINED: packaging/recovery failure: ' + str(recovery_error), file=sys.stderr)
+        else:
+            fail(receipt, error, 'packaging')
+            write_json(output / 'receipt.json', receipt)
+        return 1
+    finally:
+        transport = output.with_name(output.name + '-transport')
+        parts = [p.name for p in sorted(transport.glob('evidence.part-*'))]
+        require(len(parts) <= 256, 'transport shard population exceeds256')
+        if os.environ.get('GITHUB_OUTPUT'):
+            with open(os.environ['GITHUB_OUTPUT'], 'a') as stream:
+                stream.write('parts=' + json.dumps(parts, separators=(',', ':')) + '\n')
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mode', choices=('admit', 'initialize', 'run', 'finalize', 'package'))
@@ -1432,22 +1542,7 @@ def main(argv=None):
         if args.mode == 'finalize':
             return finalize(args.output_dir, args.expected_head, args.preregistration_url,
                             args.test_outcome, args.cohort_outcome)
-        receipt = read_receipt(args.output_dir)
-        check_identity(receipt, args.expected_head, args.preregistration_url)
-        try:
-            bounded.package_evidence(args.output_dir, args.output_dir.with_name(args.output_dir.name + '-transport'), FREEZE['resources'])
-            return 0
-        except Exception as error:
-            fail(receipt, error, 'packaging')
-            write_json(args.output_dir / 'receipt.json', receipt)
-            return 1
-        finally:
-            transport = args.output_dir.with_name(args.output_dir.name + '-transport')
-            parts = [p.name for p in sorted(transport.glob('evidence.part-*'))]
-            require(len(parts) <= 256, 'transport shard population exceeds256')
-            if os.environ.get('GITHUB_OUTPUT'):
-                with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
-                    output.write('parts=' + json.dumps(parts, separators=(',', ':')) + '\n')
+        return package_attempt(args.output_dir, args.expected_head, args.preregistration_url, go)
     except Exception as error:
         # Gate/reuse failures must never overwrite the original attempt receipt.
         print(f'{type(error).__name__}: {error}', file=sys.stderr)

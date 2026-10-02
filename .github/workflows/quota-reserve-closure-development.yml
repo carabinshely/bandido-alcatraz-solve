@@ -49,7 +49,7 @@ jobs:
           python -B scripts/benchmark_worker35_synthetic.py \
             --expected-candidate-sha256 f7e61f41b2757db57ed9f06a6857a4115ce1994200670287b29b35345e702a2f \
             --expected-reference-sha256 4a27004f3761556e09953205cb69edf9cb3f32516ef569bccc831ff94bbcc498 \
-            --wall-seconds 180 --memory-mib 2048 --sizes 0,4,8,40,48 \
+            --wall-seconds 180 --memory-mib 2048 --operation-ceiling 32768 --sizes 0,4,8,40,48 \
             | tee "$BENCHMARK_OUTPUT"
       - name: Upload synthetic-only resource measurements
         if: always() && steps.benchmark.outcome != 'skipped'

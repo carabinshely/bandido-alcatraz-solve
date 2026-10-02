@@ -320,3 +320,149 @@ def test_workflow_benchmark_pipefail_unique_receipt_and_bounded_individual_uploa
     assert 'part: ${{ fromJSON(needs.development.outputs.parts) }}' in text
     assert '${{ matrix.part }}' in text and 'compression-level: 0' in text
     assert 'cancel-in-progress: false' in text
+
+
+@pytest.mark.parametrize('scope', ['candidate', 'reference'])
+def test_returned_science_is_durable_before_post_return_root_cap(tmp_path, scope):
+    audit, state, output = wrapper(tmp_path)
+    audit.limits[scope]['roots'] = 1
+    with pytest.raises(r.ResourceExceeded, match='root ceiling'):
+        audit.choose(state.observation(), Random(11))
+    rows = h.read_trace(audit.calls_path)
+    assert [row['scope'] for row in rows] == (['candidate'] if scope == 'candidate' else ['candidate','reference'])
+    assert len(rows[0]['result']['scientific']['roots']) == 6
+    assert h.read_trace(output/'resource-metrics.jsonl')[-1]['status'] == 'failed'
+
+
+def test_returned_science_survives_metrics_write_failure(tmp_path, monkeypatch):
+    audit, state, output = wrapper(tmp_path)
+    def unavailable(*args):raise OSError('invented metrics write unavailable')
+    monkeypatch.setattr(h, 'append_metrics', unavailable)
+    with pytest.raises(OSError, match='metrics write'):
+        audit.choose(state.observation(), Random(11))
+    rows=h.read_trace(audit.calls_path)
+    assert len(rows)==1 and len(rows[0]['result']['scientific']['roots'])==6
+
+
+def test_returned_science_precedes_post_return_cpu_check(tmp_path, monkeypatch):
+    from contextlib import contextmanager
+    @contextmanager
+    def no_cpu_alarm(*args):
+        yield
+    stamp=[0.0]
+    monkeypatch.setattr(h.time, 'process_time', lambda:stamp[0])
+    monkeypatch.setattr(r, 'cpu_deadline', no_cpu_alarm)
+    caps=dict(freeze()['resources']['per_call']['candidate'], cpu_seconds=1)
+    result=(None, {'roots':[],'invented':'fully returned'}, {'roots':0})
+    def invoke():stamp[0]=2.0;return result
+    path=tmp_path/'calls.jsonl'
+    with pytest.raises(r.ResourceExceeded,match='CPU ceiling'):
+        h.decision_runtime(tmp_path,2,11,1,'candidate',invoke,Random(11),caps,
+            lambda value,cost,meter:h.append_jsonl(path,{'scientific':value[1]}))
+    assert h.read_trace(path)==[{'scientific':result[1]}]
+
+
+def test_reader_writer_offline_verifier_artifact_class_parity(tmp_path, monkeypatch):
+    caps=freeze()['resources'];caps.update(trace_bytes=100,line_bytes=100,evidence_bytes=10000,receipt_bytes=100)
+    monkeypatch.setattr(h,'FREEZE',{'resources':caps})
+    monkeypatch.setattr(h,'BUDGET',r.EvidenceBudget(tmp_path,caps))
+    spec=importlib.util.spec_from_file_location('worker35_bound_parity',ROOT/'scripts/verify_worker35_development.py')
+    verifier=importlib.util.module_from_spec(spec);spec.loader.exec_module(verifier)
+    offline=object.__new__(verifier.Evidence);offline.resources=caps
+    for name in ('resource-metrics.jsonl','call-results/pass-2/invented.jsonl','completed.jsonl'):
+        path=tmp_path/name;path.parent.mkdir(parents=True,exist_ok=True)
+        for i in range(10):h.append_jsonl(path,{'metric':i,'fixture':True})
+        assert path.stat().st_size>caps['trace_bytes']
+        assert len(h.read_trace(path))==10
+        assert r.jsonl_limit(path,caps)==offline.limit(name)==caps['evidence_bytes']
+    trace=tmp_path/'decision-traces'/'pass-2'/'invented.jsonl';trace.parent.mkdir(parents=True)
+    assert r.jsonl_limit(trace,caps)==offline.limit('decision-traces/pass-2/invented.jsonl')==100
+    with pytest.raises(r.ResourceExceeded):
+        for i in range(10):h.append_jsonl(trace,{'metric':i,'fixture':True})
+    too_long=tmp_path/'too-long.jsonl';too_long.write_bytes(b'{"x":"'+b'x'*100+b'"}\n')
+    with pytest.raises(r.ResourceExceeded):list(h.iter_jsonl(too_long))
+
+
+def _benchmark_module():
+    spec=importlib.util.spec_from_file_location('worker35_benchmark_regression',ROOT/'scripts/benchmark_worker35_synthetic.py')
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    return module
+
+
+@pytest.mark.parametrize('site',['decision','cohort','benchmark'])
+@pytest.mark.parametrize('entry',['meter','contextlib'])
+def test_all_production_meter_callers_restore_retained_entry_exception(tmp_path,monkeypatch,site,entry):
+    import contextlib
+    import signal
+    target=r.Meter.__enter__.__code__ if entry=='meter' else contextlib._GeneratorContextManager.__enter__.__code__
+    if site=='decision':
+        audit,state,output=wrapper(tmp_path)
+        work=lambda:audit.choose(state.observation(),Random(11))
+    elif site=='benchmark':
+        audit,state,output=wrapper(tmp_path)
+        benchmark=_benchmark_module()
+        work=lambda:benchmark.measure_wrapper(audit,state,{k:100000 for k in r.OPS},15)
+    else:
+        import worker31_geometry as geometry
+        output=tmp_path/'attempt';receipt=h.initialize(output,'6'*40,h.PREREGISTRATION_URL)
+        receipt['source_at_initialization']={'source_blobs':{}};h.write_json(output/'receipt.json',receipt)
+        monkeypatch.setattr(h,'preflight',lambda *args:{'source_blobs':{}})
+        monkeypatch.setattr(h,'verify_source',lambda *args:{'source_blobs':{}})
+        monkeypatch.setattr(h,'observed_source_snapshot',lambda:{})
+        monkeypatch.setattr(r,'enforce_memory',lambda n:{'mechanism':'invented','soft':n,'hard':n})
+        monkeypatch.setattr(geometry,'load_cards',lambda *args:{})
+        def forbidden_game(*args,**kwargs):raise AssertionError('game execution forbidden in preflight')
+        monkeypatch.setattr(h,'one_game',forbidden_game)
+        work=lambda:h.run(output,'6'*40,h.PREREGISTRATION_URL)
+    previous=sys.getprofile();hits=[];problem=RuntimeError('retained invented entry failure')
+    def hook(frame,event,arg):
+        if event=='return' and frame.f_code is target and sys.getprofile() is not hook and not hits:
+            hits.append(event);raise problem
+    sys.setprofile(hook)
+    try:
+        if site=='cohort':assert work()==1
+        else:
+            with pytest.raises(RuntimeError) as caught:work()
+            assert caught.value is problem
+        assert hits and problem.__traceback__ is not None
+        assert sys.getprofile() is hook
+        assert signal.getitimer(signal.ITIMER_REAL)[0]==0
+        assert signal.getitimer(signal.ITIMER_PROF)[0]==0
+    finally:sys.setprofile(previous)
+
+
+def test_exact_three_hook_wrapper_benchmark_includes_journal_fsync(tmp_path):
+    audit,state,output=wrapper(tmp_path)
+    benchmark=_benchmark_module()
+    result=benchmark.measure_wrapper(audit,state,{k:100000 for k in r.OPS},15)
+    metrics=h.read_trace(output/'resource-metrics.jsonl')
+    assert [row['scope'] for row in metrics]==['candidate','reference']
+    assert result['operations']=={k:sum(row['cost'][k] for row in metrics) for k in r.OPS}
+    assert audit.path.stat().st_size>0 and audit.calls_path.stat().st_size>0
+    assert len(h.read_trace(audit.path))==2
+
+
+@pytest.mark.parametrize('damage',['corrupt','missing','identity'])
+def test_quarantined_packaging_preserves_complete_raw_prefix(tmp_path,monkeypatch,damage):
+    output=tmp_path/'attempt';output.mkdir()
+    original=None
+    if damage=='corrupt':original=b'{corrupt'
+    if damage=='identity':original=r.canonical({'worker':999,'errors':[],'status':'initialized'})
+    if original is not None:(output/'receipt.json').write_bytes(original)
+    (output/'recovery-receipt-existing.json').write_bytes(b'{"status":"integrity_invalid"}\n')
+    trace=output/'decision-traces'/'pass-2'/'11.jsonl';trace.parent.mkdir(parents=True)
+    raw=b'{"event":"decision_started","invented":true}\n';trace.write_bytes(raw)
+    github_output=tmp_path/'github-output';monkeypatch.setenv('GITHUB_OUTPUT',str(github_output))
+    assert h.package_attempt(output,'6'*40,h.PREREGISTRATION_URL,h.admission(event(),'6'*40,'5'*64))==1
+    assert (output/'receipt.json').read_bytes()==original if original is not None else not (output/'receipt.json').exists()
+    transport=output.with_name('attempt-transport');manifest=json.loads((transport/'artifact-manifest.json').read_bytes())
+    packed=b''.join((transport/item['name']).read_bytes() for item in manifest['parts'])
+    with zipfile.ZipFile(io.BytesIO(packed)) as archive:
+        assert archive.read('decision-traces/pass-2/11.jsonl')==raw
+        assert archive.read('recovery-receipt-existing.json')==b'{"status":"integrity_invalid"}\n'
+        if original is not None:assert archive.read('receipt.json')==original
+        quarantined=[name for name in archive.namelist() if name.startswith('recovery-receipt-quarantined-')]
+        assert len(quarantined)==1
+        receipt=json.loads(archive.read(quarantined[0]))
+        assert receipt['quarantined'] and receipt['classification'] is None and not receipt['research_interpretation_performed']
+    assert 'parts=' in github_output.read_text()

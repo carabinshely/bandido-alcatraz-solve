@@ -227,6 +227,11 @@ class Meter:
         sys.setprofile(self.old)
 
 
+def jsonl_limit(path, limits):
+    """Only decision traces have a per-game cap; other journals share raw cap."""
+    return limits['trace_bytes'] if 'decision-traces' in Path(path).parts else limits['evidence_bytes']
+
+
 class EvidenceBudget:
     """Exact prospective raw-byte ceilings; no truncation and no silent rollover."""
     def __init__(self, root, limits):
@@ -316,6 +321,7 @@ def package_evidence(root, destination, limits):
     root, destination = Path(root), Path(destination)
     destination.mkdir(parents=True, exist_ok=False)
     files = {}
+    expanded_bytes = 0
     sink = ShardWriter(destination, limits)
     try:
         with zipfile.ZipFile(sink, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=6, allowZip64=True) as output:
@@ -325,6 +331,9 @@ def package_evidence(root, destination, limits):
                     continue
                 relative = path.relative_to(root).as_posix()
                 files[relative] = file_hash(path)
+                expanded_bytes += files[relative]['size_bytes']
+                if expanded_bytes > limits['evidence_bytes']:
+                    raise ResourceExceeded('raw evidence exceeds frozen expanded byte ceiling')
                 info = zipfile.ZipInfo(relative, date_time=(1980, 1, 1, 0, 0, 0))
                 info.external_attr = 0o100644 << 16
                 info.compress_type = zipfile.ZIP_DEFLATED
