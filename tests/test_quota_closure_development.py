@@ -410,6 +410,7 @@ def test_all_production_meter_callers_restore_retained_entry_exception(tmp_path,
         monkeypatch.setattr(h,'verify_source',lambda *args:{'source_blobs':{}})
         monkeypatch.setattr(h,'observed_source_snapshot',lambda:{})
         monkeypatch.setattr(r,'enforce_memory',lambda n:{'mechanism':'invented','soft':n,'hard':n})
+        monkeypatch.setattr(h.shutil,'disk_usage',lambda path:type('InventedDisk',(),{'free':10**12})())
         monkeypatch.setattr(geometry,'load_cards',lambda *args:{})
         def forbidden_game(*args,**kwargs):raise AssertionError('game execution forbidden in preflight')
         monkeypatch.setattr(h,'one_game',forbidden_game)
@@ -466,3 +467,67 @@ def test_quarantined_packaging_preserves_complete_raw_prefix(tmp_path,monkeypatc
         receipt=json.loads(archive.read(quarantined[0]))
         assert receipt['quarantined'] and receipt['classification'] is None and not receipt['research_interpretation_performed']
     assert 'parts=' in github_output.read_text()
+
+
+@pytest.mark.parametrize('difference',[-1,0,1])
+def test_read_only_disk_admission_requires_full_raw_archive_plus_two_gib(tmp_path,monkeypatch,difference):
+    limits=freeze()['resources']
+    required=limits['evidence_bytes']+limits['archive_bytes']+2*1024**3
+    calls=[]
+    def probe(path):
+        calls.append(path)
+        return type('InventedDisk',(),{'free':required+difference})()
+    monkeypatch.setattr(h.shutil,'disk_usage',probe)
+    if difference<0:
+        with pytest.raises(r.ResourceExceeded,match='before any seed'):
+            h.require_disk_capacity(tmp_path,limits)
+    else:h.require_disk_capacity(tmp_path,limits)
+    assert calls==[tmp_path] and list(tmp_path.iterdir())==[]
+
+
+def test_low_disk_stops_before_any_attempt_or_game(tmp_path,monkeypatch):
+    output=tmp_path/'attempt';receipt=h.initialize(output,'6'*40,h.PREREGISTRATION_URL)
+    receipt['source_at_initialization']={'source_blobs':{}};h.write_json(output/'receipt.json',receipt)
+    monkeypatch.setattr(h,'preflight',lambda *args:{'source_blobs':{}})
+    monkeypatch.setattr(h,'verify_source',lambda *args:{'source_blobs':{}})
+    monkeypatch.setattr(h,'observed_source_snapshot',lambda:{})
+    monkeypatch.setattr(h.shutil,'disk_usage',lambda path:type('InventedDisk',(),{'free':0})())
+    calls=[]
+    monkeypatch.setattr(h,'one_game',lambda *args,**kwargs:calls.append('forbidden game'))
+    assert h.run(output,'6'*40,h.PREREGISTRATION_URL)==1
+    receipt=h.read_receipt(output)
+    assert calls==[] and receipt['attempted']==[] and receipt['completed_records']==0
+    assert receipt['status']=='resource_incomplete' and receipt['classification'] is None
+
+
+@pytest.mark.parametrize('damaged',[False,True])
+def test_packaging_deadline_retains_partial_bytes_receipts_and_part_output(tmp_path,monkeypatch,damaged):
+    from contextlib import contextmanager
+    output=tmp_path/'attempt';h.initialize(output,'6'*40,h.PREREGISTRATION_URL)
+    if damaged:(output/'receipt.json').write_bytes(b'{corrupt')
+    raw=output/'invented.jsonl';raw.write_bytes(b'{"invented":true}\n')
+    original=raw.read_bytes()
+    github_output=tmp_path/'github-output';monkeypatch.setenv('GITHUB_OUTPUT',str(github_output))
+    entered=[]
+    @contextmanager
+    def expired_after_partial(seconds,label):
+        entered.append((seconds,label))
+        yield
+        raise r.ResourceExceeded('invented graceful packaging deadline')
+    def partial(source,destination,limits):
+        destination.mkdir()
+        (destination/'evidence.part-00001').write_bytes(b'complete emitted prefix')
+    monkeypatch.setattr(r,'deadline',expired_after_partial)
+    monkeypatch.setattr(r,'package_evidence',partial)
+    assert h.package_attempt(output,'6'*40,h.PREREGISTRATION_URL,h.admission(event(),'6'*40,'5'*64))==1
+    assert entered==[(freeze()['resources']['verification_wall_seconds'],'evidence packaging')]
+    assert raw.read_bytes()==original
+    assert (output.with_name('attempt-transport')/'evidence.part-00001').read_bytes()==b'complete emitted prefix'
+    assert 'evidence.part-00001' in github_output.read_text()
+    if damaged:
+        assert (output/'receipt.json').read_bytes()==b'{corrupt'
+        receipts=[json.loads(p.read_bytes()) for p in output.glob('recovery-receipt-quarantined-*.json')]
+        assert any(row['status']=='resource_incomplete' for row in receipts)
+    else:
+        receipt=h.read_receipt(output)
+        assert receipt['status']=='resource_incomplete' and receipt['classification'] is None

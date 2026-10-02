@@ -16,6 +16,7 @@ from pathlib import Path
 import platform
 import re
 import subprocess
+import shutil
 import sys
 import tempfile
 import copy
@@ -1163,6 +1164,15 @@ def fail(receipt, error, phase):
     receipt['errors'].append({'phase': phase, 'type': type(error).__name__, 'message': str(error)})
 
 
+def require_disk_capacity(output, limits):
+    """Read-only admission: full raw + compressed transport +2GiB headroom."""
+    required = limits['evidence_bytes'] + limits['archive_bytes'] + 2 * 1024 ** 3
+    available = shutil.disk_usage(output).free
+    if available < required:
+        raise bounded.ResourceExceeded(
+            f'insufficient free disk before any seed: need {required} bytes, available {available}')
+
+
 def run(output, expected_head, preregistration_url):
     global BUDGET, EXECUTION_ACTIVE
     receipt = read_receipt(output)
@@ -1176,6 +1186,7 @@ def run(output, expected_head, preregistration_url):
         receipt['source_before'] = preflight(expected_head, preregistration_url)
         require(same_source_bytes(receipt['source_before'], receipt['source_at_initialization']),
                 'source changed after initialization')
+        require_disk_capacity(output, FREEZE['resources'])
         receipt['memory_limit'] = bounded.enforce_memory(FREEZE['resources']['address_space_bytes'])
         receipt['status'] = 'running'
         write_json(output / 'receipt.json', receipt)
@@ -1468,7 +1479,8 @@ def package_attempt(output, expected_head, preregistration_url, go):
             # existing raw bytes. The package and workflow still fail closed.
             print('QUARANTINED: recovery sidecar unavailable: ' + str(recovery_error), file=sys.stderr)
     try:
-        bounded.package_evidence(output, output.with_name(output.name + '-transport'), FREEZE['resources'])
+        with bounded.deadline(FREEZE['resources']['verification_wall_seconds'], 'evidence packaging'):
+            bounded.package_evidence(output, output.with_name(output.name + '-transport'), FREEZE['resources'])
         return 1 if quarantined else 0
     except Exception as error:
         if quarantined:

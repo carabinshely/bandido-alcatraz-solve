@@ -331,7 +331,7 @@ def validate_freeze(freeze, expected_sha, raw=None):
     require(resources['shard_bytes'] <= 30 * 1024**2, 'frozen shard exceeds transfer bound')
     keys(freeze['reviews'], 'candidate reference harness independent_a independent_b', 'review gates')
     for name, value in freeze['reviews'].items():
-        require(type(value) is str and bool(value.strip()), 'unfilled review gate ' + name)
+        same(value, 'required-clean-exact-head-before-go', 'review role requirement ' + name)
     valid_hash(freeze['synthetic_preflight_sha256'], 'synthetic preflight')
     require(type(freeze['preregistration_url']) is str and re.fullmatch(
         r'https://github\.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-[0-9]+',

@@ -58,7 +58,7 @@ jobs:
           name: worker35-synthetic-resource-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/worker35-synthetic-resource-${{ github.run_id }}-${{ github.run_attempt }}.jsonl
           if-no-files-found: error
-          retention-days: 90
+          retention-days: 7
 
   development:
     outputs:
@@ -77,7 +77,7 @@ jobs:
     runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
     # Infrastructure backstop only. All scientific/resource limits are mandatory
     # in the prospective freeze; missing freeze cannot initialize or compute.
-    timeout-minutes: 360
+    timeout-minutes: 1380
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       PYTHONHASHSEED: '0'
@@ -151,7 +151,7 @@ jobs:
             ${{ env.OUTPUT_DIR }}/recovery-receipt-*.json
           if-no-files-found: error
           compression-level: 0
-          retention-days: 90
+          retention-days: 7
 
   upload-shards:
     needs: development
@@ -172,4 +172,4 @@ jobs:
           path: ${{ github.workspace }}/../bandido-quota-closure-development/${{ github.run_id }}/${{ github.run_attempt }}-transport/${{ matrix.part }}
           if-no-files-found: error
           compression-level: 0
-          retention-days: 90
+          retention-days: 7

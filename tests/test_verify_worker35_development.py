@@ -218,7 +218,7 @@ def synthetic_bundle(tmp_path, monkeypatch):
         preregistration_url='https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-123',
         baseline_commit=v.MODEL_COMPARATOR, baseline_source_blobs=source,
         execution_source_sha256=execution, runtime=dict(implementation='CPython', version='3.11.16', executable_sha256='b'*64),
-        resources=resources, reviews=dict.fromkeys(('candidate', 'reference', 'harness', 'independent_a', 'independent_b'), 'invented-review'),
+        resources=resources, reviews=dict.fromkeys(('candidate', 'reference', 'harness', 'independent_a', 'independent_b'), 'required-clean-exact-head-before-go'),
         synthetic_preflight_sha256='f'*64)
     freeze_sha = v.digest(freeze)
     go = dict(head='a'*40, tree='b'*40, freeze_sha256=freeze_sha,
@@ -468,3 +468,12 @@ def test_baseline_archive_unavailable_and_corrupt_are_distinct(tmp_path):
     with pytest.raises(v.Rejected,match='historical control archive'):
         with v.HistoricalControl(tmp_path/'wrong.zip'):
             pass
+
+
+def test_review_role_requirement_rejects_other_nonempty_strings(synthetic_bundle):
+    args, unused = synthetic_bundle
+    freeze = deepcopy(args['freeze'])
+    v.validate_freeze(freeze, v.digest(freeze))
+    freeze['reviews']['harness'] = 'invented-review'
+    with pytest.raises(v.Rejected, match='review role requirement harness'):
+        v.validate_freeze(freeze, v.digest(freeze))

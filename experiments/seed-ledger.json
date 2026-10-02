@@ -361,7 +361,7 @@
     },
     {
       "preregistration": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5947200127",
-      "status": "preregistered_implementation_only_execution_freeze_pending",
+      "status": "source_resource_configuration_prepared_waiting_exact_head_review_and_go",
       "kind": "spent_development",
       "existing_spent_cohort_inclusive": [
         1000000,
@@ -383,7 +383,8 @@
       "advancement_screen_net_wins_at_least": 8,
       "equipment_completion_and_mechanism_counts": "descriptive only; no additional advancement gates",
       "note": "Scientific policy and complete ascending three-pass spent population fixed prospectively. No real evaluation is admitted until independent synthetic preflight and separate exact source/runtime/resource freeze/go. Existing historical seed status never restored.",
-      "research_step": 35
+      "research_step": 35,
+      "execution_freeze_path": "experiments/quota-reserve-closure-development/execution-freeze.json"
     }
   ],
   "fresh_confirmation_allocations": [],
