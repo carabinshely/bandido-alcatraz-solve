@@ -1,5 +1,7 @@
 """Synthetic fixtures ONLY. Never load selected observations or execute their search."""
 from dataclasses import replace
+from datetime import datetime, timedelta, timezone
+from itertools import count
 import json
 import os
 from pathlib import Path
@@ -222,6 +224,10 @@ def test_supervisor_kills_term_ignoring_process(tmp_path):
 def test_full_160_call_harness_synthetic_only(tmp_path,monkeypatch,corrupt_reference):
     from bandido_alcatraz.worker32 import runtime
     from bandido_alcatraz.worker32.evidence import move
+    # Isolate UTC metadata from the host clock, leaving monotonic/CPU timing real.
+    timestamps = (datetime(2026, 1, 1, tzinfo=timezone.utc) + timedelta(microseconds=tick)
+                  for tick in count())
+    monkeypatch.setattr(runtime, 'utc', lambda: next(timestamps).isoformat())
     obs=state([card('rope',material=Material.ROPE)]).observation()
     entries=[dict(position=i+1,seed=1000000+i,ordinal=1,public_observation_sha256=sha(observation(obs))) for i in range(80)]
     monkeypatch.setattr(runtime,'runner_guard',lambda root:'synthetic-head')

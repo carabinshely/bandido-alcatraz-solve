@@ -1,5 +1,7 @@
 """Worker32 preflight repairs: synthetic process trees and invented states only."""
+from datetime import datetime, timedelta, timezone
 import errno
+from itertools import count
 import json
 import os
 from pathlib import Path
@@ -196,6 +198,10 @@ def test_strict_expected_envelope(change):
 
 @pytest.fixture
 def synthetic_compute(tmp_path,monkeypatch):
+    # Isolate UTC metadata from the host clock, leaving monotonic/CPU timing real.
+    timestamps = (datetime(2026, 1, 1, tzinfo=timezone.utc) + timedelta(microseconds=tick)
+                  for tick in count())
+    monkeypatch.setattr(runtime, 'utc', lambda: next(timestamps).isoformat())
     obs=state([card('rope',material=Material.ROPE)]).observation()
     legal=obs.legal_moves()
     entries=[dict(position=i+1,seed=1000000+i,ordinal=1,public_observation_sha256=sha(observation(obs))) for i in range(80)]

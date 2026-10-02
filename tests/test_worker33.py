@@ -4,7 +4,9 @@ The selected corpus is only decompressed and hashed. Never reconstruct, enumerat
 score, search, or continue any selected observation from these tests.
 """
 import argparse
+from datetime import datetime, timedelta, timezone
 import hashlib
+from itertools import count
 import json
 import os
 from pathlib import Path
@@ -19,6 +21,7 @@ from bandido_alcatraz.model import Direction, Material
 from bandido_alcatraz.moves import Action
 from bandido_alcatraz.policies import BoundedMergeV4Policy
 from bandido_alcatraz.strategy import score_move_no_draw
+from bandido_alcatraz.worker32 import runtime as runtime32
 from bandido_alcatraz.worker32.candidate import Candidate
 from bandido_alcatraz.worker32.reference import Reference
 from bandido_alcatraz.worker32.evidence import BudgetExceeded, canonical, move, observation, sha
@@ -333,6 +336,10 @@ def test_supervisor_passes_explicit_5400_and_30(monkeypatch, tmp_path, timeout):
 @pytest.mark.parametrize('exercise_label_branch', [False, True])
 def test_real_160_call_order_fresh_instances_rng_and_labels(tmp_path, monkeypatch, exercise_label_branch):
     # Every object is invented here; no selected data or selected audit is loaded.
+    # Isolate UTC metadata from the host clock, leaving monotonic/CPU timing real.
+    timestamps = (datetime(2026, 1, 1, tzinfo=timezone.utc) + timedelta(microseconds=tick)
+                  for tick in count())
+    monkeypatch.setattr(runtime, 'utc', lambda: next(timestamps).isoformat())
     observations = [invented_mixed_observation() for _ in range(80)]
     entries, audits = [], []
     for index, obs in enumerate(observations):
@@ -378,6 +385,8 @@ def test_real_160_call_order_fresh_instances_rng_and_labels(tmp_path, monkeypatc
         assert first['scientific']['schema'] == 'worker32-scientific-v1'
         assert {r['root']['action'] for r in first['scientific']['roots']} == {'place', 'collect'}
         assert first['envelope']['call'] == index + 1 and second['envelope']['call'] == index + 81
+        for record in (first, second):
+            assert record['envelope']['started'] < record['envelope']['finished']
     result = json.loads((tmp_path / 'result.json').read_text())
     label = 'exercised' if exercise_label_branch else 'not_exercised'
     assert result['status'] == 'mixed_action_two_action_diagnostic_mechanism_' + label
@@ -387,6 +396,24 @@ def test_real_160_call_order_fresh_instances_rng_and_labels(tmp_path, monkeypatc
     events = [json.loads(line) for line in (tmp_path / 'journal.jsonl').read_text().splitlines()]
     assert [e['event'] for e in events] == ['started', 'completed'] * 160
     assert not (tmp_path / 'failure.json').exists()
+
+
+@pytest.mark.parametrize('adapter', [runtime32, runtime], ids=['worker32', 'worker33'])
+@pytest.mark.parametrize('offset', [-1, 0, 1])
+def test_envelope_utc_ordering_remains_strict(offset, adapter):
+    started = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    expected = {'pass': 1, 'call': 1, 'implementation': 'candidate', 'seed': 1000000,
+                'ordinal': 1, 'run_id': '123', 'run_attempt': '1'}
+    envelope = {**expected, 'started': started.isoformat(),
+                'finished': (started + timedelta(microseconds=offset)).isoformat(),
+                'wall_seconds': 1.0, 'cpu_seconds': 0.5,
+                'peak_rss_kib': 1000, 'physical_legal_moves': 1}
+    if offset < 0:
+        with pytest.raises(ValueError, match='^reversed call timestamps$') as error:
+            adapter.validate_envelope(envelope, expected=expected)
+        assert adapter.failure_status(error.value) == 'integrity_invalid'
+    else:
+        adapter.validate_envelope(envelope, expected=expected)
 
 
 def test_strict_departure_still_requires_entire_opposite_tiers_and_better_key():
