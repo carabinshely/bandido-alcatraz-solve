@@ -1,0 +1,88 @@
+name: Worker33 frozen mixed-action two-action diagnostic
+on:
+  pull_request:
+    types: [opened]
+permissions:
+  contents: read
+concurrency:
+  group: worker33-${{ github.event.pull_request.head.sha }}
+  cancel-in-progress: false
+jobs:
+  diagnostic:
+    if: >-
+      github.event.action == 'opened' &&
+      github.event.pull_request.draft == true &&
+      github.event.pull_request.head.ref == 'research/worker33-mixed-action-diagnostic' &&
+      github.event.pull_request.head.repo.full_name == 'carabinshely/bandido-alcatraz-solve' &&
+      github.repository == 'carabinshely/bandido-alcatraz-solve' &&
+      github.run_attempt == 1
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+    timeout-minutes: 120
+    env:
+      PYTHONHASHSEED: '0'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONNOUSERSITE: '1'
+    steps:
+      - name: Initialize exclusive durable evidence
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" in *[!0-9-]*) exit 1;; esac
+          evidence="$HOME/bandido-worker33-evidence/$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          mkdir -p "$HOME/bandido-worker33-evidence"
+          test ! -L "$HOME/bandido-worker33-evidence"
+          mkdir "$evidence"
+          echo "EVIDENCE=$evidence" >> "$GITHUB_ENV"
+          python3 -c 'import json,os; p=os.environ["HOME"]+"/bandido-worker33-evidence/"+os.environ["GITHUB_RUN_ID"]+"-"+os.environ["GITHUB_RUN_ATTEMPT"]+"/started.json"; f=open(p,"x"); json.dump({"status":"started","run_id":os.environ["GITHUB_RUN_ID"],"attempt":os.environ["GITHUB_RUN_ATTEMPT"]},f); f.flush(); os.fsync(f.fileno())'
+      - uses: actions/checkout@v4
+        timeout-minutes: 1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        timeout-minutes: 2
+        with:
+          python-version: '3.11.16'
+      - name: Install isolated package and test dependencies
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/worker33-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          py="$RUNNER_TEMP/worker33-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/bin/python"
+          "$py" -m pip install . pytest
+          echo "WORKER33_PYTHON=$py" >> "$GITHUB_ENV"
+          git clean -fd -- build '*.egg-info' src/*.egg-info
+      - name: Synthetic preflight only
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          "$WORKER33_PYTHON" -m pytest -q -o pythonpath= tests/test_worker32.py tests/test_worker32_preflight.py tests/test_worker33.py > "$EVIDENCE/synthetic-preflight.log" 2>&1
+      - name: Single whole-compute deadline
+        timeout-minutes: 92
+        run: |
+          "$WORKER33_PYTHON" -m bandido_alcatraz.worker33.runtime supervise --root "$GITHUB_WORKSPACE" --evidence "$EVIDENCE"
+      - name: Preserve status and inventory
+        if: always() && env.EVIDENCE != ''
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${WORKER33_PYTHON:-}" ]; then
+            "$WORKER33_PYTHON" -m bandido_alcatraz.worker33.runtime finalize --root "$GITHUB_WORKSPACE" --evidence "$EVIDENCE"
+          else
+            python3 -c 'import json,os; p=os.environ["EVIDENCE"]+"/failure.json"; f=open(p,"x"); json.dump({"status":"execution_blocked","error":"setup incomplete"},f); f.flush(); os.fsync(f.fileno())'
+          fi
+          python3 -c 'import os; from pathlib import Path; d=Path(os.environ["EVIDENCE"]); assert not d.is_symlink(); assert all(p.is_file() and not p.is_symlink() for p in d.iterdir())'
+          echo "SAFE_UPLOAD=true" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        if: always() && env.SAFE_UPLOAD == 'true'
+        timeout-minutes: 8
+        with:
+          name: worker33-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.EVIDENCE }}
+          if-no-files-found: error
+          include-hidden-files: false
+          retention-days: 90
