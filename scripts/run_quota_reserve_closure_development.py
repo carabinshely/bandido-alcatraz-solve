@@ -221,10 +221,6 @@ def source_inputs(commit):
         metadata, path = entry.split("\t", 1)
         if path == FREEZE_PATH:
             continue
-        if not (path.startswith(("src/", "data/", "scripts/", "tests/", ".github/")) or
-                path in ("pyproject.toml", "experiments/quota-reserve-closure-development/PROTOCOL.md",
-                         "experiments/quota-reserve-closure-development/AUDIT-CONTRACT.md")):
-            continue
         mode, kind, blob = metadata.split()
         require(mode == "100644" and kind == "blob", "unsupported execution input: " + path)
         result[path] = blob

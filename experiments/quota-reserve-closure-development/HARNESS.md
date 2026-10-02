@@ -72,15 +72,21 @@ No default file or permissive cap is provided. Exact top-level keys:
 - `schema`: `worker35-execution-freeze-v1`
 - `preregistration_url`, `baseline_commit`
 - `baseline_source_blobs`: exact canonical 26 path-to-Git-blob map
-- `execution_source_sha256`: every tracked `src/`, `data/`, `scripts/`, `tests/`,
-  `.github/` input plus `pyproject.toml`, protocol, and audit contract
+- `execution_source_sha256`: every tracked Git blob except this freeze file,
+  including source, data, scripts, tests, workflows, documentation, ledgers,
+  README, `.gitignore`, setup, protocol, audit contract, and all other tracked files
 - `runtime`: exact `implementation`, `version`, `executable_sha256`
 - `resources`: all caps below
 - `reviews`: `candidate`, `reference`, `harness`, `independent_a`, `independent_b`,
   each exactly `required-clean-exact-head-before-go`
 - `synthetic_preflight_sha256`: previously retained invented-resource evidence
 
-The freeze itself is excluded from its source map to avoid self-reference. Root's
+The freeze itself is the only tracked-file exclusion from its source map, to
+avoid self-reference. The exact full-tree non-freeze inventory must match the
+freeze; the unchanged canonical26 comparator is checked separately. Synthetic
+CI checks out full history, loads the committed freeze and invokes the actual
+`verify_source` on the exact PR head before any admission. This read-only source
+check never calls admit, initialize, claim, or game execution. Root's
 external go binds its raw SHA256 plus final head/tree. Review role declarations
 are requirements, not proof of approval; actual final-head approval and CI URLs
 belong in the external go. The benchmark scientific source pins remain stable

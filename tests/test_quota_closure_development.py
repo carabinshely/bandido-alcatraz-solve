@@ -311,7 +311,9 @@ def test_native_profile_hook_not_destroyed():
 
 
 def test_workflow_benchmark_pipefail_unique_receipt_and_bounded_individual_uploads():
-    text=(ROOT/'.github/workflows/quota-reserve-closure-development.yml').read_text()
+    workflow=ROOT/'.github/workflows/quota-reserve-closure-development.yml'
+    if not workflow.exists():pytest.skip('temporary pre-execution workflow has been retired')
+    text=workflow.read_text()
     assert 'set -euo pipefail' in text and 'shell: bash' in text
     assert 'worker35-synthetic-resource-${{ github.run_id }}-${{ github.run_attempt }}.jsonl' in text
     assert '| tee "$BENCHMARK_OUTPUT"' in text
@@ -531,3 +533,75 @@ def test_packaging_deadline_retains_partial_bytes_receipts_and_part_output(tmp_p
     else:
         receipt=h.read_receipt(output)
         assert receipt['status']=='resource_incomplete' and receipt['classification'] is None
+
+
+def test_actual_git_full_source_closure_includes_docs_ledger_readme_gitignore_and_committed_freeze(tmp_path,monkeypatch):
+    """An actual invented Git history; no production data/policy is evaluated."""
+    import subprocess
+    checkout=tmp_path/'invented-repository';checkout.mkdir()
+    template=tmp_path/'empty-git-template';template.mkdir()
+    env={**os.environ,'GIT_CONFIG_NOSYSTEM':'1','GIT_CONFIG_GLOBAL':os.devnull,
+         'GIT_TEMPLATE_DIR':str(template),'GIT_AUTHOR_NAME':'Synthetic Fixture',
+         'GIT_AUTHOR_EMAIL':'synthetic@example.invalid','GIT_COMMITTER_NAME':'Synthetic Fixture',
+         'GIT_COMMITTER_EMAIL':'synthetic@example.invalid'}
+    def git(*args):
+        return subprocess.run(['git','-c','commit.gpgsign=false',*args],cwd=checkout,
+            env=env,check=True,capture_output=True,text=True).stdout.strip()
+    git('init','-q')
+    canonical={f'src/bandido_alcatraz/invented_{i}.py':f'# invented canonical {i}\n'.encode() for i in range(26)}
+    for name,raw in canonical.items():
+        path=checkout/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
+    git('add','.');git('commit','-qm','Invented baseline')
+    baseline=git('rev-parse','HEAD');accepted_tree=git('rev-parse','HEAD^{tree}')
+    monkeypatch.setattr(h,'ROOT',checkout)
+    monkeypatch.setattr(h,'BASELINE_COMMIT',baseline)
+    monkeypatch.setattr(h,'ACCEPTED_MAIN',baseline)
+    monkeypatch.setattr(h,'ACCEPTED_TREE',accepted_tree)
+    monkeypatch.setattr(sys,'dont_write_bytecode',True)
+    baseline_map=h.tree_blobs(baseline)
+    formerly_excluded={'docs/invented-review.md':b'# Invented review\n',
+        'experiments/invented-seed-ledger.json':b'{"synthetic":true}\n',
+        'README.md':b'# Invented source closure\n','.gitignore':b'*.invented-ignore\n'}
+    additions={**formerly_excluded,h.CANDIDATE_PATH:b'# invented candidate; never executed\n',
+        h.REFERENCE_PATH:b'# invented reference; never executed\n',h.HARNESS_PATH:b'# invented harness; never executed\n'}
+    all_inputs={**canonical,**additions}
+    for name,raw in additions.items():
+        path=checkout/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
+    configuration=freeze()
+    configuration['baseline_commit']=baseline
+    configuration['baseline_source_blobs']=baseline_map
+    configuration['execution_source_sha256']={name:hashlib.sha256(raw).hexdigest() for name,raw in all_inputs.items()}
+    frozen=checkout/h.FREEZE_PATH;frozen.parent.mkdir(parents=True,exist_ok=True)
+    frozen.write_bytes(r.canonical(configuration))
+    git('add','.');git('commit','-qm','Invented complete source and freeze')
+    head=git('rev-parse','HEAD');authenticated_tree=git('rev-parse','HEAD^{tree}')
+    assert git('rev-parse',f'HEAD:{h.FREEZE_PATH}')
+    h.load_configuration(frozen)
+    source=h.verify_source(head)
+    assert source['head']==head and source['tree']==authenticated_tree
+    assert set(source['execution_blobs'])==set(all_inputs)
+    assert h.FREEZE_PATH not in source['execution_blobs']
+    assert len(source['source_blobs'])==26 and source['source_blobs']==baseline_map
+    assert source['execution_sha256']==configuration['execution_source_sha256']
+    for name,original in formerly_excluded.items():
+        (checkout/name).write_bytes(original+b'Uncommitted byte drift\n')
+        with pytest.raises(h.IntegrityError,match='source differs from exact execution head'):
+            h.verify_source(head)
+        (checkout/name).write_bytes(original)
+    del h.FREEZE['execution_source_sha256']['README.md']
+    with pytest.raises(h.IntegrityError,match='execution input population mismatch'):
+        h.verify_source(head)
+
+
+def test_ci_read_only_source_preflight_uses_full_history_and_actual_verifier():
+    workflow=ROOT/'.github/workflows/quota-reserve-closure-development.yml'
+    if not workflow.exists():pytest.skip('temporary pre-execution workflow has been retired')
+    text=workflow.read_text()
+    synthetic=text.split('  synthetic-preflight:',1)[1].split('  development:',1)[0]
+    assert 'fetch-depth: 0' in synthetic
+    step=synthetic.split('      - name: Validate committed full source closure without admission',1)[1].split('      - run:',1)[0]
+    assert 'harness.load_configuration(harness.ROOT / harness.FREEZE_PATH)' in step
+    assert "harness.verify_source(os.environ['EXPECTED_HEAD'])" in step
+    assert 'github.event.pull_request.head.sha' in step
+    assert 'harness.initialize(' not in step and 'harness.claim_admission(' not in step and 'harness.run(' not in step
+    assert synthetic.index('Validate committed full source closure')<synthetic.index('Worker35 invented-fixture tests only')
