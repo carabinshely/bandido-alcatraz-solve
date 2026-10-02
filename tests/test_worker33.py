@@ -21,6 +21,7 @@ from bandido_alcatraz.model import Direction, Material
 from bandido_alcatraz.moves import Action
 from bandido_alcatraz.policies import BoundedMergeV4Policy
 from bandido_alcatraz.strategy import score_move_no_draw
+from bandido_alcatraz.worker32 import runtime as runtime32
 from bandido_alcatraz.worker32.candidate import Candidate
 from bandido_alcatraz.worker32.reference import Reference
 from bandido_alcatraz.worker32.evidence import BudgetExceeded, canonical, move, observation, sha
@@ -397,8 +398,9 @@ def test_real_160_call_order_fresh_instances_rng_and_labels(tmp_path, monkeypatc
     assert not (tmp_path / 'failure.json').exists()
 
 
+@pytest.mark.parametrize('adapter', [runtime32, runtime], ids=['worker32', 'worker33'])
 @pytest.mark.parametrize('offset', [-1, 0, 1])
-def test_envelope_utc_ordering_remains_strict(offset):
+def test_envelope_utc_ordering_remains_strict(offset, adapter):
     started = datetime(2026, 1, 1, tzinfo=timezone.utc)
     expected = {'pass': 1, 'call': 1, 'implementation': 'candidate', 'seed': 1000000,
                 'ordinal': 1, 'run_id': '123', 'run_attempt': '1'}
@@ -408,10 +410,10 @@ def test_envelope_utc_ordering_remains_strict(offset):
                 'peak_rss_kib': 1000, 'physical_legal_moves': 1}
     if offset < 0:
         with pytest.raises(ValueError, match='^reversed call timestamps$') as error:
-            runtime.validate_envelope(envelope, expected=expected)
-        assert runtime.failure_status(error.value) == 'integrity_invalid'
+            adapter.validate_envelope(envelope, expected=expected)
+        assert adapter.failure_status(error.value) == 'integrity_invalid'
     else:
-        runtime.validate_envelope(envelope, expected=expected)
+        adapter.validate_envelope(envelope, expected=expected)
 
 
 def test_strict_departure_still_requires_entire_opposite_tiers_and_better_key():
