@@ -54,13 +54,20 @@ Setup/checkout/dependencies/synthetic preflight have individual bounds totaling
 10 minutes. Failure skips research. The job ceiling is 60 minutes. A new process
 group receives the entire provenance/baseline/two-pass compute, with one 1,800
 second deadline, SIGTERM and 30-second grace, then SIGKILL of surviving group
-members. The containing step is 32 minutes. Finalization and upload total at most
-10 minutes. No selective retry is implemented; attempt directories are exclusive.
+members. Every exit and handled supervisor interruption also cleans and reaps
+the group; the leader remains unreaped until signaling is finished, preventing
+PGID reuse. Linux subreaper ownership handles orphaned descendants. Before
+finalization, durable pre-execution session registration, boot identity and a
+random process token identify residuals after supervisor death; start-time checks and pidfd signals avoid reused PIDs.
+A live separate supervisor, uninspectable ownership, or surviving compute
+process blocks finalization and upload. The containing step is 32 minutes.
+Finalization and upload total at most 10 minutes. No selective retry is implemented; attempt directories are exclusive.
 
 Evidence lives at `$HOME/bandido-worker32-evidence/<run>-<attempt>`, outside both
 checkout and runner-temp. Started/completed/failed call records are flushed and
-fsynced. Completed calls are exclusive durable JSON files; mismatching reference
-output is saved before comparison failure. Prior calls, journal and process log
+fsynced. Completed calls are exclusive durable JSON files; returned outputs
+rejected by validation or reference comparison are preserved separately as bounded
+raw evidence with their failure receipts. Prior calls, journal and process log
 survive an interrupted call. An interrupted call may have no complete payload;
 its started record is never counted as completed. Result creation occurs only
 after all 160 calls and comparisons succeed. Finalization records file hashes
@@ -98,9 +105,42 @@ PROGRAM_SUCCESS. No follow-up game run is authorized here.
 Synthetic verification (full checkout, CPython 3.11):
 
 ```
-python -m pytest -q tests/test_worker32.py tests/test_v6_visible_hand_rollout.py tests/test_quota_collect.py
+python -m pytest -q
+python -m pytest -q -o pythonpath= tests/test_worker32.py tests/test_worker32_preflight.py
 ```
 
 An installed-package check should override the repository pytest `pythonpath`
 setting using `-o pythonpath=`. Do not invoke the runner harness with selected
 observations in a development environment.
+
+## Bounded preflight repair batch
+
+[Independent review record](https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5943715725).
+Search mathematics, the four corpus preparation files, canonical sources/data,
+and execution ceilings are unchanged. The runtime/evidence repairs are:
+
+* All supervisor exits clean the compute group, including nonzero leader exits,
+  SIGTERM/SIGINT, timeout, KeyboardInterrupt and exceptions. A child bootstrap
+  refuses execution after parent death and sets Linux PDEATHSIG. Durable token
+  ownership supports a fail-closed residual check after unhandleable death.
+* Git/provenance subprocess timeouts and genuine resource errnos are incomplete,
+  while arbitrary I/O corruption remains integrity-invalid. Initial runtime/head
+  provenance is durable before the detailed Git gate begins.
+* Rejected returns have exclusive `rejected-call-NNN.raw` and `.json` receipts,
+  distinct from accepted call files. Raw evidence is a JSON prefix bounded to
+  64 MiB; its receipt identifies completeness, byte count/hash, validation error
+  and any serialization/size failure. A malformed or oversized return cannot
+  create an accepted-call file or a completed-call event. The evidence byte
+  bound does not alter search enumeration or the successor-preview budget.
+* The envelope is bound to the exact frozen-order identity and run/attempt.
+  Identity integers exclude booleans/fractions; timestamps must be aware UTC
+  with finish at or after start. Timing/cost metadata remains outside scientific
+  equality.
+* The baseline gate retains its already-enumerated canonical root count/digest.
+  Each return must match those and the frozen observation hash before any
+  classification. This adds no policy call, search or legal enumeration.
+
+The focused regressions use real synthetic descendant processes, interruption
+and orphan cleanup, invented observations and deliberately corrupted returns.
+No selected-state computation is part of these tests. Exact-head independent
+rereview remains required before any draft PR or diagnostic execution.

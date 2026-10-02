@@ -179,7 +179,9 @@ def test_reconstruction_and_baseline_synthetic_history():
     tier=[move(m) for m,v in zip(legal,scores) if v==max(scores)]
     audit=dict(legal_move_count=len(legal),primary_score=max(scores),primary_tier=tier,primary_tier_sha256=sha(tier))
     entry={'B':len(legal),'C':len(obs.board.cells)}
-    baseline_gate(obs,entry,audit)
+    baseline=baseline_gate(obs,entry,audit)
+    assert baseline['root_moves_sha256']==sha([move(m) for m in legal])
+    assert baseline['legal_move_count']==len(legal)
     with pytest.raises(ValueError): baseline_gate(obs,entry,{**audit,'primary_score':-999999})
     value['board']['cells'][0]['water']=True
     with pytest.raises(ValueError,match='reconstructed'): reconstruct(value,cards,parser)
@@ -221,14 +223,14 @@ def test_full_160_call_harness_synthetic_only(tmp_path,monkeypatch,corrupt_refer
     from bandido_alcatraz.worker32 import runtime
     from bandido_alcatraz.worker32.evidence import move
     obs=state([card('rope',material=Material.ROPE)]).observation()
-    entries=[dict(position=i+1,seed=2000000+i,ordinal=1) for i in range(80)]
+    entries=[dict(position=i+1,seed=1000000+i,ordinal=1,public_observation_sha256=sha(observation(obs))) for i in range(80)]
     monkeypatch.setattr(runtime,'runner_guard',lambda root:'synthetic-head')
     monkeypatch.setattr(runtime,'installed_tree',lambda *a:{'head':'synthetic-head','tree':'synthetic-tree','files':{}})
     monkeypatch.setattr(runtime,'load_population',lambda *a:(entries,[{}]*80,[{}]*80,None))
     monkeypatch.setattr(runtime,'accepted_cards',lambda *a:{})
     monkeypatch.setattr(runtime,'reconstruct',lambda *a:obs)
-    monkeypatch.setattr(runtime,'baseline_gate',lambda *a:{'tier':[move(obs.legal_moves()[0])]})
-    for key,value in {'RUNNER_NAME':'synthetic','PYTHONHASHSEED':'0','GITHUB_RUN_ID':'synthetic','GITHUB_RUN_ATTEMPT':'1'}.items():
+    monkeypatch.setattr(runtime,'baseline_gate',lambda *a:{'tier':[move(obs.legal_moves()[0])], 'legal_move_count':len(obs.legal_moves()), 'root_moves_sha256':sha([move(m) for m in obs.legal_moves()])})
+    for key,value in {'RUNNER_NAME':'synthetic','PYTHONHASHSEED':'0','GITHUB_RUN_ID':'123','GITHUB_RUN_ATTEMPT':'1'}.items():
         monkeypatch.setenv(key,value)
     if corrupt_reference:
         original=Reference.evaluate
@@ -242,7 +244,8 @@ def test_full_160_call_harness_synthetic_only(tmp_path,monkeypatch,corrupt_refer
         assert not (tmp_path/'result.json').exists()
         events=[json.loads(x) for x in (tmp_path/'journal.jsonl').read_text().splitlines()]
         assert events[-1]['event']=='failed'
-        assert (tmp_path/'call-081.json').exists()
+        assert (tmp_path/'rejected-call-081.raw').exists()
+        assert not (tmp_path/'call-081.json').exists()
         return
     runtime.compute(tmp_path,tmp_path)
     assert len(list(tmp_path.glob('call-*.json')))==161 # 160 calls plus call-order
@@ -253,13 +256,14 @@ def test_full_160_call_harness_synthetic_only(tmp_path,monkeypatch,corrupt_refer
 
 
 def test_envelope_is_separate_and_strict():
-    e={'pass':1,'call':1,'implementation':'candidate','seed':1,'ordinal':1,
+    e={'pass':1,'call':1,'implementation':'candidate','seed':1000000,'ordinal':1,
        'started':'2026-10-02T00:00:00+00:00','finished':'2026-10-02T00:00:01+00:00',
        'wall_seconds':1.0,'cpu_seconds':.5,'peak_rss_kib':1000,'physical_legal_moves':1,
-       'run_id':'synthetic','run_attempt':'1'}
-    validate_envelope(e)
-    with pytest.raises(ValueError): validate_envelope({**e,'wall_seconds':float('nan')})
-    with pytest.raises(ValueError): validate_envelope({**e,'scientific':{}})
+       'run_id':'123','run_attempt':'1'}
+    expected={k:e[k] for k in ('pass','call','implementation','seed','ordinal','run_id','run_attempt')}
+    validate_envelope(e,expected=expected)
+    with pytest.raises(ValueError): validate_envelope({**e,'wall_seconds':float('nan')},expected=expected)
+    with pytest.raises(ValueError): validate_envelope({**e,'scientific':{}},expected=expected)
 
 
 def test_invalid_adapter_and_filled_quota():

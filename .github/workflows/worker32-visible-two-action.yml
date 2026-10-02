@@ -59,7 +59,7 @@ jobs:
         timeout-minutes: 4
         run: |
           set -euo pipefail
-          "$WORKER32_PYTHON" -m pytest -q -o pythonpath= tests/test_worker32.py > "$EVIDENCE/synthetic-preflight.log" 2>&1
+          "$WORKER32_PYTHON" -m pytest -q -o pythonpath= tests/test_worker32.py tests/test_worker32_preflight.py > "$EVIDENCE/synthetic-preflight.log" 2>&1
       - name: Single whole-compute deadline
         timeout-minutes: 32
         run: |

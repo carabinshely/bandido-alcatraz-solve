@@ -138,4 +138,5 @@ def baseline_gate(obs, entry, audit):
     tier = [move(m) for m,s in zip(legal,scores) if s == best]
     if best != audit['primary_score'] or canonical(tier) != canonical(audit['primary_tier']) or sha(tier) != audit['primary_tier_sha256']:
         raise ValueError('unchanged V4 baseline mismatch')
-    return dict(score=best,tier=tier,legal_move_count=len(legal))
+    return dict(score=best,tier=tier,legal_move_count=len(legal),
+                root_moves_sha256=sha([move(m) for m in legal]))

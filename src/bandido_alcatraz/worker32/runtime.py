@@ -1,6 +1,7 @@
 """Runner-only durable supervisor and whole-compute child. No import-time execution."""
 import argparse
 import datetime
+import errno
 import hashlib
 import json
 import math
@@ -9,11 +10,13 @@ from pathlib import Path
 import platform
 from random import Random
 import resource
+import re
 import signal
 import subprocess
 import sys
 import time
 from .evidence import canonical, sha, BudgetExceeded
+from .containment import run_group, residual_gate
 from .inputs import ExecutionBlocked, load_population, reconstruct, accepted_cards, baseline_gate
 
 BASE = 'c50a7ab8e73eaf3c497c5d1c9fef5cbe53261853'
@@ -27,8 +30,9 @@ def utc():
 
 def durable(path, value):
     """Exclusive files preserve failed/superseded attempts, fsync file and directory."""
+    raw = canonical(value)
     with Path(path).open('xb') as f:
-        f.write(canonical(value)); f.flush(); os.fsync(f.fileno())
+        f.write(raw); f.flush(); os.fsync(f.fileno())
     fd = os.open(Path(path).parent,os.O_RDONLY)
     try:
         os.fsync(fd)
@@ -141,18 +145,115 @@ def validate_science(p):
         raise ValueError('deterministic RNG replay')
 
 
-def validate_envelope(e):
-    if set(e) != {'pass','call','implementation','seed','ordinal','started','finished','wall_seconds','cpu_seconds','peak_rss_kib','physical_legal_moves','run_id','run_attempt'}:
+def validate_envelope(e, *, expected):
+    identity = {'pass','call','implementation','seed','ordinal','run_id','run_attempt'}
+    if type(e) is not dict or set(e) != identity | {'started','finished','wall_seconds','cpu_seconds','peak_rss_kib','physical_legal_moves'}:
         raise ValueError('envelope schema')
-    if e['pass'] not in (1,2) or e['implementation'] != ('candidate' if e['pass']==1 else 'reference') or not 1 <= e['call'] <= 160:
-        raise ValueError('envelope identity')
-    for k in ('wall_seconds','cpu_seconds','peak_rss_kib'):
+    for key, lo, hi in (('pass',1,2),('call',1,160),('seed',1000000,1000399)):
+        if type(e[key]) is not int or not lo <= e[key] <= hi:
+            raise ValueError('envelope integer identity: '+key)
+    if type(e['ordinal']) is not int or e['ordinal'] < 1:
+        raise ValueError('envelope ordinal')
+    if e['pass'] != (e['call']-1)//80+1 or e['implementation'] != ('candidate' if e['pass']==1 else 'reference'):
+        raise ValueError('envelope pass/call/implementation')
+    if type(e['run_id']) is not str or not re.fullmatch(r'[1-9][0-9]*',e['run_id']) or e['run_attempt'] != '1':
+        raise ValueError('envelope run identity')
+    if set(expected) != identity or canonical({k:e[k] for k in identity}) != canonical(expected):
+        raise ValueError('envelope differs from frozen call/run identity')
+    for k in ('wall_seconds','cpu_seconds'):
         if type(e[k]) not in (float,int) or not math.isfinite(e[k]) or e[k] < 0:
             raise ValueError('cost metadata')
+    for k in ('peak_rss_kib','physical_legal_moves'):
+        if type(e[k]) is not int or e[k] < (1 if k == 'physical_legal_moves' else 0):
+            raise ValueError('integer cost metadata')
+    timestamps = []
     for k in ('started','finished'):
-        datetime.datetime.fromisoformat(e[k])
-    if type(e['physical_legal_moves']) is not int or e['physical_legal_moves'] < 1:
-        raise ValueError('physical cost count')
+        if type(e[k]) is not str:
+            raise ValueError('timestamp type')
+        stamp = datetime.datetime.fromisoformat(e[k])
+        if stamp.tzinfo is None or stamp.utcoffset() != datetime.timedelta(0):
+            raise ValueError('timezone-aware UTC timestamp required')
+        timestamps.append(stamp)
+    if timestamps[1] < timestamps[0]:
+        raise ValueError('reversed call timestamps')
+
+
+def bind_science(payload, entry, baseline):
+    if (payload['input_before'] != entry['public_observation_sha256']
+        or payload['input_after'] != entry['public_observation_sha256']):
+        raise ValueError('scientific input does not match frozen observation')
+    if (type(payload['counts']['roots']) is not int
+        or payload['root_moves_sha256'] != baseline['root_moves_sha256']
+        or payload['counts']['roots'] != baseline['legal_move_count']):
+        raise ValueError('scientific roots do not match canonical baseline roots')
+
+
+MAX_RETURN_BYTES = 64*1024*1024
+
+
+def bounded_return_bytes(value):
+    chunks = []
+    size = 0
+    encoder = json.JSONEncoder(sort_keys=True,separators=(',',':'),ensure_ascii=True,allow_nan=False)
+    for chunk in encoder.iterencode(value):
+        raw = chunk.encode('utf-8')
+        size += len(raw)
+        if size+1 > MAX_RETURN_BYTES:
+            raise ValueError('returned-call serialization exceeds evidence byte bound')
+        chunks.append(raw)
+    return b''.join(chunks)+b'\n'
+
+
+def error_record(exc):
+    record = dict(type=type(exc).__name__,message=str(exc)[:4096],errno=getattr(exc,'errno',None))
+    if isinstance(exc,subprocess.TimeoutExpired):
+        record['timeout_seconds'] = exc.timeout
+        for name in ('output','stderr'):
+            value = getattr(exc,name,None)
+            if value is not None:
+                prefix = value[:4096]
+                record[name+'_prefix'] = prefix.decode('utf-8','backslashreplace') if isinstance(prefix,bytes) else prefix
+                record[name+'_truncated'] = len(value)>4096
+    if getattr(exc,'__notes__',None):
+        record['notes'] = [str(x)[:4096] for x in exc.__notes__[:8]]
+    return record
+
+
+def preserve_rejected(directory, call, returned, envelope, exc):
+    """Exclusive bounded JSON prefix plus its validation/encoding failure receipt.
+
+    Prefix files deliberately use .raw: serialization errors or the evidence
+    byte ceiling cannot masquerade as a complete JSON call. They are never
+    counted as accepted calls. Existing evidence is never overwritten.
+    """
+    value = (dict(scientific=returned[1],cost=returned[2],envelope=envelope)
+             if type(returned) in (tuple,list) and len(returned)==3 else dict(returned=returned,envelope=envelope))
+    path = directory/f'rejected-call-{call:03}.raw'
+    info = dict(validation_error=error_record(exc),complete=False,size_bytes=0,
+                serialization_error=None,write_error=None,byte_limit=MAX_RETURN_BYTES)
+    digest = hashlib.sha256()
+    # Keep the forensic prefix even on encoding/size/disk failure. The metadata
+    # receipt is attempted separately, so available failure evidence survives.
+    with path.open('xb') as f:
+        try:
+            encoder = json.JSONEncoder(sort_keys=True,separators=(',',':'),ensure_ascii=True,allow_nan=False)
+            for chunk in encoder.iterencode(value):
+                data = chunk.encode('utf-8')
+                remaining = MAX_RETURN_BYTES-info['size_bytes']
+                piece = data[:remaining]
+                written = f.write(piece)
+                digest.update(piece[:written]); info['size_bytes'] += written
+                if len(data)>remaining:
+                    raise ValueError('rejected-call prefix reached evidence byte bound')
+            info['complete'] = True
+        except (TypeError,ValueError,OverflowError,RecursionError) as encoding:
+            info['serialization_error'] = error_record(encoding)
+        except OSError as writing:
+            info['write_error'] = error_record(writing)
+        finally:
+            f.flush(); os.fsync(f.fileno())
+    info['sha256'] = digest.hexdigest()
+    durable(directory/f'rejected-call-{call:03}.json',info)
 
 
 def strict_departure(payload, baseline):
@@ -173,6 +274,10 @@ def compute(root, directory):
     from .candidate import Candidate
     from .reference import Reference
     head = runner_guard(root)
+    run_identity = {'run_id':os.environ['GITHUB_RUN_ID'],'run_attempt':os.environ['GITHUB_RUN_ATTEMPT']}
+    durable(directory/'provenance-started.json',dict(expected_head=head,accepted_base=BASE,python=sys.version,
+        executable=sys.executable,runner=os.environ.get('RUNNER_NAME'),run_id=os.environ.get('GITHUB_RUN_ID'),
+        run_attempt=os.environ.get('GITHUB_RUN_ATTEMPT'),timestamp=utc()))
     entries,public,audits,parser = load_population(root/'experiments/visible-two-action-diagnostic')
     import bandido_alcatraz
     installed = Path(bandido_alcatraz.__file__).resolve().parent.parent
@@ -194,64 +299,68 @@ def compute(root, directory):
             call = (pass_number-1)*80+index+1
             ident = dict(call=call,pass_number=pass_number,seed=entry['seed'],ordinal=entry['ordinal'])
             journal(directory,event='started',**ident)
+            returned = None
+            envelope = None
+            have_returned = False
             try:
                 started = utc(); wall = time.monotonic(); cpu = time.process_time()
-                _,payload,cost = implementation().evaluate(obs,Random(0))
+                returned = implementation().evaluate(obs,Random(0))
+                have_returned = True
+                _,payload,cost = returned
                 elapsed,cpu_elapsed = time.monotonic()-wall,time.process_time()-cpu
-                validate_science(payload)
-                envelope = {'pass':pass_number,'call':call,'implementation':implementation.__name__.lower(),
-                    'seed':entry['seed'],'ordinal':entry['ordinal'],'started':started,'finished':utc(),
+                expected_identity = {'pass':pass_number,'call':call,
+                    'implementation':'candidate' if pass_number == 1 else 'reference',
+                    'seed':entry['seed'],'ordinal':entry['ordinal'],
+                    **run_identity}
+                envelope = {**expected_identity,'started':started,'finished':utc(),
                     'wall_seconds':elapsed,'cpu_seconds':cpu_elapsed,
-                    'peak_rss_kib':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
-                    **cost,'run_id':os.environ['GITHUB_RUN_ID'],'run_attempt':os.environ['GITHUB_RUN_ATTEMPT']}
-                validate_envelope(envelope)
+                    'peak_rss_kib':resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,**cost}
+                # Pre-serialize with a bound before creating any accepted-call file.
+                record = dict(scientific=payload,envelope=envelope)
+                bounded_return_bytes(record)
+                validate_science(payload)
+                bind_science(payload,entry,baselines[index])
+                validate_envelope(envelope,expected=expected_identity)
                 expected_physical = payload['counts']['enumerations'] + (payload['counts']['previews'] if pass_number == 2 else 0)
-                if cost['physical_legal_moves'] != expected_physical:
+                if set(cost) != {'physical_legal_moves'} or cost['physical_legal_moves'] != expected_physical:
                     raise ValueError('physical/legal enumeration accounting')
-                durable(directory/f'call-{call:03}.json',dict(scientific=payload,envelope=envelope))
                 if pass_number == 2:
                     prior = json.loads((directory/f'call-{index+1:03}.json').read_bytes())
                     if canonical(prior['scientific']) != canonical(payload):
                         raise ValueError('entire independent scientific payload differs')
                 elif strict_departure(payload,baselines[index]):
                     departures.append([entry['seed'],entry['ordinal']])
+                durable(directory/f'call-{call:03}.json',record)
                 journal(directory,event='completed',scientific_sha256=sha(payload),**ident)
             except BaseException as exc:
-                journal(directory,event='failed',error=repr(exc),**ident)
+                if have_returned and not (directory/f'call-{call:03}.json').exists():
+                    try:
+                        preserve_rejected(directory,call,returned,envelope,exc)
+                    except BaseException as evidence_error:
+                        exc.add_note('Rejected evidence persistence failed: '+str(error_record(evidence_error)))
+                journal(directory,event='failed',error=error_record(exc),**ident)
                 raise
     durable(directory/'result.json',dict(status='visible_two_action_diagnostic_mechanism_'+('exercised' if departures else 'not_exercised'),
         completed_calls=160,strict_departures=departures,scope='behavior/cost only; no win-rate or causal horizon claim'))
 
 
-def run_group(command, log, timeout=1800, grace=30):
-    with Path(log).open('xb') as stream:
-        process = subprocess.Popen(command,stdout=stream,stderr=subprocess.STDOUT,start_new_session=True)
-        try:
-            return process.wait(timeout=timeout)
-        except subprocess.TimeoutExpired:
-            os.killpg(process.pid,signal.SIGTERM)
-            try:
-                process.wait(timeout=grace)
-            except subprocess.TimeoutExpired:
-                pass
-            # Always kill remaining descendants even if group leader exited.
-            try:
-                os.killpg(process.pid,signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-            process.wait()
-            raise TimeoutError('whole-compute process group exceeded deadline')
-
-
 def failure_status(exc):
     if isinstance(exc,ExecutionBlocked):
+        cause = exc.__cause__
+        if cause is not None and failure_status(cause) == 'resource_incomplete':
+            return 'resource_incomplete'
+        if isinstance(cause,OSError) and cause.errno not in {errno.ENOENT,errno.EACCES,errno.EPERM,errno.ENOTDIR}:
+            return 'integrity_invalid'
         return 'execution_blocked'
-    if isinstance(exc,(TimeoutError,BudgetExceeded,MemoryError)):
+    if isinstance(exc,(TimeoutError,subprocess.TimeoutExpired,BudgetExceeded,MemoryError,KeyboardInterrupt)):
+        return 'resource_incomplete'
+    if isinstance(exc,OSError) and exc.errno in {errno.ENOMEM,errno.ENOSPC,errno.EDQUOT,errno.EAGAIN,errno.EMFILE,errno.ENFILE}:
         return 'resource_incomplete'
     return 'integrity_invalid'
 
 
 def finalize(directory):
+    residual_gate(directory)
     # Fixed local directory only. No source-controlled glob or symlink traversal.
     files = {}
     for path in sorted(directory.iterdir()):
@@ -277,8 +386,11 @@ def main():
     if d.is_relative_to(root) or d.is_relative_to(Path(os.environ.get('RUNNER_TEMP','/tmp')).resolve()) or args.evidence.is_symlink():
         raise ValueError('evidence must be outside checkout and runner-temp')
     if args.mode == 'finalize':
-        if not (d/'result.json').exists() and not (d/'failure.json').exists():
-            started_compute = (d/'journal.jsonl').exists() and b'whole_compute_started' in (d/'journal.jsonl').read_bytes()
+        residual_gate(d)
+        journal_bytes = (d/'journal.jsonl').read_bytes() if (d/'journal.jsonl').exists() else b''
+        started_compute = b'\"event\":\"whole_compute_started\"' in journal_bytes
+        completed_compute = b'\"event\":\"whole_compute_completed\"' in journal_bytes
+        if not (d/'failure.json').exists() and (not (d/'result.json').exists() or (started_compute and not completed_compute)):
             durable(d/'failure.json',dict(status='resource_incomplete' if started_compute else 'execution_blocked',
                 error='interrupted whole compute' if started_compute else 'setup/preflight did not complete',timestamp=utc()))
         finalize(d)
@@ -299,10 +411,10 @@ def main():
             if not (d/'result.json').exists():
                 raise ValueError('child exited without complete result')
             journal(d,event='whole_compute_completed')
-    except Exception as exc:
-        journal(d,event='whole_compute_failed',error=repr(exc))
+    except BaseException as exc:
+        journal(d,event='whole_compute_failed',error=error_record(exc))
         if not (d/'failure.json').exists():
-            durable(d/'failure.json',dict(status=failure_status(exc),error=repr(exc),timestamp=utc()))
+            durable(d/'failure.json',dict(status=failure_status(exc),error=error_record(exc),timestamp=utc()))
         raise
 
 if __name__ == '__main__':
