@@ -317,6 +317,37 @@
         "lifecycle_record": "https://github.com/carabinshely/bandido-alcatraz-solve/pull/36",
         "final_review_and_merge_recorded_separately": true
       }
+    },
+    {
+      "research_step": 34,
+      "status": "preregistered_implementation_pending",
+      "authority": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5945805807",
+      "purpose": "One-off exploratory algebraic decomposition of recorded Worker33 endpoints; no new policy evaluation",
+      "repository_base": "a8369277e7230aaa7826e9815d6b5007a3560f30",
+      "protocol_path": "experiments/recorded-endpoint-decomposition/PROTOCOL.md",
+      "protocol_sha256": "cad7dc56e16b6f12d34fac7cb5b5aa8c3c5e791cb18536880e9170b162e7258e",
+      "source_worker": 33,
+      "source_run_id": 36961069413,
+      "source_artifact_id": 11208266885,
+      "source_zip_sha256": "18a58ec0505d81eaf4b0cfb4798b7e38b0d9555d22ad77c5d4681b5fce89492a",
+      "existing_spent_cohort_inclusive": [
+        1000000,
+        1000399
+      ],
+      "selected_decisions": 80,
+      "selected_distinct_seeds": 71,
+      "existing_call_payloads": 160,
+      "fresh_seeds_allocated": 0,
+      "new_games_authorized": 0,
+      "new_games_executed": 0,
+      "new_policy_search_calls_authorized": 0,
+      "new_policy_search_calls_executed": 0,
+      "confirmation_eligible": false,
+      "whole_analysis_seconds": 600,
+      "termination_receipt_grace_seconds": 30,
+      "parser_address_space_bytes": 2147483648,
+      "parsers_sequential": true,
+      "note": "Reuse complete existing recorded evidence only. No selected-state reconstruction, geometry evaluation, H reevaluation, engine imports, preview, search or game calls. Exact parser source/runtime freeze and synthetic resource verification required before real-input decomposition; prior cohorts remain permanently spent."
     }
   ],
   "fresh_confirmation_allocations": [],
