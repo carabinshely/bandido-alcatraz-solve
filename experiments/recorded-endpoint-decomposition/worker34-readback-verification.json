@@ -1,0 +1,107 @@
+{
+  "execution_head": "d1cb996a92b2776cd513c50a86de86e78a58b666",
+  "execution_tree": "4d180fb370e4ec031f08847c3a41a83aab6f1579",
+  "fixed_inputs": {
+    "worker33-evidence/actions-artifact.zip": {
+      "sha256": "18a58ec0505d81eaf4b0cfb4798b7e38b0d9555d22ad77c5d4681b5fce89492a",
+      "size_bytes": 19184749
+    },
+    "worker33-evidence/execution-pins.json": {
+      "sha256": "fc2a4c57a3eed23f543e73b519905e97e21524eceb9781357ab600ef6cb0cc0d",
+      "size_bytes": 1725
+    },
+    "worker33-evidence/independent-verification.json": {
+      "sha256": "e6d7f436d4144f120c4a3dceda9262a54c2a565279ae7a7e1bac376a7452ae60",
+      "size_bytes": 1061
+    },
+    "worker33-evidence/source-review.json": {
+      "sha256": "4836168704d384d8b8b538dce4740ff8a6f61b4bbbd49475060f85e922e20441",
+      "size_bytes": 901
+    },
+    "worker33-preparation/audit-reference.jsonl": {
+      "sha256": "4ca2c08160b8e641f26d3dfbb2759727c522fe1d0235837cdaab35e3e967502e",
+      "size_bytes": 30132
+    },
+    "worker33-preparation/selected-corpus.jsonl": {
+      "sha256": "2366287bd1e05d6b47ed47344996120f76bc02b297a81b3238099dc329066df5",
+      "size_bytes": 326455
+    },
+    "worker33-preparation/selection-manifest.json": {
+      "sha256": "3ad07d6237b3f7f24c60448fc346a013261d05b8e36fd998ffd440faceee9a78",
+      "size_bytes": 73029
+    }
+  },
+  "limitations": [
+    "This verifier does not recompute decomposition, classifications, witnesses, or original game semantics.",
+    "Current process liveness and elapsed time are not reconstructed; original frozen receipts record those execution facts.",
+    "The accepted Worker33 strict-departure result remains negative. No policy superiority, win-rate improvement, confirmatory result, or PROGRAM_SUCCESS is established."
+  ],
+  "package_manifest_files_verified": 2636,
+  "recorded_elapsed_seconds_before_receipt_close": 146.88762017599947,
+  "recorded_flags_aggregate": {
+    "N": 69,
+    "N_U_overlap": 0,
+    "U": 0,
+    "denominator": 80,
+    "observations_without_pp": 0
+  },
+  "recorded_parser_soft_and_hard_RLIMIT_AS_bytes": 2147483648,
+  "schema": "worker34-preserved-output-integrity-v1",
+  "scientific_output_checks": {
+    "leaves.jsonl": {
+      "complete_byte_agreement": true,
+      "parsers": {
+        "a": {
+          "final_lf": true,
+          "line_count": 383840,
+          "sha256": "7d5c5c7bc89622f23ac2942c5dda0571304bf064c61c9f60cb1c6870fc0ce9d7",
+          "size_bytes": 306243787
+        },
+        "b": {
+          "final_lf": true,
+          "line_count": 383840,
+          "sha256": "7d5c5c7bc89622f23ac2942c5dda0571304bf064c61c9f60cb1c6870fc0ce9d7",
+          "size_bytes": 306243787
+        }
+      }
+    },
+    "observations.jsonl": {
+      "complete_byte_agreement": true,
+      "parsers": {
+        "a": {
+          "final_lf": true,
+          "line_count": 80,
+          "sha256": "f30b537c059cb5a82d6a0dd34cc6175e686103ce237a20b9c935d1f571062614",
+          "size_bytes": 124119
+        },
+        "b": {
+          "final_lf": true,
+          "line_count": 80,
+          "sha256": "f30b537c059cb5a82d6a0dd34cc6175e686103ce237a20b9c935d1f571062614",
+          "size_bytes": 124119
+        }
+      }
+    },
+    "summary.json": {
+      "complete_byte_agreement": true,
+      "parsers": {
+        "a": {
+          "final_lf": true,
+          "line_count": 1,
+          "sha256": "e218a5bc6e0ddcee3361f0f776e66a168e74f3c7f196d29962a9d743d8a4b907",
+          "size_bytes": 1610
+        },
+        "b": {
+          "final_lf": true,
+          "line_count": 1,
+          "sha256": "e218a5bc6e0ddcee3361f0f776e66a168e74f3c7f196d29962a9d743d8a4b907",
+          "size_bytes": 1610
+        }
+      }
+    }
+  },
+  "scope": "Hashes, source/tree identity, receipt consistency, full output byte comparison, row counts, and aggregation of existing observation flags only. No decomposition or parser rerun.",
+  "source_files_verified": 152,
+  "status": "preserved_bytes_and_recorded_flags_verified",
+  "supervisor_cleanup_confirmed": true
+}

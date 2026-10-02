@@ -29,6 +29,7 @@
   "new_policy_search_calls": 0,
   "persistence": {
     "all_parts_required": true,
+    "download_filename_rule": "Save each Drive ZIP as the corresponding part.name in the manifest, without the descriptive bandido- upload prefix; see README.",
     "parts": [
       {
         "drive_file_id": "1lMcrgzUg67Ngnk2ujcGuPyMi7hb90_Hj",
@@ -62,7 +63,27 @@
       }
     ],
     "raw_worker33_external_drive_file_id": "1WJE6WVR8bW0BSTTBoqx8GWkLWm1d7MAu",
-    "status": "persisted_verified"
+    "status": "persisted_verified",
+    "verification_sidecars": [
+      {
+        "path": "worker34-package-catalog.json",
+        "sha256": "ebec876d219e9b3b9d951f6c0d8c94688e065077b107d1b573a42cb59961df5b",
+        "size_bytes": 1314,
+        "storage": "Git-tracked exact original bytes in this experiment directory"
+      },
+      {
+        "path": "worker34-packages-SHA256SUMS",
+        "sha256": "0715b95d4df62c90b20fb44ec2912ddc7d813412a4b644a723fb6f4ba157c169",
+        "size_bytes": 399,
+        "storage": "Git-tracked exact original bytes in this experiment directory"
+      },
+      {
+        "path": "worker34-readback-verification.json",
+        "sha256": "739cde84eb15ce26f4f6dff0366b89a5c1ecde7697f651c63d1a26152a487552",
+        "size_bytes": 3995,
+        "storage": "Git-tracked exact original bytes in this experiment directory"
+      }
+    ]
   },
   "population": {
     "complete_derived_leaf_rows_per_parser": 383840,

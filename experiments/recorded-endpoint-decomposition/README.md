@@ -68,3 +68,50 @@ had zero skips, including compiled shared-library fixtures. Exact-head runner CI
 analysis runtime and CI runtime are deliberately reported separately. Final PR
 review, final CI, merge and post-merge acceptance are recorded in PR37 and Issue2;
 this execution document does not preclaim their outcome.
+
+## Download names and complete outer verification
+
+The original proof README expects the following sidecars beside the ZIPs. Their
+exact original bytes are now tracked here:
+
+- [Package catalog](worker34-package-catalog.json)
+- [Outer checksums](worker34-packages-SHA256SUMS)
+- [Independent archive readback receipt](worker34-readback-verification.json)
+
+Use this repository directory as the working directory, or copy those three
+sidecars into a fresh verification directory. Download each authenticated Drive
+file and explicitly save or rename it to the filename below. Drive's stored
+`bandido-` prefix is a descriptive upload name and is not part of these local
+checksum filenames:
+
+- [Proof ZIP](https://drive.google.com/file/d/1lMcrgzUg67Ngnk2ujcGuPyMi7hb90_Hj/view): `worker34-terminal-proof-2026-10-02.zip`
+- [Parser A ZIP](https://drive.google.com/file/d/1pxHJjEh42y1AdKKeVfeZSkj-5CbfQqSQ/view): `worker34-output-a-2026-10-02.zip`
+- [Parser B ZIP](https://drive.google.com/file/d/1eAiNYDABIGsR7Vq6DT6R8EXkth6r06Pf/view): `worker34-output-b-2026-10-02.zip`
+- [Original external Worker33 ZIP](https://drive.google.com/file/d/1WJE6WVR8bW0BSTTBoqx8GWkLWm1d7MAu/view): `bandido-worker33-original-actions-36961069413-1.zip`
+
+After downloading these exact files, run from that directory:
+
+```sh
+set -eu
+sha256sum -c worker34-packages-SHA256SUMS
+mkdir worker34-unpacked
+unzip -q worker34-terminal-proof-2026-10-02.zip -d worker34-unpacked
+unzip -q worker34-output-a-2026-10-02.zip -d worker34-unpacked
+unzip -q worker34-output-b-2026-10-02.zip -d worker34-unpacked
+cd worker34-unpacked/worker34-terminal-proof
+sha256sum -c SHA256SUMS
+python3 -B verify_output_integrity.py \
+  --artifact ../../bandido-worker33-original-actions-36961069413-1.zip \
+  --receipt ../reproduced-integrity.json
+(cd accepted-worker33-proof && sha256sum -c SHA256SUMS)
+```
+
+This verifies preserved evidence only. It does not rerun either analysis parser,
+recompute G/dominance, evaluate a policy or execute games. The checker validates
+the original external archive's pinned bytes as well. Keep the separately
+supplied readback receipt as historical verification evidence; a new local
+verification writes a new receipt and must not overwrite that original.
+
+The sidecar publication and filename clarification repair packaging instructions
+only. All three previously persisted ZIPs, scientific outputs and execution
+sources remain byte-identical; no analysis rerun occurred.
