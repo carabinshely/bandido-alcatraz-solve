@@ -127,10 +127,10 @@
     "is_original_actions_zip": true
   },
   "proof_persistence": {
-    "drive_file_id": "1v-ttsdfhNsL1pT5bTTFifgQnxUmD0Tdj",
+    "drive_file_id": "1NJuwQF_49ezs3id5eo9XhFx0M6P-Qcii",
     "folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
-    "size_bytes": 200817,
-    "sha256": "bbfcc5951d31ed4aa8e93cfbebb47ab49d86cc0659f2316591a9f54b0e278c43",
+    "size_bytes": 201645,
+    "sha256": "533ae68bad6faec4977812a25b1a80fe219cee0f2429fec101ece657d39eefe8",
     "fresh_byte_readback_verified": true,
     "timeout_audit_sha256": "23fbca457ea7c9292d1e6759f2d7780496c1668dd7ad4802a389e3ce03edef6c",
     "strict_success_verifier_sha256": "64f465313699227d514cbac2089bb308c3d85e182fd8eb13ad86071648457b7b",
@@ -146,5 +146,18 @@
     "No win-rate improvement, fresh confirmation or PROGRAM_SUCCESS claim.",
     "All completed/in-flight attempt evidence preserved; not a shrunken-population experiment.",
     "Any resource-only successor must be separately preregistered and execute all160calls fresh; no resume of missing references."
+  ],
+  "superseded_proof_packages": [
+    {
+      "drive_file_id": "1v-ttsdfhNsL1pT5bTTFifgQnxUmD0Tdj",
+      "folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+      "size_bytes": 200817,
+      "sha256": "bbfcc5951d31ed4aa8e93cfbebb47ab49d86cc0659f2316591a9f54b0e278c43",
+      "fresh_byte_readback_verified": true,
+      "timeout_audit_sha256": "23fbca457ea7c9292d1e6759f2d7780496c1668dd7ad4802a389e3ce03edef6c",
+      "strict_success_verifier_sha256": "64f465313699227d514cbac2089bb308c3d85e182fd8eb13ad86071648457b7b",
+      "test_count": 99,
+      "superseded_reason": "P3 reproduction-guide pointer typo in packaging README; raw evidence and verifier unchanged"
+    }
   ]
 }
