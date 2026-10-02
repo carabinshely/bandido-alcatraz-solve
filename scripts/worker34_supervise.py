@@ -124,36 +124,39 @@ def verified_launch_environment(executable):
     works, first = probe(clean)
     if works:
         return clean, {}
-    # actions/setup-python may require its libpython directory at startup.
-    # Accept exactly sysconfig's interpreter LIBDIR, and only when explicitly
-    # present in the parent's loader path and containing its named library.
-    configured = sysconfig.get_config_var('LIBDIR')
+    # Relocated interpreters can retain a compile-time sysconfig LIBDIR. Match
+    # the current interpreter's exact library basename/version against a live
+    # mapped file and an existing inherited loader directory instead.
     library_name = sysconfig.get_config_var('INSTSONAME') or sysconfig.get_config_var('LDLIBRARY')
-    if (not isinstance(configured, str) or not Path(configured).is_absolute() or
-            not isinstance(library_name, str) or Path(library_name).name != library_name):
-        raise Blocked('isolated interpreter startup failed; no verified interpreter loader directory: ' +
+    if (not isinstance(library_name, str) or not library_name or
+            Path(library_name).name != library_name):
+        raise Blocked('isolated interpreter startup failed; no verified interpreter library name: ' +
                       first.stderr[:2048].decode('utf-8', 'replace'))
-    directory = Path(configured).resolve()
     inherited = {str(Path(part).resolve()) for part in os.environ.get('LD_LIBRARY_PATH', '').split(os.pathsep)
                  if part and Path(part).is_absolute()}
-    library = directory / library_name
-    if str(directory) not in inherited or not directory.is_dir() or not library.is_file():
-        raise Blocked('isolated interpreter startup failed; required interpreter library path is unavailable: ' +
-                      first.stderr[:2048].decode('utf-8', 'replace'))
-    resolved_library = library.resolve()
-    information = resolved_library.stat()
-    mapped = False
+    mapped_files = set()
     for line in Path('/proc/self/maps').read_text().splitlines():
         fields = line.split(None, 5)
-        if len(fields) != 6 or fields[5] != str(resolved_library):
+        if len(fields) != 6 or not fields[5].startswith('/'):
             continue
         major, minor = (int(part, 16) for part in fields[3].split(':'))
-        if (int(fields[4]) == information.st_ino and
-                (major, minor) == (os.major(information.st_dev), os.minor(information.st_dev))):
-            mapped = True
-            break
-    if not mapped:
-        raise Blocked('configured interpreter library is not the currently mapped library')
+        mapped_files.add((fields[5], int(fields[4]), major, minor))
+    verified = []
+    for inherited_directory in sorted(inherited):
+        directory = Path(inherited_directory)
+        candidate = directory / library_name
+        if not directory.is_dir() or not candidate.is_file():
+            continue
+        resolved_library = candidate.resolve()
+        information = resolved_library.stat()
+        identity = (str(resolved_library), information.st_ino,
+                    os.major(information.st_dev), os.minor(information.st_dev))
+        if identity in mapped_files:
+            verified.append((directory, resolved_library))
+    if len(verified) != 1:
+        raise Blocked('isolated interpreter startup failed; no unique currently mapped interpreter library '
+                      'in the inherited loader path: ' + first.stderr[:2048].decode('utf-8', 'replace'))
+    directory, library = verified[0]
     environment = {**clean, 'LD_LIBRARY_PATH': str(directory)}
     works, second = probe(environment)
     if not works:

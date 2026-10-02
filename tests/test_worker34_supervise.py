@@ -569,12 +569,12 @@ def test_explicit_evidence_root_is_lazy_and_shared(tmp_path):
 
 
 
-def test_verified_shared_library_launch_environment_is_minimal(tmp_path):
+def check_verified_shared_library_launch_environment(tmp_path, relocated=False):
     compiler=shutil.which('cc') or shutil.which('gcc')
     if not compiler:
         raise unittest.SkipTest('installed C compiler unavailable for harmless loader fixture')
-    directory=tmp_path / 'lib'
-    directory.mkdir()
+    directory=tmp_path / ('runtime-prefix/lib' if relocated else 'lib')
+    directory.mkdir(parents=True)
     library=directory / 'libworker34_loader_fixture.so'
     source=tmp_path / 'library.c'
     source.write_text('int worker34_fixture(void) { return 0; }\n')
@@ -594,7 +594,8 @@ def test_verified_shared_library_launch_environment_is_minimal(tmp_path):
     # for the running interpreter can be exercised without touching that interpreter.
     loaded=ctypes.CDLL(str(library))
     assert loaded.worker34_fixture() == 0
-    configured={'LIBDIR':str(directory),'INSTSONAME':library.name,'LDLIBRARY':library.name}
+    compile_time=tmp_path / 'nonexistent-compile-time-prefix/lib' if relocated else directory
+    configured={'LIBDIR':str(compile_time),'INSTSONAME':library.name,'LDLIBRARY':library.name}
     ambient={'LD_LIBRARY_PATH':str(directory)+os.pathsep+'/unrelated/private-loader-dir',
              'WORKER34_FAKE_SECRET':'must-not-pass','PYTHONPATH':'/untrusted-python','LD_PRELOAD':'/untrusted.so'}
     with mock.patch.object(SUP.sysconfig,'get_config_var',side_effect=lambda key:configured.get(key)), \
@@ -608,7 +609,16 @@ def test_verified_shared_library_launch_environment_is_minimal(tmp_path):
     SUP.write_exclusive(tmp_path / 'loader-regression.json',
         dict(synthetic_only=True,clean_returncode=failed.returncode,clean_stderr=failed.stderr,
              verified_returncode=succeeded.returncode,launch_environment=environment,
+             compile_time_libdir=str(compile_time),relocated_prefix=relocated,
              loader_library_sha256=libraries))
+
+
+def test_verified_shared_library_launch_environment_is_minimal(tmp_path):
+    check_verified_shared_library_launch_environment(tmp_path)
+
+
+def test_relocated_interpreter_uses_verified_mapped_library(tmp_path):
+    check_verified_shared_library_launch_environment(tmp_path,relocated=True)
 
 
 def test_runtime_freeze_binds_launch_environment_and_library_hashes(tmp_path):
