@@ -1,0 +1,393 @@
+"""Metadata-only Worker35 recovery inspection. No project imports or research calls.
+
+Reads directory metadata, the bounded original receipt/admission, authenticated
+GitHub metadata, and scoped /proc identity. Writes exclusively to a fresh recovery
+directory. A negative process scan is evidence, never a proof of quiescence.
+"""
+from __future__ import annotations
+
+import argparse
+from datetime import datetime, timezone
+import hashlib
+import json
+import math
+import os
+from pathlib import Path
+import stat
+
+REPOSITORY = "carabinshely/bandido-alcatraz-solve"
+HEAD = "7ac2f62c9c5c9dcac9ec9b8770382960f985acc2"
+RUN_ID = 36990202101
+JOB_ID = 110784375570
+ATTEMPT = 1
+RUNNER = "bandido-alcatraz-ci"
+AUTHORIZATION = "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5961700025"
+MAX_RECEIPT = 8 * 1024 * 1024
+MAX_ADMISSION = 1024 * 1024
+MAX_INVENTORY = 4 * 1024 * 1024
+MAX_ENTRIES = 20000
+MAX_PROCESSES = 32768
+MAX_SMALL_PROC = 256 * 1024
+MAX_PROCESS_FDS = 8192
+MAX_MAPS = 8 * 1024 * 1024
+PRODUCER = b"run_quota_reserve_closure_development.py"
+
+
+class Blocked(RuntimeError):
+    pass
+
+
+class InspectionDeadline(Exception):
+    """Must propagate past best-effort process/file handlers to final receipt."""
+
+
+def require(ok, reason):
+    if not ok:
+        raise Blocked(reason)
+
+
+def utc():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def canonical(value):
+    return (json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False) + "\n").encode()
+
+
+def open_directory(path, *, create=False):
+    """Open component-by-component; exclusive final creation when requested."""
+    path = no_symlink_path(path)
+    fd = os.open(path.anchor, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        for index, component in enumerate(path.parts[1:]):
+            if create:
+                try:
+                    os.mkdir(component, mode=0o700, dir_fd=fd)
+                except FileExistsError:
+                    require(index != len(path.parts) - 2, "fresh recovery directory already exists")
+            new_fd = os.open(component, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+            os.close(fd)
+            fd = new_fd
+        return fd
+    except BaseException:
+        os.close(fd)
+        raise
+
+
+def write_new(path, data, *, directory_fd=None):
+    path = Path(path)
+    owned_fd = None
+    if directory_fd is None:
+        owned_fd = open_directory(path.parent)
+        directory_fd = owned_fd
+    try:
+        require(path.name not in ("", ".", ".."), "unsafe recovery filename")
+        fd = os.open(path.name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=directory_fd)
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.fsync(directory_fd)
+    finally:
+        if owned_fd is not None:
+            os.close(owned_fd)
+
+
+def no_symlink_path(path):
+    path = Path(path)
+    require(path.is_absolute() and ".." not in path.parts, "path must be absolute and normalized")
+    cursor = Path(path.anchor)
+    for component in path.parts[1:]:
+        cursor /= component
+        try:
+            value = cursor.lstat()
+        except FileNotFoundError:
+            continue
+        require(not stat.S_ISLNK(value.st_mode), "symlink in bounded path")
+    return path
+
+
+def stamp(value):
+    return {"device": value.st_dev, "inode": value.st_ino, "mode": stat.S_IMODE(value.st_mode),
+            "uid": value.st_uid, "gid": value.st_gid, "size_bytes": value.st_size,
+            "mtime_ns": value.st_mtime_ns, "ctime_ns": value.st_ctime_ns,
+            "type": "directory" if stat.S_ISDIR(value.st_mode) else "file" if stat.S_ISREG(value.st_mode)
+            else "symlink" if stat.S_ISLNK(value.st_mode) else "special"}
+
+
+def inventory(root):
+    """lstat only: never opens research evidence contents or follows symlinks."""
+    root = no_symlink_path(root)
+    root_fd = os.open(root.anchor, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        for component in root.parts[1:]:
+            next_fd = os.open(component, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=root_fd)
+            os.close(root_fd)
+            root_fd = next_fd
+    except BaseException:
+        os.close(root_fd)
+        raise
+    entries = {".": stamp(os.fstat(root_fd))}
+    def visit(directory_fd, prefix, depth):
+        require(depth <= 8, "original inventory depth exceeded")
+        children = []
+        with os.scandir(directory_fd) as scan:
+            for child in scan:
+                children.append(child.name)
+                require(len(children) + len(entries) <= MAX_ENTRIES, "inventory population exceeded")
+        for name in sorted(children):
+            value = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
+            relative = prefix + name
+            require(len(relative.encode()) <= 4096, "inventory path exceeds bound")
+            entries[relative] = stamp(value)
+            require(len(entries) <= MAX_ENTRIES, "inventory population exceeded")
+            if stat.S_ISDIR(value.st_mode):
+                child_fd = os.open(name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=directory_fd)
+                try:
+                    require(stamp(os.fstat(child_fd)) == stamp(value), "directory identity changed during inventory")
+                    visit(child_fd, relative + "/", depth + 1)
+                finally:
+                    os.close(child_fd)
+    try:
+        visit(root_fd, "", 0)
+    finally:
+        os.close(root_fd)
+    return entries
+
+
+def read_bounded_regular(path, limit):
+    """No symlink following, bounded read, before/after identity checks."""
+    path = no_symlink_path(path)
+    parent_fd = os.open(path.anchor, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        for component in path.parts[1:-1]:
+            new_fd = os.open(component, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent_fd)
+            os.close(parent_fd)
+            parent_fd = new_fd
+        fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent_fd)
+    finally:
+        os.close(parent_fd)
+    try:
+        before = os.fstat(fd)
+        require(stat.S_ISREG(before.st_mode) and before.st_size <= limit, "bounded regular file required")
+        with os.fdopen(os.dup(fd), "rb") as stream:
+            raw = stream.read(limit + 1)
+        require(len(raw) <= limit, "bounded file grew beyond limit")
+        after = os.fstat(fd)
+        require(stamp(before) == stamp(after), "bounded file changed during read")
+        require(stamp(path.lstat()) == stamp(after), "bounded path identity changed")
+        return raw, stamp(after)
+    finally:
+        os.close(fd)
+
+
+def parse_object(raw):
+    def pairs(values):
+        result = {}
+        for key, value in values:
+            require(key not in result, "duplicate JSON key")
+            result[key] = value
+        return result
+    def finite(value):
+        parsed = float(value)
+        require(math.isfinite(parsed), "nonfinite JSON number")
+        return parsed
+    value = json.loads(raw, object_pairs_hook=pairs, parse_float=finite,
+                       parse_constant=lambda value: (_ for _ in ()).throw(Blocked("nonfinite JSON")))
+    require(type(value) is dict, "JSON object required")
+    return value
+
+
+def validate_metadata(metadata, recovery_runner_id):
+    run, job = metadata["run"], metadata["job"]
+    require(run["id"] == RUN_ID and run["run_attempt"] == ATTEMPT, "wrong original run/attempt")
+    require(run["head_sha"] == HEAD and run["repository"]["full_name"] == REPOSITORY,
+            "wrong original source/repository")
+    require(run["status"] == "completed" and run["conclusion"] == "failure", "original run is not frozen terminal failure")
+    require(job["id"] == JOB_ID and job["run_id"] == RUN_ID and job["run_attempt"] == ATTEMPT,
+            "wrong original job identity")
+    require(job["head_sha"] == HEAD and job["status"] == "completed" and job["conclusion"] == "failure",
+            "original job source/status changed")
+    require(job["runner_name"] == RUNNER and job["runner_id"] == recovery_runner_id,
+            "recovery is not on the original registered runner")
+    require(run["path"] == ".github/workflows/quota-reserve-closure-development.yml", "wrong original workflow")
+
+
+def _beneath(value, root):
+    return value == str(root) or value.startswith(str(root) + "/")
+
+
+def proc_bytes(path, limit=MAX_SMALL_PROC):
+    with Path(path).open("rb") as stream:
+        raw = stream.read(limit + 1)
+    require(len(raw) <= limit, "process metadata exceeds bound")
+    return raw
+
+
+def bounded_directory_entries(path, maximum):
+    with os.scandir(path) as entries:
+        for count, entry in enumerate(entries):
+            require(count < maximum, "directory entry population exceeded")
+            yield Path(entry.path)
+
+
+def scan_processes(proc, workspace, output, owner_uid, ignore_pid=None):
+    """Only records PIDs/reason labels. Never records command lines or environments.
+
+    Relevant means same real/effective/saved/filesystem UID as evidence owner.
+    Permission failure for any relevant process makes the result unknown.
+    The scan cannot exclude privileged/different-UID writers or future reopen.
+    """
+    proc = Path(proc)
+    candidates = []
+    for path in bounded_directory_entries(proc, MAX_PROCESSES + 1024):
+        if path.name.isdecimal():
+            candidates.append(path)
+            require(len(candidates) <= MAX_PROCESSES, "process census exceeds bound")
+    candidates.sort(key=lambda p: int(p.name))
+    matches, unknown, checked = [], [], 0
+    for process in candidates:
+        pid = int(process.name)
+        if pid == ignore_pid:
+            continue
+        try:
+            status = proc_bytes(process / "status")
+            uid_line = next(line for line in status.splitlines() if line.startswith(b"Uid:"))
+            if owner_uid not in [int(value) for value in uid_line.split()[1:]]:
+                continue
+            checked += 1
+            reasons = []
+            command = proc_bytes(process / "cmdline")
+            if PRODUCER in command:
+                reasons.append("frozen_producer_entrypoint")
+            cwd = os.readlink(process / "cwd")
+            if _beneath(cwd, workspace) or _beneath(cwd, output):
+                reasons.append("original_checkout_or_output_cwd")
+            for descriptor in bounded_directory_entries(process / "fd", MAX_PROCESS_FDS):
+                try:
+                    target = os.readlink(descriptor).removesuffix(" (deleted)")
+                    if _beneath(target, output):
+                        info = proc_bytes(process / "fdinfo" / descriptor.name, 65536).decode()
+                        flags = int(next(line.split()[1] for line in info.splitlines() if line.startswith("flags:")), 8)
+                        reasons.append("output_writable_fd" if flags & os.O_ACCMODE in (os.O_WRONLY, os.O_RDWR)
+                                       else "output_read_fd")
+                except FileNotFoundError:
+                    # Descriptor closed during census; no current handle remains.
+                    continue
+            for line in proc_bytes(process / "maps", MAX_MAPS).decode().splitlines():
+                fields = line.split(maxsplit=5)
+                if len(fields) == 6 and _beneath(fields[5].strip().removesuffix(" (deleted)"), output):
+                    reasons.append("output_memory_mapping")
+            if reasons:
+                matches.append({"pid": pid, "reasons": sorted(set(reasons))})
+        except FileNotFoundError:
+            if process.exists():
+                unknown.append({"pid": pid, "reason": "relevant_process_state_missing"})
+        except (PermissionError, OSError, ValueError, StopIteration, Blocked):
+            unknown.append({"pid": pid, "reason": "process_scope_or_state_unreadable"})
+    return {"scope": "same-UID current process state; no environments retained",
+            "checked_relevant_processes": checked, "matches": matches, "unknown": unknown,
+            "finding": "possible_live_writer" if matches else "unknown" if unknown else "no_scoped_writer_observed",
+            "quiescence_proven": False}
+
+
+def inspect(workspace, destination, metadata, runner_id, proc=Path("/proc")):
+    workspace, destination = no_symlink_path(workspace), no_symlink_path(destination)
+    output = workspace.parent / "bandido-quota-closure-development" / str(RUN_ID) / str(ATTEMPT)
+    guard = output.parent.parent / ".admitted-heads" / HEAD / "admission.json"
+    require(not destination.is_relative_to(workspace) and not destination.is_relative_to(output),
+            "recovery must be outside original checkout/output")
+    destination_fd = open_directory(destination, create=True)
+    report = {"schema": "worker35-evidence-recovery-inspection-v1", "mode": "metadata-only",
+              "authorization_url": AUTHORIZATION, "started_at": utc(),
+              "original": {"repository": REPOSITORY, "head": HEAD, "run_id": RUN_ID,
+                           "run_attempt": ATTEMPT, "job_id": JOB_ID, "output_path": str(output)},
+              "classification": None, "research_interpretation_performed": False,
+              "original_receipt_rewritten": False, "project_code_imported": False,
+              "raw_research_file_contents_opened": False, "packaging_performed": False,
+              "quiescence_proven": False, "status": "inspection_incomplete"}
+    try:
+        validate_metadata(metadata, runner_id)
+        require(output.lstat().st_uid == os.geteuid(), "output owner differs from recovery UID")
+        try:
+            report["pid_namespace_matches_pid1"] = ((Path(proc) / "self/ns/pid").stat().st_ino
+                                                    == (Path(proc) / "1/ns/pid").stat().st_ino)
+        except OSError:
+            report["pid_namespace_matches_pid1"] = None
+        try:
+            report["boot_id"] = proc_bytes(Path(proc) / "sys/kernel/random/boot_id", 128).decode().strip()
+        except (OSError, ValueError, Blocked):
+            report["boot_id"] = None
+        try:
+            btime = next(line.split()[1] for line in proc_bytes(Path(proc) / "stat", 1024 * 1024).decode().splitlines()
+                         if line.startswith("btime "))
+            report["boot_time_utc"] = datetime.fromtimestamp(int(btime), timezone.utc).isoformat()
+        except (OSError, ValueError, StopIteration, OverflowError, Blocked):
+            report["boot_time_utc"] = None
+        report["runner_name"] = RUNNER
+        report["runner_id"] = runner_id
+        first = inventory(output)
+        first_bytes = canonical(first)
+        require(len(first_bytes) <= MAX_INVENTORY, "inventory metadata exceeds 4 MiB")
+        write_new(destination / "original-lstat-before.json", first_bytes, directory_fd=destination_fd)
+        for label, path in (("original-receipt", output / "receipt.json"), ("original-admission", guard)):
+            try:
+                raw, value = read_bounded_regular(path, MAX_RECEIPT if label == "original-receipt" else MAX_ADMISSION)
+                write_new(destination / (label + ".json"), raw, directory_fd=destination_fd)
+                record = {"sha256": hashlib.sha256(raw).hexdigest(), "size_bytes": len(raw), "stat": value}
+                try:
+                    parsed = parse_object(raw)
+                    record["identity_matches"] = (parsed.get("expected_head") == HEAD and parsed.get("run_id") == str(RUN_ID)
+                                                  and parsed.get("run_attempt") == str(ATTEMPT))
+                    status_value = parsed.get("status")
+                    record["reported_status"] = status_value if type(status_value) is str and len(status_value) <= 80 else None
+                except (Blocked, ValueError, TypeError, RecursionError):
+                    record["parse_status"] = "unreadable_or_invalid_JSON_preserved_verbatim"
+                report[label] = record
+            except FileNotFoundError:
+                report[label] = {"status": "absent"}
+            except (Blocked, OSError):
+                report[label] = {"status": "unreadable_or_unsafe_not_copied"}
+        try:
+            report["process_scan"] = scan_processes(proc, workspace, output, os.geteuid(), os.getpid())
+        except (Blocked, OSError, ValueError):
+            report["process_scan"] = {"finding": "unknown", "quiescence_proven": False,
+                                      "reason": "process_census_unavailable_or_exceeded_bound"}
+        second = inventory(output)
+        second_bytes = canonical(second)
+        require(len(second_bytes) <= MAX_INVENTORY, "inventory metadata exceeds 4 MiB")
+        write_new(destination / "original-lstat-after.json", second_bytes, directory_fd=destination_fd)
+        report["lstat_inventory_stable"] = first == second
+        report["status"] = "metadata_preserved_no_packaging_authorized_by_this_script"
+        report["next_gate"] = "Independent review of host/process facts; absence of matches or stable metadata alone is not quiescence proof"
+    except (Blocked, OSError, ValueError, TypeError, KeyError, StopIteration, RecursionError, InspectionDeadline) as error:
+        report["status"] = "inspection_blocked"
+        report["blocker_type"] = type(error).__name__
+        # Errors may carry private paths. Preserve a type only; inventory supplies scoped facts.
+    finally:
+        report["finished_at"] = utc()
+        try:
+            write_new(destination / "recovery-inspection.json", canonical(report), directory_fd=destination_fd)
+        finally:
+            os.close(destination_fd)
+    return report
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--workspace", type=Path, required=True)
+    parser.add_argument("--destination", type=Path, required=True)
+    parser.add_argument("--metadata", type=Path, required=True)
+    parser.add_argument("--runner-id", type=int, required=True)
+    args = parser.parse_args()
+    require(os.environ.get("GITHUB_ACTIONS") == "true" and os.environ.get("RUNNER_NAME") == RUNNER
+            and os.environ.get("GITHUB_REPOSITORY") == REPOSITORY, "wrong recovery execution context")
+    require(os.environ.get("GITHUB_RUN_ID") != str(RUN_ID), "must not impersonate original run")
+    raw, _ = read_bounded_regular(args.metadata, 8 * 1024 * 1024)
+    result = inspect(args.workspace, args.destination, parse_object(raw), args.runner_id)
+    print(json.dumps({"status": result["status"], "quiescence_proven": False, "packaging_performed": False}))
+    return 1 if result["status"] == "inspection_blocked" else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
