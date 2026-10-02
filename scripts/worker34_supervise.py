@@ -33,6 +33,7 @@ import signal
 import stat
 import subprocess
 import sys
+import sysconfig
 import time
 from dataclasses import dataclass
 
@@ -109,12 +110,66 @@ def write_exclusive(path, value):
     fsync_directory(Path(path).parent)
 
 
+def verified_launch_environment(executable):
+    """Carry only a proven-needed interpreter library directory, never ambient env."""
+    clean = {'PATH': os.defpath, 'LANG': 'C.UTF-8'}
+    marker = 'worker34-isolated-runtime-launch-ok'
+    command = [str(executable), '-I', '-B', '-c', 'print(' + repr(marker) + ')']
+
+    def probe(environment):
+        result = subprocess.run(command, env=environment, stdin=subprocess.DEVNULL,
+                                capture_output=True, timeout=5, check=False)
+        return result.returncode == 0 and result.stdout.strip() == marker.encode(), result
+
+    works, first = probe(clean)
+    if works:
+        return clean, {}
+    # actions/setup-python may require its libpython directory at startup.
+    # Accept exactly sysconfig's interpreter LIBDIR, and only when explicitly
+    # present in the parent's loader path and containing its named library.
+    configured = sysconfig.get_config_var('LIBDIR')
+    library_name = sysconfig.get_config_var('INSTSONAME') or sysconfig.get_config_var('LDLIBRARY')
+    if (not isinstance(configured, str) or not Path(configured).is_absolute() or
+            not isinstance(library_name, str) or Path(library_name).name != library_name):
+        raise Blocked('isolated interpreter startup failed; no verified interpreter loader directory: ' +
+                      first.stderr[:2048].decode('utf-8', 'replace'))
+    directory = Path(configured).resolve()
+    inherited = {str(Path(part).resolve()) for part in os.environ.get('LD_LIBRARY_PATH', '').split(os.pathsep)
+                 if part and Path(part).is_absolute()}
+    library = directory / library_name
+    if str(directory) not in inherited or not directory.is_dir() or not library.is_file():
+        raise Blocked('isolated interpreter startup failed; required interpreter library path is unavailable: ' +
+                      first.stderr[:2048].decode('utf-8', 'replace'))
+    resolved_library = library.resolve()
+    information = resolved_library.stat()
+    mapped = False
+    for line in Path('/proc/self/maps').read_text().splitlines():
+        fields = line.split(None, 5)
+        if len(fields) != 6 or fields[5] != str(resolved_library):
+            continue
+        major, minor = (int(part, 16) for part in fields[3].split(':'))
+        if (int(fields[4]) == information.st_ino and
+                (major, minor) == (os.major(information.st_dev), os.minor(information.st_dev))):
+            mapped = True
+            break
+    if not mapped:
+        raise Blocked('configured interpreter library is not the currently mapped library')
+    environment = {**clean, 'LD_LIBRARY_PATH': str(directory)}
+    works, second = probe(environment)
+    if not works:
+        raise Blocked('interpreter startup still fails with its verified loader directory: ' +
+                      second.stderr[:2048].decode('utf-8', 'replace'))
+    return environment, {str(library.resolve()): sha256(library)}
+
+
 def runtime_fingerprint():
     executable = str(Path(sys.executable).resolve())
+    environment, libraries = verified_launch_environment(executable)
     return dict(executable=executable, executable_sha256=sha256(executable),
                 version=sys.version, implementation=platform.python_implementation(),
                 platform=sys.platform, machine=platform.machine(),
-                kernel=platform.release())
+                kernel=platform.release(), launch_environment=environment,
+                loader_library_sha256=libraries)
 
 
 def failure_label(causes):
@@ -241,13 +296,15 @@ class Containment:
         self.handles.clear()
 
 
-def probe_production_limit():
+def probe_production_limit(launch_environment=None):
     """Harmless process: verifies the effective production ceiling; no allocation."""
     code = ('import json,resource; n=2147483648; '
             'resource.setrlimit(resource.RLIMIT_AS,(n,n)); '
             'print(json.dumps(list(resource.getrlimit(resource.RLIMIT_AS))))')
+    if launch_environment is None:
+        launch_environment, _ = verified_launch_environment(Path(sys.executable).resolve())
     proc = subprocess.run([sys.executable, '-I', '-B', '-c', code],
-                          capture_output=True, timeout=5, check=False)
+                          env=launch_environment, capture_output=True, timeout=5, check=False)
     if proc.returncode or json.loads(proc.stdout) != [ADDRESS_SPACE_BYTES] * 2:
         raise Blocked('harmless effective 2GiB RLIMIT_AS check failed')
     return dict(soft=ADDRESS_SPACE_BYTES, hard=ADDRESS_SPACE_BYTES,
@@ -277,10 +334,18 @@ def verify_freeze(config):
                 any(c not in '0123456789abcdef' for c in value) for value in sources.values())):
         raise Blocked('source pins must be an exact SHA256 mapping')
     claimed_runtime = frozen.get('runtime')
-    runtime_keys = {'executable', 'executable_sha256', 'version', 'implementation', 'platform', 'machine', 'kernel'}
+    runtime_strings = {'executable', 'executable_sha256', 'version', 'implementation', 'platform', 'machine', 'kernel'}
+    runtime_keys = runtime_strings | {'launch_environment', 'loader_library_sha256'}
     if (not isinstance(claimed_runtime, dict) or set(claimed_runtime) != runtime_keys or
-            any(not isinstance(value, str) or not value for value in claimed_runtime.values())):
-        raise Blocked('runtime must be an exact string-valued mapping')
+            any(not isinstance(claimed_runtime[key], str) or not claimed_runtime[key] for key in runtime_strings)):
+        raise Blocked('runtime must be an exact typed mapping')
+    launch = claimed_runtime['launch_environment']
+    libraries = claimed_runtime['loader_library_sha256']
+    if (not isinstance(launch, dict) or set(launch) not in ({'PATH', 'LANG'}, {'PATH', 'LANG', 'LD_LIBRARY_PATH'}) or
+            any(not isinstance(value, str) or not value for value in launch.values()) or
+            not isinstance(libraries, dict) or any(not isinstance(key, str) or not isinstance(value, str)
+                for key, value in libraries.items())):
+        raise Blocked('runtime launch environment/provenance has invalid types')
     evidence = frozen.get('resource_test_receipt')
     if (not isinstance(evidence, dict) or set(evidence) != {'path', 'sha256'} or
             not isinstance(evidence['path'], str) or not evidence['path'] or
@@ -439,7 +504,7 @@ def run_supervisor(config, *, _budget_seconds=BUDGET_SECONDS, _grace_seconds=GRA
         frozen, hashes, runtime = verify_freeze(config)
         copies = preserve_sources(config, hashes)
         write_exclusive(config.output_dir / 'admitted-freeze.json', frozen)
-        receipt['production_limit_probe'] = probe_production_limit()
+        receipt['production_limit_probe'] = probe_production_limit(runtime['launch_environment'])
         containment = Containment()
         # All preflight is source/admin-only. This starts before the first real
         # input byte is read by either parser and is never reset between passes.
@@ -461,7 +526,7 @@ def run_supervisor(config, *, _budget_seconds=BUDGET_SECONDS, _grace_seconds=GRA
                 proc = subprocess.Popen(command, stdin=subprocess.DEVNULL, stdout=logs,
                                         stderr=subprocess.STDOUT, start_new_session=True,
                                         cwd=config.output_dir, close_fds=True,
-                                        env={'PATH': os.defpath, 'LANG': 'C.UTF-8'})
+                                        env=runtime['launch_environment'])
                 containment.current, containment.proc = proc.pid, proc
                 while proc.returncode is None:
                     descendants = containment.descendants()

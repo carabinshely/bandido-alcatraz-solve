@@ -9,6 +9,9 @@ import sys
 import time
 
 import inspect
+import ctypes
+import shutil
+from unittest import mock
 import tempfile
 import unittest
 
@@ -37,6 +40,9 @@ assert resource.getrlimit(resource.RLIMIT_AS) == (2147483648, 2147483648)
 # This invented fixture JSON is the only input ever read in these tests.
 assert json.loads(Path(a.artifact).read_text()) == {{'synthetic': True}}
 status, complete, established, errors = 'complete', True, False, []
+if MODE == 'early_exit':
+    print('synthetic dynamic-loader startup diagnostic',file=sys.stderr)
+    raise SystemExit(127)
 if MODE == 'deadline_sentinel':
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     time.sleep(.45)
@@ -562,6 +568,92 @@ def test_explicit_evidence_root_is_lazy_and_shared(tmp_path):
     check_portable_test_import(tmp_path,True)
 
 
+
+def test_verified_shared_library_launch_environment_is_minimal(tmp_path):
+    compiler=shutil.which('cc') or shutil.which('gcc')
+    if not compiler:
+        raise unittest.SkipTest('installed C compiler unavailable for harmless loader fixture')
+    directory=tmp_path / 'lib'
+    directory.mkdir()
+    library=directory / 'libworker34_loader_fixture.so'
+    source=tmp_path / 'library.c'
+    source.write_text('int worker34_fixture(void) { return 0; }\n')
+    launcher=tmp_path / 'launcher.c'
+    launcher.write_text('#include <stdio.h>\nextern int worker34_fixture(void);\n'
+                        'int main(void) { puts("worker34-isolated-runtime-launch-ok"); return worker34_fixture(); }\n')
+    executable=tmp_path / 'synthetic-interpreter'
+    for command in ([compiler,'-shared','-fPIC','-Wl,-soname,'+library.name,'-o',str(library),str(source)],
+                    [compiler,'-o',str(executable),str(launcher),'-L'+str(directory),'-lworker34_loader_fixture']):
+        result=subprocess.run(command,capture_output=True,text=True,timeout=15)
+        assert result.returncode == 0, result.stderr
+    clean={'PATH':os.defpath,'LANG':'C.UTF-8'}
+    failed=subprocess.run([str(executable)],env=clean,capture_output=True,text=True,timeout=5)
+    assert failed.returncode != 0
+    assert library.name in failed.stderr
+    # Map the exact synthetic library so the same inode/path verification used
+    # for the running interpreter can be exercised without touching that interpreter.
+    loaded=ctypes.CDLL(str(library))
+    assert loaded.worker34_fixture() == 0
+    configured={'LIBDIR':str(directory),'INSTSONAME':library.name,'LDLIBRARY':library.name}
+    ambient={'LD_LIBRARY_PATH':str(directory)+os.pathsep+'/unrelated/private-loader-dir',
+             'WORKER34_FAKE_SECRET':'must-not-pass','PYTHONPATH':'/untrusted-python','LD_PRELOAD':'/untrusted.so'}
+    with mock.patch.object(SUP.sysconfig,'get_config_var',side_effect=lambda key:configured.get(key)), \
+         mock.patch.dict(os.environ,ambient):
+        environment,libraries=SUP.verified_launch_environment(executable)
+    assert environment == {**clean,'LD_LIBRARY_PATH':str(directory.resolve())}
+    assert libraries == {str(library.resolve()):digest(library)}
+    succeeded=subprocess.run([str(executable)],env=environment,capture_output=True,text=True,timeout=5)
+    assert succeeded.returncode == 0
+    assert succeeded.stdout.strip() == 'worker34-isolated-runtime-launch-ok'
+    SUP.write_exclusive(tmp_path / 'loader-regression.json',
+        dict(synthetic_only=True,clean_returncode=failed.returncode,clean_stderr=failed.stderr,
+             verified_returncode=succeeded.returncode,launch_environment=environment,
+             loader_library_sha256=libraries))
+
+
+def test_runtime_freeze_binds_launch_environment_and_library_hashes(tmp_path):
+    config=prepare(tmp_path)
+    freeze=json.loads(Path(config['execution_freeze']).read_text())
+    freeze['runtime']['loader_library_sha256']={'/synthetic/changed-loader.so':'0'*64}
+    Path(config['execution_freeze']).write_text(json.dumps(freeze))
+    receipt=execute(config)
+    assert receipt['status'] == 'execution_blocked'
+    assert receipt['admitted'] is False
+    assert receipt['parser_executions'] == []
+
+
+def test_unneeded_ambient_environment_is_not_forwarded():
+    with mock.patch.dict(os.environ,{'WORKER34_FAKE_SECRET':'do-not-forward','PYTHONPATH':'/untrusted'}):
+        environment,libraries=SUP.verified_launch_environment(Path(sys.executable).resolve())
+    assert set(environment) <= {'PATH','LANG','LD_LIBRARY_PATH'}
+    assert 'WORKER34_FAKE_SECRET' not in environment and 'PYTHONPATH' not in environment
+    if 'LD_LIBRARY_PATH' in environment:
+        assert libraries
+
+
+def fixture_diagnostics(location):
+    sections=[]
+    for path in sorted(location.rglob('parser-*.log')):
+        sections.append(str(path)+':\n'+path.read_bytes()[:8192].decode('utf-8','replace'))
+    for path in sorted(location.rglob('supervisor-receipt.json')):
+        try:
+            receipt=json.loads(path.read_text())
+            sections.append(str(path)+': '+json.dumps(dict(status=receipt.get('status'),
+                causes=receipt.get('causes'),parser_executions=receipt.get('parser_executions')),sort_keys=True))
+        except (OSError,ValueError):
+            pass
+    return '\n'.join(sections)
+
+
+def test_synthetic_failure_diagnostics_include_child_stderr(tmp_path):
+    config=prepare(tmp_path,('early_exit','complete'))
+    receipt=execute(config)
+    assert receipt['status'] == 'resource_incomplete'
+    diagnostics=fixture_diagnostics(tmp_path)
+    assert 'synthetic dynamic-loader startup diagnostic' in diagnostics
+    assert '127' in diagnostics
+
+
 RUN_FIXTURES = []
 _EVIDENCE_ROOT = None
 
@@ -591,7 +683,12 @@ def _install_native_tests():
                 if 'tmp_path' in inspect.signature(function).parameters:
                     location = Path(tempfile.mkdtemp(prefix=name + '-', dir=evidence_root()))
                     RUN_FIXTURES.append(location)
-                    function(location)
+                    try:
+                        function(location)
+                    except unittest.SkipTest:
+                        raise
+                    except Exception as error:
+                        raise AssertionError(f'{name} failed: {error}\n{fixture_diagnostics(location)}') from error
                 else:
                     function()
             setattr(NativeSyntheticTests, name, invoke)
@@ -606,6 +703,7 @@ if __name__ == '__main__':
     manifest = dict(schema='worker34-supervisor-synthetic-tests-v1',
                     synthetic_only=True, tests_run=outcome.testsRun,
                     failures=len(outcome.failures), errors=len(outcome.errors),
+                    skipped=[dict(test=str(test), reason=reason) for test, reason in outcome.skipped],
                     successful=outcome.wasSuccessful(), elapsed_seconds=time.monotonic()-began,
                     supervisor_sha256=digest(SOURCE), test_source_sha256=digest(__file__),
                     protocol_sha256=digest(PROTOCOL), runtime=SUP.runtime_fingerprint(),
