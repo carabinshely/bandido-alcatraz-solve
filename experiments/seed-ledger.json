@@ -265,7 +265,7 @@
     },
     {
       "research_step": 33,
-      "status": "prospective_frozen_not_executed",
+      "status": "complete_verified",
       "authority": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5944922245",
       "purpose": "Unchanged root-complete visible two-action mechanism/cost diagnostic on mixed COLLECT+PLACE observations; no game or win-rate experiment",
       "repository_base": "1b5881802fc995d301ed3eca6a0e75c1d2dcb90c",
@@ -289,7 +289,7 @@
       "fresh_seeds_allocated": 0,
       "new_games_authorized": 0,
       "new_games_executed": 0,
-      "completed_calls": 0,
+      "completed_calls": 160,
       "prior_completions_reused": 0,
       "confirmation_eligible": false,
       "whole_compute_seconds": 5400,
@@ -299,7 +299,24 @@
       "finalization_upload_total_minutes": 10,
       "job_minutes": 120,
       "fixed_runtime": "CPython 3.11.16",
-      "note": "New fixed population and full160fresh calls; Worker32 resource_incomplete checkpoint unchanged. No selected-state scoring/search/reconstruction or execution in preparation. Exact implementation freeze and separate runner execution remain pending."
+      "note": "Complete 160 fresh calls and 80 entire candidate/reference matches; zero strict departures on the fixed 80 mixed observations. Worker32 remains resource_incomplete. No fresh seeds or games, population-frequency, full-game-runtime, horizon-causality, win-rate, adoption or PROGRAM_SUCCESS inference, or follow-up execution authority. Raw and complete proof persistence verified with fresh byte readback. Final review and merge are recorded separately in PR36 and Issue2.",
+      "completed_candidate_calls": 80,
+      "completed_reference_calls": 80,
+      "exact_entire_scientific_matches": 80,
+      "classification": "mixed_action_two_action_diagnostic_mechanism_not_exercised",
+      "strict_departures": [],
+      "execution_head": "99164d0212d50fce37f8a2a9656198ca08ccde32",
+      "execution_tree": "8351ff128c91c34276382e427dadcf10ba844591",
+      "run_id": 36961069413,
+      "run_attempt": 1,
+      "job_id": 110694654983,
+      "artifact_id": 11208266885,
+      "manifest_path": "experiments/mixed-action-two-action-diagnostic/mechanism-not-exercised-2026-10-02.manifest.json",
+      "candidate_adopted": false,
+      "repository_acceptance": {
+        "lifecycle_record": "https://github.com/carabinshely/bandido-alcatraz-solve/pull/36",
+        "final_review_and_merge_recorded_separately": true
+      }
     }
   ],
   "fresh_confirmation_allocations": [],

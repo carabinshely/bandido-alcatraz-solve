@@ -262,7 +262,10 @@ def test_fixed_parent_branch_and_resources():
 
 
 def test_workflow_frozen_trigger_runtime_and_deadline_budgets():
-    workflow = (ROOT / '.github/workflows/worker33-mixed-action.yml').read_text()
+    assert not (ROOT / '.github/workflows/worker33-mixed-action.yml').exists()
+    raw = (FROZEN / 'execution-workflow.yml').read_bytes()
+    assert hashlib.sha256(raw).hexdigest() == '3ec8d21ffc6fa8311c559d52231456839c9519eb51ad2b593d166d66a9ad17c0'
+    workflow = raw.decode()
     trigger = workflow.split('permissions:', 1)[0]
     assert '  pull_request:\n    types: [opened]\n' in trigger
     assert re.findall(r'^  ([a-z_]+):$', trigger, re.MULTILINE) == ['pull_request']

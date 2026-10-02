@@ -1,0 +1,152 @@
+{
+  "artifact": {
+    "artifact_id": 11208266885,
+    "expanded_bytes": 136061225,
+    "member_count": 173,
+    "original_actions_zip": true,
+    "raw_evidence_modified": false,
+    "sha256": "18a58ec0505d81eaf4b0cfb4798b7e38b0d9555d22ad77c5d4681b5fce89492a",
+    "size_bytes": 19184749
+  },
+  "candidate_adopted": false,
+  "canonical_source_comparator": "c50a7ab8e73eaf3c497c5d1c9fef5cbe53261853",
+  "classification": "mixed_action_two_action_diagnostic_mechanism_not_exercised",
+  "cleanup": {
+    "archived_execution_workflow": "experiments/mixed-action-two-action-diagnostic/execution-workflow.yml",
+    "archived_execution_workflow_sha256": "3ec8d21ffc6fa8311c559d52231456839c9519eb51ad2b593d166d66a9ad17c0",
+    "canonical_model_data_and_baseline_unchanged": true,
+    "final_checkpoint_head_is_not_execution_head": true,
+    "isolated_unregistered_scientific_source_and_tests_retained": true,
+    "temporary_execution_workflow_removed": true
+  },
+  "completed_calls": 160,
+  "completed_candidate_calls": 80,
+  "completed_reference_calls": 80,
+  "confirmation_eligible": false,
+  "costs": {
+    "monotonic_deadline_independently_measured": false,
+    "note": "UTC journal elapsed and sums of per-call monotonic wall/process CPU timings are distinct observations; lifetime RSS is not per-call incremental memory.",
+    "pass_cpu_seconds": [
+      163.5833005000001,
+      1062.2892791000004
+    ],
+    "pass_order": [
+      "candidate",
+      "reference"
+    ],
+    "pass_peak_process_lifetime_rss_kib": [
+      244592,
+      248560
+    ],
+    "pass_wall_seconds": [
+      163.7711524280021,
+      1063.5291602760553
+    ],
+    "whole_journal_utc_seconds": 1269.038007
+  },
+  "exact_entire_scientific_matches": 80,
+  "execution_freeze": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5945157800",
+  "execution_head": "99164d0212d50fce37f8a2a9656198ca08ccde32",
+  "execution_seed_ledger_sha256": "df3571ae1155029ef094b6a163df0843bdcd400f511586bd318ebf50aff7a27b",
+  "execution_tree": "8351ff128c91c34276382e427dadcf10ba844591",
+  "fresh_seeds": 0,
+  "interpretation": [
+    "No preregistered strict cross-type departure among these 80 fixed mixed observations; all 80 entire candidate/reference pairs matched.",
+    "Fixed stress-enriched, trajectory-conditioned, permanently spent population; no population departure frequency or full-game runtime inference.",
+    "The combined exhaustive search and fixed end-state potential do not isolate horizon-two causality.",
+    "No win-rate improvement, adoption, confirmation or PROGRAM_SUCCESS claim.",
+    "No follow-up execution is authorized; a new bounded research decision requires separate preregistration."
+  ],
+  "job_id": 110694654983,
+  "new_games": 0,
+  "pr_number": 36,
+  "preview_limit_per_call": 32768,
+  "prior_completions_reused": 0,
+  "proof_persistence": {
+    "drive_file_id": "1-a1I6-TA9m9vudV2Mob23txx57TPBhl-",
+    "folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+    "fresh_byte_readback_verified": true,
+    "sha256": "82fe20b455263ea914b235e6e2a9e223826765ef9ab0146f809625cf8f5e0836",
+    "size_bytes": 3030368,
+    "status": "persisted_verified",
+    "strict_offline_verifier_sha256": "d96e3a0de4c664c3f75398a4524c49fd285cf562115763fda432bbe2502f225e",
+    "test_count": 126,
+    "url": "https://drive.google.com/file/d/1-a1I6-TA9m9vudV2Mob23txx57TPBhl-/view"
+  },
+  "protocol": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5944922245",
+  "python": "CPython 3.11.16",
+  "pythonhashseed": 0,
+  "raw_persistence": {
+    "drive_id": "1WJE6WVR8bW0BSTTBoqx8GWkLWm1d7MAu",
+    "folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+    "fresh_readback_byte_identical": true,
+    "sha256": "18a58ec0505d81eaf4b0cfb4798b7e38b0d9555d22ad77c5d4681b5fce89492a",
+    "size_bytes": 19184749,
+    "url": "https://drive.google.com/file/d/1WJE6WVR8bW0BSTTBoqx8GWkLWm1d7MAu/view",
+    "verified_at": "2026-10-02T04:14:00Z"
+  },
+  "repository_acceptance": {
+    "authoritative_lifecycle_records": [
+      "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2",
+      "https://github.com/carabinshely/bandido-alcatraz-solve/pull/36"
+    ],
+    "final_review_and_merge_recorded_separately": true,
+    "scope": "This manifest records verified execution evidence; it does not preclaim a clean final review, merge or repository acceptance."
+  },
+  "repository_base": "1b5881802fc995d301ed3eca6a0e75c1d2dcb90c",
+  "research_step": 33,
+  "resource_limits": {
+    "compute_step_minutes": 92,
+    "finalization_upload_total_minutes": 10,
+    "job_minutes": 120,
+    "setup_total_minutes": 10,
+    "termination_grace_seconds": 30,
+    "whole_compute_seconds": 5400
+  },
+  "routine_ci": {
+    "checkout": "448831ee3eb1b85a9c743ca29e3d1f60b79a47a2",
+    "checkout_kind": "synthetic PR merge",
+    "checkout_tree_matches_execution_tree": true,
+    "conclusion": "success",
+    "python": "CPython 3.11.16",
+    "run_id": 36961069310,
+    "subtests_passed": 149,
+    "tests_passed": 667
+  },
+  "run_attempt": 1,
+  "run_id": 36961069413,
+  "run_url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/36961069413",
+  "runner": "bandido-alcatraz-ci",
+  "schema": "worker33-mechanism-checkpoint-v1",
+  "source_inventory_canonical_encoding": "sorted-key compact ensure_ascii JSON with one trailing newline",
+  "source_inventory_canonical_sha256": "76c32c0e81bc0edddd31d5b70059b93cacb04b2209d2ec5996c9c3a86e23c49b",
+  "source_inventory_file": "worker33-verifier-prep/source-inventory.execution.json",
+  "source_inventory_file_sha256": "365b184a8e0447f046f46e2a0bb2e45b619de9747d926642716bc179e67d9961",
+  "source_inventory_files": 143,
+  "source_observations": {
+    "all_selected_mixed": true,
+    "all_worker32_identities_excluded": true,
+    "distinct_source_seeds": 71,
+    "hash_group": 64,
+    "selected_decisions": 80,
+    "selection_manifest_sha256": "3ad07d6237b3f7f24c60448fc346a013261d05b8e36fd998ffd440faceee9a78",
+    "source_pass": 2,
+    "spent_seeds_inclusive": [
+      1000000,
+      1000399
+    ],
+    "stress_group": 16,
+    "worker": 31
+  },
+  "source_review_sha256": "4836168704d384d8b8b538dce4740ff8a6f61b4bbbd49475060f85e922e20441",
+  "status": "complete_verified",
+  "strict_departures": [],
+  "terminal_evidence_record": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5945498880",
+  "terminal_run_conclusion": "success",
+  "verification": {
+    "containment_evidence": "Successful terminal finalization/upload and durable group cleanup receipts; offline evidence cannot inspect live process absence.",
+    "proof_limits": "Source-reviewed policy mathematics and independent reference agreement; hashes alone do not prove transitions, H, legality, installed execution, or absence of unrelated processes.",
+    "report_sha256": "e6d7f436d4144f120c4a3dceda9262a54c2a565279ae7a7e1bac376a7452ae60",
+    "strict_offline_status": "passed"
+  }
+}

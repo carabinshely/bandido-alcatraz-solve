@@ -1,10 +1,61 @@
-# Worker33 mixed-action diagnostic adapter
+# Worker33 completed mechanism checkpoint
 
 Authority: [frozen Worker33 protocol and exact input freeze](https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5944922245).
-This is a prospective implementation, not a diagnostic result. Worker32 remains
-`resource_incomplete`; none of its calls may be reused. No selected observation
-has been reconstructed, enumerated, scored or searched in this coding task.
-Only synthetic fixtures and byte/metadata verification are permitted locally.
+[Terminal evidence record](https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5945498880).
+
+## Terminal result
+
+Run [36961069413, attempt 1](https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/36961069413)
+completed successfully at execution head
+`99164d0212d50fce37f8a2a9656198ca08ccde32`, tree
+`8351ff128c91c34276382e427dadcf10ba844591`, frozen in
+[the exact-head execution record](https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5945157800).
+All 160 fresh calls completed in candidate-then-reference order; all 80 entire
+scientific payload pairs matched. There were no qualifying strict departures.
+The result is `mixed_action_two_action_diagnostic_mechanism_not_exercised`.
+
+The UTC whole-compute journal span was 1,269.038007 seconds. Per-call wall-time
+sums were 163.7711524280021 seconds for candidate and 1,063.5291602760553 seconds
+for reference. These are separate clock observations, not an independent
+measurement of the supervisor's monotonic deadline. See
+`mechanism-not-exercised-2026-10-02.manifest.json` for execution, integrity, cost,
+persistence and interpretation details.
+
+The original Actions ZIP is 19,184,749 bytes, SHA256
+`18a58ec0505d81eaf4b0cfb4798b7e38b0d9555d22ad77c5d4681b5fce89492a`.
+Its [persisted raw copy](https://drive.google.com/file/d/1WJE6WVR8bW0BSTTBoqx8GWkLWm1d7MAu/view)
+was freshly downloaded and byte-compared by the coordinating verifier. The
+[complete reproduction proof](https://drive.google.com/file/d/1-a1I6-TA9m9vudV2Mob23txx57TPBhl-/view)
+is 3,030,368 bytes, SHA256
+`82fe20b455263ea914b235e6e2a9e223826765ef9ab0146f809625cf8f5e0836`;
+its fresh byte-for-byte readback is also verified. It contains exact execution
+source, frozen inputs, authenticated metadata, verifier and 126 passing tests,
+reproduction instructions and the complete verified result. Final checkpoint reviews, CI and repository acceptance are recorded
+separately in [PR36](https://github.com/carabinshely/bandido-alcatraz-solve/pull/36)
+and Issue2. This execution record does not preclaim their outcome.
+
+The temporary execution workflow has been removed. Its byte-identical inert
+archive is `execution-workflow.yml`, SHA256
+`3ec8d21ffc6fa8311c559d52231456839c9519eb51ad2b593d166d66a9ad17c0`.
+The workflow regression retains its frozen guard assertions and now also checks
+that the active workflow is absent. The final cleanup head is distinct from the
+execution head. Scientific source, core pins, canonical model/data and all
+inherited Worker32 modules/tests remain unchanged.
+
+This result is limited to the fixed stress-enriched, trajectory-conditioned,
+spent-observation population. It establishes no population departure frequency,
+full-game runtime, isolated horizon-two causality, win-rate improvement, adoption,
+confirmation or PROGRAM_SUCCESS. Worker32 remains `resource_incomplete`. No
+fresh seeds or new research games were allocated or run. No follow-up execution is authorized;
+a new bounded research decision requires separate preregistration.
+
+## Historical implementation handoff
+
+The remaining sections describe the implementation frozen and executed at the
+head above. The original coding task used synthetic fixtures and byte/metadata
+checks only; selected observations were subsequently evaluated solely on the
+authorized runner. Immutable preparation files retain their historical status
+text and do not substitute for the terminal evidence.
 
 ## Minimal isolated changes
 
@@ -14,8 +65,9 @@ The repository baseline is accepted main
 source/data comparator `c50a7ab8e73eaf3c497c5d1c9fef5cbe53261853`, retained as
 runtime `BASE`. Runtime `REPOSITORY_BASE` records that accepted repository baseline in
 provenance as `repository_base`; it does not assert the immediate Git parent of
-a later implementation commit. Existing source, data and tests are unchanged.
-Only a prospective Worker33 allocation is appended to the seed ledger.
+a later implementation commit. The original implementation preserved existing
+source, data and tests and appended a prospective Worker33 ledger allocation.
+This checkpoint updates only that step33 allocation with the terminal result.
 
 `src/bandido_alcatraz/worker33/inputs.py` and `runtime.py` are versioned copies
 of the accepted Worker32 drivers. They change only input/protocol identities,
@@ -79,14 +131,15 @@ call gets a fresh unchanged instance and `Random(0)`. The preview ceiling remain
 32,768; complete payload equality, binding, RNG and envelope gates remain intact.
 No draw, refresh, game continuation, old completion or selective retry is used.
 
-## Prospective execution and evidence
+## Frozen execution workflow and evidence
 
-The temporary `.github/workflows/worker33-mixed-action.yml` is adapted from the
+The executed `.github/workflows/worker33-mixed-action.yml` was adapted from the
 Worker32 execution workflow at `d21421e883cbc08d3a9e99ea8d856894c6ac41a8`,
-not the accepted checkpoint where that workflow was removed. It accepts only
+not the accepted checkpoint where that workflow was removed. It accepted only
 the first `pull_request: opened` event for a same-repository draft on
-`research/worker33-mixed-action-diagnostic`, and checks out the exact head SHA.
-There is no push, synchronize or dispatch trigger, and no automatic rerun.
+`research/worker33-mixed-action-diagnostic`, and checked out the exact head SHA.
+It had no push, synchronize or dispatch trigger, and no automatic rerun. This
+checkpoint retains only its inert archive outside `.github/workflows`.
 
 Only `bandido-alcatraz-ci`, CPython 3.11.16 and `PYTHONHASHSEED=0` are accepted.
 A missing exact interpreter raises `ExecutionBlocked`; wrong hash-seed or
@@ -117,19 +170,24 @@ this fixed stress-enriched spent population. They do not establish population
 frequency, full-game cost, isolated horizon-two causality, win-rate improvement,
 adoption, confirmation or PROGRAM_SUCCESS.
 
-## Local validation and remaining gate
+## Validation history and remaining acceptance gates
 
-Run the full inherited tests and new `tests/test_worker33.py`. New tests use only
-invented observations; selected input checks inspect bytes/metadata only. The
-invented 160-call harness is distinct from the 160 authorized research calls.
-With an installed package, override pytest's source path using `-o pythonpath=`.
-Local test results must name the actual interpreter. Parsing with Python 3.11
-grammar is a syntax check, not execution on CPython 3.11.16. Exact-runtime
-preflight, exact-head independent review/freeze and authorized runner execution
-remain necessary; no workflow has been run by this implementation task.
+Before execution, local CPython 3.12.14 passed 667 tests and 149 subtests; the
+isolated wheel-installed focused suite passed 141 tests, including 40 new adapter
+tests. All 31 installed Python sources matched the export byte-for-byte. New
+Python files also parsed with Python 3.11 grammar; that syntax check was not
+represented as execution on CPython 3.11.16.
 
-Local verification on CPython 3.12.14: full suite 667 tests and 149 subtests passed;
-isolated wheel-installed focused suite 141 tests passed, including 40 new adapter
-tests. All 31 installed Python source files matched the export byte-for-byte.
-All new Python files parsed with Python 3.11 grammar. These are not a claim of
-executing tests on CPython 3.11.16, which is unavailable in this environment.
+The authorized runner subsequently used CPython 3.11.16 and passed its installed
+synthetic preflight. Routine CI run
+[36961069310](https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/36961069310)
+passed 667 tests and 149 subtests on synthetic PR merge
+`448831ee3eb1b85a9c743ca29e3d1f60b79a47a2`, whose tree matches the execution tree.
+Those results concern the executed implementation, not this later cleanup head.
+
+Cleanup validation remains synthetic and metadata-only. No selected observation
+is reconstructed, enumerated, scored, searched or continued locally. With an
+installed package, override pytest's source path using `-o pythonpath=`. Final
+checkpoint review, CI and PR acceptance are recorded separately in PR36/Issue2;
+both proof and raw persistence/readback fields are finalized in the manifest.
+The retained runtime does not authorize a rerun.
