@@ -1,8 +1,22 @@
 # Worker35 evidence-only recovery draft
 
-This is a draft, not a launched workflow. No repository changes, GitHub workflow
-launches, research execution, source repair, resume, rerun, or original-output
-mutations were performed while preparing it. Tests use invented local fixtures.
+This is the local recovery implementation/review record. The parent published
+initial recovery commit `25cc3159a7bd75a3681a1c7d36afa05d5007f791`; run
+`37069115788` failed before any job was created. That failed attempt is preserved.
+It performed no metadata inspection or research execution. This worker did not
+publish or launch any workflow. Tests use invented local fixtures.
+
+The first workflow had two configuration defects: runner.temp was used in job
+defaults where runner is unavailable, and the run block had 23,567 characters,
+above GitHub's 21,000-character limit. The narrow repair moves working-directory
+to the Inspect step and compacts only generated Python presentation, proving
+exact AST equality including docstrings and constants. Original standalone
+inspector source and its scientific/no-mutation limits are unchanged. GitHub's
+exact rejection annotation is unavailable; these are confirmed invalid settings
+consistent with the pre-job failure, not a claimed fetched error message.
+
+Primary references: [context availability](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#context-availability)
+and [run block limit](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idstepsrun).
 
 ## Confirmed facts
 
@@ -132,12 +146,13 @@ known to have tripped. Partial output may establish more facts after recovery.
 
 ## Local validation
 
-Eighteen invented-only unittest cases pass. They cover exact original run/runner
+Twenty invented-only/syntax unittest cases pass. They cover exact original run/runner
 identity, bounds, symlinks, exclusive writes, source-byte preservation, lstat-only
 inventory, live producer/fd/mapping detection, process uncertainty, privacy and no
 quiescence overclaim, source/output symlink-swap races, deadline propagation and
 preservation when boot/namespace evidence is unavailable. Inline Python AST parses
-and YAML parses. These tests are
+and YAML parses. Separate regressions enforce the supported context placement,
+21,000-character run limit and complete embedded Python AST equivalence. These tests are
 not a runner execution or evidence that the original output exists.
 
 After edits, regenerate YAML with `python3 -I -B build_workflow.py`, rerun tests,

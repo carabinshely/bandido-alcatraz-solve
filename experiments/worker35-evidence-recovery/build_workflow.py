@@ -1,5 +1,8 @@
 """Build the reviewable inline-only workflow from the standalone inspection source."""
 from pathlib import Path
+import ast
+import io
+import tokenize
 root=Path(__file__).resolve().parent
 source=(root/'inspect_worker35_recovery.py').read_text()
 source=source.rsplit('if __name__ == "__main__":',1)[0]
@@ -111,10 +114,10 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ${{ runner.temp }}
     steps:
       - name: Inspect original attempt metadata without checkout or research
         id: inspect
+        working-directory: ${{ runner.temp }}
         env:
           GH_TOKEN: ${{ github.token }}
           PYTHONDONTWRITEBYTECODE: '1'
@@ -133,6 +136,30 @@ footer='''          PY
           compression-level: 0
           retention-days: 7
 '''
-body=''.join('          '+line+'\n' for line in (source+bootstrap).splitlines())
+def compact_python(code):
+    # Remove comments and reduce indentation while preserving the entire AST,
+    # including docstrings, literals, exception structure and execution order.
+    # GitHub rejects a run block exceeding 21,000 characters before any job.
+    expected = ast.parse(code)
+    rendered = ast.unparse(expected)
+    string_interior = set()
+    for token in tokenize.generate_tokens(io.StringIO(rendered).readline):
+        if token.type == tokenize.STRING and token.end[0] > token.start[0]:
+            string_interior.update(range(token.start[0] + 1, token.end[0] + 1))
+    lines = []
+    for number, line in enumerate(rendered.splitlines(), 1):
+        if number not in string_interior:
+            indentation = len(line) - len(line.lstrip(' '))
+            assert indentation % 4 == 0
+            line = ' ' * (indentation // 4) + line.lstrip(' ')
+        lines.append(line)
+    compact = '\n'.join(lines) + '\n'
+    assert ast.dump(ast.parse(compact), include_attributes=False) == ast.dump(expected, include_attributes=False)
+    return compact
+
+code=compact_python(source+bootstrap)
+run_command="set -euo pipefail\npython3 -I -B - <<'PY'\n" + code + "PY\n"
+assert len(run_command) <= 21000, 'GitHub run block exceeds 21,000-character limit'
+body=''.join('          '+line+'\n' for line in code.splitlines())
 (root/'worker35-evidence-recovery.yml').write_text(header+body+footer)
 print('Created inline-only workflow draft')
