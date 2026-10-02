@@ -481,3 +481,137 @@ def test_reference_invalid_rng_result_never_becomes_refresh():
             return None
     with pytest.raises(IntegrityError, match='outside the final tier'):
         checker(catalog).evaluate(invented_observation(catalog), InvalidChoice(13))
+
+
+def test_reference_native_profile_rejection_does_not_replace_active_hook(monkeypatch):
+    from bandido_alcatraz import quota_reserve_closure_reference as reference
+    native_profiler = object()
+    replacements = []
+    # Model CPython 3.11's native getprofile result without modifying pytest's
+    # process-wide profiler or depending on the local Python minor version.
+    isolated_sys = SimpleNamespace(getprofile=lambda: native_profiler,
+                                   setprofile=replacements.append)
+    monkeypatch.setattr(reference, 'sys', isolated_sys)
+    catalog = invented_catalog()
+    rng = CountChoice()
+    before = rng.getstate()
+    with pytest.raises(reference.IntegrityError, match='non-callable existing profile hook'):
+        checker(catalog).evaluate(invented_observation(catalog), rng)
+    assert replacements == []
+    assert isolated_sys.getprofile() is native_profiler
+    assert rng.calls == 0 and rng.getstate() == before
+
+
+def test_reference_callable_profile_failure_restores_same_hook():
+    import sys
+    from bandido_alcatraz import moves
+    prior = sys.getprofile()
+    failures = []
+    catalog = invented_catalog()
+    obs = invented_observation(catalog)
+    ref = checker(catalog)
+    rng = CountChoice()
+    def fails_once(frame, event, arg):
+        if event == 'call' and frame.f_code is moves.legal_moves.__code__ and not failures:
+            failures.append('forwarded')
+            raise RuntimeError('synthetic prior profiler failure')
+    sys.setprofile(fails_once)
+    try:
+        with pytest.raises(RuntimeError, match='synthetic prior profiler failure'):
+            ref.evaluate(obs, rng)
+        assert failures == ['forwarded']
+        assert sys.getprofile() is fails_once
+        assert rng.calls == 0
+    finally:
+        sys.setprofile(prior)
+
+
+def test_reference_callable_failure_during_hook_install_restores_same_hook():
+    import sys
+    prior = sys.getprofile()
+    catalog = invented_catalog()
+    obs = invented_observation(catalog)
+    ref = checker(catalog)
+    rng = CountChoice()
+    failures = []
+    def fails_once_on_install(frame, event, arg):
+        if (event == 'c_return' and arg is sys.setprofile
+                and sys.getprofile() is not fails_once_on_install and not failures):
+            failures.append('installation')
+            raise RuntimeError('synthetic hook installation failure')
+    sys.setprofile(fails_once_on_install)
+    try:
+        with pytest.raises(RuntimeError, match='synthetic hook installation failure'):
+            ref.evaluate(obs, rng)
+        assert failures == ['installation']
+        assert sys.getprofile() is fails_once_on_install
+        assert rng.calls == 0
+    finally:
+        sys.setprofile(prior)
+
+
+def test_reference_real_native_cprofile_hook_is_preserved_when_exposed(monkeypatch):
+    import cProfile
+    import sys
+    from bandido_alcatraz import quota_reserve_closure_reference as reference
+    previous = sys.getprofile()
+    if previous is not None:
+        pytest.skip('real native-profiler regression requires an unused profile hook')
+    catalog = invented_catalog()
+    obs = invented_observation(catalog)
+    ref = checker(catalog)
+    rng = CountChoice()
+    rng_before = rng.getstate()
+    replacements = []
+    def replace_hook(hook):
+        replacements.append(hook)
+        sys.setprofile(hook)
+    profiler = cProfile.Profile()
+    profiler.enable()
+    try:
+        native = sys.getprofile()
+        if native is None or callable(native):
+            pytest.skip('this runtime does not expose cProfile as a non-callable profile hook')
+        # The getter reads the actual active cProfile hook; only the reference's
+        # setter is observed, leaving the process-wide sys module untouched.
+        monkeypatch.setattr(reference, 'sys', SimpleNamespace(
+            getprofile=sys.getprofile, setprofile=replace_hook))
+        with pytest.raises(reference.IntegrityError, match='non-callable existing profile hook'):
+            ref.evaluate(obs, rng)
+        assert replacements == []
+        assert sys.getprofile() is native
+        assert rng.calls == 0 and rng.getstate() == rng_before
+    finally:
+        profiler.disable()
+        # Also clean up if a regression installed another hook before failing.
+        if sys.getprofile() is not previous:
+            sys.setprofile(previous)
+
+
+def test_reference_retained_entry_exception_restores_hook_before_traceback_cleanup():
+    import sys
+    previous = sys.getprofile()
+    catalog = invented_catalog()
+    obs = invented_observation(catalog)
+    ref = checker(catalog)
+    rng = CountChoice()
+    problem = RuntimeError('synthetic retained context-entry failure')
+    failures = []
+    def prior(frame, event, arg):
+        if (event == 'return' and frame.f_code.co_name == '__enter__'
+                and sys.getprofile() is not prior and not failures):
+            failures.append('context-entry-return')
+            raise problem
+    sys.setprofile(prior)
+    try:
+        with pytest.raises(RuntimeError) as retained:
+            ref.evaluate(obs, rng)
+        # Both references intentionally retain the exception and its traceback.
+        # No generator cleanup via exception disposal or GC may be necessary.
+        assert retained.value is problem
+        assert problem.__traceback__ is not None
+        assert failures == ['context-entry-return']
+        assert sys.getprofile() is prior
+        assert rng.calls == 0
+    finally:
+        sys.setprofile(previous)

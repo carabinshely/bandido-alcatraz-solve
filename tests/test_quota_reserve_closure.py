@@ -441,6 +441,31 @@ def test_actual_physical_profile_counts_and_hook_restoration():
         sys.setprofile(prior)
 
 
+@pytest.mark.parametrize("failure_event", ["installation", "return"])
+def test_forwarded_hook_failure_during_installation_restores_original_hook(failure_event):
+    policy, obs, _ = fixture(); rng = CountingRandom()
+    original = sys.getprofile(); raised = False
+    before = sha(observation(obs)); rng_before = rng.getstate()
+    failure = RuntimeError("synthetic forwarded hook installation failure")
+    def raising_prior(frame, event, arg):
+        nonlocal raised
+        target = ((failure_event == "installation" and event == "c_return" and arg is sys.setprofile)
+                  or (failure_event == "return" and event == "return" and frame.f_code.co_name == "__enter__"))
+        if not raised and target and sys.getprofile() is not raising_prior:
+            raised = True
+            raise failure
+    try:
+        sys.setprofile(raising_prior)
+        with pytest.raises(RuntimeError) as caught:
+            policy.evaluate(obs, rng)
+        assert caught.value is failure and raised
+        assert sys.getprofile() is raising_prior
+        assert not rng.calls and rng.getstate() == rng_before
+        assert sha(observation(obs)) == before
+    finally:
+        sys.setprofile(original)
+
+
 def test_noncallable_native_profile_hook_is_preserved_on_explicit_rejection(monkeypatch):
     # CPython3.11 native profilers can expose a non-callable hook; newer Python
     # may use sys.monitoring instead. Model that interface without depending on

@@ -63,6 +63,11 @@ def _physical_operations(limits: OperationLimits):
                strategy.standalone_exit_legal_move_count.__code__: 'exit_geometry_checks'}
     counts = dict(legal_enumerations=0, previews=0, exit_geometry_checks=0, roots=0)
     prior = sys.getprofile()
+    # CPython can expose an active native profiler as a non-callable object.
+    # setprofile cannot forward or reinstall that object. Reject before touching
+    # the active hook rather than losing it during attempted cleanup.
+    if prior is not None and not callable(prior):
+        raise ReferenceIntegrityError('cannot preserve a non-callable existing profile hook')
 
     def count(frame, event, arg):
         if prior is not None:
@@ -352,9 +357,17 @@ class QuotaReserveClosureReference:
             raise ReferenceInputError('an exact detached PlayerObservation is required')
         before = sha(observation_wire(observation))
         rng_before = sha(rng.getstate())
-        with _physical_operations(limits) as cost:
+        meter = _physical_operations(limits)
+        try:
+            # A forwarded prior hook may raise on contextlib.__enter__'s return,
+            # after the generator yielded but before a with statement registers
+            # its __exit__. Close explicitly even if that entry never completes;
+            # traceback retention must not defer restoration until garbage collection.
+            cost = meter.__enter__()
             final, science = self._compute(observation)
             cost['roots'] = len(science['roots'])
+        finally:
+            meter.gen.close()
         if sha(observation_wire(observation)) != before:
             raise ReferenceIntegrityError('decision computation mutated the public observation')
         if sha(rng.getstate()) != rng_before:

@@ -61,6 +61,7 @@ class _PhysicalCalls:
 
     def __init__(self, limits: OperationLimits) -> None:
         self.limits = limits
+        self._restore_required = False
         self.counts = dict(legal_enumerations=0, previews=0, exit_geometry_checks=0)
         self.codes = {
             canonical_moves.legal_moves.__code__: "legal_enumerations",
@@ -84,11 +85,19 @@ class _PhysicalCalls:
         self.previous = sys.getprofile()
         _require(self.previous is None or callable(self.previous),
                  "non-callable native profile hook cannot be safely preserved")
-        sys.setprofile(self._profile)
-        return self
+        self._restore_required = True
+        try:
+            sys.setprofile(self._profile)
+            return self
+        except BaseException:
+            # A forwarded hook can fail during installation, before `with`
+            # has entered and therefore before __exit__ can restore it.
+            sys.setprofile(self.previous)
+            raise
 
     def __exit__(self, exc_type, exc, traceback):
-        sys.setprofile(self.previous)
+        if self._restore_required:
+            sys.setprofile(self.previous)
 
 
 def _require(condition: bool, message: str) -> None:
@@ -272,7 +281,11 @@ class QuotaReserveClosurePolicy:
         if limits is None:
             limits = OperationLimits()
         _require(type(limits) is OperationLimits, "invalid operation limits")
-        with _PhysicalCalls(limits) as physical:
+        physical = _PhysicalCalls(limits)
+        try:
+            # Profile return events can raise after __enter__'s own handler
+            # can run. Protect entry itself as well as the decision body.
+            physical.__enter__()
             supply = self._validate(observation)
             before = sha(observation_wire(observation))
             rng_before = sha(rng.getstate())
@@ -362,4 +375,6 @@ class QuotaReserveClosurePolicy:
                          tiers=dict(T0=t0, F=filtered, T=tier, C=closure, final=final),
                          guards=guards, flags=flags, chosen_index=chosen_index,
                          chosen=move_wire(chosen), rng_before=rng_before, rng_after=sha(rng.getstate()))
+        finally:
+            physical.__exit__(None, None, None)
         return chosen, audit, dict(physical.counts, roots=len(legal))
