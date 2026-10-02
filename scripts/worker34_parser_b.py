@@ -189,6 +189,40 @@ def validate_card(card):
                'inert edge type')
 
 
+
+def validate_inert_board(board):
+    """Check serialized field shapes only; no geometry or history reconstruction."""
+    exact_fields(board, {'cells', 'placements'}, 'inert board')
+    for cell in array(board['cells'], 'inert board cells'):
+        exact_fields(cell, {'x', 'y', 'water', 'tunnel_edges'}, 'inert board cell')
+        integer(cell['x'], 'inert board cell x')
+        integer(cell['y'], 'inert board cell y')
+        boolean(cell['water'], 'inert board cell water')
+        for edge in array(cell['tunnel_edges'], 'inert board cell edges'):
+            demand(type(edge) is str and edge in ('N', 'E', 'S', 'W'),
+                   'inert board cell direction')
+    for placement in array(board['placements'], 'inert placement history'):
+        exact_fields(placement, {'card_id', 'origin', 'quarter_turns', 'placement_index',
+                                'kind', 'cells', 'overlaps', 'covered_placement_index'},
+                     'inert placement')
+        demand(type(placement['card_id']) is str and bool(placement['card_id']),
+               'inert placement card ID')
+        demand(type(placement['kind']) is str and placement['kind'] in ('start', 'ordinary', 'exit'),
+               'inert placement kind')
+        integer(placement['quarter_turns'], 'inert placement quarter turns', 0, 3)
+        integer(placement['placement_index'], 'inert placement index', 0)
+        if placement['covered_placement_index'] is not None:
+            integer(placement['covered_placement_index'], 'inert covered placement index', 0)
+        coordinates = [('origin', placement['origin'])]
+        for field in ('cells', 'overlaps'):
+            coordinates.extend((field, coordinate) for coordinate in array(placement[field], 'inert placement ' + field))
+        for field, coordinate in coordinates:
+            array(coordinate, 'inert placement ' + field + ' coordinate')
+            demand(len(coordinate) == 2, 'inert placement coordinate length')
+            for value in coordinate:
+                integer(value, 'inert placement coordinate')
+
+
 def validate_snapshot(snapshot):
     exact_fields(snapshot, {'board', 'collected_equipment', 'exit_placed', 'exit_seen', 'hand',
                            'player_index', 'raincoats', 'ropes', 'set_aside_unplayable',
@@ -205,9 +239,7 @@ def validate_snapshot(snapshot):
     for key, wanted in (('hand_size', 6), ('player_count', 1), ('starting_player', 0)):
         demand(integer(snapshot['setup'][key], key) == wanted, 'frozen setup mismatch')
     demand(snapshot['setup']['start_side'] == 'easy-5-exit', 'frozen start side mismatch')
-    exact_fields(snapshot['board'], {'cells', 'placements'}, 'inert board')
-    array(snapshot['board']['cells'], 'inert board cells')
-    array(snapshot['board']['placements'], 'inert placement history')
+    validate_inert_board(snapshot['board'])
     for item in array(snapshot['collected_equipment'], 'collected history'):
         exact_fields(item, {'card', 'turn', 'player_index'}, 'collected history item')
         validate_card(item['card'])

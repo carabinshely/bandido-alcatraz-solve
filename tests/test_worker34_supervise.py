@@ -37,6 +37,11 @@ assert resource.getrlimit(resource.RLIMIT_AS) == (2147483648, 2147483648)
 # This invented fixture JSON is the only input ever read in these tests.
 assert json.loads(Path(a.artifact).read_text()) == {{'synthetic': True}}
 status, complete, established, errors = 'complete', True, False, []
+if MODE == 'deadline_sentinel':
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    time.sleep(.45)
+    (out / 'LATE-SENTINEL').write_text('parser computed after deadline')
+    while True: time.sleep(.01)
 if MODE == 'timeout':
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     (out / 'started.json').write_text(json.dumps({{'pid': os.getpid()}}))
@@ -298,7 +303,7 @@ def test_final_receipt_closure_is_inside_the_watchdog(tmp_path):
 original=s['run_supervisor'].__globals__['write_exclusive']
 once=[True]
 def delayed(path,value):
-    if path.name == 'supervisor-receipt.json' and once[0]:
+    if path.name == 'supervisor-receipt.pending.json' and once[0]:
         once[0]=False
         time.sleep(1)
     return original(path,value)
@@ -353,6 +358,126 @@ def test_established_integrity_survives_unverified_runtime(tmp_path):
     assert receipt['status'] == 'integrity_invalid'
     assert {row['status'] for row in receipt['causes']} == {'integrity_invalid', 'resource_incomplete'}
     assert_no_survivors(receipt)
+
+
+
+def check_closure_failure(tmp_path, operation, integrity=False):
+    config = prepare(tmp_path, ('integrity', 'complete') if integrity else ('complete', 'complete'))
+    extra = """import errno, os
+from pathlib import Path
+g=s['run_supervisor'].__globals__
+once=[True]
+operation=OPERATION
+if operation in ('file_fsync', 'persistent_fsync'):
+    original=os.fsync
+    def failing(fd):
+        path=os.readlink('/proc/self/fd/'+str(fd))
+        target=path.endswith('supervisor-receipt.pending.json')
+        if operation == 'persistent_fsync':
+            target=target or path.endswith('supervisor-receipt.json') or path.endswith('supervisor-abort-receipt.json')
+        if target and (once[0] or operation == 'persistent_fsync'):
+            once[0]=False
+            raise OSError(errno.ENOSPC,'synthetic final fsync failure')
+        return original(fd)
+    os.fsync=failing
+elif operation == 'directory_fsync':
+    original=g['fsync_directory']
+    def failing(path):
+        if path == c.output_dir and (path / 'supervisor-receipt.json').exists() and once[0]:
+            once[0]=False
+            raise OSError(errno.ENOSPC,'synthetic final directory fsync failure')
+        return original(path)
+    g['fsync_directory']=failing
+elif operation == 'rename':
+    original=Path.rename
+    def failing(path,target):
+        if path.name == 'supervisor-receipt.pending.json' and once[0]:
+            once[0]=False
+            raise OSError(errno.ENOSPC,'synthetic final rename failure')
+        return original(path,target)
+    Path.rename=failing
+elif operation == 'partial_write':
+    original=g['write_exclusive']
+    def failing(path,value):
+        if path.name == 'supervisor-receipt.pending.json' and once[0]:
+            once[0]=False
+            with open(path,'xb') as f: f.write(b'{')
+            raise OSError(errno.ENOSPC,'synthetic partial final write failure')
+        return original(path,value)
+    g['write_exclusive']=failing
+""".replace('OPERATION', repr(operation))
+    receipt = execute(config, extra=extra)
+    assert receipt['status'] == ('integrity_invalid' if integrity else 'resource_incomplete')
+    assert receipt['scientific_outputs_accepted'] is False
+    assert any(row['status'] == 'resource_incomplete' for row in receipt['causes'])
+    assert (Path(config['output_dir']) / 'parser-a/ATTEMPT-INCOMPLETE.json').exists()
+    assert list(Path(config['output_dir']).glob('supervisor-receipt*.incomplete'))
+    assert_no_survivors(receipt)
+
+
+def test_final_file_fsync_failure_is_bounded_abort(tmp_path):
+    check_closure_failure(tmp_path, 'file_fsync')
+
+
+def test_final_directory_fsync_failure_is_bounded_abort(tmp_path):
+    check_closure_failure(tmp_path, 'directory_fsync')
+
+
+def test_final_rename_failure_is_bounded_abort(tmp_path):
+    check_closure_failure(tmp_path, 'rename')
+
+
+def test_final_partial_write_failure_is_bounded_abort(tmp_path):
+    check_closure_failure(tmp_path, 'partial_write')
+
+
+def test_persistent_final_fsync_failure_never_leaves_success(tmp_path):
+    check_closure_failure(tmp_path, 'persistent_fsync')
+
+
+def test_closure_failure_preserves_integrity_precedence(tmp_path):
+    check_closure_failure(tmp_path, 'file_fsync', integrity=True)
+
+
+def test_timeout_stops_parser_before_delayed_abort_persistence(tmp_path):
+    config = prepare(tmp_path, ('deadline_sentinel', 'complete'))
+    extra = """import os,time
+original=os.fsync
+once=[True]
+def slow_fsync(fd):
+    path=os.readlink('/proc/self/fd/'+str(fd))
+    if path.endswith('events.jsonl') and once[0]:
+        once[0]=False
+        time.sleep(.6)
+    return original(fd)
+os.fsync=slow_fsync"""
+    receipt=execute(config,.25,extra)
+    assert receipt['status'] == 'resource_incomplete'
+    assert receipt['elapsed_seconds_before_receipt_close'] >= .85
+    assert not (Path(config['output_dir']) / 'parser-a/LATE-SENTINEL').exists()
+    assert_no_survivors(receipt)
+
+
+def test_malformed_administrative_mappings_are_blocked(tmp_path):
+    malformed = [(None, value) for value in ([], None, True, 3, 'wrong', {})]
+    malformed += [(field, value) for field in ('reviews','sources','runtime','resource_test_receipt')
+                  for value in (None, [], 'wrong')]
+    for index, (field, value) in enumerate(malformed):
+        directory = tmp_path / str(index)
+        directory.mkdir()
+        config=prepare(directory)
+        path=Path(config['execution_freeze'])
+        current=json.loads(path.read_text())
+        if field is None:
+            current=value
+        else:
+            current[field]=value
+        path.write_text(json.dumps(current))
+        receipt=execute(config)
+        assert receipt['status'] == 'execution_blocked'
+        assert receipt['admitted'] is False
+        assert receipt['scientific_outputs_accepted'] is False
+        assert receipt['parser_executions'] == []
 
 
 RUN_FIXTURES = []

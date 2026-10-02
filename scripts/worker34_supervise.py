@@ -259,13 +259,34 @@ def verify_freeze(config):
         frozen = read_json(config.execution_freeze)
     except (OSError, ValueError) as exc:
         raise Blocked('execution freeze missing or unreadable') from exc
+    freeze_keys = {'schema', 'execution_go', 'sources', 'runtime', 'reviews', 'resource_test_receipt'}
+    if not isinstance(frozen, dict) or set(frozen) != freeze_keys:
+        raise Blocked('execution freeze must be an exact administrative JSON object')
     if (frozen.get('schema') != 'worker34-execution-freeze-v1' or
             not isinstance(frozen.get('execution_go'), str) or not frozen['execution_go'].strip()):
         raise Blocked('exact execution-go authority is missing')
-    reviews = frozen.get('reviews', {})
+    reviews = frozen.get('reviews')
+    if not isinstance(reviews, dict) or set(reviews) != {'a', 'b', 'supervisor'}:
+        raise Blocked('independent review records must be an exact mapping')
     if any(not isinstance(reviews.get(k), str) or not reviews[k].strip()
            for k in ('a', 'b', 'supervisor')):
         raise Blocked('independent exact-source review records are required')
+    sources = frozen.get('sources')
+    if (not isinstance(sources, dict) or set(sources) != {'a', 'b', 'supervisor', 'protocol'} or
+            any(not isinstance(value, str) or len(value) != 64 or
+                any(c not in '0123456789abcdef' for c in value) for value in sources.values())):
+        raise Blocked('source pins must be an exact SHA256 mapping')
+    claimed_runtime = frozen.get('runtime')
+    runtime_keys = {'executable', 'executable_sha256', 'version', 'implementation', 'platform', 'machine', 'kernel'}
+    if (not isinstance(claimed_runtime, dict) or set(claimed_runtime) != runtime_keys or
+            any(not isinstance(value, str) or not value for value in claimed_runtime.values())):
+        raise Blocked('runtime must be an exact string-valued mapping')
+    evidence = frozen.get('resource_test_receipt')
+    if (not isinstance(evidence, dict) or set(evidence) != {'path', 'sha256'} or
+            not isinstance(evidence['path'], str) or not evidence['path'] or
+            not isinstance(evidence['sha256'], str) or len(evidence['sha256']) != 64 or
+            any(c not in '0123456789abcdef' for c in evidence['sha256'])):
+        raise Blocked('verified synthetic resource-test receipt must be an exact mapping')
     actual = {'a': sha256(config.parser_a), 'b': sha256(config.parser_b),
               'supervisor': sha256(Path(__file__)), 'protocol': sha256(config.protocol)}
     if actual['protocol'] != PROTOCOL_SHA256 or frozen.get('sources') != actual:
@@ -273,9 +294,6 @@ def verify_freeze(config):
     runtime = runtime_fingerprint()
     if frozen.get('runtime') != runtime:
         raise Blocked('interpreter/environment differs from verified execution freeze')
-    evidence = frozen.get('resource_test_receipt', {})
-    if not isinstance(evidence.get('path'), str) or not isinstance(evidence.get('sha256'), str):
-        raise Blocked('verified synthetic resource-test receipt is missing')
     if sha256(evidence['path']) != evidence['sha256']:
         raise Integrity('resource preflight evidence hash mismatch')
     if not config.artifact.is_file() or not config.frozen.is_dir() or not config.accepted_evidence.is_dir():
@@ -388,11 +406,8 @@ def run_supervisor(config, *, _budget_seconds=BUDGET_SECONDS, _grace_seconds=GRA
 
     def cause(status, message):
         causes.append(dict(status=status, message=str(message)))
-        # Journal only already established facts before any later resource failure.
-        with open(config.output_dir / 'events.jsonl', 'ab') as handle:
-            handle.write(canonical(causes[-1]))
-            handle.flush()
-            os.fsync(handle.fileno())
+        # No potentially blocking persistence before the workload is stopped.
+        # Completed validation facts remain captured here for abort precedence.
 
     def grace_expired(_signum, _frame):
         if containment is not None:
@@ -401,11 +416,17 @@ def run_supervisor(config, *, _budget_seconds=BUDGET_SECONDS, _grace_seconds=GRA
 
     def begin_abort():
         nonlocal abort_started
-        if abort_started is None:
+        first_abort = abort_started is None
+        if first_abort:
             abort_started = time.monotonic()
         signal.signal(signal.SIGALRM, grace_expired)
         signal.setitimer(signal.ITIMER_REAL,
                          max(0.000001, abort_started + _grace_seconds - time.monotonic()))
+        if first_abort and containment is not None:
+            # No parser gets a grace-period computation window. Signal first;
+            # persistence and reaping follow under this same, never-reset grace.
+            containment.send(signal.SIGTERM)
+            containment.send(signal.SIGKILL)
 
     def expired(_signum, _frame):
         begin_abort()
@@ -533,7 +554,6 @@ def run_supervisor(config, *, _budget_seconds=BUDGET_SECONDS, _grace_seconds=GRA
                     child_subreaper=True, descendant_detection='/proc PPid ancestry and pidfds',
                     observed_pids=[dict(pid=p, start_ticks=s) for p, s in sorted(containment.observed)],
                     reaped=containment.reaped, signals=containment.sent)
-                containment.close()
             receipt.update(admitted=admitted, cleanup_confirmed=cleanup_confirmed,
                            causes=causes, parser_executions=parser_records,
                            source_sha256=hashes, runtime=runtime, comparisons=comparisons,
@@ -543,34 +563,83 @@ def run_supervisor(config, *, _budget_seconds=BUDGET_SECONDS, _grace_seconds=GRA
             if label:
                 receipt['status'] = label
                 receipt['scientific_outputs_accepted'] = False
-            if not receipt['scientific_outputs_accepted']:
-                # Preserve every byte, but incomplete attempts cannot look accepted.
+            def mark_incomplete():
                 for parser_id in ('a', 'b'):
                     directory = config.output_dir / ('parser-' + parser_id)
-                    if directory.exists():
-                        write_exclusive(directory / 'ATTEMPT-INCOMPLETE.json',
-                                        dict(status=receipt['status'], accepted=False))
-            write_exclusive(config.output_dir / 'supervisor-receipt.json', receipt)
+                    marker = directory / 'ATTEMPT-INCOMPLETE.json'
+                    if directory.exists() and not marker.exists():
+                        write_exclusive(marker, dict(status=receipt['status'], accepted=False))
+
+            def publish_receipt():
+                # A canonical success name is exposed only after its bytes and
+                # staging directory entry have been flushed and closed.
+                pending = config.output_dir / 'supervisor-receipt.pending.json'
+                write_exclusive(pending, receipt)
+                pending.rename(config.output_dir / 'supervisor-receipt.json')
+                fsync_directory(config.output_dir)
+
+            if causes:
+                write_exclusive(config.output_dir / 'events.jsonl', dict(causes=causes))
+                mark_incomplete()
+            receipt['elapsed_seconds_before_receipt_close'] = time.monotonic() - start if start else 0
+            publish_receipt()
             if receipt['scientific_outputs_accepted'] and time.monotonic() >= deadline:
                 raise Boundary('deadline reached while closing final result receipt')
-        except Boundary as exc:
-            # A deadline during final output closure invalidates even a fully
-            # written success receipt. Preserve it distinctly and write an abort.
+        except (Boundary, OSError) as exc:
+            # Fail closed for write/flush/fsync/rename/directory-closure failure,
+            # not only deadline exceptions. Stop children before any persistence.
             begin_abort()
             cause('resource_incomplete', exc)
             receipt.update(status=failure_label(causes), causes=causes,
                            elapsed_seconds_before_receipt_close=(time.monotonic() - start if start else 0),
                            scientific_outputs_accepted=False)
-            final = config.output_dir / 'supervisor-receipt.json'
-            if final.exists():
-                final.rename(config.output_dir / 'supervisor-receipt.incomplete.json')
+            preservation_errors = []
+            # Invalidate every possibly published success before attempting
+            # another write. Rename preserves exact partial bytes. If rename is
+            # unavailable, truncation prevents an apparently valid success.
+            for name in ('supervisor-receipt.json', 'supervisor-receipt.pending.json'):
+                source = config.output_dir / name
+                if source.exists():
+                    destination = config.output_dir / (name + '.incomplete')
+                    try:
+                        source.rename(destination)
+                    except OSError as error:
+                        preservation_errors.append(str(error))
+                        try:
+                            with open(source, 'wb'):
+                                pass
+                        except OSError as error:
+                            preservation_errors.append('could not invalidate ' + name + ': ' + str(error))
+            # Abort preservation is best-effort under the same grace. A missing
+            # final receipt remains an explicit complete-output resource failure;
+            # no failed persistence operation restarts scientific computation.
+            receipt['receipt_preservation_errors'] = preservation_errors
             for parser_id in ('a', 'b'):
                 directory = config.output_dir / ('parser-' + parser_id)
                 marker = directory / 'ATTEMPT-INCOMPLETE.json'
-                if directory.exists() and not marker.exists():
-                    write_exclusive(marker, dict(status=receipt['status'], accepted=False))
-            write_exclusive(final, receipt)
+                try:
+                    if directory.exists() and not marker.exists():
+                        write_exclusive(marker, dict(status=receipt['status'], accepted=False))
+                except OSError as error:
+                    preservation_errors.append(str(error))
+            try:
+                final = config.output_dir / 'supervisor-receipt.json'
+                # If emergency invalidation left an empty original, preserve it
+                # separately before exclusive abort publication where possible.
+                if final.exists():
+                    final.rename(config.output_dir / 'supervisor-receipt.invalidated')
+                receipt['elapsed_seconds_before_receipt_close'] = time.monotonic() - start if start else 0
+                write_exclusive(final, receipt)
+            except OSError as error:
+                preservation_errors.append(str(error))
+                # Separate fallback is an abort receipt, never a success retry.
+                try:
+                    write_exclusive(config.output_dir / 'supervisor-abort-receipt.json', receipt)
+                except OSError as error:
+                    preservation_errors.append(str(error))
         finally:
+            if containment is not None:
+                containment.close()
             signal.setitimer(signal.ITIMER_REAL, 0)
             signal.signal(signal.SIGALRM, previous_handler)
     return receipt

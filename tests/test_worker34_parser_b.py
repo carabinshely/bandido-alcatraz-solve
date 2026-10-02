@@ -237,6 +237,90 @@ class BookkeepingTests(unittest.TestCase):
             with self.assertRaises(b.IntegrityError): b.leaf_row(s,carry,wrong,1,0,0)
 
 
+class InertBoardSchemaTests(unittest.TestCase):
+    @staticmethod
+    def board():
+        # Intentionally unrelated coordinates and indices. Wire validation does
+        # not determine placement legality or reconstruct a board/history.
+        return dict(cells=[dict(x=-17,y=100,water=True,tunnel_edges=['E','N','S','W']),
+                           dict(x=450,y=-90,water=False,tunnel_edges=[])],
+                    placements=[dict(card_id='synthetic-start',origin=[40,-50],quarter_turns=3,
+                                     placement_index=999,kind='start',cells=[[4,8],[27,-40]],
+                                     overlaps=[],covered_placement_index=None),
+                                dict(card_id='synthetic-ordinary',origin=[9,31],quarter_turns=0,
+                                     placement_index=4,kind='ordinary',cells=[[9,31]],
+                                     overlaps=[[80,-65]],covered_placement_index=17),
+                                dict(card_id='synthetic-exit-history',origin=[-30,11],quarter_turns=2,
+                                     placement_index=0,kind='exit',cells=[],overlaps=[],
+                                     covered_placement_index=0)])
+
+    def reject_board(self,board):
+        s=snapshot();s['board']=board
+        with self.assertRaises(b.IntegrityError):b.validate_snapshot(s)
+
+    def test_valid_inert_nested_values_preserved_without_geometry_checks(self):
+        s=snapshot();s['board']=self.board();before=b.canonical(s)
+        b.validate_snapshot(s)
+        self.assertEqual(b.canonical(s),before)
+        b.validate_snapshot(snapshot())  # Empty inert arrays retain valid wire types.
+
+    def test_null_boolean_and_wrong_container_items_rejected(self):
+        for field in ('cells','placements'):
+            for value in (None,True,{},'array',1):
+                board=self.board();board[field]=value
+                with self.subTest(field=field,value=value):self.reject_board(board)
+            for value in (None,True,[],{},'item',1):
+                board=self.board();board[field]=[value]
+                with self.subTest(field=field,item=value):self.reject_board(board)
+
+    def test_cell_missing_and_extra_fields_rejected(self):
+        for field in self.board()['cells'][0]:
+            board=self.board();del board['cells'][0][field]
+            with self.subTest(missing=field):self.reject_board(board)
+        board=self.board();board['cells'][0]['extra']=0;self.reject_board(board)
+
+    def test_cell_coordinate_boolean_and_edges_exact_types(self):
+        for field in ('x','y'):
+            for value in (True,False,1.0,'1',None,[],{}):
+                board=self.board();board['cells'][0][field]=value
+                with self.subTest(field=field,value=value):self.reject_board(board)
+        for value in (0,1,1.0,'true',None,[],{}):
+            board=self.board();board['cells'][0]['water']=value
+            with self.subTest(water=value):self.reject_board(board)
+        for value in (None,True,'N',{},0,[None],[True],[1],[[]],[{}],['invalid-direction']):
+            board=self.board();board['cells'][0]['tunnel_edges']=value
+            with self.subTest(edges=value):self.reject_board(board)
+
+    def test_placement_missing_and_extra_fields_rejected(self):
+        for field in self.board()['placements'][0]:
+            board=self.board();del board['placements'][0][field]
+            with self.subTest(missing=field):self.reject_board(board)
+        board=self.board();board['placements'][0]['extra']=0;self.reject_board(board)
+
+    def test_placement_scalar_exact_types_and_wire_enums(self):
+        for field,values in [('card_id',[None,True,1,1.0,[],{},'']),
+                             ('kind',[None,True,1,1.0,[],{},'unknown']),
+                             ('placement_index',[None,True,False,1.0,'1',[],{},-1]),
+                             ('covered_placement_index',[True,False,1.0,'1',[],{},-1]),
+                             ('quarter_turns',[None,True,False,1.0,'1',[],{},-1,4])]:
+            for value in values:
+                board=self.board();board['placements'][0][field]=value
+                with self.subTest(field=field,value=value):self.reject_board(board)
+
+    def test_placement_nested_coordinates_exact_types(self):
+        invalid=(None,True,1,1.0,'1',{},[],[0],[0,1,2],[True,0],[0,False],
+                 [0.0,1],[0,1.0],['0',1],[0,'1'],[[0],1],[0,{}])
+        for field in ('origin','cells','overlaps'):
+            for value in invalid:
+                board=self.board()
+                board['placements'][0][field]=value if field=='origin' else [value]
+                with self.subTest(field=field,value=value):self.reject_board(board)
+        for field in ('cells','overlaps'):
+            for value in (None,True,1,'coordinates',{}):
+                board=self.board();board['placements'][0][field]=value
+                with self.subTest(field=field,container=value):self.reject_board(board)
+
+
 class DominanceTests(unittest.TestCase):
     def test_equal_g_dominates_pp_and_tradeoff_best_first_witness(self):
         s=snapshot()
