@@ -262,6 +262,44 @@
       "execution_head": "d21421e883cbc08d3a9e99ea8d856894c6ac41a8",
       "run_id": 36953187535,
       "manifest_path": "experiments/visible-two-action-diagnostic/resource-incomplete-2026-10-02.manifest.json"
+    },
+    {
+      "research_step": 33,
+      "status": "prospective_frozen_not_executed",
+      "authority": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5944922245",
+      "purpose": "Unchanged root-complete visible two-action mechanism/cost diagnostic on mixed COLLECT+PLACE observations; no game or win-rate experiment",
+      "repository_base": "1b5881802fc995d301ed3eca6a0e75c1d2dcb90c",
+      "canonical_source_comparator": "c50a7ab8e73eaf3c497c5d1c9fef5cbe53261853",
+      "existing_spent_cohort_inclusive": [
+        1000000,
+        1000399
+      ],
+      "source_worker": 31,
+      "source_pass": 2,
+      "selected_decisions": 80,
+      "selected_distinct_seeds": 71,
+      "calls": 160,
+      "passes": [
+        "optimized_candidate",
+        "independent_exhaustive_reference"
+      ],
+      "selection_manifest": "experiments/mixed-action-two-action-diagnostic/selection-manifest.json",
+      "selection_manifest_sha256": "3ad07d6237b3f7f24c60448fc346a013261d05b8e36fd998ffd440faceee9a78",
+      "excluded_worker32_selection_manifest_sha256": "e5b672d3a97efa72abdc7f32e70a8eb50a3afb8d4813d81ddf4efd3479973410",
+      "fresh_seeds_allocated": 0,
+      "new_games_authorized": 0,
+      "new_games_executed": 0,
+      "completed_calls": 0,
+      "prior_completions_reused": 0,
+      "confirmation_eligible": false,
+      "whole_compute_seconds": 5400,
+      "termination_grace_seconds": 30,
+      "compute_step_minutes": 92,
+      "setup_total_minutes": 10,
+      "finalization_upload_total_minutes": 10,
+      "job_minutes": 120,
+      "fixed_runtime": "CPython 3.11.16",
+      "note": "New fixed population and full160fresh calls; Worker32 resource_incomplete checkpoint unchanged. No selected-state scoring/search/reconstruction or execution in preparation. Exact implementation freeze and separate runner execution remain pending."
     }
   ],
   "fresh_confirmation_allocations": [],
