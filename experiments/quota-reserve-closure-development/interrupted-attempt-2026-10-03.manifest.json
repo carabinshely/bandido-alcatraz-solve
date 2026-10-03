@@ -205,6 +205,39 @@
     "review_status": "Control-only equality independently recomputed; final checkpoint review and scientific acceptance are separate."
   },
   "recovery": {
+    "failed_infrastructure_preflight": {
+      "run_id": 37069115788,
+      "run_attempt": 1,
+      "head": "25cc3159a7bd75a3681a1c7d36afa05d5007f791",
+      "run_url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/37069115788",
+      "status": "failed_infrastructure_preflight",
+      "github_status": "completed",
+      "github_conclusion": "failure",
+      "created_at": "2026-10-02T21:49:42Z",
+      "updated_at": "2026-10-02T21:49:42Z",
+      "jobs": 0,
+      "artifacts": 0,
+      "research_games_or_policy_calls": 0,
+      "classification": null,
+      "scope": "Failed recovery workflow preflight before any job. No research execution or scientific output is attributed to this run; no particular infrastructure failure cause is inferred.",
+      "metadata_members": [
+        {
+          "filename": "provider/run-37069115788-artifacts.json",
+          "bytes": 32,
+          "sha256": "244563f989470892c537c9a4622920af0d228ee4528f7d00c64a06d6cd95856c"
+        },
+        {
+          "filename": "provider/run-37069115788-jobs.json",
+          "bytes": 27,
+          "sha256": "b3dab5870ff3a8209160335de7c1077b89e461d875d9041ac9d8b8ed7c1666f6"
+        },
+        {
+          "filename": "provider/run-37069115788.json",
+          "bytes": 13735,
+          "sha256": "9031cebc615a25c54400437a4d1878a63b4e27b466bcdbbaff79b04e8f68aa1d"
+        }
+      ]
+    },
     "metadata_only": {
       "run_id": 37070066050,
       "head": "0186ea90534d4eb8f62d84816ec27eb04cc59e26",
@@ -233,7 +266,7 @@
   },
   "preservation": {
     "status": "recorded_snapshot_byte_verified",
-    "canonical_custody": "Existing authorized canonical Bandido Drive folder. Full custody records, access identifiers and fresh remote readback proof remain there; Git records only artifact identities and byte hashes.",
+    "canonical_custody": "Existing authorized canonical Bandido Drive folder. Stable access-controlled artifact locators are listed below with byte hashes. Fresh remote readbacks were verified; no sharing permissions were changed.",
     "original_artifact_manifest_sha256": "eaa4f9360aea9bc51a726cd02fb342217cb02381047cfcbdc1b67a559fd2be72",
     "original_sealed_raw_file_count": 2162,
     "original_sealed_expanded_raw_bytes": 736680746,
@@ -270,34 +303,57 @@
         "artifact_id": 11266298223,
         "bytes": 1035012,
         "sha256": "ddfb0ba99622d8ea4c30c7c7e73b02059aa43b76207e777ffad18fc590ddb6a7",
-        "fresh_remote_byte_readback_verified": true
+        "fresh_remote_byte_readback_verified": true,
+        "drive_file_id": "1qrmeYzGCQXxNpKVOsumcAmNnLn-lQfDa",
+        "drive_parent_folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd"
       },
       {
         "filename": "worker35-attempt-36990202101-1-original-sealed.zip",
         "bytes": 29742478,
         "sha256": "47b3f93e8825936c5106820bc536f8e7dfbfb4781ab9680bf495c15593767ba1",
-        "fresh_remote_byte_readback_verified": true
+        "fresh_remote_byte_readback_verified": true,
+        "drive_file_id": "17izc1GxCEc-NWsaYae9Jba18OweQ3MCF",
+        "drive_parent_folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd"
       },
       {
         "filename": "worker35-sealed-recovery-metadata-37104113098-1.zip",
         "artifact_id": 11267680208,
         "bytes": 475047,
         "sha256": "997b08dfc564d4f87784e17a8e1b826df1acfb2a55700510ab61ff646508c6b5",
-        "fresh_remote_byte_readback_verified": true
+        "fresh_remote_byte_readback_verified": true,
+        "drive_file_id": "1EFZtS-Sg_ibaXk3AmhNJj55Ncm7NWYra",
+        "drive_parent_folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd"
       },
       {
         "filename": "worker35-final-tail-preservation-37105820618-1.zip",
         "artifact_id": 11267743493,
         "bytes": 15593494,
         "sha256": "59a4b4cb7f6213ca95eb785546f88941cc7de00afb7ade5d0ac7f29152ba54c9",
-        "fresh_remote_byte_readback_verified": true
+        "fresh_remote_byte_readback_verified": true,
+        "drive_file_id": "1kBjI7XiXc8O2DequuW7cpxR2HmVChNga",
+        "drive_parent_folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd"
       },
+      {
+        "filename": "worker35-interrupted-proof-2026-10-03-v2.zip",
+        "role": "37-file additive verification package: exact 34 original proof members plus authenticated run/jobs/artifacts metadata for failed recovery preflight 37069115788. Original bundle-inventory.json and README.txt remain unchanged and describe the original package; added members are listed in recovery.failed_infrastructure_preflight.metadata_members. No duplicate raw archives.",
+        "bytes": 205181,
+        "sha256": "82bb9eb157c9fa0da6405f234025ecf4058c19ab84691d5447a51b767b5b7beb",
+        "fresh_remote_byte_readback_verified": true,
+        "custody_status": "verified",
+        "drive_file_id": "1At5fSckxhcFZu78KlrLPryZWVzpb_09H",
+        "drive_parent_folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd"
+      }
+    ],
+    "prior_proof_archives": [
       {
         "filename": "worker35-interrupted-proof-2026-10-03.zip",
         "role": "34-file verification package: authenticated historical/current provider metadata, logs, readback reports, verification scripts and exact strict transport helper; no duplicate raw archives",
         "bytes": 203171,
         "sha256": "7ba5a70d628aaac003ec076db0f32c1b2eb0a84a15524b04031178ddef23df54",
-        "fresh_remote_byte_readback_verified": true
+        "fresh_remote_byte_readback_verified": true,
+        "drive_file_id": "1X8Bd9klhtXVC9pu2IbH1UJnJESAdlKSg",
+        "drive_parent_folder_id": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+        "retention_note": "Retained unchanged. The v2 proof contains every one of these 34 member files byte-for-byte plus three provider metadata files for the failed recovery preflight. This prior package remains independently retrievable at its original locator."
       }
     ]
   },
