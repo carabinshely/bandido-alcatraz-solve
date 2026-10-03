@@ -1,0 +1,329 @@
+{
+  "schema": "worker35-interrupted-attempt-checkpoint-v1",
+  "research_step": 35,
+  "status": "interrupted_infrastructure",
+  "classification": null,
+  "scientific_outcome_admissible": false,
+  "scientific_acceptance": false,
+  "candidate_adopted": false,
+  "candidate_advanced": null,
+  "scope": "Preservation and provenance of one interrupted attempt; not a valid negative screen, complete comparison, candidate rejection or rerun authorization.",
+  "repository": "carabinshely/bandido-alcatraz-solve",
+  "accepted_base": "87ddc894668ec60e7a8419e65308cadb0ced6ed9",
+  "accepted_tree": "3e0c450ed82ecd47fdd1e239da47d97567d584a6",
+  "execution_head": "7ac2f62c9c5c9dcac9ec9b8770382960f985acc2",
+  "execution_tree": "2cd7946824a136d8e9addaf9abff05fd79294ba4",
+  "protocol": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5947200127",
+  "protocol_at_execution": "https://github.com/carabinshely/bandido-alcatraz-solve/blob/7ac2f62c9c5c9dcac9ec9b8770382960f985acc2/experiments/quota-reserve-closure-development/PROTOCOL.md",
+  "protocol_sha256": "40d6ef3bf4d6d1b5a34403d3892f05b0350ac121b752875909ce210b4e389ff5",
+  "execution_go": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5949218025",
+  "execution_freeze_at_execution": "https://github.com/carabinshely/bandido-alcatraz-solve/blob/7ac2f62c9c5c9dcac9ec9b8770382960f985acc2/experiments/quota-reserve-closure-development/execution-freeze.json",
+  "execution_freeze_sha256": "f630a40f3f4fd1bf3135045ba5428e26e1f597937a49c67791f094830c2b025d",
+  "source": {
+    "canonical_source_comparator": "c50a7ab8e73eaf3c497c5d1c9fef5cbe53261853",
+    "canonical_model_and_data_blob_count": 26,
+    "tracked_execution_sha256_pin_count_excluding_freeze": 177,
+    "selected_execution_sha256": {
+      "src/bandido_alcatraz/quota_reserve_closure.py": "f7e61f41b2757db57ed9f06a6857a4115ce1994200670287b29b35345e702a2f",
+      "src/bandido_alcatraz/quota_reserve_closure_reference.py": "4a27004f3761556e09953205cb69edf9cb3f32516ef569bccc831ff94bbcc498",
+      "scripts/run_quota_reserve_closure_development.py": "ca5f5f05b460424d15eb76ac406a7e45b365293248e048ac4852a8f676af3fec",
+      "scripts/verify_worker35_development.py": "1943f9e5d481cbb57db22000509b5f373f592791c9cbda3ee571daa069ba6afc",
+      "scripts/worker35_resources.py": "c30ebcf620345aa809accf6c349ac816fb9837a0c3a90f36e984666cb61c812c",
+      ".github/workflows/quota-reserve-closure-development.yml": "20a7ec519950e9d79c4bf29a0924c81d5ae02cb205e46245958dc1db044151e9"
+    },
+    "complete_source_inventory": "Unmodified original receipt and freeze at execution head; no recovery source is substituted for the research head.",
+    "canonical_model_data_policy_rng_and_order_change_in_final_checkpoint": false
+  },
+  "configuration": {
+    "ruleset": "v2-exact-equipment-quota-limited-collect-full-hand-refresh",
+    "setup_id": "p1-easy-5-exit-hand6-first0-full-hand-refresh",
+    "setup": {
+      "hand_size": 6,
+      "player_count": 1,
+      "start_side": "easy-5-exit",
+      "starting_player": 0
+    },
+    "max_steps": 1000,
+    "control": {
+      "class": "BoundedMergeV4Policy",
+      "setup_weight": 250
+    },
+    "candidate": {
+      "class": "QuotaReserveClosurePolicy",
+      "module": "src/bandido_alcatraz/quota_reserve_closure.py"
+    },
+    "seed_range_inclusive": [
+      1000000,
+      1000399
+    ],
+    "population_size": 400,
+    "planned_phase_order": [
+      "control",
+      "candidate",
+      "candidate_replay"
+    ],
+    "planned_games_per_phase": 400,
+    "planned_total_games": 1200,
+    "fresh_seeds_allocated": 0,
+    "confirmation_eligible": false,
+    "frozen_advancement_screen_net_wins_at_least": 8,
+    "advancement_screen_applied": false,
+    "frozen_resources": {
+      "address_space_bytes": 2147483648,
+      "archive_bytes": 4294967296,
+      "cohort_wall_seconds": 64800,
+      "evidence_bytes": 17179869184,
+      "line_bytes": 8388608,
+      "per_call": {
+        "candidate": {
+          "cpu_seconds": 360,
+          "exit_geometry_checks": 16384,
+          "legal_enumerations": 32768,
+          "previews": 32768,
+          "roots": 16384,
+          "wall_seconds": 360
+        },
+        "control": {
+          "cpu_seconds": 360,
+          "exit_geometry_checks": 16384,
+          "legal_enumerations": 32768,
+          "previews": 32768,
+          "roots": 16384,
+          "wall_seconds": 360
+        },
+        "reference": {
+          "cpu_seconds": 360,
+          "exit_geometry_checks": 16384,
+          "legal_enumerations": 32768,
+          "previews": 32768,
+          "roots": 16384,
+          "wall_seconds": 360
+        }
+      },
+      "receipt_bytes": 8388608,
+      "shard_bytes": 31457280,
+      "total_operations": {
+        "exit_geometry_checks": 1000000000,
+        "legal_enumerations": 1000000000,
+        "previews": 1000000000
+      },
+      "trace_bytes": 134217728,
+      "verification_wall_seconds": 7200
+    },
+    "separate_packaging_wall_seconds": 7200,
+    "separate_independent_verifier_wall_seconds": 7200,
+    "job_backstop_minutes": 1380
+  },
+  "runtime_provenance": {
+    "source_at_initialization": {
+      "head": "7ac2f62c9c5c9dcac9ec9b8770382960f985acc2",
+      "tree": "2cd7946824a136d8e9addaf9abff05fd79294ba4",
+      "python_implementation": "CPython",
+      "python_version": "3.12.3",
+      "executable_sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f"
+    },
+    "source_before": {
+      "head": "7ac2f62c9c5c9dcac9ec9b8770382960f985acc2",
+      "tree": "2cd7946824a136d8e9addaf9abff05fd79294ba4",
+      "python_implementation": "CPython",
+      "python_version": "3.11.16",
+      "executable_sha256": "a15ccdaf07655a8667a3687b13171486c9a265d92273ba3ad820fbb64d2cfecc"
+    },
+    "source_at_finalization": {
+      "head": "7ac2f62c9c5c9dcac9ec9b8770382960f985acc2",
+      "tree": "2cd7946824a136d8e9addaf9abff05fd79294ba4",
+      "python_implementation": "CPython",
+      "python_version": "3.11.16",
+      "executable_sha256": "a15ccdaf07655a8667a3687b13171486c9a265d92273ba3ad820fbb64d2cfecc"
+    }
+  },
+  "runtime_note": "Initialization ran before setup-python and recorded CPython 3.12.3. Source-before-cohort and finalization recorded pinned CPython 3.11.16. Retain this distinction; it does not establish uninterrupted per-call runtime or full scientific integrity.",
+  "attempt": {
+    "run_id": 36990202101,
+    "run_attempt": 1,
+    "job_id": 110784375570,
+    "run_url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/36990202101",
+    "runner": "bandido-alcatraz-ci",
+    "github_run_conclusion": "failure",
+    "github_job_conclusion": "failure",
+    "cohort_step_conclusion": "cancelled",
+    "finalization_step_conclusion": "failure",
+    "original_packaging_step_conclusion": "success",
+    "original_upload_step_conclusion": "failure",
+    "original_shard_upload_job_conclusion": "skipped",
+    "original_upload_failure": "Artifact upload rejected a path containing a parent-directory component; no private host path is reproduced here.",
+    "original_receipt_status": "execution_blocked",
+    "original_receipt_classification": null,
+    "original_receipt_sha256": "027b6b35d75983ecf1760395418ff00d2df2a7fab63afee617bc73e4d8e3b3af",
+    "original_admission_sha256": "c60ff9cd1813729fdad2c99ef337fd4727fc24bd5855114027cf64fc34cd3c76",
+    "original_receipt_rewritten_by_recovery": false,
+    "original_receipt_error": {
+      "phase": "finalize",
+      "type": "InfrastructureError",
+      "message": "workflow did not succeed: tests=success, cohort=cancelled"
+    },
+    "recorded_journal_rows": 719,
+    "recorded_control_completions": 400,
+    "recorded_candidate_completions": 319,
+    "recorded_candidate_replay_completions": 0,
+    "ordered_attempt_entries": 720,
+    "incomplete_game": {
+      "pass": 2,
+      "seed": 1000319,
+      "complete_decision_and_candidate_reference_pairs": 21,
+      "last_event": "decision_started",
+      "last_ordinal": 22,
+      "game_completion_record_present": false
+    },
+    "completion_note": "Journal counts describe durable recorded completions; they do not certify candidate scientific validity or replace the required full population.",
+    "failure_cause_established": false,
+    "resource_exception_established": false,
+    "timing_observations": {
+      "github_job_completed_at": "2026-10-02T21:12:28Z",
+      "cohort_step_started_at": "2026-10-02T09:31:19Z",
+      "later_recorded_cohort_step_completed_at": "2026-10-03T06:07:29Z",
+      "note": "External job and recovered step timestamps are retained as distinct observations. Their difference is not a measured monotonic execution duration or proof of a resource-limit exception."
+    }
+  },
+  "control_only_verification": {
+    "control_seeds": 400,
+    "first_seed": 1000000,
+    "last_seed": 1000399,
+    "historical_trace_projection_equal": true,
+    "trace_events": 43344,
+    "decision_pairs": 21272,
+    "terminal_result_equal": true,
+    "normalized_control_sha256": "a4d2d06e5592caa35c03d00337d0254c07f767d5cb8ee0777cbb51f543803021",
+    "candidate_outcomes_analyzed": false,
+    "scientific_acceptance": false,
+    "scope": "Complete control-phase byte/JSON equality only; original experiment remains incomplete",
+    "historical_reference_worker": 31,
+    "historical_reference_run_id": 36848990406,
+    "historical_reference_actions_zip_sha256": "48e6af6595a737be332467b436aca94744b19c4b3d96d25d5dbbfe654d98a4b2",
+    "historical_reference_actions_zip_bytes": 24204721,
+    "trace_comparison_scope": "At decision_completed, compare exactly chosen_move, public_observation_sha256, rng_before_sha256 and rng_after_sha256; all other historical trace event objects equal in full. Raw terminal result objects and normalized control rows equal. Custom raw envelopes and Worker35-only audit/resource fields are not validated by this comparison.",
+    "review_status": "Control-only equality independently recomputed; final checkpoint review and scientific acceptance are separate."
+  },
+  "recovery": {
+    "metadata_only": {
+      "run_id": 37070066050,
+      "head": "0186ea90534d4eb8f62d84816ec27eb04cc59e26",
+      "artifact_id": 11266298223
+    },
+    "original_sealed_transport": {
+      "run_id": 37104113098,
+      "head": "f10138c716246929ac3f3a752f555c3b17ee8327",
+      "metadata_artifact_id": 11267680208,
+      "part_artifact_id": 11268065233,
+      "part_wrapper_bytes": 29742630,
+      "part_wrapper_sha256": "830a511460b4d984d7e3d4f2b8f27c9372cac6e6854a02bd7aa7813e0e048147"
+    },
+    "three_full_tails": {
+      "run_id": 37105820618,
+      "head": "f6eaaefbe4ddf87202b8e7f5260d4d2869ee5c2c",
+      "artifact_id": 11267743493,
+      "recovery_report_sha256": "cd76173c18ce01b638e9a87d89c66739ce689f40b92f3c7923983a61db6925fd",
+      "source_inventory_sha256": "bd814d7330947d56eae477466eda82c501c82a5e47f619126029671db42a9a52",
+      "observation_started_at": "2026-10-03T07:16:54.992127+00:00",
+      "observation_finished_at": "2026-10-03T07:17:15.848095+00:00"
+    },
+    "new_research_games_or_policy_calls": 0,
+    "raw_repackaging_performed": false,
+    "raw_tree_global_quiescence_proven": false
+  },
+  "preservation": {
+    "status": "recorded_snapshot_byte_verified",
+    "canonical_custody": "Existing authorized canonical Bandido Drive folder. Full custody records, access identifiers and fresh remote readback proof remain there; Git records only artifact identities and byte hashes.",
+    "original_artifact_manifest_sha256": "eaa4f9360aea9bc51a726cd02fb342217cb02381047cfcbdc1b67a559fd2be72",
+    "original_sealed_raw_file_count": 2162,
+    "original_sealed_expanded_raw_bytes": 736680746,
+    "recorded_snapshot_raw_file_count": 2162,
+    "recorded_snapshot_expanded_raw_bytes": 736735404,
+    "unchanged_non_tail_files": 2159,
+    "recorded_gap_closed_bytes": 54658,
+    "tail_files": {
+      "call-results/pass-2/1000319.jsonl": {
+        "sha256": "2999a6e491f6faf5d3d33f8a4500683f4f63593f3f684dca3055d26636fc1399",
+        "size_bytes": 208945,
+        "added_bytes": 44631,
+        "sealed_prefix_verified": true
+      },
+      "decision-traces/pass-2/1000319.jsonl": {
+        "sha256": "899408a4f37acda3840c00469c4c3e5199fe5c08479f2df6ddfc834df284dcb4",
+        "size_bytes": 133757,
+        "added_bytes": 9494,
+        "sealed_prefix_verified": true
+      },
+      "resource-metrics.jsonl": {
+        "sha256": "c2c5aba5dc4715fd8d17284836bbed8af94b526d52dc8f82bdc4f8b4f1d17e8c",
+        "size_bytes": 14404454,
+        "added_bytes": 533,
+        "sealed_prefix_verified": true
+      }
+    },
+    "reconstruction": "Preserve the original sealed ZIP unchanged. For the recorded raw snapshot, use the three separately preserved complete tail files in place of the matching three archived members. Verify all other 2,159 member hashes unchanged and each original sealed prefix byte-identical.",
+    "all_recorded_snapshot_bytes_preserved": true,
+    "all_future_or_unobserved_bytes_claimed": false,
+    "durable_archives": [
+      {
+        "filename": "worker35-recovery-metadata-37070066050-1.zip",
+        "artifact_id": 11266298223,
+        "bytes": 1035012,
+        "sha256": "ddfb0ba99622d8ea4c30c7c7e73b02059aa43b76207e777ffad18fc590ddb6a7",
+        "fresh_remote_byte_readback_verified": true
+      },
+      {
+        "filename": "worker35-attempt-36990202101-1-original-sealed.zip",
+        "bytes": 29742478,
+        "sha256": "47b3f93e8825936c5106820bc536f8e7dfbfb4781ab9680bf495c15593767ba1",
+        "fresh_remote_byte_readback_verified": true
+      },
+      {
+        "filename": "worker35-sealed-recovery-metadata-37104113098-1.zip",
+        "artifact_id": 11267680208,
+        "bytes": 475047,
+        "sha256": "997b08dfc564d4f87784e17a8e1b826df1acfb2a55700510ab61ff646508c6b5",
+        "fresh_remote_byte_readback_verified": true
+      },
+      {
+        "filename": "worker35-final-tail-preservation-37105820618-1.zip",
+        "artifact_id": 11267743493,
+        "bytes": 15593494,
+        "sha256": "59a4b4cb7f6213ca95eb785546f88941cc7de00afb7ade5d0ac7f29152ba54c9",
+        "fresh_remote_byte_readback_verified": true
+      },
+      {
+        "filename": "worker35-interrupted-proof-2026-10-03.zip",
+        "role": "34-file verification package: authenticated historical/current provider metadata, logs, readback reports, verification scripts and exact strict transport helper; no duplicate raw archives",
+        "bytes": 203171,
+        "sha256": "7ba5a70d628aaac003ec076db0f32c1b2eb0a84a15524b04031178ddef23df54",
+        "fresh_remote_byte_readback_verified": true
+      }
+    ]
+  },
+  "limitations": [
+    "Byte-preserving recovery verifies custody of the recorded incomplete evidence, not full scientific validity.",
+    "Candidate/replay coverage, whole-cohort source/runtime/resource gates and complete candidate scientific verification are unavailable; the required 1,200 games were not recorded complete.",
+    "No candidate outcome aggregation, paired net-win comparison, mechanism verdict, development advancement, valid negative screen, fresh confirmation or PROGRAM_SUCCESS claim is made.",
+    "No explicit resource exception is established. Preserve the receipt execution_blocked status and classify this checkpoint only as an infrastructure-interrupted attempt.",
+    "The unchanged original receipt lacks source_after, total_operations, cohort_elapsed_seconds and summary; the full attempt cannot be accepted from partial records.",
+    "Matching two-pass inventory observations and preserved tails close the recorded gap only; they do not prove global process quiescence or absence of later writes.",
+    "All seeds 1000000 through 1000399 were already permanently spent development and remain confirmation-ineligible."
+  ],
+  "future_execution_boundary": {
+    "new_execution_authorized_by_checkpoint": false,
+    "original_protocol": "Harness-only repairs require a separately recorded full rerun under the unchanged scientific question and population; substantive scientific changes require a new prospective protocol.",
+    "current_boundary": "The first execution-go admitted only one attempt. Recovery authority grants no rerun, resume, second admission, cap increase, source alteration or new cohort. This checkpoint grants none.",
+    "recovery_boundary_record": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5961700025"
+  },
+  "repository_acceptance": {
+    "lifecycle_record": "https://github.com/carabinshely/bandido-alcatraz-solve/pull/39",
+    "scope": "Interrupted-attempt evidence checkpoint only; candidate implementation is not adopted.",
+    "required_before_acceptance": "Exact final-head external review attempt under the established waiver policy, both independent internal reviews, affected CI, guarded squash and postmerge verification.",
+    "source_retention": "Retain the Worker35 research and three recovery branches and execution commits. Cleanup removes transient files from the final tree without rewriting or discarding execution history.",
+    "final_tree_diff_contract": [
+      "experiments/quota-reserve-closure-development/interrupted-attempt-2026-10-03.manifest.json",
+      "experiments/seed-ledger.json"
+    ]
+  }
+}
