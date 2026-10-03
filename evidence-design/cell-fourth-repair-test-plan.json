@@ -1,0 +1,16 @@
+{
+  "schema": "worker36.cell-fourth-repair-test-plan.v1",
+  "status": "prospectively_fixed_not_executed",
+  "scope": "Fourth batch Area3 only: preserve actual receipt/parser resource exhaustion, distinguish inaccessible bytes from demonstrably malformed bytes, and retain integrity/resource primary failures across secondary cell cleanup or persistence errors.",
+  "execution_authorized_here": false,
+  "finite_cases": [
+    {"id":"C16","case":"update_receipt propagates the original MemoryError injected at receipt read, and original MemoryError, ResourceExceeded or RecursionError injected at parsing, without replacing committed bytes or inventing a corruption sidecar; a read PermissionError remains infrastructure", "variants":5,"literal_stub_method_calls":0},
+    {"id":"C17","case":"Fixed genuinely malformed JSON, duplicate-key JSON, invalid UTF-8 and non-object committed bytes produce integrity failure and preserve original bytes; injected MemoryError or PermissionError during the independent failure-sidecar write remains secondary to that corruption", "variants":6,"literal_stub_method_calls":0},
+    {"id":"C18","case":"Finite direct error_record cases keep MemoryError, ResourceExceeded, RecursionError and each of three literal module-specific resource types resource_incomplete in preflight and measurement; initial wrong-runtime/source IntegrityError remains execution_blocked, while observed integrity drift remains integrity_invalid", "variants":14,"literal_stub_method_calls":0},
+    {"id":"C19","case":"Direct run_cell with MemoryError injected during runtime preflight plus a later receipt PermissionError retains the original resource failure in a reserved sidecar; zero imports, fixtures, entries and returns", "variants":1,"run_cell_invocations":1,"literal_stub_method_calls":0},
+    {"id":"C20","case":"Direct run_cell with three fixed pre-call source-check/terminal-accounting fault pairs: primary resource then later I/O, primary I/O then later resource, and primary integrity then later resource. Preserve or promote only the appropriate typed primary with all other errors secondary and zero method calls", "variants":3,"run_cell_invocations":3,"literal_stub_method_calls":0}
+  ],
+  "finite_execution_budget": {"new_test_methods":5,"run_cell_invocations":4,"literal_stub_method_calls":0,"candidate_evaluator_calls":0,"reference_evaluator_calls":0,"historical_module_imports":0,"measurement_fixture_constructions":0,"games":0},
+  "data_policy": "All variants are explicit literal bytes and unittest.mock fault instances. Four run_cell invocations use only the existing fabricated module/fixture seams; the evaluator methods must never be entered. No generated/fuzzed inputs, real timer, historical import, measurement fixture, scientific body, protocol, resource cap or runtime pin changes. Existing C01-C15 plans, prior 145-test receipts and snapshots remain unchanged.",
+  "test_execution": "This worker writes the prospective plan and repairs and performs static AST/JSON checks only; the parent runs the separately authorized combined suite."
+}

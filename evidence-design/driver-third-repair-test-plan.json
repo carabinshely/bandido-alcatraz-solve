@@ -1,0 +1,25 @@
+{
+  "schema": "worker36-driver-third-repair-tests-v1",
+  "status": "prospectively-fixed-before-third-repair-tests",
+  "scope": "Ten finite literal stub regressions for the authorized monotonic failure-state repair. No historical imports, measurement fixture construction, real evaluator calls, games or actual measurement allocation. Existing129 cases may repeat with the new receipt path and documented supervisor expectation correction.",
+  "candidate_evaluator_calls": 0,
+  "reference_evaluator_calls": 0,
+  "measurement_fixture_constructions": 0,
+  "historical_source_imports": 0,
+  "games": 0,
+  "cases": [
+    "D25 integrated single fabricated child then one candidate-return read PermissionError: stop immediately and retain execution_incomplete even when a subsequent prefix read succeeds",
+    "D26 same integrated single fabricated child with one MemoryError: resource_incomplete survives successful reread and no later cell starts",
+    "D27 malformed retained supervisor matrix: status values [], {}, true, 1, unknown; failure values [], {status: []}, status/failure contradiction; each becomes bounded integrity failure without reconciliation or terminalization escaping",
+    "D28 independent supervisor resource with child exit65,74,75,78 retains both causes; only integrity65 dominates resource",
+    "D29 candidate-start.json.tmp literal torn prefix is preserved without parsing as committed corruption; resource and infrastructure causes retain status and entry bounds0..1",
+    "D30 typed unavailable event matrix PermissionError, MemoryError and RecursionError at bounded prefix read plus MemoryError during capture-file info; reducer produces infrastructure or resource without textual type-name inference",
+    "D31 malformed retained failure/secondary field matrix: category [], phase [], error_type [], error [], secondary_errors {}, secondary_errors [null]; bounded integrity failure, never TypeError escape",
+    "D32 recovery of already recorded typed unavailable failure remains terminal after files become readable; completed prefix cannot promote it to success",
+    "D33 reducer receives malformed primary/additional status fields directly and returns integrity-invalid rather than throwing; retained committed status consistency is checked",
+    "D34 integrated final prefix reconciliation failure after otherwise successful one-cell bookkeeping prevents execution_complete and preserves the typed failure"
+  ],
+  "execution_rule": "Parent runs only the existing explicit eight test modules plus these added test methods and the separately saved cell/supervisor third-repair plans. All plans exist before testing. No broad discovery, generated science, fuzzing or expanded allocation. Retain every failed test attempt and report exact stub invocation counts.",
+  "extended_existing_case": "V07 adds exactly two literal supervisor mutations: primary_outcome resource_incomplete/call_wall_limit and one execution_incomplete cleanup secondary. Both reject a successful complete bundle.",
+  "prospective_extension_before_final_edge_run": "D28 additionally uses one literal exit65 supervisor result followed by a one-time ResourceExceeded during initial reconciliation; the outer terminal path must retain the earlier typed integrity exit. This adds exactly one fabricated supervisor invocation, no process or method calls."
+}

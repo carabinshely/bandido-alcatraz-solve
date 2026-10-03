@@ -1,0 +1,201 @@
+name: Worker36 synthetic profile diagnostic
+
+on:
+  pull_request:
+    types: [edited]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: read
+
+concurrency:
+  group: worker36-synthetic-single-allocation
+  cancel-in-progress: false
+
+jobs:
+  diagnostic:
+    if: >-
+      github.repository == 'carabinshely/bandido-alcatraz-solve' &&
+      github.event.sender.login == 'carabinshely' && github.actor == 'carabinshely' &&
+      github.event.pull_request.user.login == 'carabinshely' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.base.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'research/worker36-synthetic-profile-overhead' &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.base.sha == '9c1eeeb8a26868d41f8d8d89b17fc897a60cb38b' &&
+      github.run_attempt == 1 && github.event.changes.body != null &&
+      !contains(github.event.changes.body.from, 'WORKER36_ADMISSION') &&
+      contains(github.event.pull_request.body, 'WORKER36_ADMISSION_JSON')
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+    timeout-minutes: 45
+    steps:
+      - name: Initialize exclusive runner-owned durable custody paths
+        shell: bash
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          EXPECTED_HEAD_INPUT: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          umask 077
+          while IFS='=' read -r name unused; do [[ "$name" == PYTHON* ]] && unset "$name" || true; done < <(env)
+          unset LD_PRELOAD LD_LIBRARY_PATH
+          export PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1
+          test "$GITHUB_EVENT_NAME" = pull_request
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test "$GITHUB_REPOSITORY" = carabinshely/bandido-alcatraz-solve
+          test "$GITHUB_ACTOR" = carabinshely
+          test "$RUNNER_NAME" = bandido-alcatraz-ci
+          test "$GITHUB_SERVER_URL" = https://github.com
+          test "$GITHUB_API_URL" = https://api.github.com
+          [[ "$GITHUB_RUN_ID" =~ ^[1-9][0-9]*$ ]]
+          [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]
+          [[ "$EXPECTED_HEAD_INPUT" =~ ^[a-f0-9]{40}$ ]]
+          command -v gh
+          command -v jq
+          test -d "$RUNNER_TOOL_CACHE"
+          test ! -L "$RUNNER_TOOL_CACHE"
+          cache=$(realpath -e -- "$RUNNER_TOOL_CACHE")
+          workspace=$(realpath -e -- "$GITHUB_WORKSPACE")
+          temporary=$(realpath -e -- "$RUNNER_TEMP")
+          for path in "$cache" "$workspace" "$temporary"; do [[ "$path" != *$'\n'* && "$path" != *$'\r'* ]]; done
+          base="$cache/worker36-evidence"
+          claim="$cache/worker36-one-shot-claims"
+          for path in "$base" "$claim"; do
+            case "$path/" in "$workspace/"*|"$temporary/"*) exit 1 ;; esac
+            if test ! -e "$path"; then mkdir -m 700 -- "$path"; fi
+            test -d "$path" && test ! -L "$path"
+            test "$(stat -c %u -- "$path")" = "$(id -u)"
+            test "$(stat -c %a -- "$path")" = 700
+          done
+          durable="$base/run-$GITHUB_RUN_ID-attempt-1"
+          mkdir -m 700 -- "$durable"
+          auth="$durable/admission-inputs"
+          mkdir -m 700 -- "$auth"
+          attempt="$durable/worker36-$GITHUB_RUN_ID-1"
+          transport="$durable/transport"
+          test ! -e "$attempt" && test ! -e "$transport"
+          set -o noclobber
+          cat -- "$GITHUB_EVENT_PATH" > "$auth/event.json"
+          jq -n --arg cache "$cache" --arg workspace "$workspace" --arg temporary "$temporary" \
+            --arg durable "$durable" --arg attempt "$attempt" --arg run "$GITHUB_RUN_ID" --arg number "$PR_NUMBER" \
+            '{schema:"worker36-github-request-context-v1",repository:"carabinshely/bandido-alcatraz-solve",
+              event_name:"pull_request",workflow_run:$run,workflow_attempt:"1",server_url:"https://github.com",
+              api_url:"https://api.github.com",authentication:"github-repository-read-token",
+              pull_request_request:{method:"GET",url:("https://api.github.com/repos/carabinshely/bandido-alcatraz-solve/pulls/"+$number)},
+              postmerge_ci_request:{method:"GET",url:"https://api.github.com/repos/carabinshely/bandido-alcatraz-solve/actions/runs/37108669492"},
+              runner_name:"bandido-alcatraz-ci",actor:"carabinshely",
+              run_url:("https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/"+$run),
+              attempt_id:("worker36-"+$run+"-1"),runner_tool_cache:$cache,checkout_path:$workspace,
+              runner_temp:$temporary,durable_root:$durable,attempt_path:$attempt}' > "$auth/request-context.json"
+          sync -f "$auth"
+          {
+            printf 'DURABLE=%s\nAUTH=%s\nATTEMPT=%s\nTRANSPORT=%s\n' "$durable" "$auth" "$attempt" "$transport"
+            printf 'WORKER36_CLAIM_DIRECTORY=%s\nEXPECTED_HEAD=%s\nPR_NUMBER=%s\n' "$claim" "$EXPECTED_HEAD_INPUT" "$PR_NUMBER"
+          } >> "$GITHUB_ENV"
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.16'
+      - name: Authenticate fresh PR-body first admission and postmerge CI
+        id: admission
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          while IFS='=' read -r name unused; do [[ "$name" == PYTHON* ]] && unset "$name" || true; done < <(env)
+          unset LD_PRELOAD LD_LIBRARY_PATH
+          export PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1
+          set -o noclobber
+          gh api --hostname github.com --method GET -H 'Accept: application/vnd.github+json' \
+            "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > "$AUTH/pull-request.json"
+          gh api --hostname github.com --method GET -H 'Accept: application/vnd.github+json' \
+            "repos/$GITHUB_REPOSITORY/actions/runs/37108669492" > "$AUTH/postmerge-ci.json"
+          sync -f "$AUTH"
+          python -B -s scripts/worker36/admission.py authenticate \
+            --event "$AUTH/event.json" --pull-request "$AUTH/pull-request.json" \
+            --ci "$AUTH/postmerge-ci.json" --request-context "$AUTH/request-context.json" \
+            --destination "$AUTH/admission.json" --provenance "$AUTH/provenance.json" \
+            --workflow-run "$GITHUB_RUN_ID" --workflow-attempt "$GITHUB_RUN_ATTEMPT"
+          digest=$(sha256sum "$AUTH/admission.json" | cut -d ' ' -f 1)
+          provenance_digest=$(sha256sum "$AUTH/provenance.json" | cut -d ' ' -f 1)
+          tree=$(git rev-parse 'HEAD^{tree}')
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          test "$(jq -r .head "$AUTH/provenance.json")" = "$EXPECTED_HEAD"
+          test "$(jq -r .tree "$AUTH/provenance.json")" = "$tree"
+          test "$(jq -r .admission_sha256 "$AUTH/provenance.json")" = "$digest"
+          printf 'ADMISSION_SHA256=%s\nADMISSION_PROVENANCE_SHA256=%s\nEXPECTED_TREE=%s\n' "$digest" "$provenance_digest" "$tree" >> "$GITHUB_ENV"
+      - name: One admitted serial measurement allocation
+        id: measurement
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS='=' read -r name unused; do [[ "$name" == PYTHON* ]] && unset "$name" || true; done < <(env)
+          unset LD_PRELOAD LD_LIBRARY_PATH
+          export PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1
+          python -B -s "$GITHUB_WORKSPACE/scripts/run_worker36_synthetic.py" measure \
+            --attempt "$ATTEMPT" --admission "$AUTH/admission.json" \
+            --admission-sha256 "$ADMISSION_SHA256" --admission-provenance "$AUTH/provenance.json" \
+            --admission-provenance-sha256 "$ADMISSION_PROVENANCE_SHA256"
+      - name: Preserve verification result and all partial transport without retry
+        if: always() && steps.admission.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d "$ATTEMPT" || exit 0
+          while IFS='=' read -r name unused; do [[ "$name" == PYTHON* ]] && unset "$name" || true; done < <(env)
+          unset LD_PRELOAD LD_LIBRARY_PATH
+          export PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1
+          # One external process-group ceiling includes verify/report and package.
+          # Preserve installs exact 512 MiB in every offline process and returns
+          # nonzero on verification failure even if failed evidence is packaged.
+          timeout --signal=TERM --kill-after=5s 600s \
+            python -B -s "$GITHUB_WORKSPACE/scripts/run_worker36_synthetic.py" preserve \
+            --attempt "$ATTEMPT" --destination "$TRANSPORT" \
+            --report "$DURABLE/verification.json" --recovery-report "$DURABLE/recovery.json" \
+            --admission "$AUTH/admission.json" --admission-sha256 "$ADMISSION_SHA256" \
+            --admission-provenance "$AUTH/provenance.json" \
+            --admission-provenance-sha256 "$ADMISSION_PROVENANCE_SHA256" --expected-head "$EXPECTED_HEAD" \
+            --expected-tree "$EXPECTED_TREE" --expected-workflow-run "$GITHUB_RUN_ID"
+      - uses: actions/upload-artifact@v4
+        if: always() && env.DURABLE != ''
+        with:
+          name: worker36-custody-reports-${{ github.run_id }}
+          path: |
+            ${{ env.AUTH }}/*.json
+            ${{ env.DURABLE }}/verification.json
+            ${{ env.DURABLE }}/recovery.json
+            ${{ env.TRANSPORT }}/*.json
+          if-no-files-found: warn
+          compression-level: 0
+      - uses: actions/upload-artifact@v4
+        if: always() && env.TRANSPORT != ''
+        with:
+          name: worker36-transport-001-${{ github.run_id }}
+          path: ${{ env.TRANSPORT }}/part-001.bin
+          if-no-files-found: warn
+          compression-level: 0
+      - uses: actions/upload-artifact@v4
+        if: always() && env.TRANSPORT != ''
+        with:
+          name: worker36-transport-002-${{ github.run_id }}
+          path: ${{ env.TRANSPORT }}/part-002.bin
+          if-no-files-found: warn
+          compression-level: 0
+      - uses: actions/upload-artifact@v4
+        if: always() && env.TRANSPORT != ''
+        with:
+          name: worker36-transport-003-${{ github.run_id }}
+          path: ${{ env.TRANSPORT }}/part-003.bin
+          if-no-files-found: warn
+          compression-level: 0
+      # Raw attempts, auth inputs, failed reports and partial payloads stay in the
+      # runner-owned durable directory until explicit canonical-custody approval.
+      # This workflow never removes, replaces, resumes or reruns an allocation.

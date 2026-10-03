@@ -1,0 +1,19 @@
+{
+  "schema": "worker36.supervisor-fourth-repair-test-plan.v1",
+  "status": "prospectively_fixed_not_executed",
+  "scope": "Bounded findings 3/4/5 repair using only the standalone supervisor, invented executable stubs, local synthetic marker bytes, and unittest mocks. No historical imports, real observations, measurement fixtures, evaluators, or games.",
+  "execution_owner": "Parent coordinator only; worker does not run tests.",
+  "prior_evidence": "Preserve the pre-fourth-repair snapshot and all prior receipts, including the 145-test receipt. Correct the S14 expectation prospectively: committed marker corruption is integrity_invalid, while unavailable IO/process observations remain infrastructure uncertainty. Earlier results are not rewritten.",
+  "interface": "Return the structured supervision result even after final accounting errors. Keep primary_outcome and secondary_failures shapes, retain observed returncode/exit_code/signal before fallible accounting, classify MemoryError and explicitly declared resource exception types without matching names/messages, and distinguish CallStateIntegrityError from IO/process uncertainty.",
+  "finite_cases": [
+    {"id": "F4-01", "test": "New postspawn MemoryError regression", "case": "Inject MemoryError while reading call state after spawning one sleeping stub. Require resource_incomplete, explicit typed primary evidence, group cleanup, and no surviving stub PID.", "new_stub_starts": 1},
+    {"id": "F4-02", "test": "New secondary MemoryError phase matrix", "case": "Exactly four zero-exit stubs, injecting MemoryError respectively after real cleanup, on deferred log write, after actual subreaper restoration, and in final accounting. Require resource_incomplete, retained primary zero exit, explicit secondary type, and cleanup/restoration completion attempts.", "new_stub_starts": 4},
+    {"id": "F4-03", "test": "New observed exit 65 preservation matrix", "case": "Exactly three stubs exit 65. Inject an explicitly declared synthetic ResourceExceeded after the exit is observed, respectively in a process scan, final child usage, or final phase snapshot. Require returned structured evidence with exit 65 and original nonzero child outcome intact, resource failure separate, and restored supervisor state.", "new_stub_starts": 3},
+    {"id": "F4-04", "test": "New pure committed-marker validation matrix", "case": "Exactly ten invented marker byte variants: invalid JSON, duplicate keys, nonobject, nonboolean active, missing active scope, nonfinite active clock, clock before process lifetime, future wall clock, negative CPU clock, and extra active schema field. Read directly through the helper and require the dedicated integrity exception, without spawning a child.", "new_stub_starts": 0},
+    {"id": "F4-05", "test": "New unavailable observation distinction", "case": "Exactly two sleeping stubs: inject PermissionError on marker read and an unavailable process observation after spawn. Require execution_incomplete rather than integrity_invalid, and clean both stubs.", "new_stub_starts": 2},
+    {"id": "F4-06", "test": "New corruption followed by cleanup MemoryError", "case": "One stub commits an invalid boolean marker, then MemoryError is injected after real cleanup. Require integrity-invalid primary and terminal outcomes, separate resource secondary failure, and no loss of exit/signal observations.", "new_stub_starts": 1}
+  ],
+  "existing_correction": "Retain existing S01-S16 and P2-02 through P2-06. Change only S14's incorrect classification assertion and add an assertion for the integrity exception type. No new S14 process starts.",
+  "finite_totals": {"new_test_methods": 6, "supervisor_test_methods_after_repair": 27, "new_stub_process_starts": 11, "new_pure_marker_variants": 10},
+  "measurement_allocation": {"candidate_evaluator_calls": 0, "reference_evaluator_calls": 0, "games": 0}
+}

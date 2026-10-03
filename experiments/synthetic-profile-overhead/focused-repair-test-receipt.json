@@ -1,0 +1,112 @@
+{
+  "candidate_evaluator_calls": 0,
+  "cell_literal_stub_method_calls": 9,
+  "checked_file_sha256": {
+    ".github/workflows/worker36-synthetic-profile.yml": "0e4d6610071ada6c5cfe8d87464ae2b77e46545a6c51ae0efc8c4a954678aaf8",
+    "evidence-design/admission-integration-test-plan.json": "156587413a47f858d4696e7c6de6317610b85aa7bde62974154955dcf2e03d05",
+    "evidence-design/cell-integration-test-plan.json": "3074d869530971ffb6fe53f2c37dd79759c4a8655abe32270a65923ebfc18a34",
+    "evidence-design/driver-integration-test-plan.json": "e699540511958faf604603368ba1d23afc63b801abb508e03a53719d5f710176",
+    "evidence-design/supervisor-test-plan.json": "f96243615f549d9cc78de67eb844d6d44d57eb432047deda2dbe91576df71827",
+    "evidence-design/transport-test-plan.json": "3895327212b2f11cab95083c345385485230dd18c404116c164bc4fa3e90c2a1",
+    "evidence-design/verifier-integration-test-plan.json": "c346e4619aeaf5378330d367a514a374cff3c0b4d0c37fd90e4b9b5e1a2058ac",
+    "experiments/synthetic-profile-overhead/PROTOCOL.md": "8eec0f7e7418fba0e58ab5aee09226cab30555338b4e21f5761509648bfaaa6b",
+    "experiments/synthetic-profile-overhead/fault-test-manifest.json": "468e0f88331a9ab0cc5ea27d5539dbf4a106acae395c12eb4a3b080c2a2c6a08",
+    "experiments/synthetic-profile-overhead/source-manifest.json": "ff2e51997396211bd21d3836a08dad940e154adf5b66b2fd4c9e92c32eacbe4a",
+    "scripts/run_worker36_synthetic.py": "95e80cf8086e70a0884ac73580f61b3e019f265db33a8586d880ff87daa82c65",
+    "scripts/worker36/__init__.py": "f75454b9ecffe14eaf970e601031294f103f40352e49da5355d70482edc2b913",
+    "scripts/worker36/admission.py": "f1c79d2e9a4c1b15f481a673d6823849f5f482d8d4c8475765682eb2c9746602",
+    "scripts/worker36/cell.py": "d3093f938083c392e882568936ac1eb8346ecb22d258455cc5e24bfb6751bf76",
+    "scripts/worker36/common.py": "8db0d3011ac8167302484bdd133d515cdc17187de1f8c72312ce0a22462a0e37",
+    "scripts/worker36/driver.py": "a1d20bea58ec16eb1febc300a071483b51a93e9645ccad29d436bcd0d71a2e50",
+    "scripts/worker36/sources.py": "c7ad4e4e317598b3afb3652fb2638201edd85a43f53664e0ae490e937c374f40",
+    "scripts/worker36/supervision.py": "f5a2ea283da07f30e9ad03e9a2c09fbb121cf05d088044d2483164d546c0a97e",
+    "scripts/worker36/transport.py": "251d1671030faf05e64bd9fa2eb72b48f3b28c5f50063ff3ed0e277ba9c9f074",
+    "scripts/worker36/verify.py": "9057e3fd8fc7bd034f1943fb88e81076ef363e2b3e2a4718fa64b1f196432ff8",
+    "tests/test_worker36_admission_integration.py": "3618e93325d52559f2da4cfd19fbeb925ca8ce1f5937a3647570865779e846ba",
+    "tests/test_worker36_cell_integration.py": "6e64f85b42de36c337ed608ea16564086cc2e88ad2110850d9dcd572be4a75eb",
+    "tests/test_worker36_core.py": "48ef2c4a560b51b67bf0a3da959afd8448c12f6195428f761616b1957eb0f670",
+    "tests/test_worker36_driver_integration.py": "c9255fe4fc0660fdf470f3aa11eee6a2f6b3463fdeb8558b3b5657974dcef917",
+    "tests/test_worker36_supervision.py": "e650de434a5f171d7977ac7bbb63f743f52f3246e9720d381b32b970e7fb37fe",
+    "tests/test_worker36_transport.py": "4ab2e107f624f4ad224273c05963d32dd41ebf957fa35e28cf0b7662fffe39aa",
+    "tests/test_worker36_verify_integration.py": "eee73fdace2e4aee00af1f4ff106ae1b865ed0785beda2af7d79f39366555597",
+    "tests/worker36_constructor_source.txt": "eae10578a56b0a94857b9d9b6132ce6d0772706e57c1f11df1573cd0112fa6cf"
+  },
+  "checked_sources_unchanged_during_run": true,
+  "core_literal_stub_method_calls": 4,
+  "driver_fabricated_supervisor_invocations": 1,
+  "errors": 0,
+  "failed_cases": [],
+  "failures": 0,
+  "games": 0,
+  "historical_source_imports": 0,
+  "measurement_admitted": false,
+  "measurement_fixture_constructions": 0,
+  "original_52_test_receipt": {
+    "path": "experiments/synthetic-profile-overhead/focused-test-receipt.json",
+    "sha256": "a559061c8cf578bbbcd4831821f34eaa13500176b27484db1b78f064813d8373"
+  },
+  "preparation_only": true,
+  "reference_evaluator_calls": 0,
+  "repair_run_history": [
+    {
+      "candidate_evaluator_calls": 0,
+      "errors": 0,
+      "failed_cases": [],
+      "failures": 0,
+      "games": 0,
+      "historical_imports": [],
+      "measurement_fixture_constructions": 0,
+      "reference_evaluator_calls": 0,
+      "skipped": 0,
+      "success": true,
+      "test_modules": [
+        "test_worker36_core",
+        "test_worker36_transport",
+        "test_worker36_supervision",
+        "test_worker36_admission_integration",
+        "test_worker36_cell_integration",
+        "test_worker36_driver_integration",
+        "test_worker36_verify_integration"
+      ],
+      "tests_run": 103,
+      "wall_seconds": 11.145192105002934
+    },
+    {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "stage": "final unchanged-source confirmation",
+      "tests": 103
+    }
+  ],
+  "runtime": "3.12.14",
+  "schema": "worker36-focused-repair-test-receipt-v1",
+  "skipped": 0,
+  "source_boundaries": [
+    "No historical import or measurement constructor/evaluator/game",
+    "run_cell uses explicit mocked fabricated module/fixture helpers with nine fixed literal stub method invocations",
+    "measure uses one fabricated cell and mocked supervisor, not the20cell allocation",
+    "verify_attempt reads copied literal20cell evidence; no evaluator execution",
+    "timing_report tests classify only fixed literal numeric stubs; no real outcome analysis"
+  ],
+  "success": true,
+  "supervisor_helper_invocations": 42,
+  "supervisor_stub_process_starts": 28,
+  "test_modules": [
+    "test_worker36_core",
+    "test_worker36_transport",
+    "test_worker36_supervision",
+    "test_worker36_admission_integration",
+    "test_worker36_cell_integration",
+    "test_worker36_driver_integration",
+    "test_worker36_verify_integration"
+  ],
+  "tests_run": 103,
+  "unrun": [
+    "Pinned CPython3.11.16 runner and actual PR first-admission workflow",
+    "Actual raw Git restoration/import and full original P/U integration",
+    "Actual measurement allocation and canonical authenticated remote custody",
+    "Full routine repository CI and games"
+  ],
+  "wall_seconds": 11.180187953010318
+}

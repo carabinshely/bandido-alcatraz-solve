@@ -1,0 +1,25 @@
+{
+  "schema": "worker36.admission-integration-test-plan.v1",
+  "status": "prospectively_fixed_not_executed",
+  "execution_authorized_here": false,
+  "scope": "Only new admission helpers, fixed literal event/PR/CI dictionaries and GO bytes, finite fault mutations, static workflow/source inspection, and temporary local auth input/output files. No network, historical imports, evaluator calls, measurements, fixture construction or games. The full runtime/source freeze remains the driver's independent gate.",
+  "finite_cases": [
+    {"id": "A01", "case": "A valid owner-authored first PR-body admission on the exact branch/base returns exact newline-terminated GO bytes and reconciled provenance."},
+    {"id": "A02", "case": "Unauthorized event sender, event PR author, live PR author or repository owner fails closed, including fixed identity-ID disagreement."},
+    {"id": "A03", "case": "Stale event head, stale live body, changed base, wrong repository, wrong PR number or noncanonical PR/API URL fails closed."},
+    {"id": "A04", "case": "Missing body change, unchanged body, prior admission marker or prior digest marker, non-edited action, closed/merged PR or branch drift blocks first admission."},
+    {"id": "A05", "case": "No marker, incomplete/repeated markers, multiple digest lines, malformed digest, digest mismatch, empty/oversized payload or body, duplicate JSON keys and nonfinite JSON fail closed."},
+    {"id": "A06", "case": "Wrong preregistration Issue URL, admission PR URL, GO head/tree shape, repository, branch, schema or admitted flag fails closed."},
+    {"id": "A07", "case": "Wrong authenticated CI run ID, repository, head, branch, event, workflow path, URL, status or conclusion fails closed."},
+    {"id": "A08", "case": "Compile only the new admission module at optimize=2 and call its pure authentication function on literal invalid sender and invalid digest stubs; both still reject. Static source check finds no authentication assert statements."},
+    {"id": "A09", "case": "CLI authenticates bounded literal input files to exclusive durable output files with raw-input digests and rejects output reuse, symlink inputs and unexpected Python environment/optimization flags before authentication. The CLI case mocks only fixed interpreter flags and environment for a portable literal-file test; pure retained-provenance verification re-reads every actual test file without authentication mocks. Mutate retained input bytes and fixed request-context workflow-run/attempt, checkout and attempt-path fields; all must reject. Original runner locations are checked lexically after copying, not accessed by the offline helper."},
+    {"id": "A10", "case": "Static workflow inspection proves edited-only trigger, exact repository/base/branch/owner/run-attempt gate, durable shell-initialized paths outside temp/checkout, sanitation before every Python auth/measure/preserve execution, authenticated fresh API fetch, no dispatch-only path, retained inputs/partial output and one failure-preserving 600-second preservation invocation."}
+  ],
+  "allowed_execution_when_separately_approved": "Run only this finite stdlib unittest module after parent approval. Test preparation here does not authorize execution. The optimize=2 case compiles only the new admission helper; it imports no historical or policy source.",
+  "allocation": {
+    "measurement_evaluator_calls": 0,
+    "measurement_fixture_constructions": 0,
+    "historical_source_imports": 0,
+    "games": 0
+  }
+}

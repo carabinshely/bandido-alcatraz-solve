@@ -1,0 +1,24 @@
+{
+  "schema": "worker36-failure-state-tests-v1",
+  "status": "prospectively-fixed-before-second-repair-tests",
+  "scope": "Twelve finite literal failure-state regressions using existing driver mocks only; no historical imports, measurement fixture construction, evaluators, games, spawned policies, or measurement allocation. Existing103 cases may repeat with test-receipt filename migration, literal new source inventory fields, and test-only getrlimit mocking so fabricated orchestration is independent of the host cap.",
+  "measurement_evaluator_calls": 0,
+  "measurement_fixture_constructions": 0,
+  "games": 0,
+  "cases": [
+    "D13 integrated measure: durable child integrity failure plus supervisor JSON output cap retains integrity primary and resource secondary",
+    "D14 integrated measure: exit65 without child receipt plus supervisor JSON PermissionError retains integrity primary",
+    "D15 preservation of measuring receipt normalizes to execution_incomplete and retains original phase/status in receipt and failed gate",
+    "D16 preservation recovers integrity from child failure sidecar even when parent is measuring",
+    "D17 prefix read PermissionError and read FileNotFoundError are unavailable gaps, never corruption; method entry remains uncertain",
+    "D18 prefix lstat PermissionError and return-file stat OSError are unavailable gaps, never corruption",
+    "D19 literal later blocked child with earlier completed entry evidence reduces to execution_incomplete, never integrity",
+    "D20 integrated two-cell fabricated schedule: later supervisor pre-spawn blocked reduces to execution_incomplete after prior calls",
+    "D21 first supervisor pre-spawn blocked with proved zero entries stays execution_blocked",
+    "D22 interrupted parent recovery reads retained supervisor exit65 and prior parent integrity sidecar before later resource failure",
+    "D23 main receipt PermissionError preserves infrastructure failure through independent sidecar without mislabeling corruption",
+    "D24 resource termination remains resource_incomplete with uncertain entry; nonterminal and blocked statuses reduce consistently with missing evidence"
+  ],
+  "execution_rule": "Run only the original103 cases, these12 cases, and the separately saved runner-preflight stub plan after all plans are frozen. No broad suite, generated science, fuzzing or extra measurement cells. Report every test attempt and stub invocation.",
+  "extended_existing_case": "V08 adds exactly two literal parent-receipt failures: unavailable_evidence=[{literal: unavailable}] and retained_failures=[{status: integrity_invalid}]; both must reject complete verification"
+}

@@ -1,0 +1,424 @@
+{
+  "closure_method": "Static AST imports at all lexical depths, including lazy paths plus package initializers; no executable imports or data files",
+  "constructor": {
+    "ast_canonical_schema": "worker36-constructor-ast-v1",
+    "constructor_calls": "Only Board/CardDefinition/CellSpec/GameState construction, Board.seed/place, state.observation. No evaluator or game entry point.",
+    "external_bindings": {
+      "__builtins__": "pinned CPython builtins",
+      "n": "the fixed schedule size; no other namespace input"
+    },
+    "selected_nodes": [
+      {
+        "ast_sha256": "3ac439bbcf4e83612bb383ccd9e0970288046a94447c358ec01891bed76dfe25",
+        "first_line": 67,
+        "last_line": 67,
+        "raw_span_sha256": "25847d1961710d875484bf1a89b5a41324f21cf6d3f7093e3bd1e59e3a26f79f"
+      },
+      {
+        "ast_sha256": "6c7e297cfbec1e3732afe25b44f0f0cf778534af1f7cd48bfd6fef19398ba8ad",
+        "first_line": 68,
+        "last_line": 68,
+        "raw_span_sha256": "7a2de2bb837c9464558cb8223d6041750634f9a8156d7aaccc2cf850a32b5924"
+      },
+      {
+        "ast_sha256": "bb5f46b8f6866c75e32c64878d36c15e1267f6930cfee755a89f24a84608cc9e",
+        "first_line": 69,
+        "last_line": 69,
+        "raw_span_sha256": "5a664aa3a0636cc18f956a84725cbfef239a64d5796153591f5f701c1140ced3"
+      },
+      {
+        "ast_sha256": "c586d484c43780343556f515356355bc52342c2aac85e2a3c00e99fc2c514510",
+        "first_line": 72,
+        "last_line": 72,
+        "raw_span_sha256": "db09c77efc02c74e7325a0a84e6c7e6c5706c19d1bf106b18e97bd6cdbeee0ec"
+      },
+      {
+        "ast_sha256": "ed5c8abe2112089cec56e1d5ce7ca061c04f758d7aa15881cb2410d734cbc589",
+        "first_line": 74,
+        "last_line": 74,
+        "raw_span_sha256": "4a0888be45a2dd8d66a5a4dbf108f5db8469d9de009fc317687df38c489239ee"
+      },
+      {
+        "ast_sha256": "106a23bf8ecd9255aa70529bc3b2e21c9eda01a50bb24c72c2db069355749843",
+        "first_line": 75,
+        "last_line": 76,
+        "raw_span_sha256": "591b46e222c9cd1834c04428ae7380045a466599d5f8072e69690af8397320e9"
+      },
+      {
+        "ast_sha256": "3503c2395bdfc43e5e1364bf0cea2b1505aa1bdb7d1c25046d20c291b16c4276",
+        "first_line": 88,
+        "last_line": 88,
+        "raw_span_sha256": "f1b79d53ca6865c9b110e33a85c7a2519a00c021e041a7e6847531c8191f8ef7"
+      },
+      {
+        "ast_sha256": "5508cf2b32efba44ee8e31ee8eb275882272e4905de4d81b0cedc4be12b291ae",
+        "first_line": 89,
+        "last_line": 89,
+        "raw_span_sha256": "eeaa5e9d8f815d3fcd2d65cd43a1a6cd45ea62017e3bbc1442d5345b3b7665be"
+      },
+      {
+        "ast_sha256": "bd4b11e9d210c9dea0b0b7dbd30078a4d44ccd40ec6a396307942bef45301ff5",
+        "first_line": 90,
+        "last_line": 90,
+        "raw_span_sha256": "4a9dc59029222e32cfdb47ce290f2a893bdfe476f7703e808d8d733aa85840a2"
+      },
+      {
+        "ast_sha256": "6fbd97513ece7aac8ccb91291dd2aa89c8e058522e7df3ddd5f56449a9ba8331",
+        "first_line": 91,
+        "last_line": 91,
+        "raw_span_sha256": "a484c94b521542fbcce964cd795888cd0448c608fd33d007f8a6af5ab7b8ee9c"
+      },
+      {
+        "ast_sha256": "60c8127052ce8fedb7535ddf549a39feec00309666a85df7ddc058be5d9cb525",
+        "first_line": 92,
+        "last_line": 92,
+        "raw_span_sha256": "fa96389d417689dc272d830989be5477c4e29f44f8873dc47babdf445eeab3d6"
+      },
+      {
+        "ast_sha256": "cdb44ceb87eb09153605bc55db1c87b547a12c07e7ae384f20842cbafa43842d",
+        "first_line": 93,
+        "last_line": 93,
+        "raw_span_sha256": "df58f426171f0428bd12e22c3127c9fcb0a1c330788cb9c106310d22d2a66ffb"
+      },
+      {
+        "ast_sha256": "bf33d3de3b0d3241212b2338b33d42925b76d88e5230721669b0de49482f0919",
+        "first_line": 94,
+        "last_line": 94,
+        "raw_span_sha256": "28fb36b35de0f3f0148a399409319afb6005db5c0b42a4d4dfa98145907b4e38"
+      },
+      {
+        "ast_sha256": "0c393045b0f56de346a998e9d0aa1b15cda856f04b13b62889269181c95ddaaa",
+        "first_line": 95,
+        "last_line": 95,
+        "raw_span_sha256": "5cae7904440309a1677e6290a60dd753f171c40e7f3081b5d7385e7805ffb301"
+      },
+      {
+        "ast_sha256": "e0c7f025dd03c16b32149aa863a77549edb9a77e88226b957a801c77d3125f3c",
+        "first_line": 95,
+        "last_line": 95,
+        "raw_span_sha256": "5cae7904440309a1677e6290a60dd753f171c40e7f3081b5d7385e7805ffb301"
+      },
+      {
+        "ast_sha256": "71801688724ae8009ab4e34d4eadd24b8ba580210536a37decb59161aff052c4",
+        "first_line": 96,
+        "last_line": 96,
+        "raw_span_sha256": "7bd0e5f27b19889b7a04b1961863d91901bb55159eb5a611530e901518133a57"
+      },
+      {
+        "ast_sha256": "9c0e9f2163e2258c6662609a6a22a17898c489eded0ad0e0b006aedb5f8384d7",
+        "first_line": 97,
+        "last_line": 97,
+        "raw_span_sha256": "84c05098eb3fb5301f6741a12260c42883111cfb3f06bcef654de1bcd18fbc73"
+      },
+      {
+        "ast_sha256": "04e6d6a1e5b7e204bdebfd84a53ce6b01d16654fee38fb9a78637da7d8e8bad8",
+        "first_line": 98,
+        "last_line": 99,
+        "raw_span_sha256": "7e37e0695f89cb85ae6f898ede120811f394af371473bf9c8f7c4fe1bb4a1fc6"
+      },
+      {
+        "ast_sha256": "9abab159c9681acce4d675da0a00a95cd9902fe50eadb2db6ca22e291b7c02bc",
+        "first_line": 100,
+        "last_line": 100,
+        "raw_span_sha256": "19f74915d3365ef6743f9b67b73da5266eed33158ccdb645efd0ccbeccf71152"
+      }
+    ],
+    "source": "scripts/benchmark_worker35_synthetic.py",
+    "source_blob": "c552da477744f0f0984204bb3078331ab48cfb54"
+  },
+  "files": [
+    {
+      "git_blob": "425141547c12e61eee6ecafd5b7136322f0af6d4",
+      "imports": [
+        "bandido_alcatraz.model",
+        "bandido_alcatraz.rules"
+      ],
+      "module": "bandido_alcatraz",
+      "path": "src/bandido_alcatraz/__init__.py",
+      "sha256": "67def15fa6a82c86e6ec626205314b5f5e3076d4d815dae048d2eca6a31c282c",
+      "size_bytes": 316
+    },
+    {
+      "git_blob": "e04e9255ecc9c8181ca49903dfb6501a67c8a482",
+      "imports": [
+        "bandido_alcatraz",
+        "bandido_alcatraz.model"
+      ],
+      "module": "bandido_alcatraz.board",
+      "path": "src/bandido_alcatraz/board.py",
+      "sha256": "23a22f76b0afea1b901ca7a2f5a896ead1c1328aae638af38fe657200f221ac9",
+      "size_bytes": 10772
+    },
+    {
+      "git_blob": "6e997e464736bcd0ad79f6115ff69f3967cd57f5",
+      "imports": [
+        "bandido_alcatraz",
+        "bandido_alcatraz.model"
+      ],
+      "module": "bandido_alcatraz.deck_data",
+      "path": "src/bandido_alcatraz/deck_data.py",
+      "sha256": "bae1929dd8ef1811863d37dc4dd68dce97d9af5dc2c56a952131712e5ce6c778",
+      "size_bytes": 11193
+    },
+    {
+      "git_blob": "8df56288eded0ae96c57314589a9707b4a056054",
+      "imports": [
+        "bandido_alcatraz",
+        "bandido_alcatraz.board",
+        "bandido_alcatraz.model",
+        "bandido_alcatraz.moves",
+        "bandido_alcatraz.rules",
+        "bandido_alcatraz.setup"
+      ],
+      "module": "bandido_alcatraz.game",
+      "path": "src/bandido_alcatraz/game.py",
+      "sha256": "beff853466d7380995888e75f16ea50f0f6827afc49c7844561b8435b991f4cd",
+      "size_bytes": 9660
+    },
+    {
+      "git_blob": "dc469a82a5fab7574aebe25a18543494494f4b11",
+      "imports": [
+        "bandido_alcatraz"
+      ],
+      "module": "bandido_alcatraz.model",
+      "path": "src/bandido_alcatraz/model.py",
+      "sha256": "a3893620489cb3b7cbe1898b609a5a13ded0c65f901846a23146dfbd00e8182e",
+      "size_bytes": 3036
+    },
+    {
+      "git_blob": "e605897b6c0c5539d51270b9371df9cc1dfe1a1e",
+      "imports": [
+        "bandido_alcatraz",
+        "bandido_alcatraz.board",
+        "bandido_alcatraz.model",
+        "bandido_alcatraz.rules"
+      ],
+      "module": "bandido_alcatraz.moves",
+      "path": "src/bandido_alcatraz/moves.py",
+      "sha256": "8e938664f758cf2f418cb560606c12b86740e7e5ed5c0ee4a212c9a38e852660",
+      "size_bytes": 2248
+    },
+    {
+      "git_blob": "eb40808af9616b2d77c3e6519e010021992d364a",
+      "imports": [
+        "bandido_alcatraz",
+        "bandido_alcatraz.model"
+      ],
+      "module": "bandido_alcatraz.photo_geometry",
+      "path": "src/bandido_alcatraz/photo_geometry.py",
+      "sha256": "367c3123f9546db5057131231e25cd26937a8f5c93236cde971a7c8b28c65a5b",
+      "size_bytes": 1871
+    },
+    {
+      "git_blob": "87601a25bf16f181753f71b2c84dc3c0fa6fe418",
+      "imports": [
+        "bandido_alcatraz",
+        "bandido_alcatraz.deck_data",
+        "bandido_alcatraz.model",
+        "bandido_alcatraz.photo_geometry",
+        "bandido_alcatraz.setup"
+      ],
+      "module": "bandido_alcatraz.physical_deck",
+      "path": "src/bandido_alcatraz/physical_deck.py",
+      "sha256": "9a183c9ae28103d4572a9ccfe667e7c993c2b7b663e7b612d8f1da2cab2c29ae",
+      "size_bytes": 2708
+    },
+    {
+      "git_blob": "3218817fe43cd901e5fc3de0d62c651dc5059dd5",
+      "imports": [
+        "bandido_alcatraz",
+        "bandido_alcatraz.game",
+        "bandido_alcatraz.model",
+        "bandido_alcatraz.moves",
+        "bandido_alcatraz.strategy"
+      ],
+      "module": "bandido_alcatraz.policies",
+      "path": "src/bandido_alcatraz/policies.py",
+      "sha256": "b9cfed81598ccbe0fe97fa489c5b46ad1303bebadc1720205316468a03faaebc",
+      "size_bytes": 6224
+    },
+    {
+      "git_blob": "da66df30c7e323cfe1e2fc7255c34e8952d2d504",
+      "imports": [
+        "bandido_alcatraz",
+        "bandido_alcatraz.board",
+        "bandido_alcatraz.game",
+        "bandido_alcatraz.model",
+        "bandido_alcatraz.moves",
+        "bandido_alcatraz.policies",
+        "bandido_alcatraz.setup",
+        "bandido_alcatraz.strategy",
+        "bandido_alcatraz.worker32",
+        "bandido_alcatraz.worker32.evidence"
+      ],
+      "module": "bandido_alcatraz.quota_reserve_closure",
+      "path": "src/bandido_alcatraz/quota_reserve_closure.py",
+      "sha256": "f7e61f41b2757db57ed9f06a6857a4115ce1994200670287b29b35345e702a2f",
+      "size_bytes": 20827
+    },
+    {
+      "git_blob": "cece8e6f7cab6286bebf034e0310f7be90dca632",
+      "imports": [
+        "bandido_alcatraz",
+        "bandido_alcatraz.board",
+        "bandido_alcatraz.game",
+        "bandido_alcatraz.model",
+        "bandido_alcatraz.moves",
+        "bandido_alcatraz.setup",
+        "bandido_alcatraz.strategy",
+        "bandido_alcatraz.worker32",
+        "bandido_alcatraz.worker32.evidence"
+      ],
+      "module": "bandido_alcatraz.quota_reserve_closure_reference",
+      "path": "src/bandido_alcatraz/quota_reserve_closure_reference.py",
+      "sha256": "4a27004f3761556e09953205cb69edf9cb3f32516ef569bccc831ff94bbcc498",
+      "size_bytes": 21871
+    },
+    {
+      "git_blob": "d0fffb7b37f531e149a0d7e17800e2ac708e9890",
+      "imports": [
+        "bandido_alcatraz",
+        "bandido_alcatraz.model"
+      ],
+      "module": "bandido_alcatraz.rules",
+      "path": "src/bandido_alcatraz/rules.py",
+      "sha256": "7ee151cbdc1baf81c84eb4e6a08eb6a693db6b945f48a81e9071ba12f25a1fc9",
+      "size_bytes": 1045
+    },
+    {
+      "git_blob": "b055fe799a60e499af1fbd86275d3b7e61f2b656",
+      "imports": [
+        "bandido_alcatraz"
+      ],
+      "module": "bandido_alcatraz.setup",
+      "path": "src/bandido_alcatraz/setup.py",
+      "sha256": "4eca720110bf935b9a46bd00d7e22a734b28e506a5387dfbc55297b9b093caf7",
+      "size_bytes": 1471
+    },
+    {
+      "git_blob": "7637bed25e3d380ff0928927b8bb97abd9a2af56",
+      "imports": [
+        "bandido_alcatraz",
+        "bandido_alcatraz.game",
+        "bandido_alcatraz.model",
+        "bandido_alcatraz.policies",
+        "bandido_alcatraz.rules",
+        "bandido_alcatraz.setup"
+      ],
+      "module": "bandido_alcatraz.simulate",
+      "path": "src/bandido_alcatraz/simulate.py",
+      "sha256": "af8329472c18810a7602868b466d98b4440a2a93391f50cb2731effaa85e325c",
+      "size_bytes": 3436
+    },
+    {
+      "git_blob": "57c7d173c9f173690d6c27cf546da2576cd35510",
+      "imports": [
+        "bandido_alcatraz",
+        "bandido_alcatraz.board",
+        "bandido_alcatraz.game",
+        "bandido_alcatraz.model",
+        "bandido_alcatraz.moves",
+        "bandido_alcatraz.rules"
+      ],
+      "module": "bandido_alcatraz.strategy",
+      "path": "src/bandido_alcatraz/strategy.py",
+      "sha256": "2a53e97b5194435ed3b26a1e851db570eebb31c498f4172713a990aad4605c6a",
+      "size_bytes": 13775
+    },
+    {
+      "git_blob": "8917003b0316469b46d1205a9665b143404761f6",
+      "imports": [
+        "bandido_alcatraz"
+      ],
+      "module": "bandido_alcatraz.worker32",
+      "path": "src/bandido_alcatraz/worker32/__init__.py",
+      "sha256": "524ff49921706da1212d797d1a7f017767d4b00b6e64ec9ac47bb487fe45b36a",
+      "size_bytes": 72
+    },
+    {
+      "git_blob": "68104ffe3c983a921a99e9e3e21aac9af7e56ee2",
+      "imports": [
+        "bandido_alcatraz",
+        "bandido_alcatraz.game",
+        "bandido_alcatraz.setup",
+        "bandido_alcatraz.worker32"
+      ],
+      "module": "bandido_alcatraz.worker32.evidence",
+      "path": "src/bandido_alcatraz/worker32/evidence.py",
+      "sha256": "292baa7966b8b96dc79ebb1b5b17ae86182d61fc11f37dbd86adb2d4cdc78a20",
+      "size_bytes": 2952
+    },
+    {
+      "git_blob": "c552da477744f0f0984204bb3078331ab48cfb54",
+      "imports": [
+        "bandido_alcatraz",
+        "bandido_alcatraz.board",
+        "bandido_alcatraz.game",
+        "bandido_alcatraz.model",
+        "bandido_alcatraz.quota_reserve_closure",
+        "bandido_alcatraz.quota_reserve_closure_reference",
+        "bandido_alcatraz.setup",
+        "bandido_alcatraz.worker32",
+        "bandido_alcatraz.worker32.evidence",
+        "run_quota_reserve_closure_development",
+        "worker35_resources"
+      ],
+      "module": "benchmark_worker35_synthetic",
+      "path": "scripts/benchmark_worker35_synthetic.py",
+      "sha256": "eae10578a56b0a94857b9d9b6132ce6d0772706e57c1f11df1573cd0112fa6cf",
+      "size_bytes": 8645
+    },
+    {
+      "git_blob": "45d2af37cf601395a806752cf3eec60b7d6a5e1a",
+      "imports": [
+        "bandido_alcatraz",
+        "bandido_alcatraz.game",
+        "bandido_alcatraz.physical_deck",
+        "bandido_alcatraz.policies",
+        "bandido_alcatraz.quota_reserve_closure",
+        "bandido_alcatraz.quota_reserve_closure_reference",
+        "bandido_alcatraz.rules",
+        "bandido_alcatraz.setup",
+        "bandido_alcatraz.simulate",
+        "worker31_geometry",
+        "worker35_resources"
+      ],
+      "module": "run_quota_reserve_closure_development",
+      "path": "scripts/run_quota_reserve_closure_development.py",
+      "sha256": "ca5f5f05b460424d15eb76ac406a7e45b365293248e048ac4852a8f676af3fec",
+      "size_bytes": 89363
+    },
+    {
+      "git_blob": "3a0e5f14a77d207bc414e2a6626cf85fee70e4fa",
+      "imports": [],
+      "module": "worker31_geometry",
+      "path": "scripts/worker31_geometry.py",
+      "sha256": "a9ef3fce518ad5ce0ed02ae6cb69664f775c732a750f7f739f1ccda1e04c7bcb",
+      "size_bytes": 11268
+    },
+    {
+      "git_blob": "27730c1f539fab88c8d2a7c8670fd982e3f010b1",
+      "imports": [
+        "bandido_alcatraz",
+        "bandido_alcatraz.moves",
+        "bandido_alcatraz.strategy",
+        "bandido_alcatraz.worker32",
+        "bandido_alcatraz.worker32.evidence"
+      ],
+      "module": "worker35_resources",
+      "path": "scripts/worker35_resources.py",
+      "sha256": "c30ebcf620345aa809accf6c349ac816fb9837a0c3a90f36e984666cb61c812c",
+      "size_bytes": 16025
+    }
+  ],
+  "historical_commit": "7ac2f62c9c5c9dcac9ec9b8770382960f985acc2",
+  "repository": "carabinshely/bandido-alcatraz-solve",
+  "roots": [
+    "benchmark_worker35_synthetic",
+    "run_quota_reserve_closure_development",
+    "worker35_resources",
+    "bandido_alcatraz.quota_reserve_closure",
+    "bandido_alcatraz.quota_reserve_closure_reference"
+  ],
+  "schema": "worker36-source-manifest-v1"
+}

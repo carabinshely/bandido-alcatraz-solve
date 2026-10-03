@@ -1,0 +1,26 @@
+{
+  "schema": "worker36.verifier-integration-test-plan.v1",
+  "status": "prospectively_fixed_not_executed",
+  "scope": "Direct offline verify_attempt and timing_report integration with fixed invented source bytes, science/RNG objects and a fabricated 20-cell evidence bundle. No evaluator execution or historical source import.",
+  "execution_authorized_here": false,
+  "finite_cases": [
+    {"id":"V01","case":"Verify one complete fabricated 20-cell bundle and exact file inventory, preserving all candidate/reference timings"},
+    {"id":"V02","case":"Reject absent, altered, hash-mismatched, internal or unbound trusted admission; head/tree and receipt identity drift"},
+    {"id":"V03","case":"Reject allocation, protocol, runtime/resource, source-manifest and diagnostic source pins drifting from trusted admission"},
+    {"id":"V04","case":"Reject missing or altered parent source/runtime preflight, restored inventory and frozen source bytes"},
+    {"id":"V05","case":"Reject missing/extra/incorrect module path/hash/blob evidence for each cell and absent primary historical module"},
+    {"id":"V06","case":"Reject wrong exact -B -s argv, Python environment, GC, executable or 512MiB address-space evidence"},
+    {"id":"V07","case":"Reject missing supervisor or log, wrong limits/inherited limits, nonzero exit, failed cleanup, output gaps and errors"},
+    {"id":"V08","case":"Reject parent phase resource ceilings, nonmonotonic totals, incomplete allocation/capture gaps and receipt inventory tampering"},
+    {"id":"V09","case":"Reject missing/altered return capture, evaluator identity, complete science/RNG equality and state-boundary evidence"},
+    {"id":"V10","case":"Reject inactive-protection marker absence, U accounting drift, P journal/meter/choice evidence drift and nonpositive/nonfinite timing"},
+    {"id":"V11","case":"Classify fixed literal all-pass ratios at 0.80/0.90 limits after externally pinned custody bytes and exact fresh readback validation"},
+    {"id":"V12","case":"Reject or classify not-material at fixed literal values above either joint threshold with all20 rows retained"},
+    {"id":"V13","case":"Reject forged complete verification object, modified timings, stale evidence or changed trusted admission during timing_report revalidation"},
+    {"id":"V14","case":"Keep classification blocked for absent/untrusted/self-authored custody strings, wrong folder/identity/binding/inventory or changed custody bytes"},
+    {"id":"V15","case":"Reject readback missing/wrong size/hash, bad Drive ID/URL, upload/download event mismatch, nonfresh/reused readback, duplicate IDs and incomplete exact file coverage"}
+  ],
+  "data_policy": "One explicitly literal invented scientific object and literal RNG states are copied into the finite schedule; no random, generated, fuzzed, real fixture, dataset or actual observation content. Numerical negative variants are enumerated in test parameter lists. Mocks are limited to frozen-source verification if necessary; verification and timing entry points themselves are never mocked.",
+  "measurement_allocation": {"candidate_evaluator_calls":0,"reference_evaluator_calls":0,"historical_module_imports":0,"measurement_fixture_constructions":0,"games":0},
+  "test_execution": "Parent runs the fixed tests only after review of this plan and implementation; this worker does not execute tests."
+}

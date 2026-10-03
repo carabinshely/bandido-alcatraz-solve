@@ -1,0 +1,85 @@
+name: Worker36 zero-evaluator runner preflight
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: worker36-zero-evaluator-runner-preflight
+  cancel-in-progress: false
+
+jobs:
+  runner-preflight:
+    if: >-
+      github.repository == 'carabinshely/bandido-alcatraz-solve' &&
+      github.event.sender.login == 'carabinshely' && github.actor == 'carabinshely' &&
+      github.event.pull_request.user.login == 'carabinshely' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.base.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'research/worker36-synthetic-profile-overhead' &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.base.sha == '9c1eeeb8a26868d41f8d8d89b17fc897a60cb38b'
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11.16'
+      - name: Probe unchanged sanitized runtime and finite focused stubs only
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          output="$RUNNER_TEMP/worker36-runner-preflight-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          mkdir -m 700 -- "$output"
+          printf 'WORKER36_PREFLIGHT_OUTPUT=%s\n' "$output" >> "$GITHUB_ENV"
+          executable=$(command -v python)
+          executable=$(readlink -f -- "$executable")
+          test -f "$executable" && test -x "$executable"
+          executable_sha256=$(sha256sum -- "$executable" | cut -d ' ' -f 1)
+          {
+            printf 'resolved_executable=%s\nexecutable_sha256=%s\n' "$executable" "$executable_sha256"
+            printf 'setup_ld_library_path_present=%s\n' "${LD_LIBRARY_PATH+x}"
+            printf 'measurement_admitted=false\nevaluator_calls=0\n'
+          } > "$output/launcher.txt"
+          test "$executable_sha256" = a15ccdaf07655a8667a3687b13171486c9a265d92273ba3ad820fbb64d2cfecc
+          while IFS='=' read -r name unused; do [[ "$name" == PYTHON* ]] && unset "$name" || true; done < <(env)
+          unset LD_PRELOAD LD_LIBRARY_PATH
+          export PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1
+          printf 'sanitized_before_parent_start=true\nflags=-B -s\nPYTHONHASHSEED=0\nPYTHONDONTWRITEBYTECODE=1\n' >> "$output/launcher.txt"
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          tree=$(git rev-parse 'HEAD^{tree}')
+          # Do not restore LD_LIBRARY_PATH if setup-python's executable cannot
+          # start here. Its actual loader error is evidence of a blocked freeze.
+          if timeout --signal=TERM --kill-after=5s 600s \
+            "$executable" -B -s scripts/worker36/runner_preflight.py \
+            --report "$output/runner-preflight.json" \
+            --expected-head "$EXPECTED_HEAD" --expected-tree "$tree" \
+            > "$output/parent.stdout" 2> "$output/parent.stderr"; then
+            status=0
+          else
+            status=$?
+          fi
+          printf 'parent_exit_code=%s\n' "$status" >> "$output/launcher.txt"
+          cat "$output/parent.stdout" "$output/parent.stderr"
+          exit "$status"
+      - uses: actions/upload-artifact@v4
+        if: always() && env.WORKER36_PREFLIGHT_OUTPUT != ''
+        with:
+          name: worker36-zero-evaluator-preflight-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.WORKER36_PREFLIGHT_OUTPUT }}/*
+          if-no-files-found: error
+          compression-level: 0
+      # This job has no admission/claim, restoration, fixture or measurement step.
+      # A passed preflight cannot authorize or dispatch the separate measurement.

@@ -1,0 +1,13 @@
+{
+  "schema": "worker36-finite-stub-fault-tests-v1",
+  "status": "prospectively-fixed-before-test-execution",
+  "measurement_evaluator_calls": 0,
+  "measurement_fixture_constructions": 0,
+  "games": 0,
+  "policy_source_imports": 0,
+  "allowed_test_modules": ["tests/test_worker36_core.py", "tests/test_worker36_supervision.py", "tests/test_worker36_transport.py"],
+  "test_scope": "Only new diagnostic helpers, fixed literal synthetic payloads, AST/static source inspection, and finite subprocess fault stubs. No import of historical source, actual candidate/reference evaluate, five measurement fixtures, data files, generated/fuzzed scientific payloads, real observations, or broad policy/game suites.",
+  "core_cases": ["fixed_schedule_exact_20", "constants_exact", "json_reject_duplicates_nonfinite", "raw_blob_identity_including_newline", "source_closure_static_complete", "fixture_ast_matches_historical_statements", "exclusive_attempt_rejects_existing", "durable_capture_order_and_tuple_identity_stub", "candidate_capture_failure_prevents_reference_stub", "timing_method_exception_not_success_stub", "profile_suppression_restores_success_stub", "profile_suppression_restores_exception_stub", "occupied_profile_trace_or_threads_rejected", "unmeasured_U_flags_exact", "receipt_corruption_preserved_with_sidecar", "budget_rejects_without_truncation", "missing_admission_fails_closed_zero_calls", "wrong_runtime_runner_fails_closed_zero_calls", "full_science_and_rng_equality_detects_mutation", "journal_comparison_only_maps_output_directory"],
+  "supplemental_manifests": ["evidence-design/supervisor-test-plan.json", "evidence-design/transport-test-plan.json"],
+  "execution_policy": "Write all supplemental finite manifests before invoking tests. Reruns may repeat only these cases to validate repairs; report exact command, count and result for each run. New cases require prospective manifest amendment before running and remain stub-only."
+}
