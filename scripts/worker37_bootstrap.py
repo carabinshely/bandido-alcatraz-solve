@@ -138,6 +138,11 @@ def keys(value, expected, code="descriptor_schema"):
     return value
 
 
+def object_at(value, key):
+    require(type(value) is dict and type(value.get(key)) is dict, "object_shape")
+    return value[key]
+
+
 def integer(value, code="positive_integer", maximum=9223372036854775807):
     require(type(value) is int and 0 < value <= maximum, code, "execution_blocked")
     return value
@@ -216,26 +221,35 @@ def state_snapshot():
     }
 
 
-def runtime_start():
+def runtime_start(observation):
     """Install the one process-lifetime cap; never weaken a limit or clear hooks."""
     inherited = limits_snapshot()
+    observation["inherited_limits"] = inherited
+    observation["memory_cap"] = {"attempted": False, "confirmed": False}
     current = inherited["RLIMIT_AS"]
     require(all(value == resource.RLIM_INFINITY or value >= MEMORY for value in current),
             "inherited_address_space", "execution_blocked")
     try:
+        observation["memory_cap"]["attempted"] = True
         resource.setrlimit(resource.RLIMIT_AS, (MEMORY, MEMORY))
     except (OSError, ValueError):
         raise Failure("execution_blocked", "memory_cap_install") from None
-    require(list(resource.getrlimit(resource.RLIMIT_AS)) == [MEMORY, MEMORY],
+    observation["memory_cap"]["readback"] = list(resource.getrlimit(resource.RLIMIT_AS))
+    require(observation["memory_cap"]["readback"] == [MEMORY, MEMORY],
             "memory_cap_readback", "execution_blocked")
+    observation["memory_cap"]["confirmed"] = True
+    observation["implementation"] = sys.implementation.name
+    observation["version"] = ".".join(map(str, sys.version_info[:3]))
     require(sys.implementation.name == "cpython" and tuple(sys.version_info[:3]) == (3, 11, 16),
             "python_version", "execution_blocked")
-    require(all(getattr(sys.flags, name) == value for name, value in FLAGS.items()),
+    observation["flags"] = {name: getattr(sys.flags, name) for name in FLAGS}
+    require(observation["flags"] == FLAGS,
             "python_flags", "execution_blocked")
     python_env = {key: value for key, value in os.environ.items() if key.startswith("PYTHON")}
     require(python_env == {"PYTHONHASHSEED": "0", "PYTHONDONTWRITEBYTECODE": "1"},
             "python_environment", "execution_blocked")
     state = state_snapshot()
+    observation["state"] = state
     require(state["gc_enabled"] and state["gc_threshold"] == [700, 10, 10],
             "gc_state", "execution_blocked")
     require(state["profile_idle"] and state["trace_idle"] and state["threads"] == 1
@@ -255,6 +269,7 @@ def runtime_start():
     require(loader_env == {"LD_LIBRARY_PATH": os.path.dirname(library)},
             "loader_environment", "execution_blocked")
     files = {}
+    observation["files"] = files
     for name, path, expected_hash, expected_size in (
         ("executable", executable, EXECUTABLE_SHA256, None),
         ("library", library, LIBRARY_SHA256, LIBRARY_SIZE),
@@ -264,13 +279,14 @@ def runtime_start():
         raw = bounded_read(path, 64 * 1024 * 1024)
         after = os.stat(path, follow_symlinks=False)
         require(file_tuple(before) == file_tuple(after), "loader_changed")
-        require(sha(raw) == expected_hash and (expected_size is None or len(raw) == expected_size),
+        actual_hash = sha(raw)
+        files[name] = {"sha256": actual_hash, "size_bytes": len(raw),
+                       "device": after.st_dev, "inode": after.st_ino,
+                       "mtime_ns": after.st_mtime_ns, "mapped_identity_confirmed": False}
+        require(actual_hash == expected_hash and (expected_size is None or len(raw) == expected_size),
                 "loader_hash")
         require(shell_stat(after) == os.environ.get("WORKER37_" + name.upper() + "_STAT"),
                 "shell_runtime_stat")
-        files[name] = {"sha256": expected_hash, "size_bytes": len(raw),
-                       "device": after.st_dev, "inode": after.st_ino,
-                       "mtime_ns": after.st_mtime_ns}
     # procfs reports zero st_size; the map is a bounded text input, not source code.
     with open("/proc/self/maps", "rb") as stream:
         maps = stream.read(MAX_INPUT + 1)
@@ -287,14 +303,15 @@ def runtime_start():
             if path == expected_path:
                 major, minor = (int(value, 16) for value in parts[3].split(":"))
                 record = files[name]
+                record["observed_mapping"] = {"major": major, "minor": minor, "inode": int(parts[4])}
                 require(int(parts[4]) == record["inode"]
                         and (major, minor) == (os.major(record["device"]), os.minor(record["device"])),
                         "mapped_" + name + "_identity")
                 seen[name] = True
+                record["mapped_identity_confirmed"] = True
     require(all(seen.values()), "missing_runtime_mapping")
-    return {"version": "3.11.16", "flags": dict(FLAGS), "files": files,
-            "inherited_limits": inherited, "state": state,
-            "memory_cap_restoration": "retained_until_leaf_process_exit"}
+    observation["memory_cap_restoration"] = "retained_until_leaf_process_exit"
+    return observation
 
 
 def descriptor_from_body(body):
@@ -395,12 +412,12 @@ def validate_pr(value, descriptor, body):
     require(type(value.get("number")) is int and value["number"] == descriptor["pr_number"]
             and value.get("state") == "open" and value.get("merged") is False,
             "pr_identity")
-    require(value.get("user", {}).get("login") == ACTOR, "pr_owner")
+    require(object_at(value, "user").get("login") == ACTOR, "pr_owner")
     for side, ref, head in (("head", descriptor["branch"], descriptor["head"]),
                             ("base", "main", descriptor["base"]["head"])):
-        item = value.get(side, {})
+        item = object_at(value, side)
         require(item.get("sha") == head and item.get("ref") == ref
-                and item.get("repo", {}).get("full_name") == REPOSITORY, "pr_" + side)
+                and object_at(item, "repo").get("full_name") == REPOSITORY, "pr_" + side)
     require(text_bytes(value.get("body")) == body, "pr_body")
 
 
@@ -411,6 +428,8 @@ def validate_context(event, descriptor, body, source):
                     "GITHUB_RUN_ATTEMPT": "1", "WORKER37_ALLOCATION_ID": ALLOCATION}
     require(all(os.environ.get(name) == value for name, value in expected_env.items()),
             "shell_identity", "execution_blocked")
+    require(re.fullmatch(r"[A-Za-z0-9_-]{1,100}", os.environ.get("WORKER37_JOB", "")) is not None,
+            "shell_job", "execution_blocked")
     require(env_integer("WORKER37_PR_NUMBER") == descriptor["pr_number"]
             and env_integer("WORKER37_RUN_ID") == env_integer("GITHUB_RUN_ID")
             and os.environ.get("WORKER37_HEAD") == descriptor["head"]
@@ -419,10 +438,10 @@ def validate_context(event, descriptor, body, source):
             "shell_descriptor_agreement", "execution_blocked")
     require(event.get("action") == "edited" and type(event.get("number")) is int
             and event["number"] == descriptor["pr_number"]
-            and event.get("sender", {}).get("login") == ACTOR
-            and event.get("repository", {}).get("full_name") == REPOSITORY,
+            and object_at(event, "sender").get("login") == ACTOR
+            and object_at(event, "repository").get("full_name") == REPOSITORY,
             "event_identity", "execution_blocked")
-    previous = event.get("changes", {}).get("body", {}).get("from")
+    previous = object_at(object_at(event, "changes"), "body").get("from")
     require(type(previous) is str and MARKER not in previous and "WORKER36" not in previous,
             "first_marker_transition", "execution_blocked")
     text_bytes(previous)
@@ -456,7 +475,7 @@ def validate_response(index, raw, descriptor, body):
     elif index in (1, 4):
         expected = descriptor["base"] if index == 1 else descriptor["historical_fixture"]
         require(type(value.get("id")) is int and value["id"] == expected["run_id"]
-                and value.get("repository", {}).get("full_name") == REPOSITORY,
+                and object_at(value, "repository").get("full_name") == REPOSITORY,
                 "run_identity")
         # GET5's actual API head_sha is the immediate historical-source check.
         require(value.get("head_sha") == expected["head"], "run_head_sha")
@@ -466,14 +485,15 @@ def validate_response(index, raw, descriptor, body):
         if index == 4:
             require(type(value.get("run_attempt")) is int and value["run_attempt"] == 1, "prior_run_attempt")
             pulls = value.get("pull_requests")
-            require(type(pulls) is list and len(pulls) == 1 and type(pulls[0].get("number")) is int
+            require(type(pulls) is list and len(pulls) == 1 and type(pulls[0]) is dict
+                    and type(pulls[0].get("number")) is int
                     and pulls[0]["number"] == expected["pr_number"]
-                    and pulls[0].get("head", {}).get("sha") == expected["head"], "prior_pr")
+                    and object_at(pulls[0], "head").get("sha") == expected["head"], "prior_pr")
     elif index in (2, 3):
         review = descriptor["reviews"][index - 2]
         review_raw = text_bytes(value.get("body"))
         require(type(value.get("id")) is int and value["id"] == review["comment_id"]
-                and value.get("user", {}).get("login") == review["author"]
+                and object_at(value, "user").get("login") == review["author"]
                 and value.get("issue_url") == API + "/issues/" + str(descriptor["pr_number"]), "review_identity")
         require(sha(review_raw) == review["body_sha256"] and descriptor["head"].encode() in review_raw
                 and descriptor["tree"].encode() in review_raw, "review_source")
@@ -483,7 +503,7 @@ def validate_response(index, raw, descriptor, body):
                 and value.get("name") == fixture["artifact_name"] and value.get("expired") is False
                 and type(value.get("size_in_bytes")) is int and value["size_in_bytes"] == fixture["zip_size_bytes"]
                 and value.get("digest") == "sha256:" + fixture["zip_sha256"], "artifact_identity")
-        run = value.get("workflow_run", {})
+        run = object_at(value, "workflow_run")
         require(type(run.get("id")) is int and run["id"] == fixture["run_id"]
                 and run.get("head_sha") == fixture["head"], "artifact_source")
     return value
@@ -502,6 +522,7 @@ def validate_zip(raw, fixture):
             expanded = 0
             for member in members:
                 require(not member.is_dir() and stat.S_IFMT(member.external_attr >> 16) in (0, stat.S_IFREG)
+                        and not member.external_attr & 0x10
                         and not member.flag_bits & 1
                         and member.compress_type in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED)
                         and 0 <= member.file_size <= MAX_INPUT and 0 <= member.compress_size <= MAX_INPUT,
@@ -657,6 +678,7 @@ class Evidence:
 
     def verify(self):
         for name, record in self.files.items():
+            record["readback_confirmed"] = False
             raw = bounded_read(self.output / name, MAX_INPUT)
             require(len(raw) == record["size_bytes"], "readback_size")
             if record["write_complete"]:
@@ -670,7 +692,7 @@ class Client:
     def __init__(self, evidence, token, started, report):
         self.evidence, self.token, self.started, self.report = evidence, token, started, report
         require(not any(name in os.environ for name in
-                        ("SSL_CERT_FILE", "SSL_CERT_DIR", "OPENSSL_CONF", "OPENSSL_MODULES")),
+                        ("SSL_CERT_FILE", "SSL_CERT_DIR", "OPENSSL_CONF", "OPENSSL_MODULES", "SSLKEYLOGFILE")),
                 "alternate_tls_configuration", "execution_blocked")
         self.opener = urllib.request.build_opener(
             urllib.request.ProxyHandler({}), NoRedirect(),
@@ -685,7 +707,7 @@ class Client:
         timeout = self.remaining()
         record = {"name": name, "transport": "api" if authenticated else "storage",
                   "status": None, "received_bytes": 0, "retained_bytes": 0,
-                  "complete": False, "truncated": False}
+                  "buffered_bytes": 0, "complete": False, "truncated": False}
         self.report["requests"].append(record)
         headers = {"Accept-Encoding": "identity", "User-Agent": "worker37-bootstrap-readiness"}
         if authenticated:
@@ -720,6 +742,9 @@ class Client:
                 size = min(65536, allowance + 1 - record["received_bytes"], available)
                 try:
                     part = response.read(size)
+                except MemoryError:
+                    body_failure = Failure("resource_incomplete", "response_memory_exhausted")
+                    break
                 except Exception:
                     # Transport exceptions may contain credentials or signed URLs.
                     body_failure = Failure("evidence_incomplete", "response_read_failed")
@@ -734,14 +759,33 @@ class Client:
                 if not omit and prior < allowance:
                     retained = part[:allowance - prior]
                     pieces.append(retained)
-                    record["retained_bytes"] += len(retained)
+                    record["buffered_bytes"] += len(retained)
                 if record["received_bytes"] > allowance:
                     record["truncated"] = True
                     body_failure = Failure("resource_incomplete", "input_body_overflow")
                     break
             raw = b"".join(pieces)
             if not omit:
-                self.evidence.write(name, raw)
+                try:
+                    self.evidence.write(name, raw)
+                except Failure as error:
+                    if body_failure is not None:
+                        self.report.setdefault("input_persistence_failures", []).append({
+                            "classification": error.classification, "code": error.code,
+                            "phase": "P07", "name": name})
+                        raise body_failure from None
+                    raise
+                except MemoryError:
+                    if body_failure is not None:
+                        self.report.setdefault("input_persistence_failures", []).append({
+                            "classification": "resource_incomplete", "code": "persistence_memory_exhausted",
+                            "phase": "P07", "name": name})
+                        raise body_failure from None
+                    raise
+                finally:
+                    # A short/failed write must not count buffered bytes as
+                    # retained evidence. Durability is a separate file record.
+                    record["retained_bytes"] = self.evidence.files.get(name, {}).get("size_bytes", 0)
             if body_failure:
                 raise body_failure
             require(declared is None or declared == record["received_bytes"],
@@ -750,22 +794,35 @@ class Client:
             return status, raw, location, record["received_bytes"]
         except Failure:
             raise
+        except MemoryError:
+            raise
         except Exception:
             raise Failure("execution_blocked", "transport_failed") from None
         finally:
             if response is not None:
+                pending = sys.exc_info()[1]
+                close_failure = None
                 try:
                     response.close()
                     # Confirm restoration of an actual opened transport resource.
                     # No timer, hook, GC or working-directory mutation is needed.
                     require(response.closed is True, "response_close_unconfirmed", "evidence_incomplete")
                     record["close_confirmed"] = True
-                except Failure:
-                    record["close_confirmed"] = False
-                    raise
+                except Failure as error:
+                    close_failure = error
+                except MemoryError:
+                    close_failure = Failure("resource_incomplete", "response_close_memory_exhausted")
                 except Exception:
+                    close_failure = Failure("evidence_incomplete", "response_close_failed")
+                if close_failure is not None:
                     record["close_confirmed"] = False
-                    raise Failure("evidence_incomplete", "response_close_failed") from None
+                    self.report.setdefault("transport_restoration_failures", []).append({
+                        "classification": close_failure.classification, "code": close_failure.code,
+                        "phase": "P07", "name": name})
+                    # Retain an established body/transport/memory cause; closure
+                    # trouble is separate evidence and never permits readiness.
+                    if pending is None:
+                        raise close_failure from None
 
     def inputs(self, descriptor, body):
         zip_raw = None
@@ -798,6 +855,7 @@ def main(argv=None):
               "phase": "P05", "phases_completed": [], "error_code": None,
               "requested_prefix": [], "completed_prefix": [], "requests": [],
               "response_body_bytes": 0, "restoration": {"confirmed": False},
+              "runtime": {},
               "timeout": {"external_scope_seconds": 120, "external_launcher_seconds": 600,
                           "hard_kill_observed": False, "exit_137_cause": "not_observed_by_leaf"},
               "zero_science_scope": "leaf_has_no_historical_import_or_scientific_entrypoint",
@@ -807,12 +865,12 @@ def main(argv=None):
     client = None
     try:
         evidence.open()
-        runtime = runtime_start()
+        runtime = runtime_start(report["runtime"])
         event_raw = bounded_read(args.event, MAX_INPUT)
         evidence.adopt_event(args.event, event_raw)
         event = strict_json(event_raw)
         require(type(event) is dict, "event_object", "execution_blocked")
-        descriptor, descriptor_raw, body = descriptor_from_body(event.get("pull_request", {}).get("body"))
+        descriptor, descriptor_raw, body = descriptor_from_body(object_at(event, "pull_request").get("body"))
         require(type(descriptor) is dict and type(descriptor.get("runtime")) is dict
                 and canonical(runtime["inherited_limits"]) == canonical(descriptor["runtime"].get("inherited_limits")),
                 "frozen_inherited_limits", "execution_blocked")
@@ -865,7 +923,9 @@ def main(argv=None):
     report["primary_failure"] = ({"classification": report["classification"],
                                   "code": report["error_code"], "phase": failed_phase}
                                  if report["error_code"] else None)
-    report["secondary_failures"] = []
+    report["secondary_failures"] = [item for item in report.get("transport_restoration_failures", [])
+                                    if item["code"] != report["error_code"]]
+    report["secondary_failures"].extend(report.get("input_persistence_failures", []))
     try:
         report["phase"] = "P09"
         if runtime is not None:
@@ -884,6 +944,12 @@ def main(argv=None):
         else:
             failed_phase = "P09"
         report["classification"], report["error_code"] = error.classification, error.code
+    except MemoryError:
+        if report["error_code"]:
+            report["secondary_failures"].append({"classification": "resource_incomplete", "code": "terminal_memory_exhausted"})
+        else:
+            failed_phase = "P09"
+        report["classification"], report["error_code"] = "resource_incomplete", "terminal_memory_exhausted"
     except Exception:
         if report["error_code"]:
             report["secondary_failures"].append({"classification": "evidence_incomplete", "code": "terminal_readback_failed"})
@@ -894,6 +960,8 @@ def main(argv=None):
     report["inputs"] = {name: dict(record) for name, record in evidence.files.items()}
     report["terminal_state"] = "candidate_requires_terminal_receipt"
     exit_code = EXIT_CODES[report["classification"]]
+    terminal_confirmed = False
+    terminal_error = "none"
     try:
         evidence.write("result.json", canonical(report), terminal=True)
         evidence.verify()
@@ -902,7 +970,8 @@ def main(argv=None):
                      "coverage": "module_outputs_before_inventory_and_terminal"}
         evidence.write("inventory.json", canonical(inventory), terminal=True)
         evidence.verify()
-        terminal = {"schema": "worker37-durable-terminal-v1", "finalized": True,
+        terminal = {"schema": "worker37-durable-terminal-v1", "terminal_candidate": True,
+                    "confirmation": "requires_matching_metadata_exit_and_terminal_confirmed_stdout_and_shell_readback",
                     "classification": report["classification"], "exit_code": exit_code,
                     "preparation_only": True, "measurement_admitted": False,
                     "scientific_classification": None,
@@ -912,16 +981,36 @@ def main(argv=None):
                     "provider_wrapper_custody": "pending_external_readback"}
         evidence.write("terminal.json", canonical(terminal), terminal=True)
         evidence.verify()
+        terminal_confirmed = True
     except Failure as error:
         exit_code = EXIT_CODES[error.classification]
+        terminal_error = error.code
+    except MemoryError:
+        exit_code = EXIT_CODES["resource_incomplete"]
+        terminal_error = "terminal_memory_exhausted"
     except Exception:
         exit_code = EXIT_CODES["evidence_incomplete"]
+        terminal_error = "terminal_write_or_readback_failed"
     finally:
         try:
             evidence.close()
+        except MemoryError:
+            terminal_confirmed = False
+            exit_code = EXIT_CODES["resource_incomplete"]
+            terminal_error = "custody_close_memory_exhausted"
         except OSError:
+            terminal_confirmed = False
             exit_code = EXIT_CODES["evidence_incomplete"]
-    # A fixed scalar only. The shell retains actual exit/kill ambiguity separately.
+            terminal_error = "custody_close_failed"
+        except Exception:
+            terminal_confirmed = False
+            exit_code = EXIT_CODES["evidence_incomplete"]
+            terminal_error = "custody_close_failed"
+    # Fixed scalars follow the final readback AND descriptor close. JSON is a
+    # candidate until these and the shell's actual exit/custody agree. A kill or
+    # late failure cannot be mistaken for a self-attested successful receipt.
+    print("WORKER37_TERMINAL_CONFIRMED=" + str(int(terminal_confirmed)))
+    print("WORKER37_TERMINAL_ERROR=" + terminal_error)
     print("WORKER37_METADATA_EXIT=" + str(exit_code))
     return exit_code
 
