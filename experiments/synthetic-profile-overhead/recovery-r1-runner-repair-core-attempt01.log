@@ -1,0 +1,39 @@
+test_01_schedule_exact_20 (test_worker36_core.CoreTests.test_01_schedule_exact_20) ... ok
+test_02_constants_exact (test_worker36_core.CoreTests.test_02_constants_exact) ... ok
+test_03_json_rejects (test_worker36_core.CoreTests.test_03_json_rejects) ... ok
+test_04_raw_blob_newline (test_worker36_core.CoreTests.test_04_raw_blob_newline) ... ok
+test_05_static_closure_complete (test_worker36_core.CoreTests.test_05_static_closure_complete) ... ok
+test_06_constructor_ast_exact (test_worker36_core.CoreTests.test_06_constructor_ast_exact) ... ok
+test_07_exclusive_writes (test_worker36_core.CoreTests.test_07_exclusive_writes) ... ok
+test_08_durable_capture_tuple_identity (test_worker36_core.CoreTests.test_08_durable_capture_tuple_identity) ... ok
+test_09_capture_failure_stops_reference (test_worker36_core.CoreTests.test_09_capture_failure_stops_reference) ... ok
+test_10_method_failure_no_success (test_worker36_core.CoreTests.test_10_method_failure_no_success) ... ok
+test_11_shim_restores_success (test_worker36_core.CoreTests.test_11_shim_restores_success) ... ok
+test_12_shim_restores_exception (test_worker36_core.CoreTests.test_12_shim_restores_exception) ... ok
+test_13_occupied_hooks_threads (test_worker36_core.CoreTests.test_13_occupied_hooks_threads) ... ok
+test_14_U_flags_exact (test_worker36_core.CoreTests.test_14_U_flags_exact) ... ok
+test_15_corrupt_receipt_preserved (test_worker36_core.CoreTests.test_15_corrupt_receipt_preserved) ... ok
+test_16_budget_no_truncation (test_worker36_core.CoreTests.test_16_budget_no_truncation) ... ok
+test_17_missing_admission_blocked (test_worker36_core.CoreTests.test_17_missing_admission_blocked) ... ok
+test_18_wrong_runtime_runner (test_worker36_core.CoreTests.test_18_wrong_runtime_runner) ... ok
+test_19_complete_science_rng_equality (test_worker36_core.CoreTests.test_19_complete_science_rng_equality) ... ok
+test_20_journal_only_directory_map (test_worker36_core.CoreTests.test_20_journal_only_directory_map) ... ok
+test_21_ast_canonical_fixed_version_forms (test_worker36_core.CoreTests.test_21_ast_canonical_fixed_version_forms) ... ok
+test_22_ast_canonical_rejects_semantic_extensions (test_worker36_core.CoreTests.test_22_ast_canonical_rejects_semantic_extensions) ... ok
+test_23_constructor_pins_fixed_version_forms (test_worker36_core.CoreTests.test_23_constructor_pins_fixed_version_forms) ... ok
+test_24_loader_identity_literal_files_and_maps (test_worker36_core.CoreTests.test_24_loader_identity_literal_files_and_maps) ... ok
+test_25_loader_rejects_noncanonical_paths (test_worker36_core.CoreTests.test_25_loader_rejects_noncanonical_paths) ... ok
+test_26_loader_file_identity_stays_stable (test_worker36_core.CoreTests.test_26_loader_file_identity_stays_stable) ... ok
+test_27_loader_rejects_mapping_variants (test_worker36_core.CoreTests.test_27_loader_rejects_mapping_variants) ... ok
+test_28_loader_rejects_ambient_loader_settings (test_worker36_core.CoreTests.test_28_loader_rejects_ambient_loader_settings) ... ok
+test_29_loader_portable_pin_exact_fields (test_worker36_core.CoreTests.test_29_loader_portable_pin_exact_fields) ... ok
+test_30_loader_full_identity_consistency (test_worker36_core.CoreTests.test_30_loader_full_identity_consistency) ... ok
+test_31_clean_environment_requires_verified_loader (test_worker36_core.CoreTests.test_31_clean_environment_requires_verified_loader) ... ok
+test_32_runtime_binds_loader_identity (test_worker36_core.CoreTests.test_32_runtime_binds_loader_identity) ... ok
+test_33_loader_shell_static_contract (test_worker36_core.CoreTests.test_33_loader_shell_static_contract) ... ok
+
+----------------------------------------------------------------------
+Ran 33 tests in 0.097s
+
+OK
+{"address_space_bytes": [536870912, 536870912], "attempt": 1, "candidate_evaluator_calls": 0, "checked_file_sha256": {"evidence-design/recovery-r1-runner-repair-test-plan.json": "8c52923f44569e3a5c7786d1c2a316be52bb4d345f40a771ee28fc31f53f9107", "scripts/worker36/common.py": "0efdea3e367cf1f8c9a965d8dcf413ab262bba851130eaa7c7a0617eeb11ec4e", "tests/test_worker36_core.py": "0a4ab52c8d8da2acd1c3064b87c0381a9f024f450f05624ceb442cfe8622c171"}, "checked_sources_unchanged": true, "constructor_executions": 0, "errors": 0, "failed_cases": [], "failures": 0, "games": 0, "historical_imports": [], "literal_method_calls": 4, "measurement_fixture_constructions": 0, "process_start_attempts": [], "reference_evaluator_calls": 0, "runtime": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]", "scope": "focused CoreTests only; not full-suite or pinned-runner verification", "skipped": 0, "success": true, "tests_run": 33, "wall_seconds": 0.16327060900039214}

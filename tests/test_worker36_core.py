@@ -294,26 +294,57 @@ class CoreTests(unittest.TestCase):
     def test_26_loader_file_identity_stays_stable(self):
         literal = self.root / 'literal-library'
         literal.write_bytes(b'fixed literal file')
-        self.assertEqual(c._stable_loader_file(literal)['sha256'], hashlib.sha256(b'fixed literal file').hexdigest())
-        for variant in ('same_size_change', 'path_replacement'):
+        self.assertEqual(c._stable_loader_file(literal)['sha256'],
+                         hashlib.sha256(b'fixed literal file').hexdigest(),
+                         'P01: stable literal file')
+        for variant in ('P02_same_size_observed_metadata_change', 'P03_path_replacement'):
             literal.write_bytes(b'fixed literal file')
-            original = os.read
+            original_read, original_fstat = os.read, os.fstat
+            initial = literal.stat()
             changed = False
             def mutating_read(descriptor, size):
                 nonlocal changed
-                result = original(descriptor, size)
+                result = original_read(descriptor, size)
                 if not changed:
                     changed = True
-                    if variant == 'same_size_change':
+                    if variant == 'P02_same_size_observed_metadata_change':
                         literal.write_bytes(b'other literal file')
                     else:
                         replacement = literal.with_name('replacement')
                         replacement.write_bytes(b'fixed literal file')
                         os.replace(replacement, literal)
                 return result
-            with self.subTest(variant=variant), patch.object(c.os, 'read', side_effect=mutating_read):
-                with self.assertRaises(c.IntegrityError):
+            def observed_fstat(descriptor):
+                observed = original_fstat(descriptor)
+                if changed and variant == 'P02_same_size_observed_metadata_change':
+                    # This case tests an observed metadata change. Timestamp
+                    # units do not imply filesystem precision or unique writes.
+                    return types.SimpleNamespace(
+                        st_dev=observed.st_dev, st_ino=observed.st_ino,
+                        st_mode=observed.st_mode, st_size=observed.st_size,
+                        st_mtime_ns=initial.st_mtime_ns + 1,
+                        st_ctime_ns=observed.st_ctime_ns, st_nlink=observed.st_nlink)
+                return observed
+            with self.subTest(variant=variant), \
+                 patch.object(c.os, 'read', side_effect=mutating_read), \
+                 patch.object(c.os, 'fstat', side_effect=observed_fstat):
+                with self.assertRaises(c.IntegrityError, msg=variant):
                     c._stable_loader_file(literal)
+            self.assertTrue(changed, variant + ': mutation must occur')
+
+        variant = 'P04_same_metadata_changed_second_library_hash'
+        with self.subTest(variant=variant), self.literal_loader() as (_, executable, library, _, _):
+            executable_info = c._stable_loader_file(executable)
+            library_info = c._stable_loader_file(library)
+            changed_info = {**library_info, 'sha256': hashlib.sha256(b'changed literal bytes').hexdigest()}
+            self.assertNotEqual(changed_info['sha256'], library_info['sha256'], variant)
+            self.assertEqual({k: v for k, v in changed_info.items() if k != 'sha256'},
+                             {k: v for k, v in library_info.items() if k != 'sha256'}, variant)
+            with patch.object(c, '_stable_loader_file',
+                              side_effect=(executable_info, library_info, changed_info)):
+                with self.assertRaisesRegex(c.IntegrityError,
+                        'mapped library bytes changed during verification', msg=variant):
+                    c.loader_identity()
 
     def test_27_loader_rejects_mapping_variants(self):
         with self.literal_loader() as (_, _, library, maps, identity):

@@ -1,0 +1,30 @@
+{
+  "scope": "focused CoreTests only; not full-suite or pinned-runner verification",
+  "attempt": 1,
+  "success": true,
+  "tests_run": 33,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "failed_cases": [],
+  "wall_seconds": 0.16327060900039214,
+  "runtime": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "address_space_bytes": [
+    536870912,
+    536870912
+  ],
+  "literal_method_calls": 4,
+  "process_start_attempts": [],
+  "historical_imports": [],
+  "candidate_evaluator_calls": 0,
+  "reference_evaluator_calls": 0,
+  "constructor_executions": 0,
+  "measurement_fixture_constructions": 0,
+  "games": 0,
+  "checked_file_sha256": {
+    "tests/test_worker36_core.py": "0a4ab52c8d8da2acd1c3064b87c0381a9f024f450f05624ceb442cfe8622c171",
+    "scripts/worker36/common.py": "0efdea3e367cf1f8c9a965d8dcf413ab262bba851130eaa7c7a0617eeb11ec4e",
+    "evidence-design/recovery-r1-runner-repair-test-plan.json": "8c52923f44569e3a5c7786d1c2a316be52bb4d345f40a771ee28fc31f53f9107"
+  },
+  "checked_sources_unchanged": true
+}
