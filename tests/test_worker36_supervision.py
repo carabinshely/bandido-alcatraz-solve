@@ -67,6 +67,9 @@ class LiteralSupervisorBoundaryHarness:
         self.events, self.observed, self.cleanup_deadlines, self.log_fds = [], [], [], []
         self.post_cleanup_fsyncs = self.setter_count = self.subreaper_value = 0
         self.call_fault = False
+        self.started = False
+        self.pidfd_refs = {}
+        self.next_pidfd = 987000000
         self.error_factory = LiteralBoundaryResourceError
         self.child = SimpleNamespace(pid=987654321, returncode=None, stdout=None)
 
@@ -87,13 +90,23 @@ class LiteralSupervisorBoundaryHarness:
                 return [(SimpleNamespace(fd=harness.child.stdout.fileno(), fileobj=harness.child.stdout), 1)] if self.registered else []
             def close(self): harness.events.append(("selector_close", harness.now))
         def inventory(ticks):
-            self.events.append(("proc_scan", self.now))
+            self.events.append(("cleanup_proc_scan" if self.cleanup_deadlines else "proc_scan", self.now))
             pid = os.getpid()
-            return {pid: supervision._Process(pid, 0, pid, pid, "S", 1, 0.0, 0.0)}
+            values = {pid: supervision._Process(pid, 0, pid, pid, "S", 1, 0.0, 0.0)}
+            if self.started and self.child.returncode is None:
+                values[self.child.pid] = self.pidfd_read(self.child.pid, ticks)
+            return values
+        def read_process(pid, ticks):
+            if self.started and pid == self.child.pid and self.child.returncode is None:
+                return supervision._Process(pid, os.getpid(), pid, pid, "S", 10, 0.0, 0.0)
+            raise ProcessLookupError(pid)
+        self.pidfd_read = read_process
+        self.pidfd_signal = lambda pid, sig: self.events.append(("pid_signal", self.now, pid, sig))
         def initialize(child, *args, **kwargs):
             global STUB_MOCKED_PROCESS_STARTS
             STUB_MOCKED_PROCESS_STARTS += 1
             self.events.append(("mock_spawn", self.now))
+            self.started = True
         def poll(child):
             if self.scenario == "arm_unconfirmed_exit65": child.returncode = 65
             elif self.scenario in ("success", "first_fsync_failure"): child.returncode = 0
@@ -119,7 +132,22 @@ class LiteralSupervisorBoundaryHarness:
             self.subreaper_value = value
             self.events.append(("subreaper_set", self.now, value))
             return value
-        real_open = os.open
+        real_open, real_close = os.open, os.close
+        def pidfd_open(pid, flags=0):
+            proc = self.pidfd_read(pid, 100)
+            self.next_pidfd += 1
+            self.pidfd_refs[self.next_pidfd] = proc.identity
+            self.events.append(("pidfd_open", self.now, proc.identity, self.next_pidfd))
+            return self.next_pidfd
+        def pidfd_send(descriptor, sig, siginfo=None, flags=0):
+            identity = self.pidfd_refs[descriptor]
+            self.events.append(("pidfd_signal", self.now, identity, sig))
+            self.pidfd_signal(identity[0], sig)
+        def close_descriptor(descriptor):
+            if descriptor in self.pidfd_refs:
+                self.events.append(("pidfd_close", self.now, self.pidfd_refs.pop(descriptor)))
+            else:
+                real_close(descriptor)
         def tracked_open(path, *args, **kwargs):
             fd = real_open(path, *args, **kwargs)
             if Path(path) == self.root / "literal-supervisor.log": self.log_fds.append(fd)
@@ -142,6 +170,11 @@ class LiteralSupervisorBoundaryHarness:
         patches = [mock.patch.object(supervision.time, "monotonic", side_effect=lambda: self.now),
             mock.patch.object(supervision, "_scan_processes", side_effect=inventory),
             mock.patch.object(supervision, "_inherited_limits", return_value={}),
+            mock.patch.object(supervision, "_require_pidfd_support"),
+            mock.patch.object(supervision, "_read_process", side_effect=lambda pid, ticks: self.pidfd_read(pid, ticks)),
+            mock.patch.object(supervision.os, "pidfd_open", side_effect=pidfd_open),
+            mock.patch.object(supervision.signal, "pidfd_send_signal", side_effect=pidfd_send),
+            mock.patch.object(supervision.os, "close", side_effect=close_descriptor),
             mock.patch.object(supervision, "_subreaper", side_effect=subreaper),
             mock.patch.object(supervision, "_usage", side_effect=usage),
             mock.patch.object(supervision, "_poll", side_effect=poll),
@@ -260,11 +293,17 @@ class LiteralPartialSpawnHarness(LiteralSupervisorBoundaryHarness):
             self.cleanup_deadlines.append(deadline)
             self.events.append(("partial_cleanup", self.now, deadline))
             if self.scenario == "emergency_memory" and len(self.cleanup_deadlines) == 1:
+                # The one-shot interruption follows the first retained identity;
+                # later emergency reads then inject the distinct typed failure.
+                with mock.patch.object(supervision, "_read_process", return_value=self.live[child.pid]):
+                    supervision._remember_root(child, ticks)
                 raise OSError("invented first cleanup interruption")
             if self.scenario == "expired_recovery" and not self.expiry_injected:
                 self.expiry_injected = True
                 raise LiteralPreservationExpired(2500.0)
             return real_cleanup(child, ticks, tracked, resource_exceptions, deadline, on_failure)
+        self.pidfd_read = read_process
+        self.pidfd_signal = kill
         patches = [mock.patch.object(supervision, "_initialize_popen", side_effect=initialize),
             mock.patch.object(supervision, "_scan_processes", side_effect=inventory),
             mock.patch.object(supervision, "_read_process", side_effect=read_process),
@@ -1018,7 +1057,8 @@ while True:
             self.assert_boundary_teardown(h, result)
             self.assertEqual(h.cleanup_deadlines, [1905.0, 1905.0])
             self.assertEqual(h.post_cleanup_fsyncs, 0)
-            self.assertTrue(any(e[0] == "killpg" for e in h.events))
+            self.assertTrue(any(e[0] == "pidfd_signal" and e[3] == signal.SIGKILL for e in h.events))
+            self.assertFalse(any(e[0] == "killpg" for e in h.events))
             self.assert_no_expired_bulk(h)
         self.assertEqual(result["preservation_deadline_monotonic"], 2500.0)
         self.assertTrue(result["preservation_expired"])
@@ -1295,6 +1335,223 @@ while True:
                 self.assertFalse(result["phase_accounting_complete"])
                 self.assertEqual(result["child_cpu_seconds"], 0.0)
                 self.assertEqual(result["phase"]["cpu_seconds"], 0.0)
+
+
+    def literal_owned_child(self, pid=987650001, start=10, *, reaped=False):
+        tracked = {(pid, start)} if reaped else set()
+        return SimpleNamespace(pid=pid, returncode=0 if reaped else None,
+            _worker36_ticks=100, _worker36_spawn_baseline=frozenset(),
+            _worker36_tracked=tracked, _worker36_root_identity=(pid, start) if reaped else None,
+            _worker36_ownership_uncertain=not reaped)
+
+    def test_S46_root_identity_precedes_first_wait_even_for_fast_exit(self):
+        for variant in ('running', 'zombie', 'unavailable'):
+            with self.subTest(variant=variant):
+                child = self.literal_owned_child()
+                events = []
+                proc = supervision._Process(child.pid, os.getpid(), child.pid, child.pid,
+                    'Z' if variant == 'zombie' else 'S', 10, 0.0, 0.0)
+                def read(pid, ticks):
+                    events.append('identity')
+                    if variant == 'unavailable': raise OSError('literal identity unavailable')
+                    return proc
+                def wait(pid, flags):
+                    events.append('wait4')
+                    self.assertEqual(child._worker36_root_identity, proc.identity)
+                    return (pid if variant == 'zombie' else 0, 0, SimpleNamespace(ru_utime=0.0, ru_stime=0.0))
+                with mock.patch.object(supervision, '_read_process', side_effect=read), \
+                     mock.patch.object(supervision.os, 'wait4', side_effect=wait):
+                    if variant == 'unavailable':
+                        with self.assertRaises(OSError): supervision._poll(child)
+                        self.assertEqual(events, ['identity'])
+                        self.assertIsNone(child._worker36_root_identity)
+                        self.assertTrue(child._worker36_ownership_uncertain)
+                    else:
+                        supervision._poll(child)
+                        self.assertEqual(events, ['identity', 'wait4'])
+                        self.assertEqual(child._worker36_root_identity, proc.identity)
+                        self.assertIn(proc.identity, child._worker36_tracked)
+                        if variant == 'zombie':
+                            with mock.patch.object(supervision, '_read_process', side_effect=AssertionError('must not replace root after reap')):
+                                supervision._poll(child)
+                            self.assertEqual(events, ['identity', 'wait4'])
+
+    def test_S47_reused_root_group_and_baseline_do_not_confer_ownership(self):
+        root, descendant, producer, unrelated, replacement_child = 987651001, 987651002, 987651003, 987651004, 987651005
+        frozen = (root, 10)
+        tracked = {frozen, (descendant, 20)}
+        baseline = {(producer, 30)}
+        rows = {
+            root: supervision._Process(root, 77, root, root, 'S', 99, 0.0, 0.0),
+            descendant: supervision._Process(descendant, 77, descendant, descendant, 'S', 20, 0.0, 0.0),
+            producer: supervision._Process(producer, os.getpid(), root, root, 'S', 30, 0.0, 0.0),
+            unrelated: supervision._Process(unrelated, 77, root, root, 'S', 40, 0.0, 0.0),
+            replacement_child: supervision._Process(replacement_child, root, root, root, 'S', 50, 0.0, 0.0),
+        }
+        with mock.patch.object(supervision, '_read_process', side_effect=AssertionError('no numeric-group lineage')):
+            owned = supervision._owned_processes(rows, frozen, tracked, baseline, 100)
+        self.assertEqual(set(owned), {descendant})
+        self.assertEqual(tracked, {frozen, (descendant, 20)})
+        class Replacement:
+            identity = (root, 99)
+            @property
+            def own_cpu(self): raise AssertionError('replacement CPU must not enter original call accounting')
+        marker = self.root / 'S47-call.json'
+        value = {'active': True, 'scope': 'candidate', 'wall_started': 110.0, 'cpu_started': 0.0}
+        marker.write_text(json.dumps(value), encoding='utf-8')
+        with mock.patch.object(supervision, '_read_process', return_value=Replacement()), \
+             mock.patch.object(supervision.time, 'monotonic', return_value=123.0):
+            self.assertEqual(supervision._call_state(marker, 123.0, 0.0, 100.0, 100, root, frozen), value)
+
+    def test_S48_descendant_requires_current_original_parent_identity(self):
+        root, descendant = 987652001, 987652002
+        original = supervision._Process(root, os.getpid(), root, root, 'S', 10, 0.0, 0.0)
+        descendant_row = supervision._Process(descendant, root, root, root, 'S', 20, 0.0, 0.0)
+        for variant in ('matching_parent', 'replaced_parent'):
+            with self.subTest(variant=variant):
+                tracked = {original.identity}
+                current = original if variant == 'matching_parent' else supervision._Process(root, 77, root, root, 'S', 99, 0.0, 0.0)
+                with mock.patch.object(supervision, '_read_process', return_value=current):
+                    if variant == 'matching_parent':
+                        owned = supervision._owned_processes({root: original, descendant: descendant_row}, original.identity, tracked, set(), 100)
+                        self.assertEqual(set(owned), {root, descendant})
+                    else:
+                        with self.assertRaises(supervision.SupervisionError):
+                            supervision._owned_processes({root: original, descendant: descendant_row}, original.identity, tracked, set(), 100)
+                        self.assertNotIn(descendant_row.identity, tracked)
+
+    def test_S49_pidfd_pins_target_across_fixed_reuse_windows(self):
+        pid, descriptor = 987653001, 7654321
+        original = supervision._Process(pid, os.getpid(), pid, pid, 'S', 10, 0.0, 0.0)
+        replacement = supervision._Process(pid, 77, pid, pid, 'S', 99, 0.0, 0.0)
+        for variant in ('before_acquisition', 'after_acquisition', 'after_recheck'):
+            with self.subTest(variant=variant):
+                bound, signaled = [], []
+                def acquire(got_pid, flags):
+                    self.assertEqual(got_pid, pid)
+                    bound.append(replacement.identity if variant == 'before_acquisition' else original.identity)
+                    return descriptor
+                def send(fd, sig, siginfo, flags):
+                    self.assertEqual(fd, descriptor)
+                    signaled.append(bound[0])
+                    # Original exits and the numeric PID is reused at this point;
+                    # the descriptor remains bound to the departed original.
+                    raise ProcessLookupError('literal original exited')
+                with mock.patch.object(supervision.os, 'pidfd_open', side_effect=acquire), \
+                     mock.patch.object(supervision, '_read_process', return_value=original if variant == 'after_recheck' else replacement), \
+                     mock.patch.object(supervision.signal, 'pidfd_send_signal', side_effect=send), \
+                     mock.patch.object(supervision.os, 'close') as close, \
+                     mock.patch.object(supervision.os, 'kill', side_effect=AssertionError('numeric signal forbidden')), \
+                     mock.patch.object(supervision.os, 'killpg', side_effect=AssertionError('group signal forbidden')):
+                    supervision._signal_owned({pid: original}, pid, signal.SIGKILL, 100)
+                close.assert_called_once_with(descriptor)
+                self.assertNotIn(replacement.identity, signaled)
+                self.assertEqual(signaled, [original.identity] if variant == 'after_recheck' else [])
+
+    def test_S50_normal_and_emergency_inventory_failure_keep_retained_targets(self):
+        for variant in ('normal_cleanup', 'emergency_cleanup'):
+            with self.subTest(variant=variant):
+                child = self.literal_owned_child(reaped=True)
+                root = child.pid
+                descendant = root + 1
+                child._worker36_tracked.add((descendant, 20))
+                replacement = supervision._Process(root, 77, root, root, 'S', 99, 0.0, 0.0)
+                escaped = supervision._Process(descendant, 77, descendant, descendant, 'S', 20, 0.0, 0.0)
+                clock = [1900.0]
+                alive = {descendant: escaped}
+                signaled, failures, closed = [], [], []
+                def read(pid, ticks):
+                    if pid == root: return replacement
+                    if pid in alive: return alive[pid]
+                    raise ProcessLookupError(pid)
+                def acquire(pid, flags):
+                    if pid not in alive: raise ProcessLookupError(pid)
+                    return pid + 100
+                def send(fd, sig, siginfo, flags):
+                    pid = fd - 100
+                    signaled.append((pid, sig))
+                    alive.pop(pid, None)
+                def failed(error, reason): failures.append((type(error).__name__, reason))
+                with mock.patch.object(supervision, '_scan_processes', side_effect=OSError('literal inventory unavailable')), \
+                     mock.patch.object(supervision, '_read_process', side_effect=read), \
+                     mock.patch.object(supervision.os, 'pidfd_open', side_effect=acquire), \
+                     mock.patch.object(supervision.signal, 'pidfd_send_signal', side_effect=send), \
+                     mock.patch.object(supervision.os, 'close', side_effect=lambda fd: closed.append(fd)), \
+                     mock.patch.object(supervision.os, 'kill', side_effect=AssertionError('numeric signal forbidden')), \
+                     mock.patch.object(supervision.os, 'killpg', side_effect=AssertionError('group signal forbidden')), \
+                     mock.patch.object(supervision.time, 'monotonic', side_effect=lambda: clock[0]), \
+                     mock.patch.object(supervision.time, 'sleep', side_effect=lambda seconds: clock.__setitem__(0, clock[0] + seconds)):
+                    if variant == 'normal_cleanup':
+                        result = supervision._cleanup(child, 100, child._worker36_tracked, (), 1905.0, failed)
+                        self.assertFalse(result['complete'])
+                        self.assertTrue(result['sigkill_used'])
+                        self.assertGreaterEqual(clock[0], 1905.0)
+                        self.assertLess(clock[0], 1905.0 + supervision.POLL_SECONDS * 1.1)
+                    else:
+                        with self.assertRaises(OSError):
+                            supervision._emergency_cleanup_kill(child, 100, child._worker36_tracked, failed)
+                        self.assertEqual(clock[0], 1900.0)
+                self.assertEqual(signaled, [(descendant, signal.SIGKILL)])
+                self.assertEqual(closed, [descendant + 100])
+                self.assertTrue(failures)
+                self.assertTrue(all(kind == 'OSError' for kind, _ in failures))
+                self.assertEqual(child._worker36_root_identity, (root, 10))
+
+    def test_S51_normal_spawn_missing_root_proof_is_incomplete(self):
+        real_cleanup, real_poll = supervision._cleanup, supervision._poll
+        with LiteralSupervisorBoundaryHarness(self.root / 'S51', 'success') as h:
+            first = True
+            def unavailable(pid, ticks):
+                nonlocal first
+                if first:
+                    h.now, first = 1900.0, False
+                raise OSError('literal root identity unavailable')
+            def cleanup(child, ticks, tracked, resource_exceptions=(), deadline=None, on_failure=None):
+                h.cleanup_deadlines.append(deadline)
+                return real_cleanup(child, ticks, tracked, resource_exceptions, deadline, on_failure)
+            with mock.patch.object(supervision, '_read_process', side_effect=unavailable), \
+                 mock.patch.object(supervision, '_poll', side_effect=real_poll), \
+                 mock.patch.object(supervision, '_cleanup', side_effect=cleanup), \
+                 mock.patch.object(supervision.os, 'wait4', side_effect=AssertionError('unproven root must not be reaped')), \
+                 mock.patch.object(supervision.time, 'sleep', side_effect=lambda seconds: setattr(h, 'now', h.now + seconds)):
+                result = h.run()
+            self.assertEqual(h.cleanup_deadlines, [1905.0])
+            self.assertEqual(h.setter_count, 2)
+            self.assertEqual(h.subreaper_value, 0)
+            self.assertFalse(h.phase._running)
+            self.assertTrue(h.child.stdout.closed)
+            with self.assertRaises(OSError): os.fstat(h.log_fds[0])
+            self.assertFalse(any(e[0] in ('pid_signal', 'pidfd_signal', 'killpg') for e in h.events))
+        self.assertTrue(result['spawned'])
+        self.assertTrue(result['spawn_ownership_uncertain'])
+        self.assertFalse(result['cleanup']['complete'])
+        self.assertFalse(result['child_accounting_complete'])
+        self.assertFalse(result['phase_accounting_complete'])
+        self.assertEqual(result['preservation_deadline_monotonic'], 2500.0)
+        self.assertEqual(result['primary_outcome']['exception_type'], 'OSError')
+
+    def test_S52_pidfd_prerequisite_and_close_fail_closed(self):
+        for variant in ('missing_open', 'missing_send', 'unsupported_kernel', 'typed_close_failure'):
+            with self.subTest(variant=variant):
+                acquire = mock.Mock(return_value=123)
+                send, close = mock.Mock(), mock.Mock()
+                if variant == 'unsupported_kernel': acquire.side_effect = OSError(38, 'literal ENOSYS')
+                if variant == 'typed_close_failure': close.side_effect = MemoryError('literal pidfd close failure')
+                expected = (supervision.SupervisionError if variant.startswith('missing_') else
+                            MemoryError if variant == 'typed_close_failure' else OSError)
+                with mock.patch.object(supervision.os, 'pidfd_open', None if variant == 'missing_open' else acquire), \
+                     mock.patch.object(supervision.signal, 'pidfd_send_signal', None if variant == 'missing_send' else send), \
+                     mock.patch.object(supervision.os, 'close', close), \
+                     mock.patch.object(supervision.os, 'kill', side_effect=AssertionError('numeric fallback forbidden')), \
+                     mock.patch.object(supervision.os, 'killpg', side_effect=AssertionError('group fallback forbidden')):
+                    with self.assertRaises(expected) as caught: supervision._require_pidfd_support()
+                if variant == 'typed_close_failure':
+                    send.assert_called_once_with(123, 0, None, 0)
+                    close.assert_called_once_with(123)
+                    self.assertEqual(supervision._exception_status(caught.exception), 'resource_incomplete')
+                else:
+                    close.assert_not_called()
+                    send.assert_not_called()
 
 
 

@@ -10,7 +10,9 @@ a malicious child lying about entering a call. Enforcement runs outside child
 profile hooks, using /proc live CPU and monotonic wall time. Linux accounting is
 clock-tick quantized; checks have bounded polling latency. A kernel CPU ceiling
 is an additional whole-child backstop. Use a dedicated single-threaded parent
-with no unrelated children. No retries or replacement child runs occur here.
+with no unrelated children. Linux pidfd support is checked on the supervisor
+itself before spawn; every cleanup signal uses a revalidated pidfd, never a
+numeric PID or process-group fallback. No replacement child runs occur here.
 """
 from __future__ import annotations
 
@@ -208,23 +210,77 @@ def inherited_limits_snapshot() -> dict[str, list[int]]:
     return _inherited_limits()
 
 
-def _owned_processes(processes: dict[int, _Process], root_pid: int,
-                     tracked: set[tuple[int, int]]) -> dict[int, _Process]:
-    owned = {pid: proc for pid, proc in processes.items()
-             if pid == root_pid or proc.pgrp == root_pid or proc.session == root_pid
-             or proc.identity in tracked or proc.ppid == os.getpid()}
+def _owned_processes(processes, root_identity, tracked, baseline, ticks):
+    """Stable observed identities and lineage, never numeric group/session IDs."""
+    known = set(tracked)
+    if root_identity is not None:
+        known.add(root_identity)
+    known_pids = {pid for pid, _ in known}
+    fresh = {pid: proc for pid, proc in processes.items() if proc.identity not in baseline}
+    owned = {}
+    for pid, proc in fresh.items():
+        if proc.identity in known:
+            owned[pid] = proc
+        elif pid in known_pids:
+            if proc.ppid == os.getpid():
+                raise SupervisionError("new direct child reuses an already observed PID")
+            # A replacement of an observed process never inherits ownership.
+            continue
+        elif proc.ppid == os.getpid():
+            owned[pid] = proc
     changed = True
     while changed:
         changed = False
-        for pid, proc in processes.items():
-            if pid not in owned and proc.ppid in owned:
-                owned[pid] = proc
-                changed = True
+        for pid, proc in fresh.items():
+            if pid in owned or pid in known_pids or proc.ppid not in owned:
+                continue
+            parent = owned[proc.ppid]
+            # The scan is not atomic. Recheck the parent AFTER observing the
+            # child's parentage, so a reused parent PID cannot confer ownership.
+            try:
+                current_parent = _read_process(parent.pid, ticks)
+            except (FileNotFoundError, ProcessLookupError) as exc:
+                raise SupervisionError("descendant parent identity became unavailable") from exc
+            if current_parent.identity != parent.identity:
+                raise SupervisionError("descendant parent identity changed")
+            owned[pid] = proc
+            changed = True
     tracked.update(proc.identity for proc in owned.values())
     return owned
 
 
-def _call_state(path: Path, now: float, root_cpu: float, started: float, ticks: int, root_pid: int | None = None) -> dict | None:
+def _require_pidfd_support():
+    """Harmless self-only capability gate before creating a cell process."""
+    if not callable(getattr(os, "pidfd_open", None)) or not callable(getattr(signal, "pidfd_send_signal", None)):
+        raise SupervisionError("Linux pidfd APIs are required for identity-safe signaling")
+    descriptor = os.pidfd_open(os.getpid(), 0)
+    try:
+        signal.pidfd_send_signal(descriptor, 0, None, 0)
+    finally:
+        os.close(descriptor)
+
+
+def _remember_root(child, ticks):
+    """Freeze the original direct-child identity before any wait can reap it."""
+    identity = getattr(child, "_worker36_root_identity", None)
+    if identity is not None:
+        if identity[0] != child.pid:
+            raise SupervisionError("retained root PID changed")
+        return identity
+    child._worker36_ownership_uncertain = True
+    if child.returncode is not None:
+        raise SupervisionError("root was reaped before its identity was retained")
+    proc = _read_process(child.pid, ticks)
+    baseline = child._worker36_spawn_baseline
+    if proc.ppid != os.getpid() or proc.identity in baseline:
+        raise SupervisionError("original root direct-child identity unavailable")
+    child._worker36_root_identity = proc.identity
+    child._worker36_tracked.add(proc.identity)
+    child._worker36_ownership_uncertain = False
+    return proc.identity
+
+
+def _call_state(path: Path, now: float, root_cpu: float, started: float, ticks: int, root_pid: int | None = None, root_identity: tuple[int, int] | None = None) -> dict | None:
     try:
         fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
     except FileNotFoundError:
@@ -283,7 +339,9 @@ def _call_state(path: Path, now: float, root_cpu: float, started: float, ticks: 
     now = max(now, time.monotonic())
     if root_pid is not None:
         try:
-            root_cpu = max(root_cpu, _read_process(root_pid, ticks).own_cpu)
+            proc = _read_process(root_pid, ticks)
+            root_cpu = (max(root_cpu, proc.own_cpu) if root_identity is None or proc.identity == root_identity
+                        else math.inf)
         except (FileNotFoundError, ProcessLookupError):
             root_cpu = math.inf
     if state["wall_started"] < started or state["wall_started"] > now:
@@ -295,6 +353,7 @@ def _call_state(path: Path, now: float, root_cpu: float, started: float, ticks: 
 
 def _poll(child: subprocess.Popen) -> None:
     """Own wait4 so resource usage is from this fresh child, not lifetime max."""
+    _remember_root(child, child._worker36_ticks)
     if child.returncode is not None:
         return
     try:
@@ -306,17 +365,29 @@ def _poll(child: subprocess.Popen) -> None:
         child._worker36_usage = used
 
 
-def _signal_owned(owned: dict[int, _Process], root_pid: int, sig: int, ticks: int) -> None:
-    try:
-        os.killpg(root_pid, sig)
-    except ProcessLookupError:
-        pass
+def _signal_owned(owned, root_pid, sig, ticks, on_attempt=None):
+    """Pin the kernel target before revalidation; no numeric signal fallback."""
     for proc in owned.values():
         try:
-            if _read_process(proc.pid, ticks).identity == proc.identity:
-                os.kill(proc.pid, sig)
-        except (ProcessLookupError, FileNotFoundError):
-            pass
+            descriptor = os.pidfd_open(proc.pid, 0)
+        except ProcessLookupError:
+            continue
+        try:
+            try:
+                current = _read_process(proc.pid, ticks)
+            except (FileNotFoundError, ProcessLookupError):
+                continue
+            if current.identity != proc.identity:
+                continue
+            if on_attempt is not None:
+                on_attempt()
+            try:
+                signal.pidfd_send_signal(descriptor, sig, None, 0)
+            except ProcessLookupError:
+                # The pinned process exited; its numeric replacement is untouched.
+                pass
+        finally:
+            os.close(descriptor)
 
 
 def _reap_adopted(root_pid: int, owned: dict[int, _Process]) -> None:
@@ -372,7 +443,11 @@ def _cleanup(child: subprocess.Popen, ticks: int, tracked: set[tuple[int, int]],
                                     "reason": reason, "exception_type": type(error).__name__, "message": str(error)})
 
     while True:
-        _poll(child)
+        try:
+            _poll(child)
+        except BaseException as exc:
+            remember(exc, "cleanup_root_observation_failed")
+            errors.append(f"cleanup root: {type(exc).__name__}: {exc}")
         try:
             owned = _cleanup_inventory(child, ticks, tracked)
             last_owned = owned
@@ -381,27 +456,27 @@ def _cleanup(child: subprocess.Popen, ticks: int, tracked: set[tuple[int, int]],
             errors.append(f"cleanup inventory: {type(exc).__name__}: {exc}")
             owned = last_owned
             try:
-                if getattr(child, "_worker36_partial_spawn", False):
-                    if not owned:
-                        owned = _retained_partial_identity(child, ticks, tracked)
-                        last_owned = owned
-                    _cleanup_signal(child, owned, signal.SIGKILL, ticks)
-                else:
-                    used_kill = True
-                    os.killpg(child.pid, signal.SIGKILL)
+                if not owned:
+                    owned = _retained_partial_identity(child, ticks, tracked)
+                    last_owned = owned
+                _cleanup_signal(child, owned, signal.SIGKILL, ticks)
             except (ProcessLookupError, FileNotFoundError):
                 pass
             except BaseException as targeted_error:
                 remember(targeted_error, "cleanup_retained_identity_failed")
                 errors.append(f"retained identity: {type(targeted_error).__name__}: {targeted_error}")
         _reap_adopted(child.pid, owned)
-        _poll(child)
+        try:
+            _poll(child)
+        except BaseException as exc:
+            remember(exc, "cleanup_root_observation_failed")
+            errors.append(f"cleanup root: {type(exc).__name__}: {exc}")
         if not owned and child.returncode is not None:
             return {"complete": not errors, "sigkill_used": used_kill or bool(getattr(child, "_worker36_sigkill_attempted", False)), "remaining_pids": [], "errors": errors, "failure_details": failure_details}
         try:
             if time.monotonic() >= escalation:
                 _cleanup_signal(child, owned, signal.SIGKILL, ticks)
-                used_kill = used_kill or not getattr(child, "_worker36_partial_spawn", False)
+                used_kill = used_kill or bool(getattr(child, "_worker36_sigkill_attempted", False))
             elif not sent_term:
                 _cleanup_signal(child, owned, signal.SIGTERM, ticks)
                 sent_term = True
@@ -462,59 +537,44 @@ def _initialize_popen(child, *args, **kwargs):
     subprocess.Popen.__init__(child, *args, **kwargs)
 
 
-def _partial_spawn_owned(processes, baseline, tracked):
-    """Fresh direct children and their lineage, excluding all baseline identities."""
-    fresh = {pid: proc for pid, proc in processes.items() if proc.identity not in baseline}
-    owned = {pid: proc for pid, proc in fresh.items()
-             if proc.ppid == os.getpid() or proc.identity in tracked}
-    changed = True
-    while changed:
-        changed = False
-        for pid, proc in fresh.items():
-            if pid not in owned and proc.ppid in owned:
-                owned[pid] = proc
-                changed = True
-    tracked.update(proc.identity for proc in owned.values())
-    return owned
+def _partial_spawn_owned(processes, baseline, tracked, ticks):
+    """Use the same baseline-excluded lineage rules during construction."""
+    return _owned_processes(processes, None, tracked, baseline, ticks)
 
 
 def _cleanup_inventory(child, ticks, tracked):
-    processes = _scan_processes(ticks)
-    if getattr(child, "_worker36_partial_spawn", False):
-        return _partial_spawn_owned(processes, child._worker36_spawn_baseline, tracked)
-    return _owned_processes(processes, child.pid, tracked)
+    identity = _remember_root(child, ticks)
+    return _owned_processes(_scan_processes(ticks), identity, tracked,
+                            child._worker36_spawn_baseline, ticks)
 
 
 def _cleanup_signal(child, owned, sig, ticks):
-    if not getattr(child, "_worker36_partial_spawn", False):
-        _signal_owned(owned, child.pid, sig, ticks)
-        return
-    # Partial fork may not yet have established a new group/session.
-    for proc in owned.values():
-        try:
-            if _read_process(proc.pid, ticks).identity == proc.identity:
-                if sig == signal.SIGKILL:
-                    child._worker36_sigkill_attempted = True
-                os.kill(proc.pid, sig)
-        except (ProcessLookupError, FileNotFoundError):
-            pass
+    def attempted():
+        if sig == signal.SIGKILL:
+            child._worker36_sigkill_attempted = True
+    _signal_owned(owned, child.pid, sig, ticks, attempted)
 
 
 def _retained_partial_identity(child, ticks, tracked):
+    """Shared fallback using only retained identities, including known descendants."""
     pid = getattr(child, "pid", None)
     if type(pid) is not int or pid <= 1 or pid == os.getpid():
         return {}
-    proc = _read_process(pid, ticks)
-    if proc.ppid != os.getpid() or proc.identity in child._worker36_spawn_baseline:
-        return {}
-    tracked.add(proc.identity)
-    return {pid: proc}
+    identity = _remember_root(child, ticks)
+    known = set(tracked)
+    known.add(identity)
+    owned = {}
+    for known_pid, start_ticks in known:
+        try:
+            proc = _read_process(known_pid, ticks)
+        except (FileNotFoundError, ProcessLookupError):
+            continue
+        if proc.identity == (known_pid, start_ticks) and proc.identity not in child._worker36_spawn_baseline:
+            owned[known_pid] = proc
+    return owned
 
 
 def _emergency_cleanup_kill(child, ticks, tracked, on_failure=None):
-    if not getattr(child, "_worker36_partial_spawn", False):
-        os.killpg(child.pid, signal.SIGKILL)
-        return
     try:
         owned = _cleanup_inventory(child, ticks, tracked)
     except BaseException as inventory_error:
@@ -756,8 +816,11 @@ def run_child(
         pid = valid_child_pid()
         if pid is not None:
             result.update(spawned=True, pid=pid)
-            if not result["spawn_initialization_complete"]:
-                result.update(spawn_discovery="retained_pid", spawn_ownership_uncertain=False)
+            if not result["spawn_initialization_complete"] and result["spawn_discovery"] != "recovered_direct_child":
+                result["spawn_discovery"] = "retained_pid"
+            result["spawn_ownership_uncertain"] = (
+                getattr(child, "_worker36_root_identity", None) is None
+                or getattr(child, "_worker36_ownership_uncertain", True))
         return pid
 
     def record_secondary(*args, **kwargs):
@@ -788,7 +851,7 @@ def run_child(
         result.update(spawn_ownership_uncertain=True, spawn_discovery="unavailable",
                       output_prefix_gap=True, output_pipe_tail="spawn_ownership_unconfirmed")
         try:
-            owned = _partial_spawn_owned(_scan_processes(ticks), spawn_baseline, tracked)
+            owned = _partial_spawn_owned(_scan_processes(ticks), spawn_baseline, tracked, ticks)
             if not owned:
                 result.update(spawn_ownership_uncertain=False, spawn_discovery="no_owned_child_observed",
                               output_pipe_tail="no_owned_child_observed")
@@ -800,6 +863,8 @@ def run_child(
                 _cleanup_signal(child, owned, signal.SIGKILL, ticks)
                 raise SupervisionError("partial spawn has no currently waitable direct child")
             child.pid, child.returncode = direct[0], None
+            child._worker36_root_identity = owned[child.pid].identity
+            child._worker36_ownership_uncertain = False
             result.update(spawned=True, pid=child.pid, spawn_ownership_uncertain=False,
                           spawn_discovery="recovered_direct_child", spawn_recovered_pids=recovered)
             return True
@@ -968,6 +1033,7 @@ def run_child(
     def after_child_cleanup():
         if child is None or valid_child_pid() is None:
             return
+        observe_spawn()
         _retain_child_exit(child, result)
         if boundary.permit():
             try:
@@ -1139,6 +1205,7 @@ def run_child(
                 raise SupervisionError("an explicit string environment is required")
             if sys.platform != "linux":
                 raise SupervisionError("independent supervision requires Linux")
+            _require_pidfd_support()
             ticks = os.sysconf("SC_CLK_TCK")
             if not isinstance(ticks, int) or ticks <= 0:
                 raise SupervisionError("Linux process CPU tick frequency unavailable")
@@ -1204,6 +1271,10 @@ def run_child(
             began = time.monotonic()
             child = _allocate_popen()
             child._worker36_spawn_baseline = spawn_baseline
+            child._worker36_tracked = tracked
+            child._worker36_ticks = ticks
+            child._worker36_root_identity = None
+            child._worker36_ownership_uncertain = True
             child._worker36_partial_spawn = True
             result.update(spawn_attempted=True, spawned=None, spawn_ownership_uncertain=True, spawn_discovery="initializing")
             _initialize_popen(child,
@@ -1211,7 +1282,9 @@ def run_child(
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True,
                 start_new_session=True, preexec_fn=set_limits,
             )
-            result.update(spawn_initialization_complete=True, spawn_ownership_uncertain=False, spawn_discovery="not_required")
+            result.update(spawn_initialization_complete=True, spawn_discovery="not_required")
+            _remember_root(child, ticks)
+            result["spawn_ownership_uncertain"] = False
             child._worker36_partial_spawn = False
             result.update(status="execution_incomplete", spawned=True, pid=child.pid,
                           parent_death_signal=int(signal.SIGKILL), parent_pid=coordinator_pid)
@@ -1228,7 +1301,7 @@ def run_child(
                     boundary.start(phase="child_exit", **observed_exit)
                 boundary.require()
                 processes = _scan_processes(ticks)
-                owned = _owned_processes(processes, child.pid, tracked)
+                owned = _owned_processes(processes, child._worker36_root_identity, tracked, spawn_baseline, ticks)
                 live_cpu = sum(proc.own_cpu + proc.waited_cpu for proc in owned.values())
                 reaped = max(0.0, _usage(resource.RUSAGE_CHILDREN) - child_reaped_baseline)
                 total_cpu = live_cpu + reaped
@@ -1242,7 +1315,8 @@ def run_child(
                 result["wall_seconds"] = time.monotonic() - began
                 result["phase"] = phase.snapshot(live_cpu)
                 boundary.require()
-                state = _call_state(call_state, time.monotonic(), root_cpu_last, began, ticks, child.pid)
+                state = _call_state(call_state, time.monotonic(), root_cpu_last, began, ticks, child.pid,
+                                    child._worker36_root_identity)
                 if state is None and state_seen:
                     raise SupervisionError("call_state disappeared after first atomic record")
                 state_seen = state_seen or state is not None

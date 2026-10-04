@@ -15,7 +15,7 @@
       "id": "S46"
     },
     {
-      "case": "Exclude reaped-root PID/group/session replacements, verified baseline identities and a replacement parent's child; preserve ownership of an escaped descendant with its original tracked identity.",
+      "case": "Exclude reaped-root PID/group/session replacements, verified baseline identities and a replacement parent's child; preserve ownership of an escaped descendant with its original tracked identity. In this same case, reused-root CPU refresh must not read the replacement own_cpu value; follow the existing vanished-original-root handling without changing call-state schema.",
       "fixed_variants": 1,
       "id": "S47"
     },
@@ -65,6 +65,11 @@
   "no_external_activation": true,
   "predecessor_commit": "2ed2b3026f12f81e2801de30e757b4c63fabfb9f",
   "predecessor_handoff_sha256": "dae401c6302c3823a3f5c2d43cc305c57448bdca09cc8ff76021d5c176daa3c6",
+  "prospective_wording_refinement": {
+    "before_any_test_execution": true,
+    "prior_plan_sha256": "f918bc46c1375371f68168b63170cfd599263d5d3dfcdeb582475a9ed5e4bd74",
+    "reason": "Make the adjacent numeric-root CPU refresh assertion explicit in existing S47; no new method, variant, process or supervisor invocation."
+  },
   "schema": "worker36-normal-ownership-repair-test-plan-v1",
   "status": "prospectively_fixed_before_execution",
   "unchanged_limits": {
