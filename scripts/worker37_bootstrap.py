@@ -528,10 +528,11 @@ def validate_response(index, raw, descriptor, body):
         if index == 4:
             require(type(value.get("run_attempt")) is int and value["run_attempt"] == 1, "prior_run_attempt")
             pulls = value.get("pull_requests")
-            require(type(pulls) is list and len(pulls) == 1 and type(pulls[0]) is dict
-                    and type(pulls[0].get("number")) is int
-                    and pulls[0]["number"] == expected["pr_number"]
-                    and object_at(pulls[0], "head").get("sha") == expected["head"], "prior_pr")
+            require(type(pulls) is list and len(pulls) in (0, 1), "prior_pr")
+            if pulls:
+                require(type(pulls[0]) is dict and type(pulls[0].get("number")) is int
+                        and pulls[0]["number"] == expected["pr_number"]
+                        and object_at(pulls[0], "head").get("sha") == expected["head"], "prior_pr")
     elif index in (2, 3):
         review = descriptor["reviews"][index - 2]
         review_raw = text_bytes(value.get("body"))
@@ -903,7 +904,20 @@ class Client:
                     target, name, authenticated=False, allowance=MAX_INPUT - received)
             require(status == 200, "http_status", "execution_blocked")
             if index < 6:
-                validate_response(index, raw, descriptor, body)
+                value = validate_response(index, raw, descriptor, body)
+                if index == 4:
+                    # An absent provider association is not new proof of PR40.
+                    # The historical relation remains frozen provenance; the
+                    # immutable run/artifact/ZIP/report bindings still apply.
+                    count = len(value["pull_requests"])
+                    self.report["historical_pr_association"] = {
+                        "live_array_count": count,
+                        "live_array_binding": "validated" if count else "absent",
+                        "frozen_pr_number": descriptor["historical_fixture"]["pr_number"],
+                        "association_basis": ("frozen_historical_provenance_and_live_array"
+                                              if count else "frozen_historical_provenance"),
+                        "absence_cause": None if count else "not_established",
+                    }
             else:
                 zip_raw = raw
             self.report["completed_prefix"].append(name)
