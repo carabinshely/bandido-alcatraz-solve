@@ -1,6 +1,7 @@
 {
   "actual_counts": {
-    "actual_main": 42,
+    "actual_main": 57,
+    "authenticated_mock_attempts": 164,
     "evaluator_calls": 0,
     "games": 0,
     "harness_bash": 17,
@@ -9,13 +10,16 @@
     "inner_timeout_stub": 4,
     "live_network": 0,
     "measurement_fixture_constructions": 0,
-    "mock_http_attempts": 132,
+    "mock_http_attempts": 168,
     "outer_timeout_stub": 2,
     "seeds": 0,
-    "static_source_case": 1
+    "static_source_case": 1,
+    "unauthenticated_mock_attempts": 4
   },
   "all_source_and_fixture_hashes_unchanged_after": true,
+  "amendment_sha256": "ee3a0f8582a15daa8f96e2a16c242fee770928dd6a4c69f2ef622c89b895d877",
   "attempt": 1,
+  "batch": "repair01",
   "batches_executed": 1,
   "caps": {
     "case_snapshot_bytes": 8388608,
@@ -26,13 +30,14 @@
     "wall_seconds": 600
   },
   "errors": 0,
-  "exact_command": "/usr/bin/timeout --signal=KILL 600s /usr/bin/python3 -B evidence/fixtures/run-literal-batch.py",
+  "exact_command": "/usr/bin/timeout --signal=KILL 600s /usr/bin/python3 -B evidence/repair01/run-literal-batch.py",
   "exit_code": 0,
   "failed": 0,
-  "fixture_command_map_sha256": "c8a27f020b22edacbb104282a6aee0b1015fd6b6adb2bb57eed3a69c6f20d72d",
-  "fixture_inventory_sha256": "69afb5fa7ac8456a3ae4f122c9e0b121e01c99352dee55e0bb5ff8e3ae8d92ee",
+  "fixture_command_map_sha256": "e60c0f5772a498070ea02e7755a974faf502c7295e6c40fbb754dae33ab45969",
+  "fixture_inventory_sha256": "4ec14840f8808e44681cccb201c82581a6977205922adacb5086394eb3f77613",
   "games": 0,
   "historical_imports": 0,
+  "implementation_owner_batches_including_predecessor": 2,
   "limitations": [
     "Literal/command-stub tests do not prove actual cached Python3.11.16, real tools/fsync/timeout behavior, network credentials or real runner readiness.",
     "Current source still requires complete independent and external review, exact source/runtime/input freeze and separate engineering GO.",
@@ -45,12 +50,12 @@
     "command_path": "/usr/bin/python3"
   },
   "observed_output": {
-    "case_snapshot_bytes": 2988769,
-    "combined_bytes": 3007728,
-    "full_result_sha256": "ed8b411117b07582907df84cfc467f8a6eaf4cdd094007d2a4ca47dc1920f562",
-    "inventory_files": 577,
-    "stdout_stderr_sha256": "4c81f50b41e126cbdd4b639144f76c204876710254467b5eb9aed0fe5c5de6ab",
-    "stdout_stderr_size_bytes": 18959
+    "case_snapshot_bytes": 7446588,
+    "combined_bytes": 7467668,
+    "full_result_sha256": "d9b4d72f376849412a2edc93797ad01e91f84d6b87dc3e7b8e6b63295b267bcc",
+    "inventory_files": 722,
+    "stdout_stderr_sha256": "9d422fd61c34766566bbc8252f690875335a643926c50dc83518e346fcfb60b6",
+    "stdout_stderr_size_bytes": 21080
   },
   "observed_stub_invocations": {
     "cat": 14,
@@ -68,16 +73,26 @@
     "timeout": 6
   },
   "observed_unique_stub_pids": 865,
-  "passed": 60,
+  "passed": 75,
   "physical_process_count": null,
   "physical_process_count_note": "Observed initiating Bash PIDs and inert command PIDs/PPIDs are preserved; unobserved subshell forks are not counted or inferred.",
   "planned_counts_match": true,
+  "predecessor": {
+    "canonical_drive_id": "12ivwtQhNNtrD2ThDXJMuoeCLOuC33iVP",
+    "commit": "abfbd0075a5e5e5c25d74d37c79fe3ec4b4300d3",
+    "handoff_sha256": "8f157ec273c83044a760d5b9fb87f175092425dcb9e1c0735a54fd1c8b917b1f",
+    "passed": 60,
+    "receipt_sha256": "0879788ecaa1ca8080585f217ae7efb1f0815982a034b08c7a67f65e464479c7",
+    "review_findings": "three P2 and one P3, repaired in this separately frozen batch; old passing tests did not cover those paths",
+    "tests": 60,
+    "zip_sha256": "22d699af38540ceeb14dcd417d16fc610ec2a5da0f013da95db9155b33c5f43e"
+  },
   "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5983940003",
   "protocol_sha256": "599f21cefbca5440e288639b4a450f65b4046872a810417b2cb237db1d8408c7",
   "real_network_requests": 0,
   "real_runner_execution": false,
   "reruns": 0,
-  "schema": "worker37-literal-preparation-receipt-v1",
+  "schema": "worker37-literal-preparation-receipt-v2",
   "scientific_calls": 0,
   "scientific_classification": null,
   "seeds": 0,
@@ -89,24 +104,14 @@
       "size_bytes": 6509
     },
     {
-      "path": "scripts/worker37-bootstrap.sh",
-      "sha256": "8f5f06a96af1cb3c55e8f7db8cf8ca8be813d6d73c2c49052b0ee5df0ae2c7bc",
-      "size_bytes": 18495
-    },
-    {
-      "path": "scripts/worker37_bootstrap.py",
-      "sha256": "2f34ffc87bf9bef46e25c8f1095512aee3ebf4caf071b47945bdd3cc195debee",
-      "size_bytes": 53208
-    },
-    {
-      "path": "tests/test_worker37_bootstrap.py",
-      "sha256": "456decdaa62c597c9cfe47b4a87bbba1f7db9d95e91b2a478dc8a479524303e4",
-      "size_bytes": 80147
-    },
-    {
       "path": "experiments/worker37-bootstrap-readiness/PROTOCOL.md",
       "sha256": "599f21cefbca5440e288639b4a450f65b4046872a810417b2cb237db1d8408c7",
       "size_bytes": 32417
+    },
+    {
+      "path": "experiments/worker37-bootstrap-readiness/inputs/worker37-host-policy-evidence.json",
+      "sha256": "6ac0850fc20c4aaa9a8b8f4696e505246f8974daa4c0aea174a18365befded01",
+      "size_bytes": 5404
     },
     {
       "path": "experiments/worker37-bootstrap-readiness/literal-test-plan.json",
@@ -114,15 +119,45 @@
       "size_bytes": 35209
     },
     {
+      "path": "experiments/worker37-bootstrap-readiness/preregistration-decisions.json",
+      "sha256": "3fef9b3287aec94df180b55bb13b7776089b0de597cdf50f3007a5eee9881c4d",
+      "size_bytes": 6967
+    },
+    {
+      "path": "experiments/worker37-bootstrap-readiness/repair01-test-amendment.json",
+      "sha256": "ee3a0f8582a15daa8f96e2a16c242fee770928dd6a4c69f2ef622c89b895d877",
+      "size_bytes": 9743
+    },
+    {
+      "path": "experiments/worker37-bootstrap-readiness/source-grounding.json",
+      "sha256": "8bd0f96466c1f5e901f47e899438cca96ea9846fc542ea7238d6ff22d6ef18c8",
+      "size_bytes": 21970
+    },
+    {
+      "path": "scripts/worker37-bootstrap.sh",
+      "sha256": "8f5f06a96af1cb3c55e8f7db8cf8ca8be813d6d73c2c49052b0ee5df0ae2c7bc",
+      "size_bytes": 18495
+    },
+    {
+      "path": "scripts/worker37_bootstrap.py",
+      "sha256": "c6cd3d5f710f329ee0ea5d5794ccc1f7d8f7e51dd34e4b8a233c2946a2d2e184",
+      "size_bytes": 56812
+    },
+    {
+      "path": "tests/test_worker37_bootstrap.py",
+      "sha256": "20e2c8f9da642c03026fd0d4d18d02ad814634a4ed7da567fb40e8dd81e6feca",
+      "size_bytes": 95789
+    },
+    {
       "path": "experiments/worker37-bootstrap-readiness/source-manifest.json",
-      "sha256": "0dcd9d46390f97604bf30f905d08a66614faa1c0d4ad576b878187e053a6ae73",
-      "size_bytes": 32808
+      "sha256": "e0db235d9da8a99c5d7c027c8a953197b091642eafbba256af4a2e8cfd0ea7b6",
+      "size_bytes": 44590
     }
   ],
-  "source_manifest_sha256": "0dcd9d46390f97604bf30f905d08a66614faa1c0d4ad576b878187e053a6ae73",
-  "status": "passed_fixed_native_preparation",
-  "suite_reported_seconds": 3.063,
-  "tests_run": 60,
-  "unchanged_fixture_inputs": 146,
-  "unchanged_source_inputs": 7
+  "source_manifest_sha256": "e0db235d9da8a99c5d7c027c8a953197b091642eafbba256af4a2e8cfd0ea7b6",
+  "status": "passed_fixed_literal_repair01_batch_pending_complete_reviews",
+  "suite_reported_seconds": 2.954,
+  "tests_run": 75,
+  "unchanged_fixture_inputs": 187,
+  "unchanged_source_inputs": 11
 }
