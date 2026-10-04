@@ -1,7 +1,7 @@
 """Offline, fail-closed Worker36 evidence transport; never runs scientific code.
 
-The three public functions return reports, including failures. A failure never
-deletes source evidence or a destination's surviving prefix. Destinations must
+The packaging and local readback functions return reports, including failures.
+A failure never deletes source evidence or a destination's surviving prefix. Destinations must
 not already exist. ``manifest`` means the ``manifest`` returned by
 ``package_attempt``, not its surrounding report.
 
@@ -20,9 +20,17 @@ Consequently verify_custody NEVER returns custody='verified'. The parent must
 independently bind those receipts to successful authorized Drive tool operations
 and the canonical folder, and require the second-stage byte checks reported here.
 
-Pass the SAME ``deadline_monotonic`` to all calls in one preservation phase.
-Without it each individual call is bounded to 600 seconds, which is insufficient
-to establish the protocol's aggregate 600-second preservation-phase gate.
+``verify_provider_wrappers`` is the read-only mandatory classification-facing
+check. It raises on missing/invalid evidence, binds each actual downloaded outer
+ZIP to its exact part and externally authenticated workflow identity, and still
+reports external_origin_authenticated=False. It never uploads a wrapper as if it
+were a canonical part. ``deadline_monotonic=None`` on this helper allocates no
+time window: external time supervision remains the caller's responsibility.
+
+For package_attempt, verify_transport and verify_custody, pass the SAME
+``deadline_monotonic`` to all calls in one preservation phase. Without it each
+of those calls is bounded to 600 seconds, which is insufficient to establish
+the protocol's aggregate 600-second preservation-phase gate.
 """
 
 from __future__ import annotations
@@ -72,8 +80,8 @@ def _deadline(value: float | None) -> float:
     return float(value)
 
 
-def _tick(deadline: float) -> None:
-    if time.monotonic() >= deadline:
+def _tick(deadline: float | None) -> None:
+    if deadline is not None and time.monotonic() >= deadline:
         raise TransportError("600-second preservation-phase deadline reached")
 
 
@@ -153,7 +161,7 @@ def _identity(info: os.stat_result) -> tuple[int, int, int, int, int]:
     return (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns)
 
 
-def _file_hash(path: Path | str, cap: int, deadline: float) -> dict[str, Any]:
+def _file_hash(path: Path | str, cap: int, deadline: float | None) -> dict[str, Any]:
     source, before = _open_regular(path)
     with source:
         if before.st_size > cap:
@@ -513,7 +521,7 @@ def _zip_members(archive: zipfile.ZipFile, *, raw: bool) -> list[zipfile.ZipInfo
 
 
 def _copy_zip_member(archive: zipfile.ZipFile, info: zipfile.ZipInfo, output: BinaryIO | None,
-                     expected: Mapping[str, Any], deadline: float) -> dict[str, Any]:
+                     expected: Mapping[str, Any], deadline: float | None) -> dict[str, Any]:
     digest = hashlib.sha256()
     size = 0
     with archive.open(info, "r") as source:
@@ -535,7 +543,7 @@ def _copy_zip_member(archive: zipfile.ZipFile, info: zipfile.ZipInfo, output: Bi
 
 
 def _wrappers(descriptors: Sequence[Mapping[str, Any]] | None, parts: Sequence[Mapping[str, Any]],
-              deadline: float) -> list[dict[str, Any]]:
+              deadline: float | None) -> list[dict[str, Any]]:
     if descriptors is None:
         return []
     if not isinstance(descriptors, (list, tuple)) or len(descriptors) != len(parts):
@@ -568,6 +576,8 @@ def _wrappers(descriptors: Sequence[Mapping[str, Any]] | None, parts: Sequence[M
             members = _zip_members(archive, raw=False)
             if len(members) != 1 or members[0].filename != member_name:
                 raise TransportError("provider wrapper payload missing/renamed or extra member")
+            if members[0].file_size != expected_parts[part_name]["size"]:
+                raise TransportError("provider wrapper member size differs from exact part")
             payload = _copy_zip_member(archive, members[0], None, expected_parts[part_name], deadline)
             # Bind structural/payload checks to these same opened wrapper bytes,
             # not only a prior pathname-based hash that could race replacement.
@@ -594,6 +604,82 @@ def _wrappers(descriptors: Sequence[Mapping[str, Any]] | None, parts: Sequence[M
                              "run_id", "run_attempt", "completed_at", "size", "sha256")},
                         "external_origin_authenticated": False})
     return sorted(checked, key=lambda item: item["part_path"])
+
+
+def verify_provider_wrappers(descriptors: Sequence[Mapping[str, Any]],
+                             parts: Sequence[Mapping[str, Any]], *, repository: str,
+                             workflow_run: str, workflow_attempt: str,
+                             deadline_monotonic: float | None = None) -> list[dict[str, Any]]:
+    """Require actual outer ZIP proof for every part before final classification.
+
+    The caller must authenticate and externally pin GitHub download events along
+    with the Drive events. These local checks cannot authenticate their origin.
+    No directory is created and no fresh time allowance is started here. An
+    optional supplied deadline is carried unchanged; None means caller-owned
+    external time supervision, not proof of a completed preservation time gate.
+    Lower-level verify_transport may still omit wrappers for local-only checks.
+    """
+    deadline = None if deadline_monotonic is None else _deadline(deadline_monotonic)
+    if (repository != "carabinshely/bandido-alcatraz-solve" or
+            type(workflow_run) is not str or not re.fullmatch(r"[1-9][0-9]*", workflow_run) or
+            workflow_attempt != "1"):
+        raise TransportError("invalid authenticated provider workflow identity")
+    if (not isinstance(parts, (list, tuple)) or not parts or
+            len(parts) > (ARCHIVE_CAP + PART_CAP - 1) // PART_CAP or
+            not isinstance(descriptors, (list, tuple)) or len(descriptors) != len(parts)):
+        raise TransportError("mandatory provider wrapper coverage differs from actual parts")
+    seen_artifacts = set()
+    seen_events = set()
+    total_bytes = 0
+    for order, (part, descriptor) in enumerate(zip(parts, descriptors), 1):
+        _tick(deadline)
+        if (not isinstance(part, Mapping) or type(part.get("order")) is not int or
+                part["order"] != order or part.get("path") != f"part-{order:03d}.bin"):
+            raise TransportError("provider proof requires exact ordered part descriptors")
+        size = _int(part.get("size"), "part size", PART_CAP)
+        if size == 0:
+            raise TransportError("empty transport payload part")
+        _hash(part.get("sha256"))
+        total_bytes += size
+        if total_bytes > ARCHIVE_CAP:
+            raise TransportError("provider parts exceed exact archive cap")
+        required = {"order", "part_path", "member_name", "path", "size", "sha256", "download_receipt"}
+        if not isinstance(descriptor, Mapping) or not required <= descriptor.keys():
+            raise TransportError("actual retained provider wrapper descriptor required")
+        if (type(descriptor["order"]) is not int or descriptor["order"] != order or
+                descriptor["part_path"] != part["path"] or descriptor["member_name"] != part["path"]):
+            raise TransportError("provider wrapper order/part/member identity mismatch")
+        if not isinstance(descriptor["path"], (str, Path)) or not str(descriptor["path"]):
+            raise TransportError("retained provider ZIP path required")
+        wrapper_size = _int(descriptor["size"], "provider ZIP size", PROVIDER_WRAPPER_LIMIT - 1)
+        if wrapper_size == 0:
+            raise TransportError("empty provider ZIP")
+        wrapper_hash = _hash(descriptor["sha256"])
+        receipt = descriptor["download_receipt"]
+        if not isinstance(receipt, Mapping):
+            raise TransportError("authenticated provider download receipt required")
+        if (receipt.get("provider") != "github_actions" or receipt.get("operation") != "download" or
+                receipt.get("repository") != repository or receipt.get("run_id") != workflow_run or
+                receipt.get("run_attempt") != workflow_attempt or
+                receipt.get("artifact_name") != f"worker36-transport-{order:03d}-{workflow_run}"):
+            raise TransportError("provider artifact does not match authenticated workflow/part")
+        artifact_id = receipt.get("artifact_id")
+        event_id = receipt.get("event_id")
+        if (type(artifact_id) is not str or not re.fullmatch(r"[1-9][0-9]*", artifact_id) or
+                artifact_id in seen_artifacts or type(event_id) is not str or not event_id or
+                event_id in seen_events):
+            raise TransportError("unique provider artifact/download event identity required")
+        seen_artifacts.add(artifact_id)
+        seen_events.add(event_id)
+        if (type(receipt.get("size")) is not int or receipt["size"] != wrapper_size or
+                receipt.get("sha256") != wrapper_hash):
+            raise TransportError("provider ZIP pins differ from authenticated download receipt")
+        _timestamp(receipt.get("completed_at"))
+    checked = _wrappers(descriptors, parts, deadline)
+    for item, descriptor in zip(checked, descriptors):
+        item["order"] = descriptor["order"]
+        item["asserted_download_receipt"]["artifact_name"] = descriptor["download_receipt"]["artifact_name"]
+    return checked
 
 
 def verify_transport(manifest: Mapping[str, Any], local_paths: Mapping[str, Path | str],

@@ -1,4 +1,4 @@
-"""Proposed finite offline tests: NOT RUN during implementation preparation.
+"""Finite offline tests requiring separately recorded literal-test authorization.
 
 Only invented byte files are constructed. This file directly loads transport.py
 and never imports the diagnostic driver, historical code, evaluators or a game.
@@ -134,6 +134,167 @@ class OfflineTransportPlan(unittest.TestCase):
                     "limits": {"raw_bytes": transport.RAW_CAP, "archive_bytes": transport.ARCHIVE_CAP,
                                "part_bytes": transport.PART_CAP, "provider_zip_strictly_below_bytes": transport.PROVIDER_WRAPPER_LIMIT}}
         return transport.verify_transport(manifest, {"part-001.bin": part}, self.fresh("malicious-readback"))
+
+    def classification_wrappers(self, payloads=(b"literal first transport payload",)):
+        """Literal wrapper-boundary data, not an underfilled production archive."""
+        parts = []
+        descriptors = []
+        for order, payload in enumerate(payloads, 1):
+            name = f"part-{order:03d}.bin"
+            part = {"order": order, "path": name, "size": len(payload), "sha256": sha(payload)}
+            path = self.fresh("literal-github-download.zip")
+            path.write_bytes(self.raw_zip([(name, payload)]))
+            wrapper = path.read_bytes()
+            receipt = {"provider": "github_actions", "operation": "download",
+                       "repository": "carabinshely/bandido-alcatraz-solve", "run_id": "123",
+                       "run_attempt": "1", "artifact_id": str(1000 + order),
+                       "artifact_name": f"worker36-transport-{order:03d}-123",
+                       "event_id": f"literal-provider-download-{order}",
+                       "completed_at": "2026-10-04T00:00:00Z",
+                       "size": len(wrapper), "sha256": sha(wrapper)}
+            descriptors.append({"order": order, "part_path": name, "member_name": name,
+                                "path": str(path), "size": len(wrapper), "sha256": sha(wrapper),
+                                "download_receipt": receipt})
+            parts.append(part)
+        return parts, descriptors
+
+    def classification_wrapper_check(self, parts, descriptors):
+        checker = getattr(transport, "verify_provider_wrappers", None)
+        self.assertTrue(callable(checker), "mandatory classification wrapper validator is missing")
+        return checker(descriptors, parts, repository="carabinshely/bandido-alcatraz-solve",
+                       workflow_run="123", workflow_attempt="1", deadline_monotonic=None)
+
+    def repin_literal_wrapper(self, descriptor, raw):
+        Path(descriptor["path"]).write_bytes(raw)
+        descriptor.update(size=len(raw), sha256=sha(raw))
+        descriptor["download_receipt"].update(size=len(raw), sha256=sha(raw))
+
+    def test_PW03_mandatory_exact_ordered_wrapper_coverage(self):
+        parts, descriptors = self.classification_wrappers((b"first", b"second"))
+        variants = (None, [], descriptors[:1], descriptors + [copy.deepcopy(descriptors[0])],
+                    [descriptors[0], copy.deepcopy(descriptors[0])], list(reversed(descriptors)))
+        for index, altered in enumerate(variants):
+            with self.subTest(variant=index), self.assertRaises(transport.TransportError):
+                self.classification_wrapper_check(parts, altered)
+        unknown = copy.deepcopy(descriptors)
+        unknown[1]["part_path"] = "part-003.bin"
+        with self.assertRaises(transport.TransportError):
+            self.classification_wrapper_check(parts, unknown)
+
+    def test_PW04_one_actual_part_needs_one_actual_wrapper(self):
+        parts, descriptors = self.classification_wrappers()
+        checked = self.classification_wrapper_check(parts, descriptors)
+        self.assertEqual(len(checked), 1)
+        self.assertEqual(checked[0]["part_path"], "part-001.bin")
+        self.assertEqual(checked[0]["payload"], {"size": parts[0]["size"], "sha256": parts[0]["sha256"]})
+        self.assertEqual(checked[0]["wrapper"], {"size": descriptors[0]["size"], "sha256": descriptors[0]["sha256"]})
+
+    def test_PW05_actual_wrapper_bytes_must_match_both_pins(self):
+        for fault in ("size", "sha256", "changed-bytes"):
+            parts, descriptors = self.classification_wrappers()
+            if fault == "size":
+                descriptors[0]["size"] += 1
+            elif fault == "sha256":
+                descriptors[0]["sha256"] = "f" * 64
+            else:
+                path = Path(descriptors[0]["path"])
+                path.write_bytes(path.read_bytes() + b"changed")
+            with self.subTest(fault=fault), self.assertRaises(transport.TransportError):
+                self.classification_wrapper_check(parts, descriptors)
+
+    def test_PW06_strict_provider_zip_limit_uses_actual_size(self):
+        parts, descriptors = self.classification_wrappers()
+        self.assertEqual(len(self.classification_wrapper_check(parts, descriptors)), 1)
+        for size in (transport.PROVIDER_WRAPPER_LIMIT, transport.PROVIDER_WRAPPER_LIMIT + 1):
+            # Fixed existing metadata-fault mechanism; no large allocation/cap edit.
+            with self.subTest(size=size), mock.patch.object(transport, "_open_regular", return_value=(io.BytesIO(), SimpleNamespace(st_size=size))):
+                with self.assertRaises(transport.TransportError):
+                    self.classification_wrapper_check(parts, descriptors)
+
+    def test_PW07_exact_member_name_size_and_payload(self):
+        payload = b"fixed payload"
+        for fault in ("name", "declared-size", "payload-size", "payload-hash"):
+            parts, descriptors = self.classification_wrappers((payload,))
+            name = "renamed.bin" if fault == "name" else parts[0]["path"]
+            altered = payload + b"x" if fault == "payload-size" else payload
+            if fault == "payload-hash":
+                altered = b"X" + payload[1:]
+            raw = bytearray(self.raw_zip([(name, altered)]))
+            if fault == "declared-size":
+                central = raw.index(b"PK\x01\x02")
+                struct.pack_into("<I", raw, central + 24, len(payload) + 1)
+            self.repin_literal_wrapper(descriptors[0], raw)
+            if fault == "name":
+                # Self-consistent caller-chosen alias must not bypass exact part name.
+                descriptors[0]["member_name"] = name
+            with self.subTest(fault=fault), self.assertRaises(transport.TransportError):
+                self.classification_wrapper_check(parts, descriptors)
+
+    def test_PW08_extra_or_duplicate_wrapper_members_reject(self):
+        for second_name in ("unexpected.bin", "part-001.bin"):
+            parts, descriptors = self.classification_wrappers((b"first",))
+            with mock.patch("warnings.warn"):
+                raw = self.raw_zip([("part-001.bin", b"first"), (second_name, b"second")])
+            self.repin_literal_wrapper(descriptors[0], raw)
+            with self.subTest(second_name=second_name), self.assertRaises(transport.TransportError):
+                self.classification_wrapper_check(parts, descriptors)
+
+    def test_PW09_provider_identity_binds_verified_attempt(self):
+        cases = (("provider", "other-provider"), ("operation", "upload"),
+                 ("repository", "other/repository"), ("run_id", "124"), ("run_attempt", "2"),
+                 ("artifact_name", "worker36-transport-002-123"), ("artifact_id", ""),
+                 ("event_id", ""), ("artifact_id", None), ("event_id", None))
+        for key, value in cases:
+            parts, descriptors = self.classification_wrappers()
+            if value is None:
+                del descriptors[0]["download_receipt"][key]
+            else:
+                descriptors[0]["download_receipt"][key] = value
+            with self.subTest(key=key, value=value), self.assertRaises(transport.TransportError):
+                self.classification_wrapper_check(parts, descriptors)
+
+    def test_PW10_unique_artifact_and_download_event_per_part(self):
+        for field in ("artifact_id", "event_id"):
+            parts, descriptors = self.classification_wrappers((b"first", b"second"))
+            descriptors[1]["download_receipt"][field] = descriptors[0]["download_receipt"][field]
+            with self.subTest(field=field), self.assertRaises(transport.TransportError):
+                self.classification_wrapper_check(parts, descriptors)
+
+    def test_PW11_actual_retained_file_required_not_verified_flags(self):
+        for fault in ("flag-only", "missing-path", "missing-file", "unreadable-file", "symlink"):
+            parts, descriptors = self.classification_wrappers()
+            if fault == "flag-only":
+                descriptors = [{"verified": True}]
+            elif fault == "missing-path":
+                descriptors[0].pop("path")
+                descriptors[0]["verified"] = True
+            elif fault == "missing-file":
+                Path(descriptors[0]["path"]).unlink()
+            elif fault == "symlink":
+                link = self.fresh("wrapper-link")
+                link.symlink_to(descriptors[0]["path"])
+                descriptors[0]["path"] = str(link)
+            with self.subTest(fault=fault):
+                if fault == "unreadable-file":
+                    with mock.patch.object(transport, "_open_regular", side_effect=PermissionError("literal unreadable wrapper")):
+                        with self.assertRaises((transport.TransportError, OSError)):
+                            self.classification_wrapper_check(parts, descriptors)
+                else:
+                    with self.assertRaises((transport.TransportError, OSError)):
+                        self.classification_wrapper_check(parts, descriptors)
+
+    def test_PW12_original_archive_or_raw_part_is_not_outer_wrapper(self):
+        for wrong_layer in (self.raw_zip([("receipt.json", b"{}")]), b"a raw split payload"):
+            parts, descriptors = self.classification_wrappers()
+            self.repin_literal_wrapper(descriptors[0], wrong_layer)
+            with self.subTest(size=len(wrong_layer)), self.assertRaises((transport.TransportError, zipfile.BadZipFile)):
+                self.classification_wrapper_check(parts, descriptors)
+
+    def test_PW16_local_checks_never_authenticate_provider_origin(self):
+        parts, descriptors = self.classification_wrappers()
+        checked = self.classification_wrapper_check(parts, descriptors)
+        self.assertIs(checked[0]["external_origin_authenticated"], False)
+        self.assertEqual(checked[0]["asserted_download_receipt"]["artifact_name"], "worker36-transport-001-123")
 
     def test_T01_round_trip_inventory_and_raw_readback(self):
         root, _, package = self.package()
