@@ -1,4 +1,4 @@
-"""Seventy-five frozen, metadata-only Worker37 engineering cases.
+"""Eighty-four frozen, metadata-only Worker37 engineering cases.
 
 The declared case IDs are the entire suite. There is no discovery, fuzzing,
 parameterization, scientific import, measurement fixture, game, or live HTTP.
@@ -200,6 +200,10 @@ class LiteralScenario:
         self.new_head_override = None
         self.new_body_override = None
         self.prior_head_override = None
+        self.prior_association_override = None
+        self.omit_prior_association = False
+        self.fixed_historical_pin_override = None
+        self.artifact_run_id_override = None
         self.base_conclusion = 'success'
         self.requests = []
         self.openers = []
@@ -249,11 +253,17 @@ class LiteralScenario:
                  'head_sha':self.prior_head_override or '3'*40, 'event':'pull_request',
                  'repository':{'full_name':REPOSITORY},
                  'pull_requests':[{'number':40, 'head':{'sha':'3'*40}}]}
+        if self.prior_association_override is not None:
+            prior['pull_requests'] = copy.deepcopy(self.prior_association_override)
+        if self.omit_prior_association:
+            prior.pop('pull_requests')
         artifact = {'id':106, 'name':self.descriptor['historical_fixture']['artifact_name'],
                     'expired':False,
                     'size_in_bytes':self.descriptor['historical_fixture']['zip_size_bytes'],
                     'digest':'sha256:'+self.descriptor['historical_fixture']['zip_sha256'],
                     'workflow_run':{'id':105, 'head_sha':'3'*40}}
+        if self.artifact_run_id_override is not None:
+            artifact['workflow_run']['id'] = self.artifact_run_id_override
         responses = [LiteralResponse(canonical(item)) for item in
                      (pr, ci, exhaustive, adversarial, prior, artifact)]
         if self.extra_numeric_literal is not None:
@@ -512,7 +522,9 @@ def run_python(s):
             module=importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             stack.enter_context(patch.object(module,'FIXED_BASE',copy.deepcopy(s.descriptor['base'])))
-            stack.enter_context(patch.object(module,'FIXED_HISTORICAL',copy.deepcopy(s.descriptor['historical_fixture'])))
+            fixed_historical = (s.fixed_historical_pin_override if s.fixed_historical_pin_override is not None
+                                else s.descriptor['historical_fixture'])
+            stack.enter_context(patch.object(module,'FIXED_HISTORICAL',copy.deepcopy(fixed_historical)))
             stack.enter_context(patch.object(module,'REQUIRED_SOURCE_PATHS',('scripts/worker37_bootstrap.py',)))
             os_proxy=module_proxy(os)
             os_proxy.open,os_proxy.read,os_proxy.write,os_proxy.close=os_open,os_read,os_write,os_close
@@ -1311,6 +1323,109 @@ class Worker37LiteralCases(unittest.TestCase):
         self.assertFalse(any(item.get('code')=='descriptor_close_failed'
                              for item in s.result['secondary_failures']))
 
+    def test_T076_empty_prior_association_valid(self):
+        s = LiteralScenario()
+        s.prior_association_override = []
+        run_python(s)
+        self.assertOutcome(s,'bootstrap_ready','P09',7)
+        self.assertAbsentPriorAssociation(s)
+        self.assertEqual(json.loads(s.retained['preflight-run.json'])['pull_requests'],[])
+
+    def test_T077_prior_association_wrong_pr(self):
+        s = LiteralScenario()
+        s.prior_association_override = [{'number':41,'head':{'sha':'3'*40}}]
+        run_python(s)
+        self.assertOutcome(s,'integrity_invalid','P07',5)
+        self.assertPrimary(s,'integrity_invalid','prior_pr','P07')
+        self.assertNotIn('historical_pr_association',s.result)
+        self.assertNotIn('preflight-artifact.json',s.retained)
+
+    def test_T078_prior_association_wrong_head(self):
+        s = LiteralScenario()
+        s.prior_association_override = [{'number':40,'head':{'sha':'1'*40}}]
+        run_python(s)
+        self.assertOutcome(s,'integrity_invalid','P07',5)
+        self.assertPrimary(s,'integrity_invalid','prior_pr','P07')
+        self.assertNotIn('historical_pr_association',s.result)
+        self.assertEqual(json.loads(s.retained['preflight-run.json'])['head_sha'],'3'*40)
+        self.assertNotIn('preflight-artifact.json',s.retained)
+
+    def test_T079_prior_association_missing(self):
+        s = LiteralScenario()
+        s.omit_prior_association = True
+        run_python(s)
+        self.assertOutcome(s,'integrity_invalid','P07',5)
+        self.assertPrimary(s,'integrity_invalid','prior_pr','P07')
+        self.assertNotIn('historical_pr_association',s.result)
+        self.assertNotIn('pull_requests',json.loads(s.retained['preflight-run.json']))
+        self.assertNotIn('preflight-artifact.json',s.retained)
+
+    def test_T080_prior_association_not_list(self):
+        s = LiteralScenario()
+        s.prior_association_override = {}
+        run_python(s)
+        self.assertOutcome(s,'integrity_invalid','P07',5)
+        self.assertPrimary(s,'integrity_invalid','prior_pr','P07')
+        self.assertNotIn('historical_pr_association',s.result)
+        self.assertEqual(json.loads(s.retained['preflight-run.json'])['pull_requests'],{})
+        self.assertNotIn('preflight-artifact.json',s.retained)
+
+    def test_T081_prior_association_ambiguous(self):
+        s = LiteralScenario()
+        s.prior_association_override = [
+            {'number':40,'head':{'sha':'3'*40}},
+            {'number':41,'head':{'sha':'3'*40}},
+        ]
+        run_python(s)
+        self.assertOutcome(s,'integrity_invalid','P07',5)
+        self.assertPrimary(s,'integrity_invalid','prior_pr','P07')
+        self.assertNotIn('historical_pr_association',s.result)
+        self.assertEqual(len(json.loads(s.retained['preflight-run.json'])['pull_requests']),2)
+        self.assertNotIn('preflight-artifact.json',s.retained)
+
+    def test_T082_frozen_historical_pr_mismatch(self):
+        s = LiteralScenario()
+        s.fixed_historical_pin_override = copy.deepcopy(s.descriptor['historical_fixture'])
+        s.descriptor['historical_fixture']['pr_number'] = 41
+        run_python(s)
+        self.assertOutcome(s,'execution_blocked','P06',0)
+        self.assertEqual(s.result['error_code'],'fixed_historical_fixture')
+        self.assertEqual(s.result['primary_failure'],{
+            'classification':'execution_blocked','code':'fixed_historical_fixture','phase':'P06'})
+        self.assertEqual(s.fixed_historical_pin_override['pr_number'],40)
+        self.assertNotIn('historical_pr_association',s.result)
+
+    def test_T083_empty_association_artifact_run_mismatch(self):
+        s = LiteralScenario()
+        s.prior_association_override = []
+        s.artifact_run_id_override = 107
+        run_python(s)
+        self.assertOutcome(s,'integrity_invalid','P07',6)
+        self.assertPrimary(s,'integrity_invalid','artifact_source','P07')
+        self.assertAbsentPriorAssociation(s)
+        self.assertEqual(json.loads(s.retained['preflight-artifact.json'])['workflow_run']['id'],107)
+        self.assertNotIn('preflight.zip',s.retained)
+
+    def test_T084_empty_association_archive_hash_mismatch(self):
+        s = LiteralScenario()
+        s.prior_association_override = []
+        s.zip_bytes = base64.b64decode(FROZEN_ZIPS['T052'])
+        run_python(s)
+        self.assertOutcome(s,'integrity_invalid','P08',7)
+        self.assertPrimary(s,'integrity_invalid','archive_hash','P08')
+        self.assertAbsentPriorAssociation(s)
+        self.assertEqual(s.retained['preflight.zip'],s.zip_bytes)
+        self.assertNotEqual(sha(s.zip_bytes),s.descriptor['historical_fixture']['zip_sha256'])
+
+    def assertAbsentPriorAssociation(self,s):
+        self.assertEqual(s.result['historical_pr_association'],{
+            'live_array_count':0,
+            'live_array_binding':'absent',
+            'frozen_pr_number':40,
+            'association_basis':'frozen_historical_provenance',
+            'absence_cause':'not_established',
+        })
+
     def assertPrimary(self,s,classification,code,phase):
         self.assertEqual(s.result['primary_failure'],{
             'classification':classification,'code':code,'phase':phase})
@@ -1491,6 +1606,15 @@ def frozen_suite():
         Worker37LiteralCases('test_T073_negative_float_overflow_rejected'),
         Worker37LiteralCases('test_T074_finite_float_boundary_accepted'),
         Worker37LiteralCases('test_T075_descriptor_close_only_becomes_primary'),
+        Worker37LiteralCases('test_T076_empty_prior_association_valid'),
+        Worker37LiteralCases('test_T077_prior_association_wrong_pr'),
+        Worker37LiteralCases('test_T078_prior_association_wrong_head'),
+        Worker37LiteralCases('test_T079_prior_association_missing'),
+        Worker37LiteralCases('test_T080_prior_association_not_list'),
+        Worker37LiteralCases('test_T081_prior_association_ambiguous'),
+        Worker37LiteralCases('test_T082_frozen_historical_pr_mismatch'),
+        Worker37LiteralCases('test_T083_empty_association_artifact_run_mismatch'),
+        Worker37LiteralCases('test_T084_empty_association_archive_hash_mismatch'),
     ))
 
 

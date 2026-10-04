@@ -33,12 +33,12 @@
   "measurement_admitted": false,
   "native_preparation": {
     "case_prefix_reserve_bytes": 8388608,
-    "cases": 75,
+    "cases": 84,
     "combined_output_bytes": 16777216,
-    "command": "cd /workspace/shared/worker37-bootstrap-readiness\n/usr/bin/timeout --signal=KILL 600s /usr/bin/python3 -B evidence/repair01/run-literal-batch.py\n",
+    "command": "cd /workspace/shared/worker37-bootstrap-readiness\n/usr/bin/timeout --signal=KILL 600s /usr/bin/python3 -B evidence/repair02-provider-association/run-literal-batch.py\n",
     "coverage_counts": {
       "actual_bash_with_inert_literal_stubs": 17,
-      "python_actual_entrypoint_with_literal_mocks": 57,
+      "python_actual_entrypoint_with_literal_mocks": 66,
       "static_actual_source_inspection": 1
     },
     "fixture_input_path_root": "workspace",
@@ -972,15 +972,160 @@
         "path": "evidence/repair01/static-amendment-custody.json",
         "sha256": "39099c315ce90b6b1c177f3840a5dab5286f9ef1799af231295a6158473abe59",
         "size_bytes": 862
+      },
+      {
+        "path": "evidence/repair02-provider-association/T076-fixture.json",
+        "sha256": "2dd39ecbf15ca5d37014e78e5383e9630c34726403248178e4ef5cb3c6e5f71d",
+        "size_bytes": 749
+      },
+      {
+        "path": "evidence/repair02-provider-association/T076-preflight-run.json",
+        "sha256": "1e750cae72ce6b263c32330fdf45f99050decef599aa4006be1d2f6a111d43cb",
+        "size_bytes": 232
+      },
+      {
+        "path": "evidence/repair02-provider-association/T077-fixture.json",
+        "sha256": "71b284d2501e7e49f7b74fdf0fff9a45684e3b7b770520a2ad7a5d5edad1b617",
+        "size_bytes": 666
+      },
+      {
+        "path": "evidence/repair02-provider-association/T077-preflight-run.json",
+        "sha256": "f2a176bb4b5098a1c36398d2e5afa1cead575b7b4256bd6e06de36e42a3d5f7a",
+        "size_bytes": 303
+      },
+      {
+        "path": "evidence/repair02-provider-association/T078-fixture.json",
+        "sha256": "d018439a022e3d8b5b7ad6e7d72320278fb1684a53f99b112029333fb642f4d7",
+        "size_bytes": 742
+      },
+      {
+        "path": "evidence/repair02-provider-association/T078-preflight-run.json",
+        "sha256": "3a64d7bdfa9119b78aed3dab66a3dd56c01915ada3aba84397c2e30e04ef4de8",
+        "size_bytes": 303
+      },
+      {
+        "path": "evidence/repair02-provider-association/T079-fixture.json",
+        "sha256": "f4be6e6d411f7663a6fd895b35b608503d81cb49ff0c36db2a1cf4cbb512a638",
+        "size_bytes": 601
+      },
+      {
+        "path": "evidence/repair02-provider-association/T079-preflight-run.json",
+        "sha256": "31645158a9495e1c49c50b416490dc580008daefc85a7c26b38bcebc40fd57ce",
+        "size_bytes": 213
+      },
+      {
+        "path": "evidence/repair02-provider-association/T080-fixture.json",
+        "sha256": "de3188cba81964bab14f7cb5300bcdf35df77f22c7d9ea596db51aaf353ffece",
+        "size_bytes": 619
+      },
+      {
+        "path": "evidence/repair02-provider-association/T080-preflight-run.json",
+        "sha256": "820e3d379a2339d9b914a0d4dbb4fb0eb4d978f6e8b45a046abab547e5689cc2",
+        "size_bytes": 232
+      },
+      {
+        "path": "evidence/repair02-provider-association/T081-fixture.json",
+        "sha256": "13bb588662432a3c7ecc228da25925102183afd5acea62a60e9dc9aa47cb0219",
+        "size_bytes": 682
+      },
+      {
+        "path": "evidence/repair02-provider-association/T081-preflight-run.json",
+        "sha256": "f8a22f7b5853a2782e394ab8e328c5d20df13801196c4bd2107477b55933461c",
+        "size_bytes": 375
+      },
+      {
+        "path": "evidence/repair02-provider-association/T082-descriptor.json",
+        "sha256": "6b0718b0a0000ef66603377f03f0d3e95ba01e29c5d517fffb25cecfb5e7b3d1",
+        "size_bytes": 2661
+      },
+      {
+        "path": "evidence/repair02-provider-association/T082-event.json",
+        "sha256": "d4cd76a7df0dbe7d326fcf36e0d03e99d1cebfff49fb52cae93eed4d6c5b8a01",
+        "size_bytes": 3633
+      },
+      {
+        "path": "evidence/repair02-provider-association/T082-fixed-historical-pin.json",
+        "sha256": "3fa4ca947d45b388ea294115a87314a2734c1a812151a3051bbbfa12b2911fea",
+        "size_bytes": 429
+      },
+      {
+        "path": "evidence/repair02-provider-association/T082-fixture.json",
+        "sha256": "be1e3217fb308b0085b315dbfbc73dd73a2fa78adf2e23361f794cea8b3fe0c2",
+        "size_bytes": 1166
+      },
+      {
+        "path": "evidence/repair02-provider-association/T083-fixture.json",
+        "sha256": "f207d55fd24d5d4ea94baf486ece45c52600f3f89e2add4a8e0c161e926c7ffe",
+        "size_bytes": 916
+      },
+      {
+        "path": "evidence/repair02-provider-association/T083-preflight-artifact.json",
+        "sha256": "2a73e64b32fc62aace7cbe96b3778e43814a7113aa0272b725d4a48930b140fe",
+        "size_bytes": 258
+      },
+      {
+        "path": "evidence/repair02-provider-association/T083-preflight-run.json",
+        "sha256": "1e750cae72ce6b263c32330fdf45f99050decef599aa4006be1d2f6a111d43cb",
+        "size_bytes": 232
+      },
+      {
+        "path": "evidence/repair02-provider-association/T084-fixture.json",
+        "sha256": "fc42c85a2bdc912e1c611e61f79d6d627a315edf0d6b9fc552b43889bd3e7230",
+        "size_bytes": 977
+      },
+      {
+        "path": "evidence/repair02-provider-association/T084-preflight-run.json",
+        "sha256": "1e750cae72ce6b263c32330fdf45f99050decef599aa4006be1d2f6a111d43cb",
+        "size_bytes": 232
+      },
+      {
+        "path": "evidence/repair02-provider-association/finite-literal-amendment.json",
+        "sha256": "2452097f44c441e3b232827a37e565cf6b6afaa00935570fb908f9d1ccf2506f",
+        "size_bytes": 6056
+      },
+      {
+        "path": "evidence/repair02-provider-association/native-batch-command.txt",
+        "sha256": "286fcdeea302710705785e907eebaf7bf661f4e81e966dcb9c34c7de9c11a9c2",
+        "size_bytes": 166
+      },
+      {
+        "path": "evidence/repair02-provider-association/new-case-methods.py.txt",
+        "sha256": "e9f0ad6b7289db80d79a29ee18f861af8863df782feb5072b627cd92a411dac0",
+        "size_bytes": 4992
+      },
+      {
+        "path": "evidence/repair02-provider-association/output-budget-estimate.json",
+        "sha256": "28d082aef2c638f771be1110b352626b8e45d54ba474e600213f10407f349d27",
+        "size_bytes": 746
+      },
+      {
+        "path": "evidence/repair02-provider-association/prior75-test-source.py.txt",
+        "sha256": "20e2c8f9da642c03026fd0d4d18d02ad814634a4ed7da567fb40e8dd81e6feca",
+        "size_bytes": 95789
+      },
+      {
+        "path": "evidence/repair02-provider-association/prospective-rule-and-cases.json",
+        "sha256": "2447733482a83309e3dc27385332c12c36f03773bec844c3ed81786d78681839",
+        "size_bytes": 5794
+      },
+      {
+        "path": "evidence/repair02-provider-association/run-literal-batch.py",
+        "sha256": "c3df96c267e5c90ce66cc14fe2d4368935d82e58755c8e1671104143d1bf79a5",
+        "size_bytes": 1129
+      },
+      {
+        "path": "evidence/repair02-provider-association/static-amendment-custody.json",
+        "sha256": "21c5819a5d367148add0c71b1836f9c9ccb6531f855c166e451e0599cf416a92",
+        "size_bytes": 4396
       }
     ],
     "fixture_inventory": {
-      "path": "evidence/repair01/fixture-inventory.json",
-      "sha256": "4ec14840f8808e44681cccb201c82581a6977205922adacb5086394eb3f77613",
-      "size_bytes": 27549
+      "path": "evidence/repair02-provider-association/fixture-inventory.json",
+      "sha256": "cfe53e72a9de01b45cec2441f536ef29ec651bbf67fdebcefb324c829e110787",
+      "size_bytes": 32705
     },
     "limitations": [
-      "This amended source and appended fixed cases remain untested until the root-gated 75-case batch; the prior 60-case evidence remains preserved separately.",
+      "This provider-association repair and its nine appended literal cases remain untested until the root-gated84-case batch; earlier60/75-case and separate canonical3-case records are preserved with their own source bindings.",
       "Literal mocks/Bash stubs do not establish actual pinned runner/runtime/network readiness.",
       "17 Bash cases is not a total physical process count; later trace records observed PIDs/invocations only."
     ],
@@ -989,8 +1134,8 @@
     "output_receipt": "experiments/worker37-bootstrap-readiness/preparation-receipt.json",
     "passes_per_case": 1,
     "planned_call_counts": {
-      "actual_main": 57,
-      "authenticated_mock_attempts": 164,
+      "actual_main": 66,
+      "authenticated_mock_attempts": 209,
       "evaluator_calls": 0,
       "games": 0,
       "harness_bash": 17,
@@ -999,7 +1144,7 @@
       "inner_timeout_stub": 4,
       "live_network": 0,
       "measurement_fixture_constructions": 0,
-      "mock_http_attempts": 168,
+      "mock_http_attempts": 213,
       "outer_timeout_stub": 2,
       "seeds": 0,
       "static_source_case": 1,
@@ -1017,13 +1162,16 @@
   "purpose": "Pre-run source and literal-input inventory; this record is not a test result or execution admission. Actual outcomes belong in the later preparation receipt.",
   "records_commit": "3c2f0f705202e1620d7d2285dd8f07344bcc3362",
   "repair_amendment": {
-    "appended_literal_cases": 15,
+    "appended_literal_cases": 9,
+    "approved_proposal_sha256": "2447733482a83309e3dc27385332c12c36f03773bec844c3ed81786d78681839",
+    "exact_literal_plan_sha256": "2452097f44c441e3b232827a37e565cf6b6afaa00935570fb908f9d1ccf2506f",
     "path": "experiments/worker37-bootstrap-readiness/repair01-test-amendment.json",
-    "predecessor_commit": "abfbd0075a5e5e5c25d74d37c79fe3ec4b4300d3",
-    "predecessor_handoff_sha256": "8f157ec273c83044a760d5b9fb87f175092425dcb9e1c0735a54fd1c8b917b1f",
-    "predecessor_receipt_sha256": "0879788ecaa1ca8080585f217ae7efb1f0815982a034b08c7a67f65e464479c7",
-    "prior_case_count": 60,
-    "sha256": "ee3a0f8582a15daa8f96e2a16c242fee770928dd6a4c69f2ef622c89b895d877"
+    "predecessor_head": "f704d408eb84dc220ed23e3eb62b4c799e13eff3",
+    "predecessor_manifest_sha256": "e0db235d9da8a99c5d7c027c8a953197b091642eafbba256af4a2e8cfd0ea7b6",
+    "predecessor_receipt_sha256": "566217864ab9f52f451cc4258adbf66539910e7ebc79aa5eb38d2e6cf864fa59",
+    "prior_case_count": 75,
+    "sha256": "2b14bb31eae55c0a52a65e30a65356e86e11d6c15bee557c68099f3aa629bae3",
+    "stage": "repair02_provider_association"
   },
   "repository": "carabinshely/bandido-alcatraz-solve",
   "required_execution_source_paths": [
@@ -1082,6 +1230,13 @@
   },
   "schema": "worker37-source-manifest-v1",
   "scientific_classification": null,
+  "separate_canonical_test_repair": {
+    "byte_unchanged_during_this_repair": true,
+    "path": "tests/test_worker34_supervise.py",
+    "scope": "Separately verified administrative test correction; no rerun or inclusion among the84 Worker37 cases.",
+    "sha256": "e7932117bb7700338ab5ded48ea9bd6a1eeaa14cb307ce7f64b65fdbcc78286e",
+    "three_case_receipt_sha256": "1409f60c4b7086f0d08dfec8e406648122423f69b18ec5b167e0c2d7753f8149"
+  },
   "shell_command_inventory": [
     "realpath",
     "readlink",
@@ -1131,11 +1286,11 @@
       "size_bytes": 6967
     },
     {
-      "git_blob": "a2c4b22032db65941c28fd2b1a444b346e4a41c0",
+      "git_blob": "5d6fb651fa7f0b20b5e51c0664a1e0f59d001596",
       "mode": "100644",
       "path": "experiments/worker37-bootstrap-readiness/repair01-test-amendment.json",
-      "sha256": "ee3a0f8582a15daa8f96e2a16c242fee770928dd6a4c69f2ef622c89b895d877",
-      "size_bytes": 9743
+      "sha256": "2b14bb31eae55c0a52a65e30a65356e86e11d6c15bee557c68099f3aa629bae3",
+      "size_bytes": 20482
     },
     {
       "git_blob": "99fe76970954171e8779f07601a448542f922b9c",
@@ -1152,18 +1307,18 @@
       "size_bytes": 18495
     },
     {
-      "git_blob": "d807b53b8c8e37f77bf0f2be0b4e7da49b7f2967",
+      "git_blob": "eab7d280b823e691159356f12d5a9ccf15a98cd9",
       "mode": "100644",
       "path": "scripts/worker37_bootstrap.py",
-      "sha256": "c6cd3d5f710f329ee0ea5d5794ccc1f7d8f7e51dd34e4b8a233c2946a2d2e184",
-      "size_bytes": 56812
+      "sha256": "0b9a4d0349d983e383dcd8d005bf0dfbde9b693acd75d6a7a04e689136738d43",
+      "size_bytes": 57764
     },
     {
-      "git_blob": "95b4a28a07609e36bc5849016bbd3f2e06f54742",
+      "git_blob": "2f000f667edd4be50d21ebe7b77c2a19b3dbf923",
       "mode": "100644",
       "path": "tests/test_worker37_bootstrap.py",
-      "sha256": "20e2c8f9da642c03026fd0d4d18d02ad814634a4ed7da567fb40e8dd81e6feca",
-      "size_bytes": 95789
+      "sha256": "3e05e377f7d27eb3d0b4b80063a6c9f5bd1d9343759f6d4d143b24ba733ae6cb",
+      "size_bytes": 102144
     }
   ]
 }

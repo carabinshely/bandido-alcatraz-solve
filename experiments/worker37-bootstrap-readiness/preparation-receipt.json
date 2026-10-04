@@ -1,7 +1,7 @@
 {
   "actual_counts": {
-    "actual_main": 57,
-    "authenticated_mock_attempts": 164,
+    "actual_main": 66,
+    "authenticated_mock_attempts": 209,
     "evaluator_calls": 0,
     "games": 0,
     "harness_bash": 17,
@@ -10,16 +10,16 @@
     "inner_timeout_stub": 4,
     "live_network": 0,
     "measurement_fixture_constructions": 0,
-    "mock_http_attempts": 168,
+    "mock_http_attempts": 213,
     "outer_timeout_stub": 2,
     "seeds": 0,
     "static_source_case": 1,
     "unauthenticated_mock_attempts": 4
   },
   "all_source_and_fixture_hashes_unchanged_after": true,
-  "amendment_sha256": "ee3a0f8582a15daa8f96e2a16c242fee770928dd6a4c69f2ef622c89b895d877",
+  "amendment_sha256": "2b14bb31eae55c0a52a65e30a65356e86e11d6c15bee557c68099f3aa629bae3",
   "attempt": 1,
-  "batch": "repair01",
+  "batch": "repair02_provider_association",
   "batches_executed": 1,
   "caps": {
     "case_snapshot_bytes": 8388608,
@@ -30,32 +30,37 @@
     "wall_seconds": 600
   },
   "errors": 0,
-  "exact_command": "/usr/bin/timeout --signal=KILL 600s /usr/bin/python3 -B evidence/repair01/run-literal-batch.py",
+  "exact_command": "/usr/bin/timeout --signal=KILL 600s /usr/bin/python3 -B evidence/repair02-provider-association/run-literal-batch.py",
   "exit_code": 0,
   "failed": 0,
-  "fixture_command_map_sha256": "e60c0f5772a498070ea02e7755a974faf502c7295e6c40fbb754dae33ab45969",
-  "fixture_inventory_sha256": "4ec14840f8808e44681cccb201c82581a6977205922adacb5086394eb3f77613",
+  "fixture_command_map_sha256": "2d5bf740efcc8eb5ec9a7ce6429f06ab2925a5a156c09ddb99e8e4f9cc20ca91",
+  "fixture_inventory_sha256": "cfe53e72a9de01b45cec2441f536ef29ec651bbf67fdebcefb324c829e110787",
   "games": 0,
   "historical_imports": 0,
-  "implementation_owner_batches_including_predecessor": 2,
+  "implementation_owner_Worker37_batches_including_predecessors": 3,
   "limitations": [
-    "Literal/command-stub tests do not prove actual cached Python3.11.16, real tools/fsync/timeout behavior, network credentials or real runner readiness.",
+    "Literal and inert-command-stub tests do not prove actual pinned3.11.16 runner/cache/network readiness; native version3.13.5 was directly recorded in this batch.",
     "Current source still requires complete independent and external review, exact source/runtime/input freeze and separate engineering GO.",
     "The native suite elapsed value is not a scientific timing or performance result.",
     "No digest of this receipt, containing commit/tree or final external freeze is embedded."
   ],
   "measurement_admitted": false,
   "native_interpreter": {
-    "actual_version": "not recorded by frozen batch; no post-hoc version probe",
-    "command_path": "/usr/bin/python3"
+    "effective_pre_test_rlimit_as": [
+      536870912,
+      536870912
+    ],
+    "schema": "worker37-repair02-native-runtime-v1",
+    "sys_executable": "/usr/bin/python3",
+    "sys_version": "3.13.5 (main, Aug 10 2026, 12:06:59) [GCC 14.2.0]"
   },
   "observed_output": {
-    "case_snapshot_bytes": 7446588,
-    "combined_bytes": 7467668,
-    "full_result_sha256": "d9b4d72f376849412a2edc93797ad01e91f84d6b87dc3e7b8e6b63295b267bcc",
-    "inventory_files": 722,
-    "stdout_stderr_sha256": "9d422fd61c34766566bbc8252f690875335a643926c50dc83518e346fcfb60b6",
-    "stdout_stderr_size_bytes": 21080
+    "case_snapshot_bytes": 7647964,
+    "combined_bytes": 7670341,
+    "full_result_sha256": "fcf7ed472895ab12e173af13b8d17fa9c827e809aae7f90dd66b3739cf8f029e",
+    "inventory_files": 837,
+    "stdout_stderr_sha256": "bec92482dc8c6d6b954919c21c22dcbf10eec4dd1557c64ed628c9893ad87ae9",
+    "stdout_stderr_size_bytes": 22377
   },
   "observed_stub_invocations": {
     "cat": 14,
@@ -73,29 +78,30 @@
     "timeout": 6
   },
   "observed_unique_stub_pids": 865,
-  "passed": 75,
+  "passed": 84,
   "physical_process_count": null,
   "physical_process_count_note": "Observed initiating Bash PIDs and inert command PIDs/PPIDs are preserved; unobserved subshell forks are not counted or inferred.",
   "planned_counts_match": true,
   "predecessor": {
-    "canonical_drive_id": "12ivwtQhNNtrD2ThDXJMuoeCLOuC33iVP",
-    "commit": "abfbd0075a5e5e5c25d74d37c79fe3ec4b4300d3",
-    "handoff_sha256": "8f157ec273c83044a760d5b9fb87f175092425dcb9e1c0735a54fd1c8b917b1f",
-    "passed": 60,
-    "receipt_sha256": "0879788ecaa1ca8080585f217ae7efb1f0815982a034b08c7a67f65e464479c7",
-    "review_findings": "three P2 and one P3, repaired in this separately frozen batch; old passing tests did not cover those paths",
-    "tests": 60,
-    "zip_sha256": "22d699af38540ceeb14dcd417d16fc610ec2a5da0f013da95db9155b33c5f43e"
+    "blocker_and_review_custody": "14BHPEClkRwzlf0s4vGWbYJSf2tg9BOTm",
+    "canonical_source_archive": "1fR5vHxy2Vw4Gt5pAOQ4IIEvfg1fED_UJ",
+    "handoff_sha256": "0a0b56716ee275a4dc96b1751c73a8643ab51ea915928ac53c943e2298986aa0",
+    "head": "f704d408eb84dc220ed23e3eb62b4c799e13eff3",
+    "live_blocker": "Historical GET5 returns typedempty pull_requests; length1 assumption would reject before engineering GO.",
+    "passed": 75,
+    "receipt_sha256": "566217864ab9f52f451cc4258adbf66539910e7ebc79aa5eb38d2e6cf864fa59",
+    "tests": 75
   },
   "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5983940003",
   "protocol_sha256": "599f21cefbca5440e288639b4a450f65b4046872a810417b2cb237db1d8408c7",
   "real_network_requests": 0,
   "real_runner_execution": false,
   "reruns": 0,
-  "schema": "worker37-literal-preparation-receipt-v2",
+  "schema": "worker37-literal-preparation-receipt-v3",
   "scientific_calls": 0,
   "scientific_classification": null,
   "seeds": 0,
+  "separate_canonical_test_batches": 1,
   "skipped": 0,
   "source_bindings": [
     {
@@ -125,8 +131,8 @@
     },
     {
       "path": "experiments/worker37-bootstrap-readiness/repair01-test-amendment.json",
-      "sha256": "ee3a0f8582a15daa8f96e2a16c242fee770928dd6a4c69f2ef622c89b895d877",
-      "size_bytes": 9743
+      "sha256": "2b14bb31eae55c0a52a65e30a65356e86e11d6c15bee557c68099f3aa629bae3",
+      "size_bytes": 20482
     },
     {
       "path": "experiments/worker37-bootstrap-readiness/source-grounding.json",
@@ -140,24 +146,24 @@
     },
     {
       "path": "scripts/worker37_bootstrap.py",
-      "sha256": "c6cd3d5f710f329ee0ea5d5794ccc1f7d8f7e51dd34e4b8a233c2946a2d2e184",
-      "size_bytes": 56812
+      "sha256": "0b9a4d0349d983e383dcd8d005bf0dfbde9b693acd75d6a7a04e689136738d43",
+      "size_bytes": 57764
     },
     {
       "path": "tests/test_worker37_bootstrap.py",
-      "sha256": "20e2c8f9da642c03026fd0d4d18d02ad814634a4ed7da567fb40e8dd81e6feca",
-      "size_bytes": 95789
+      "sha256": "3e05e377f7d27eb3d0b4b80063a6c9f5bd1d9343759f6d4d143b24ba733ae6cb",
+      "size_bytes": 102144
     },
     {
       "path": "experiments/worker37-bootstrap-readiness/source-manifest.json",
-      "sha256": "e0db235d9da8a99c5d7c027c8a953197b091642eafbba256af4a2e8cfd0ea7b6",
-      "size_bytes": 44590
+      "sha256": "bc5ef655a468f26cb7ff80ecf3c59fd563461fe7eb8f3156ce9407bc330a6793",
+      "size_bytes": 51485
     }
   ],
-  "source_manifest_sha256": "e0db235d9da8a99c5d7c027c8a953197b091642eafbba256af4a2e8cfd0ea7b6",
-  "status": "passed_fixed_literal_repair01_batch_pending_complete_reviews",
-  "suite_reported_seconds": 2.954,
-  "tests_run": 75,
-  "unchanged_fixture_inputs": 187,
+  "source_manifest_sha256": "bc5ef655a468f26cb7ff80ecf3c59fd563461fe7eb8f3156ce9407bc330a6793",
+  "status": "passed_fixed84_case_provider_association_batch_pending_full_reviews",
+  "suite_reported_seconds": 3.749,
+  "tests_run": 84,
+  "unchanged_fixture_inputs": 216,
   "unchanged_source_inputs": 11
 }

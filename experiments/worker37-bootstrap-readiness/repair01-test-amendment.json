@@ -1,1 +1,333 @@
-{"additional_case_count":15,"coverage_counts":{"actual_bash_with_inert_literal_stubs":17,"python_actual_entrypoint_with_literal_mocks":57,"static_actual_source_inspection":1},"execution":{"batches":1,"case_prefix_path":"evidence/repair01/case-results","case_prefix_reserve_bytes":8388608,"command":"/usr/bin/timeout --signal=KILL 600s /usr/bin/python3 -B evidence/repair01/run-literal-batch.py","cwd":"/workspace/shared/worker37-bootstrap-readiness","exclusive_new_outputs":true,"executed":false,"memory_bytes":536870912,"passes_per_case":1,"serial":true,"stdout_stderr_path":"evidence/repair01/native-batch.log","stdout_stderr_reserve_bytes":8388608,"total_output_bytes":16777216,"wall_seconds":600},"measurement_admitted":false,"new_cases":[{"entrypoint":"actual_main","expected":"One GET. Primary remains P07 resource_incomplete/input_body_overflow with exit3; P09 readback_digest is secondary. Exact observed2097153 and retained2097152 remain truthful.","id":"T061","mock_http_attempts":1,"mutation":"First PR returns2097153 bytes as in T046; at the first P09 event.json reread, a narrow read mock changes one byte. No other change.","name":"overflow_primary_survives_readback_failure"},{"entrypoint":"actual_main","expected":"One GET. Primary remains P07 integrity_invalid/duplicate_json_key with exit4; P09 restoration_mismatch is secondary. Preserve the exact malformed raw input.","id":"T062","mock_http_attempts":1,"mutation":"First PR body is exact duplicate-key JSON as in T048. Only final runtime-state readback reports a changed mocked RLIMIT_AS value; no real process limit changes.","name":"integrity_primary_survives_restoration_failure"},{"entrypoint":"actual_main","expected":"Seven GETs. First P09 resource_incomplete/terminal_memory_exhausted becomes non-null primary; report classification/code/phase and actual exit3 match it. No readiness.","id":"T063","mock_http_attempts":7,"mutation":"Seven baseline GETs succeed. Only first P09 event.json reread raises MemoryError once through os.read; later bounded terminal persistence is otherwise baseline.","name":"first_p09_memory_failure_has_primary"},{"entrypoint":"actual_main","expected":"Zero GETs. Preserve P06 resource_incomplete/local_file_cap and exit3; record close failure as secondary.","id":"T064","mock_http_attempts":0,"mutation":"Only synthetic source-file bounded_read fstat reports2097153 bytes, exceeding its2097152 cap; closing that same descriptor reports OSError after the actual fixture descriptor is safely closed.","name":"source_cap_primary_survives_descriptor_close"},{"entrypoint":"actual_main","expected":"Zero GETs. Preserve P06 integrity_invalid/local_file_changed and exit4; record close failure as secondary.","id":"T065","mock_http_attempts":0,"mutation":"Only synthetic source-file bounded_read second fstat reports a changed inode; closing that same descriptor reports OSError after safe fixture close.","name":"source_identity_primary_survives_descriptor_close"},{"entrypoint":"actual_main","expected":"Zero GETs. Preserve P05 integrity_invalid/event_snapshot_agreement and exit4; adopt-event close failure is secondary, not local_operation_failed.","id":"T066","mock_http_attempts":0,"mutation":"Only WORKER37_EVENT_SHA256 is a64-zero mismatch; closing the read descriptor opened by adopt_event reports OSError after safe fixture close. Initial event bounded_read close remains baseline.","name":"event_integrity_primary_survives_descriptor_close"},{"entrypoint":"actual_main","expected":"One GET. Preserve P07 evidence_incomplete/persistence_failed and exit5; close failure secondary; exact3-byte prefix and unconfirmed fsync flags retained.","id":"T067","mock_http_attempts":1,"mutation":"Only P07 pull-request.json writes first3bytes then raises OSError as in T057; its write-descriptor close also reports OSError after safe fixture close.","name":"persistence_primary_survives_descriptor_close"},{"entrypoint":"actual_main","expected":"One GET. Count and retain all7 observed bytes; P07 evidence_incomplete for incomplete response; no accepted JSON or GET2. Exception text omitted.","id":"T068","mock_http_attempts":1,"mutation":"First PR chunked response returns exact4-byte prefix7b227822, then raises actual http.client.IncompleteRead with3-byte partial3a317d and expected1. Decoded observed body is the exact7bytes {\"x\":1}; framing remains incomplete.","name":"incomplete_read_partial_application_retained"},{"entrypoint":"actual_main","expected":"Seven GETs. Count every partial body byte; omission reason redirect_body_may_contain_signed_url; no raw body/file/log/hash or signed/token sentinel disclosure; P07 evidence_incomplete.","id":"T069","mock_http_attempts":7,"mutation":"ZIP API GET302 has allowed synthetic Location but read raises actual IncompleteRead carrying a clearly invented signed-URL/token body. No storage GET follows an incomplete redirect body.","name":"incomplete_redirect_partial_omitted"},{"entrypoint":"actual_main","expected":"Eight GETs, storage request credential-free. Count all partial bytes; omission reason storage_error_body_may_contain_signed_url; no raw body/file/log/hash or sentinels; P07 evidence_incomplete.","id":"T070","mock_http_attempts":8,"mutation":"Allowed ZIP API302 with empty body is followed by storage403; storage read raises actual IncompleteRead carrying invented signature=REPAIR01_SECRET and SENTINEL_SECRET_42 bytes.","name":"incomplete_storage_error_partial_omitted"},{"entrypoint":"actual_main","expected":"One GET. Count2097153 actual bytes and retain at most2097152; input_body_overflow/resource_incomplete takes priority over incomplete framing, with exit3 and no JSON parse/GET2.","id":"T071","mock_http_attempts":1,"mutation":"First PR chunked response returns2097152 decoded X bytes in bounded reads, then raises actual IncompleteRead(partial=b'X',expected=1) on the one-byte overflow-detection read.","name":"incomplete_partial_detection_byte_overflow"},{"entrypoint":"actual_main","expected":"One GET. Exact bytes retained, immediate P07 integrity_invalid/nonfinite_json, no GET2. This reaches finite-float validation rather than an unrelated PR-shape failure.","id":"T072","mock_http_attempts":1,"mutation":"Otherwise valid first-PR JSON has one unused API field literal_number:1e999 inserted as exact raw bytes; all required PR fields/body unchanged.","name":"positive_float_overflow_rejected"},{"entrypoint":"actual_main","expected":"One GET. Exact bytes retained, immediate P07 integrity_invalid/nonfinite_json, no GET2.","id":"T073","mock_http_attempts":1,"mutation":"Otherwise valid first-PR JSON has one unused API field literal_number:-1e999 inserted as exact raw bytes; all required PR fields/body unchanged.","name":"negative_float_overflow_rejected"},{"entrypoint":"actual_main","expected":"Seven GETs, finite float accepted; same strict durable-success assertions as T001 including actual exit0, terminal confirmation scalars and matching persisted hashes.","id":"T074","mock_http_attempts":7,"mutation":"Otherwise valid first-PR JSON has one unused API field literal_number:1e308 inserted as exact raw bytes; all required PR fields/body unchanged.","name":"finite_float_boundary_accepted"},{"entrypoint":"actual_main","expected":"Zero GETs. With no earlier failure, P06 evidence_incomplete/descriptor_close_failed is non-null primary and actual exit5; close failure is not swallowed or demoted to secondary.","id":"T075","mock_http_attempts":0,"mutation":"Synthetic source bounded_read and identity checks succeed unchanged. Only its descriptor close safely closes the fixture descriptor then raises OSError once.","name":"descriptor_close_only_becomes_primary"}],"old_case_contract":"Retain T001-T060 names, inputs, mutations and one-call semantics. Strengthen T059 only to require a non-null first P09 primary with matching classification/code/phase, because that exact finding applies to its existing input. Existing17 Bash cases and their stubs are byte-unchanged.","planned_call_counts":{"actual_main":57,"authenticated_mock_attempts":164,"evaluator_calls":0,"games":0,"harness_bash":17,"historical_imports":0,"inert_pinned_entrypoint":4,"inner_timeout_stub":4,"live_network":0,"measurement_fixture_constructions":0,"mock_http_attempts":168,"outer_timeout_stub":2,"seeds":0,"static_source_case":1,"unauthenticated_mock_attempts":4},"planned_code_binding":"Fixed reviewed codes: response_incomplete_read/evidence_incomplete; nonfinite_json/integrity_invalid; descriptor_close_failed/evidence_incomplete and descriptor_close_memory_exhausted/resource_incomplete. FirstP09 MemoryError uses terminal_memory_exhausted/resource_incomplete. Every primary classification/code/phase agrees with report/actual exit; secondary descriptor close records also carry fixed operation labels.","preparation_only":true,"preservation":"All original evidence/fixtures files, original60-case outputs/log/map and original preparation receipt are read-only. New fixtures/amendment/runner/map/results live under evidence/repair01. Only tests/test_worker37_bootstrap.py is amended by this worker.","prior_case_count":60,"prior_plan":{"path":"finite-amendment-plan-prior-3026db4b.json","preserved":true,"sha256":"3026db4bb5cd102837b420d7ccfd913d1650b19da4d2b4ccbdd3d7e85a7494bf","size_bytes":9093},"process_accounting":"17 remains a Bash-case count. Existing PID/PPID evidence is retained without claiming an unmeasured exact OS-process total. No new Bash or real runtime process case is added.","published_amendment_path":"experiments/worker37-bootstrap-readiness/repair01-test-amendment.json","schema":"worker37-repair01-finite-literal-amendment-v1","status":"frozen_prospective_plan_implementation_authorized_execution_pending_root_map_gate","total_case_count":75}
+{
+  "current_amendment": {
+    "exact_literal_plan_sha256": "2452097f44c441e3b232827a37e565cf6b6afaa00935570fb908f9d1ccf2506f",
+    "plan": {
+      "approved_proposal_sha256": "2447733482a83309e3dc27385332c12c36f03773bec844c3ed81786d78681839",
+      "batches": 1,
+      "caps": {
+        "address_space_bytes": 536870912,
+        "case_prefix_bytes": 8388608,
+        "combined_output_bytes": 16777216,
+        "stdout_stderr_bytes": 8388608,
+        "wall_seconds": 600
+      },
+      "cases": [
+        {
+          "expected": "bootstrap_ready with7GETs; exact expected_absent_observation in result.historical_pr_association, exact retained GET5 empty array, normal durable-success/exit0 checks.",
+          "id": "T076",
+          "literal_mutation": "Only GET5 pull_requests becomes[]. Every immutable synthetic pin remains baseline.",
+          "mock_GETs": 7,
+          "name": "empty_prior_association_valid"
+        },
+        {
+          "expected": "P07 integrity_invalid/prior_pr atGET5, noGET6 or association marker.",
+          "id": "T077",
+          "literal_mutation": "Only GET5 pull_requests[0].number changes40\u219241; head stays3333333333333333333333333333333333333333.",
+          "mock_GETs": 5,
+          "name": "prior_association_wrong_pr"
+        },
+        {
+          "expected": "P07 integrity_invalid/prior_pr atGET5, noGET6 or association marker.",
+          "id": "T078",
+          "literal_mutation": "Only GET5 pull_requests[0].head.sha changes historical3333333333333333333333333333333333333333\u2192new1111111111111111111111111111111111111111. GET5 head_sha stays historical.",
+          "mock_GETs": 5,
+          "name": "prior_association_wrong_head"
+        },
+        {
+          "expected": "P07 integrity_invalid/prior_pr atGET5, noGET6 or association marker.",
+          "id": "T079",
+          "literal_mutation": "Only GET5 pull_requests field is removed.",
+          "mock_GETs": 5,
+          "name": "prior_association_missing"
+        },
+        {
+          "expected": "P07 integrity_invalid/prior_pr atGET5, noGET6 or association marker.",
+          "id": "T080",
+          "literal_mutation": "Only GET5 pull_requests becomes the exact empty object{}.",
+          "mock_GETs": 5,
+          "name": "prior_association_not_list"
+        },
+        {
+          "expected": "P07 integrity_invalid/prior_pr atGET5, noGET6 or association marker.",
+          "id": "T081",
+          "literal_mutation": "GET5 pull_requests is two entries: PR40/head3333333333333333333333333333333333333333 andPR41/the same historical head.",
+          "mock_GETs": 5,
+          "name": "prior_association_ambiguous"
+        },
+        {
+          "expected": "P06 execution_blocked/fixed_historical_fixture,0GETs, no association marker.",
+          "id": "T082",
+          "literal_mutation": "Only synthetic descriptor historical_fixture.pr_number changes40\u219241. Recompute mock owner-body/event digest consistently. Independently frozen FIXED_HISTORICAL mock retains its baselinepr_number40, so the harness cannot silently repin the contradiction.",
+          "mock_GETs": 0,
+          "name": "frozen_historical_pr_mismatch"
+        },
+        {
+          "expected": "P07 integrity_invalid/artifact_source atGET6, noGET7; exact absent-association observation remains recorded.",
+          "id": "T083",
+          "literal_mutation": "GET5 pull_requests=[]; only GET6 artifact.workflow_run.id changes105\u2192107. Every other field/pin stays baseline.",
+          "mock_GETs": 6,
+          "name": "empty_association_artifact_run_mismatch"
+        },
+        {
+          "expected": "P08 integrity_invalid/archive_hash after7GETs; exact absent-association observation remains recorded.",
+          "id": "T084",
+          "literal_mutation": "GET5 pull_requests=[]; GET7 returns the previously frozen syntheticT052 one-byte-changed ZIP. Its outer frozen size/hash/API digest stay baseline, so no repinning disguises the change.",
+          "mock_GETs": 7,
+          "name": "empty_association_archive_hash_mismatch"
+        }
+      ],
+      "command": "/usr/bin/timeout --signal=KILL 600s /usr/bin/python3 -B evidence/repair02-provider-association/run-literal-batch.py",
+      "coverage_counts": {
+        "actual_bash_with_inert_literal_stubs": 17,
+        "python_actual_entrypoint_with_literal_mocks": 66,
+        "static_actual_source_inspection": 1
+      },
+      "cwd": "/workspace/shared/worker37-bootstrap-readiness",
+      "execution_boundary": "Metadata-only fixture generation/hashing may prepare the table. No test, production import, helper invocation, Bash stub, runtime probe or network execution occurs until root approves the final exact source/fixture/command map.",
+      "expected_absent_observation": {
+        "absence_cause": "not_established",
+        "association_basis": "frozen_historical_provenance",
+        "frozen_pr_number": 40,
+        "live_array_binding": "absent",
+        "live_array_count": 0
+      },
+      "headroom_estimate": {
+        "available_case_reserve_before_new_cases_bytes": 942020,
+        "enforcement": "Existing8MiB case-prefix counter and8MiB combined stdout/stderr hard file limit remain unchanged; no silent truncation, cap increase or retry if growth is unexpected.",
+        "is_measured_repair02_output": false,
+        "new_case_allowance_basis": "9 \u00d748KiB, including small retained API bodies and all metadata",
+        "new_case_allowance_bytes": 442368,
+        "old75_case_prefix_observed_bytes": 7446588,
+        "old_case_growth_allowance_basis": "75 \u00d74KiB for truthful association records and fixed metadata/PID variation",
+        "old_case_growth_allowance_bytes": 307200,
+        "predicted_remaining_case_prefix_bytes": 192452,
+        "predicted_total_case_prefix_bytes": 8196156
+      },
+      "new_case_count": 9,
+      "outputs": {
+        "case_prefix": "evidence/repair02-provider-association/case-results",
+        "exclusive_new": true,
+        "log": "evidence/repair02-provider-association/native-batch.log"
+      },
+      "passes_per_case": 1,
+      "planned_call_counts": {
+        "actual_main": 66,
+        "authenticated_mock_attempts": 209,
+        "evaluator_calls": 0,
+        "games": 0,
+        "harness_bash": 17,
+        "historical_imports": 0,
+        "inert_pinned_entrypoint": 4,
+        "inner_timeout_stub": 4,
+        "live_network": 0,
+        "measurement_fixture_constructions": 0,
+        "mock_http_attempts": 213,
+        "outer_timeout_stub": 2,
+        "seeds": 0,
+        "static_source_case": 1,
+        "unauthenticated_mock_attempts": 4
+      },
+      "preservation": "All old75 method bodies, Bash harness/stubs, literal descriptor/ZIP constants, old source/fixture maps/receipts/results and canonical Worker34 correction remain unchanged. Only nine explicit names and default-inert scenario seams are added. Parent owns published amendment/source-manifest/receipt/handoff.",
+      "prior_case_count": 75,
+      "request_boundary": "No extra runtime request, retry, alternate artifact, discovery, pagination or scientific operation. Empty provider association is reported as absent with cause not established; immutable frozen historical provenance remains mandatory.",
+      "schema": "worker37-provider-association-finite-amendment-v1",
+      "status": "frozen_prospective_inputs_before_test_implementation_execution_pending_root_gate",
+      "total_case_count": 84
+    },
+    "root_approved_proposal_sha256": "2447733482a83309e3dc27385332c12c36f03773bec844c3ed81786d78681839",
+    "stage": "repair02_provider_association"
+  },
+  "current_native_test_status": "prospectively_frozen_unexecuted_pending_exact_map_gate",
+  "engineering_GO": false,
+  "frozen_protocol_sha256": "599f21cefbca5440e288639b4a450f65b4046872a810417b2cb237db1d8408c7",
+  "historical_association_rule": "The historical descriptor remains fixed includingPR40; live pull_requests must be a typedlist of length0or1, any present entry must match, empty is explicitly recorded without asserting its cause or re-proving the association. All immutable run/repository/head/event/attempt/success and artifact/ZIP/report/tree pins remain mandatory. No additional runtimeGET/retry/alternateartifact.",
+  "original_60_case_plan_unchanged": true,
+  "previous_amendment": {
+    "durable_commit": "f704d408eb84dc220ed23e3eb62b4c799e13eff3",
+    "plan": {
+      "additional_case_count": 15,
+      "coverage_counts": {
+        "actual_bash_with_inert_literal_stubs": 17,
+        "python_actual_entrypoint_with_literal_mocks": 57,
+        "static_actual_source_inspection": 1
+      },
+      "execution": {
+        "batches": 1,
+        "case_prefix_path": "evidence/repair01/case-results",
+        "case_prefix_reserve_bytes": 8388608,
+        "command": "/usr/bin/timeout --signal=KILL 600s /usr/bin/python3 -B evidence/repair01/run-literal-batch.py",
+        "cwd": "/workspace/shared/worker37-bootstrap-readiness",
+        "exclusive_new_outputs": true,
+        "executed": false,
+        "memory_bytes": 536870912,
+        "passes_per_case": 1,
+        "serial": true,
+        "stdout_stderr_path": "evidence/repair01/native-batch.log",
+        "stdout_stderr_reserve_bytes": 8388608,
+        "total_output_bytes": 16777216,
+        "wall_seconds": 600
+      },
+      "measurement_admitted": false,
+      "new_cases": [
+        {
+          "entrypoint": "actual_main",
+          "expected": "One GET. Primary remains P07 resource_incomplete/input_body_overflow with exit3; P09 readback_digest is secondary. Exact observed2097153 and retained2097152 remain truthful.",
+          "id": "T061",
+          "mock_http_attempts": 1,
+          "mutation": "First PR returns2097153 bytes as in T046; at the first P09 event.json reread, a narrow read mock changes one byte. No other change.",
+          "name": "overflow_primary_survives_readback_failure"
+        },
+        {
+          "entrypoint": "actual_main",
+          "expected": "One GET. Primary remains P07 integrity_invalid/duplicate_json_key with exit4; P09 restoration_mismatch is secondary. Preserve the exact malformed raw input.",
+          "id": "T062",
+          "mock_http_attempts": 1,
+          "mutation": "First PR body is exact duplicate-key JSON as in T048. Only final runtime-state readback reports a changed mocked RLIMIT_AS value; no real process limit changes.",
+          "name": "integrity_primary_survives_restoration_failure"
+        },
+        {
+          "entrypoint": "actual_main",
+          "expected": "Seven GETs. First P09 resource_incomplete/terminal_memory_exhausted becomes non-null primary; report classification/code/phase and actual exit3 match it. No readiness.",
+          "id": "T063",
+          "mock_http_attempts": 7,
+          "mutation": "Seven baseline GETs succeed. Only first P09 event.json reread raises MemoryError once through os.read; later bounded terminal persistence is otherwise baseline.",
+          "name": "first_p09_memory_failure_has_primary"
+        },
+        {
+          "entrypoint": "actual_main",
+          "expected": "Zero GETs. Preserve P06 resource_incomplete/local_file_cap and exit3; record close failure as secondary.",
+          "id": "T064",
+          "mock_http_attempts": 0,
+          "mutation": "Only synthetic source-file bounded_read fstat reports2097153 bytes, exceeding its2097152 cap; closing that same descriptor reports OSError after the actual fixture descriptor is safely closed.",
+          "name": "source_cap_primary_survives_descriptor_close"
+        },
+        {
+          "entrypoint": "actual_main",
+          "expected": "Zero GETs. Preserve P06 integrity_invalid/local_file_changed and exit4; record close failure as secondary.",
+          "id": "T065",
+          "mock_http_attempts": 0,
+          "mutation": "Only synthetic source-file bounded_read second fstat reports a changed inode; closing that same descriptor reports OSError after safe fixture close.",
+          "name": "source_identity_primary_survives_descriptor_close"
+        },
+        {
+          "entrypoint": "actual_main",
+          "expected": "Zero GETs. Preserve P05 integrity_invalid/event_snapshot_agreement and exit4; adopt-event close failure is secondary, not local_operation_failed.",
+          "id": "T066",
+          "mock_http_attempts": 0,
+          "mutation": "Only WORKER37_EVENT_SHA256 is a64-zero mismatch; closing the read descriptor opened by adopt_event reports OSError after safe fixture close. Initial event bounded_read close remains baseline.",
+          "name": "event_integrity_primary_survives_descriptor_close"
+        },
+        {
+          "entrypoint": "actual_main",
+          "expected": "One GET. Preserve P07 evidence_incomplete/persistence_failed and exit5; close failure secondary; exact3-byte prefix and unconfirmed fsync flags retained.",
+          "id": "T067",
+          "mock_http_attempts": 1,
+          "mutation": "Only P07 pull-request.json writes first3bytes then raises OSError as in T057; its write-descriptor close also reports OSError after safe fixture close.",
+          "name": "persistence_primary_survives_descriptor_close"
+        },
+        {
+          "entrypoint": "actual_main",
+          "expected": "One GET. Count and retain all7 observed bytes; P07 evidence_incomplete for incomplete response; no accepted JSON or GET2. Exception text omitted.",
+          "id": "T068",
+          "mock_http_attempts": 1,
+          "mutation": "First PR chunked response returns exact4-byte prefix7b227822, then raises actual http.client.IncompleteRead with3-byte partial3a317d and expected1. Decoded observed body is the exact7bytes {\"x\":1}; framing remains incomplete.",
+          "name": "incomplete_read_partial_application_retained"
+        },
+        {
+          "entrypoint": "actual_main",
+          "expected": "Seven GETs. Count every partial body byte; omission reason redirect_body_may_contain_signed_url; no raw body/file/log/hash or signed/token sentinel disclosure; P07 evidence_incomplete.",
+          "id": "T069",
+          "mock_http_attempts": 7,
+          "mutation": "ZIP API GET302 has allowed synthetic Location but read raises actual IncompleteRead carrying a clearly invented signed-URL/token body. No storage GET follows an incomplete redirect body.",
+          "name": "incomplete_redirect_partial_omitted"
+        },
+        {
+          "entrypoint": "actual_main",
+          "expected": "Eight GETs, storage request credential-free. Count all partial bytes; omission reason storage_error_body_may_contain_signed_url; no raw body/file/log/hash or sentinels; P07 evidence_incomplete.",
+          "id": "T070",
+          "mock_http_attempts": 8,
+          "mutation": "Allowed ZIP API302 with empty body is followed by storage403; storage read raises actual IncompleteRead carrying invented signature=REPAIR01_SECRET and SENTINEL_SECRET_42 bytes.",
+          "name": "incomplete_storage_error_partial_omitted"
+        },
+        {
+          "entrypoint": "actual_main",
+          "expected": "One GET. Count2097153 actual bytes and retain at most2097152; input_body_overflow/resource_incomplete takes priority over incomplete framing, with exit3 and no JSON parse/GET2.",
+          "id": "T071",
+          "mock_http_attempts": 1,
+          "mutation": "First PR chunked response returns2097152 decoded X bytes in bounded reads, then raises actual IncompleteRead(partial=b'X',expected=1) on the one-byte overflow-detection read.",
+          "name": "incomplete_partial_detection_byte_overflow"
+        },
+        {
+          "entrypoint": "actual_main",
+          "expected": "One GET. Exact bytes retained, immediate P07 integrity_invalid/nonfinite_json, no GET2. This reaches finite-float validation rather than an unrelated PR-shape failure.",
+          "id": "T072",
+          "mock_http_attempts": 1,
+          "mutation": "Otherwise valid first-PR JSON has one unused API field literal_number:1e999 inserted as exact raw bytes; all required PR fields/body unchanged.",
+          "name": "positive_float_overflow_rejected"
+        },
+        {
+          "entrypoint": "actual_main",
+          "expected": "One GET. Exact bytes retained, immediate P07 integrity_invalid/nonfinite_json, no GET2.",
+          "id": "T073",
+          "mock_http_attempts": 1,
+          "mutation": "Otherwise valid first-PR JSON has one unused API field literal_number:-1e999 inserted as exact raw bytes; all required PR fields/body unchanged.",
+          "name": "negative_float_overflow_rejected"
+        },
+        {
+          "entrypoint": "actual_main",
+          "expected": "Seven GETs, finite float accepted; same strict durable-success assertions as T001 including actual exit0, terminal confirmation scalars and matching persisted hashes.",
+          "id": "T074",
+          "mock_http_attempts": 7,
+          "mutation": "Otherwise valid first-PR JSON has one unused API field literal_number:1e308 inserted as exact raw bytes; all required PR fields/body unchanged.",
+          "name": "finite_float_boundary_accepted"
+        },
+        {
+          "entrypoint": "actual_main",
+          "expected": "Zero GETs. With no earlier failure, P06 evidence_incomplete/descriptor_close_failed is non-null primary and actual exit5; close failure is not swallowed or demoted to secondary.",
+          "id": "T075",
+          "mock_http_attempts": 0,
+          "mutation": "Synthetic source bounded_read and identity checks succeed unchanged. Only its descriptor close safely closes the fixture descriptor then raises OSError once.",
+          "name": "descriptor_close_only_becomes_primary"
+        }
+      ],
+      "old_case_contract": "Retain T001-T060 names, inputs, mutations and one-call semantics. Strengthen T059 only to require a non-null first P09 primary with matching classification/code/phase, because that exact finding applies to its existing input. Existing17 Bash cases and their stubs are byte-unchanged.",
+      "planned_call_counts": {
+        "actual_main": 57,
+        "authenticated_mock_attempts": 164,
+        "evaluator_calls": 0,
+        "games": 0,
+        "harness_bash": 17,
+        "historical_imports": 0,
+        "inert_pinned_entrypoint": 4,
+        "inner_timeout_stub": 4,
+        "live_network": 0,
+        "measurement_fixture_constructions": 0,
+        "mock_http_attempts": 168,
+        "outer_timeout_stub": 2,
+        "seeds": 0,
+        "static_source_case": 1,
+        "unauthenticated_mock_attempts": 4
+      },
+      "planned_code_binding": "Fixed reviewed codes: response_incomplete_read/evidence_incomplete; nonfinite_json/integrity_invalid; descriptor_close_failed/evidence_incomplete and descriptor_close_memory_exhausted/resource_incomplete. FirstP09 MemoryError uses terminal_memory_exhausted/resource_incomplete. Every primary classification/code/phase agrees with report/actual exit; secondary descriptor close records also carry fixed operation labels.",
+      "preparation_only": true,
+      "preservation": "All original evidence/fixtures files, original60-case outputs/log/map and original preparation receipt are read-only. New fixtures/amendment/runner/map/results live under evidence/repair01. Only tests/test_worker37_bootstrap.py is amended by this worker.",
+      "prior_case_count": 60,
+      "prior_plan": {
+        "path": "finite-amendment-plan-prior-3026db4b.json",
+        "preserved": true,
+        "sha256": "3026db4bb5cd102837b420d7ccfd913d1650b19da4d2b4ccbdd3d7e85a7494bf",
+        "size_bytes": 9093
+      },
+      "process_accounting": "17 remains a Bash-case count. Existing PID/PPID evidence is retained without claiming an unmeasured exact OS-process total. No new Bash or real runtime process case is added.",
+      "published_amendment_path": "experiments/worker37-bootstrap-readiness/repair01-test-amendment.json",
+      "schema": "worker37-repair01-finite-literal-amendment-v1",
+      "status": "frozen_prospective_plan_implementation_authorized_execution_pending_root_map_gate",
+      "total_case_count": 75
+    },
+    "record_bytes": 9743,
+    "record_sha256": "ee3a0f8582a15daa8f96e2a16c242fee770928dd6a4c69f2ef622c89b895d877",
+    "stage": "repair01"
+  },
+  "protocol_interpretation": "The frozen protocol requires historical identities and exact fixture digests; it does not prescribe a one-entry live provider association array. The pre-execution root-approved repair removes only that extra implementation cardinality assumption.",
+  "schema": "worker37-bounded-test-amendment-history-v1"
+}
