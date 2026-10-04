@@ -1,0 +1,369 @@
+{
+  "checkpoint_evidence": {
+    "acceptance_comment_id": 5983492122,
+    "acceptance_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5983492122",
+    "accepted_at": "2026-10-04T19:18:18Z",
+    "main_head": "2b00e0d1e76364ae287946f7c0e3dc2baac4653f",
+    "postmerge_ci_conclusion": "success",
+    "postmerge_ci_job_id": 111509252102,
+    "postmerge_ci_run_id": 37227213235,
+    "tree": "a40cceee052f97141275cb44bd0a86a1a52c76a6",
+    "verification_scope": "Local exact metadata readbacks inspected; no new network request by drafting task"
+  },
+  "collected_by": "read-only local byte inspection and hashing; no code imported or executed",
+  "exact_historical_zip_members": [
+    "fresh-child-process.json",
+    "fresh-child.stderr",
+    "fresh-child.json",
+    "fresh-child.stdout",
+    "launcher.txt",
+    "parent-runtime.json",
+    "parent.stderr",
+    "parent.stdout",
+    "runner-preflight.json",
+    "shell-loader.json"
+  ],
+  "files": [
+    {
+      "relative_to_workspace_recovery_root": "evidence/checkpoint-proposal-78506a66/NEXT-ENGINEERING-QUESTION.md",
+      "sha256": "9b135df7d18c8a2958c858a0cda9c046279881e70d9ea53833b7499a4c0629a8",
+      "size_bytes": 4604,
+      "use": "Entire document: bounded next question and no-execution boundary"
+    },
+    {
+      "relative_to_workspace_recovery_root": "evidence/checkpoint-proposal-78506a66/execution-blocked-attempt-2026-10-04.manifest.json",
+      "sha256": "02b33d70674236c1fc67f8666dce2e01ca06e878878bb710aae712562097b34d",
+      "size_bytes": 38028,
+      "use": "Terminal allocation, failure uncertainty, source inventory, archive identities"
+    },
+    {
+      "relative_to_workspace_recovery_root": "evidence/attempt-37224355312/failure-receipt-and-diagnosis.json",
+      "sha256": "44d8073eff11eb93bf4b2fe54e97f48bff58d43501446a1af71b4d12f8b7786e",
+      "size_bytes": 5122,
+      "use": "Historical failed-step evidence and proposed stdlib-reader scope"
+    },
+    {
+      "relative_to_workspace_recovery_root": "evidence/final-freeze-78506a66/FINAL-ADMISSION.json",
+      "sha256": "ac26e8f0d17825cd368092d30ef8db195b09ea46697b7d4c54c52584146a8cb3",
+      "size_bytes": 17219,
+      "use": "Historical identities/runtime pin/reviews/prior artifact; no reusable authority"
+    },
+    {
+      "matches_terminal_manifest": true,
+      "relative_to_workspace_recovery_root": "candidate/.github/workflows/worker36-synthetic-profile.yml",
+      "sha256": "bdf77af330c28b79053fe4325b81a8f7497c89821fefa02f4a4f31b1f7edacee",
+      "size_bytes": 16165,
+      "terminal_manifest_sha256": "bdf77af330c28b79053fe4325b81a8f7497c89821fefa02f4a4f31b1f7edacee",
+      "use": "Lines1-72 first bootstrap; lines80-136 seven GETs and local shared inputs; remaining measurement path excluded"
+    },
+    {
+      "matches_terminal_manifest": true,
+      "relative_to_workspace_recovery_root": "candidate/.github/workflows/worker36-runner-preflight.yml",
+      "sha256": "39810e273b976026ef7568bd47c1ed34c5f2156d6b2fcc1f920555cbc9d911d9",
+      "size_bytes": 3884,
+      "terminal_manifest_sha256": "39810e273b976026ef7568bd47c1ed34c5f2156d6b2fcc1f920555cbc9d911d9",
+      "use": "Lines1-84 old preflight/startup boundary and600s+5s historical grace; no real API path"
+    },
+    {
+      "matches_terminal_manifest": true,
+      "relative_to_workspace_recovery_root": "candidate/scripts/worker36-loader.sh",
+      "sha256": "acdce5b62b5fc72f81bc8047afe17e574a067c2d7cc9bba776caa5cfec7440e7",
+      "size_bytes": 3627,
+      "terminal_manifest_sha256": "acdce5b62b5fc72f81bc8047afe17e574a067c2d7cc9bba776caa5cfec7440e7",
+      "use": "Entire source-only loader invariant reference; no sourcing/execution performed"
+    },
+    {
+      "matches_terminal_manifest": true,
+      "relative_to_workspace_recovery_root": "candidate/scripts/worker36/admission.py",
+      "sha256": "84692302aabcf84b1d1515d6305e843c47c213153726cbf023192504a84bf8fd",
+      "size_bytes": 51105,
+      "terminal_manifest_sha256": "84692302aabcf84b1d1515d6305e843c47c213153726cbf023192504a84bf8fd",
+      "use": "Lines24-48 constants/caps;131-225 old gate;254-347 durable writes/inputs/request topology;377-556 ZIP/runtime/source checks;560-636 request context;646-686 old handoff excluded;779-797 capped retention"
+    },
+    {
+      "matches_terminal_manifest": true,
+      "relative_to_workspace_recovery_root": "candidate/scripts/worker36/runner_preflight.py",
+      "sha256": "e20751bb8448df5256c2709bf5935dd2784bbb1d91d679d235ee602cc0784c8d",
+      "size_bytes": 12565,
+      "terminal_manifest_sha256": "e20751bb8448df5256c2709bf5935dd2784bbb1d91d679d235ee602cc0784c8d",
+      "use": "Lines20-29 old test modules/ZERO;53-109 runtime/child proof;112-220 historical static/test imports excluded"
+    },
+    {
+      "matches_terminal_manifest": true,
+      "relative_to_workspace_recovery_root": "candidate/scripts/worker36/common.py",
+      "sha256": "0efdea3e367cf1f8c9a965d8dcf413ab262bba851130eaa7c7a0617eeb11ec4e",
+      "size_bytes": 31915,
+      "terminal_manifest_sha256": "0efdea3e367cf1f8c9a965d8dcf413ab262bba851130eaa7c7a0617eeb11ec4e",
+      "use": "Lines20-44 fixed runtime/resources;loader identity andruntime_check definitions read-only; scientific wrappers excluded"
+    },
+    {
+      "relative_to_workspace_recovery_root": "evidence/checkpoint-postmerge-final-2b00e0d1.json",
+      "sha256": "b5cec942207d2963533bf8810e4c8431b8d15842dadbac03803b3a3f827b324a",
+      "size_bytes": 111851,
+      "use": "Exact local main/tree/PR/run/job/log wrappers confirming successful accepted checkpoint CI"
+    },
+    {
+      "relative_to_workspace_recovery_root": "evidence/checkpoint-acceptance-Issue2-readback.json",
+      "sha256": "4603ac4ed9c5912f84ecd52d36e091898b456bde44a450313638ae4645698f15",
+      "size_bytes": 15889,
+      "use": "Exact local Issue2 acceptance5983492122 API body/readback"
+    },
+    {
+      "relative_to_draft_root": "inputs/worker37-host-policy-evidence.json",
+      "sha256": "6ac0850fc20c4aaa9a8b8f4696e505246f8974daa4c0aea174a18365befded01",
+      "size_bytes": 5404,
+      "use": "Preserved root-selected provider policy or verbatim prior review"
+    },
+    {
+      "relative_to_draft_root": "inputs/worker37-initial-exhaustive-review-preserved.json",
+      "sha256": "c1407311defe8d04183fdf8d6f73e87b54440a32a28065ead0996417b843da8e",
+      "size_bytes": 3948,
+      "use": "Preserved root-selected provider policy or verbatim prior review"
+    },
+    {
+      "relative_to_draft_root": "inputs/worker37-initial-adversarial-review-preserved.json",
+      "sha256": "5e8920366330cdd3d28554b98e54a88d95c5ea6f579531d1e30b9cfa51ddec6f",
+      "size_bytes": 4487,
+      "use": "Preserved root-selected provider policy or verbatim prior review"
+    },
+    {
+      "relative_to_draft_root": "revisions/seven-corrections-ecc5f3c7/ROOT-FINDINGS.json",
+      "sha256": "a1e028efc3995b8710ca0056a037d47ceb38f1bc60ee18c82b1daef93eb6eb74",
+      "size_bytes": 3874,
+      "use": "Verbatim root seven-correction findings and follow-up clarifications; current metadata revision authority, no implementation/execution authority"
+    }
+  ],
+  "historical_loader_pin": {
+    "executable_sha256": "a15ccdaf07655a8667a3687b13171486c9a265d92273ba3ad820fbb64d2cfecc",
+    "library_relative_path": "Python/3.11.16/x64/lib/libpython3.11.so.1.0",
+    "library_sha256": "ba4450817186fbe1e3c477f6aefeee7c353cba3593cc9950382ad9d1f5e62896",
+    "library_size_bytes": 23041360,
+    "schema": "worker36-loader-pin-v1"
+  },
+  "historical_prior_preflight_descriptor": {
+    "artifact_id": 11310585783,
+    "artifact_name": "worker36-zero-evaluator-preflight-37221141227-1",
+    "artifact_sha256": "f7447bc2c7d8bd8c84fc940b83567d0c4f1c1ba34523310b75046916883ea971",
+    "artifact_size_bytes": 83342,
+    "checked_file_sha256": {
+      ".github/workflows/worker36-runner-preflight.yml": "39810e273b976026ef7568bd47c1ed34c5f2156d6b2fcc1f920555cbc9d911d9",
+      ".github/workflows/worker36-synthetic-profile.yml": "bdf77af330c28b79053fe4325b81a8f7497c89821fefa02f4a4f31b1f7edacee",
+      "evidence-design/admission-integration-test-plan.json": "156587413a47f858d4696e7c6de6317610b85aa7bde62974154955dcf2e03d05",
+      "evidence-design/ast-fifth-repair-test-plan.json": "e27897529cd827510f3404383fdfb0d22d018c93c442867c470fb4bf7a393fc8",
+      "evidence-design/cell-fourth-repair-test-plan.json": "db3ae8af2902366eddc0cd029bc212f31ae8bc3c46c3af3a46f1641e7c51b546",
+      "evidence-design/cell-integration-test-plan.json": "3074d869530971ffb6fe53f2c37dd79759c4a8655abe32270a65923ebfc18a34",
+      "evidence-design/cell-third-repair-test-plan.json": "825adea0212cf9b6fda119c7d807d7554028e748d74dc5d8f8f4ae4f3869973f",
+      "evidence-design/driver-fifth-repair-test-plan.json": "57a83eb882b08501f528005cdea0e51c9ab7906faf7577725d23cad0c146de25",
+      "evidence-design/driver-fourth-repair-test-plan.json": "9700d1e8a29badf23e285be07a8457aecbb63c86f5bde26c80c25137b373068a",
+      "evidence-design/driver-integration-test-plan.json": "e699540511958faf604603368ba1d23afc63b801abb508e03a53719d5f710176",
+      "evidence-design/driver-sixth-repair-test-plan.json": "25530b7968bc68f01455f1800cd86a7e8e6598f077165e669d3dcb5e6fc9dfbf",
+      "evidence-design/driver-third-repair-test-plan.json": "6345c69722269e802741a3e396ab22cb3a3896d4faf7e9ba22603700f6ae4924",
+      "evidence-design/external-review-5406951565-test-plan.json": "99c962ae05535fb93f5718a5750d4070d6c08f55179e60b75f5b9dcfcfd67fe3",
+      "evidence-design/failure-state-test-plan.json": "a71162ed8366aee70105d26a81bf666e4adaaffdb3273579d524e68e3a423932",
+      "evidence-design/normal-ownership-repair-test-plan.json": "9a3ccdef641edb3e17ce0c7564b530ba8d52ae4dae6725fc87a5dc226e4920a8",
+      "evidence-design/recovery-r1-driver-test-plan.json": "8b08cb068bd20fad1314358b6beda5c342db8a72765c247cb8afacf2e41d5c87",
+      "evidence-design/recovery-r1-loader-integration-test-plan.json": "835d91173b564a61be5e7e8caeda1d88695c2157d6b9fc6590c34f73eb2f13d9",
+      "evidence-design/recovery-r1-loader-test-plan.json": "bda22711bd30ab8be001467408b4e7a99ab8a449c0bff0f96d4de82784ae2d85",
+      "evidence-design/recovery-r1-preflight-shell-test-plan.json": "f9d14fdd5535bc176701fd7721e4805562ac0369bee9c53044ecb3d7f5f1ebf4",
+      "evidence-design/recovery-r1-runner-repair-test-plan.json": "8c52923f44569e3a5c7786d1c2a316be52bb4d345f40a771ee28fc31f53f9107",
+      "evidence-design/recovery-r1-supervisor-test-plan.json": "bf8f709c023c568ac8158c2fef7e134d8acf8cc2394e1401a3fe24de2308ce68",
+      "evidence-design/recovery-r1-test-isolation-test-plan.json": "64cff05bc3542565bf821bc11d0e056808228952ccd3bbe9cebad739672e629b",
+      "evidence-design/recovery-r1-verifier-test-plan.json": "700c2b623147b001a6163e0708c584f752e2cd6b13db85e750cc0628ba3ea4d2",
+      "evidence-design/runner-preflight-test-plan.json": "6d37abcc515c82c191b233d79ebf569e3e863becc66f297170600c1bc67bab83",
+      "evidence-design/supervisor-fifth-repair-test-plan.json": "95c7532c626d613e8d11867343068273a62962d57d2a80aba2a52b228fa0d01a",
+      "evidence-design/supervisor-fourth-repair-test-plan.json": "3be6759a6ee986e70988eacff99d5a1bc69466e98f9c729e50817c5fe009d834",
+      "evidence-design/supervisor-sixth-repair-test-plan.json": "99f1fb45afa2f7b83495a7954421cce2a78c7642283bc4ec988991e714eb08de",
+      "evidence-design/supervisor-test-plan.json": "f96243615f549d9cc78de67eb844d6d44d57eb432047deda2dbe91576df71827",
+      "evidence-design/supervisor-third-repair-test-plan.json": "92383421fc732d8c5b209008e6f2af8dc77b192e83c2e792c753418d93abc6bb",
+      "evidence-design/transport-test-plan.json": "3895327212b2f11cab95083c345385485230dd18c404116c164bc4fa3e90c2a1",
+      "evidence-design/verifier-integration-test-plan.json": "c346e4619aeaf5378330d367a514a374cff3c0b4d0c37fd90e4b9b5e1a2058ac",
+      "experiments/synthetic-profile-overhead/PROTOCOL.md": "8eec0f7e7418fba0e58ab5aee09226cab30555338b4e21f5761509648bfaaa6b",
+      "experiments/synthetic-profile-overhead/fault-test-manifest.json": "468e0f88331a9ab0cc5ea27d5539dbf4a106acae395c12eb4a3b080c2a2c6a08",
+      "experiments/synthetic-profile-overhead/focused-normal-ownership-repair-test-receipt.json": "d6e3b07a125ba57f4a6eeec6bd69606726eefd5129c567dbdeae335d342f06ec",
+      "experiments/synthetic-profile-overhead/source-manifest.json": "5ebb2c30c74f6d8c820b1b4ae63eebcd7ba235d94d9076310aebf10efd4c83eb",
+      "scripts/run_worker36_synthetic.py": "95e80cf8086e70a0884ac73580f61b3e019f265db33a8586d880ff87daa82c65",
+      "scripts/worker36-loader.sh": "acdce5b62b5fc72f81bc8047afe17e574a067c2d7cc9bba776caa5cfec7440e7",
+      "scripts/worker36/__init__.py": "f75454b9ecffe14eaf970e601031294f103f40352e49da5355d70482edc2b913",
+      "scripts/worker36/admission.py": "84692302aabcf84b1d1515d6305e843c47c213153726cbf023192504a84bf8fd",
+      "scripts/worker36/cell.py": "dc2f62dca1cb4f7b0d862ce01b2c3733b3843b1983f1dc27ae414ed823422df6",
+      "scripts/worker36/common.py": "0efdea3e367cf1f8c9a965d8dcf413ab262bba851130eaa7c7a0617eeb11ec4e",
+      "scripts/worker36/driver.py": "90f78f9fb220d5c4566c6de88aa482331dd4ccd79fa1756d988dc2b2e872c3eb",
+      "scripts/worker36/runner_preflight.py": "e20751bb8448df5256c2709bf5935dd2784bbb1d91d679d235ee602cc0784c8d",
+      "scripts/worker36/sources.py": "14482ad4c90add0a8b81881d4f65a479ba1b37f6762370357e76e2fb3450a177",
+      "scripts/worker36/supervision.py": "0d66d90cdbe1e7b94b629936c4dbc42cf4d04a2c367cca00afe5cc1eba605ea9",
+      "scripts/worker36/transport.py": "7146153f5153371cac760f0a3a71b2e14de6646d9aec1990a321f78dfc7a1285",
+      "scripts/worker36/verify.py": "00422bb400d074f07ca4e840fbd8467cf9b49d50fadbd7e27c180257a007dc7d",
+      "tests/test_worker36_admission_integration.py": "8b4d505720a736e0d47753419aee0bdff44a4d00ea8fdc19fb4afe65d50b7888",
+      "tests/test_worker36_cell_integration.py": "90f62b6be63efa738c00953af04be73e89b8f4263aa3c53b95f497025c67c7ba",
+      "tests/test_worker36_core.py": "0a4ab52c8d8da2acd1c3064b87c0381a9f024f450f05624ceb442cfe8622c171",
+      "tests/test_worker36_driver_integration.py": "7abebb9dcc4659644612ee8fbeeb5ac4bcc054ed0cef521b61b9ef02f7fca7e0",
+      "tests/test_worker36_runner_preflight.py": "d68e5f58f84c417cce8acba08ae7cd50bf5c0fc160eb37848c22276cae1a45de",
+      "tests/test_worker36_supervision.py": "b6b951ab29a0b29408475627a0c3cf03b1169b71c5f5064b7bb4be3a51dce1f5",
+      "tests/test_worker36_transport.py": "fbdf8ca4e734e2b4640ba164278acff2591e4524f1466b36472b262c898a95f6",
+      "tests/test_worker36_verify_integration.py": "ca42d63e38955e151f2c42b5dcf6a8eb1bec4bd5460fe1fdd6efa2fb54cc6af4",
+      "tests/worker36_constructor_source.txt": "eae10578a56b0a94857b9d9b6132ce6d0772706e57c1f11df1573cd0112fa6cf"
+    },
+    "focused_source_receipt": {
+      "path": "experiments/synthetic-profile-overhead/focused-normal-ownership-repair-test-receipt.json",
+      "sha256": "d6e3b07a125ba57f4a6eeec6bd69606726eefd5129c567dbdeae335d342f06ec",
+      "size_bytes": 16412
+    },
+    "report_sha256": "4a85c454fcc2f82a00be91f23c720959890d77381f28d27f75c44b7fad9e1ec6",
+    "report_size_bytes": 65931,
+    "run_attempt": 1,
+    "run_id": 37221141227,
+    "schema": "worker36-preflight-binding-v1"
+  },
+  "historical_prior_preflight_descriptor_use": "Read-only historical fixture identity and digest evidence; never new-source readiness or full old scientific admission validation.",
+  "historical_requests": [
+    {
+      "api_origin": "https://api.github.com",
+      "method": "GET",
+      "order": 1,
+      "path": "/repos/carabinshely/bandido-alcatraz-solve/pulls/40",
+      "retained_name": "pull-request.json"
+    },
+    {
+      "api_origin": "https://api.github.com",
+      "method": "GET",
+      "order": 2,
+      "path": "/repos/carabinshely/bandido-alcatraz-solve/actions/runs/37108669492",
+      "retained_name": "postmerge-ci.json"
+    },
+    {
+      "api_origin": "https://api.github.com",
+      "method": "GET",
+      "order": 3,
+      "path": "/repos/carabinshely/bandido-alcatraz-solve/issues/comments/5982784021",
+      "retained_name": "review-exhaustive.json"
+    },
+    {
+      "api_origin": "https://api.github.com",
+      "method": "GET",
+      "order": 4,
+      "path": "/repos/carabinshely/bandido-alcatraz-solve/issues/comments/5982781729",
+      "retained_name": "review-adversarial.json"
+    },
+    {
+      "api_origin": "https://api.github.com",
+      "method": "GET",
+      "order": 5,
+      "path": "/repos/carabinshely/bandido-alcatraz-solve/actions/runs/37221141227",
+      "retained_name": "preflight-run.json"
+    },
+    {
+      "api_origin": "https://api.github.com",
+      "method": "GET",
+      "order": 6,
+      "path": "/repos/carabinshely/bandido-alcatraz-solve/actions/artifacts/11310585783",
+      "retained_name": "preflight-artifact.json"
+    },
+    {
+      "api_origin": "https://api.github.com",
+      "method": "GET",
+      "order": 7,
+      "path": "/repos/carabinshely/bandido-alcatraz-solve/actions/artifacts/11310585783/zip",
+      "retained_name": "preflight.zip"
+    }
+  ],
+  "historical_requests_are_execution_authority": false,
+  "historical_review_descriptors": [
+    {
+      "body_sha256": "18bdd23a1b3caa66c5deaa214f37738e6544ea8ed23b6ff9c8a4526f68d1d05f",
+      "comment_id": 5982784021,
+      "handoff_sha256": "175b45d3d4735388fc6d6e15e3b2b38dbbca8034da7ad9469b0a1998eb451915",
+      "head": "78506a6647b0163c93bda086501f4f45927abf65",
+      "native_reviewer_id": "review_worker36_preflight_exhaustive",
+      "report_sha256": "5b02d32977e26bacdf5808c1b069776bc7ac8d6ba0847650128456483db0490b",
+      "role": "exhaustive",
+      "tree": "5c3800f42fc30ec51715768d0d00161685887769",
+      "url": "https://github.com/carabinshely/bandido-alcatraz-solve/pull/40#issuecomment-5982784021",
+      "verdict": "clean"
+    },
+    {
+      "body_sha256": "35302092e320ce6a362d379a051fdb00412a8c8c0e07fd324db0c915867f7e18",
+      "comment_id": 5982781729,
+      "handoff_sha256": "175b45d3d4735388fc6d6e15e3b2b38dbbca8034da7ad9469b0a1998eb451915",
+      "head": "78506a6647b0163c93bda086501f4f45927abf65",
+      "native_reviewer_id": "review_worker36_preflight_adversarial",
+      "report_sha256": "38ad5a5a7976feab59e7aded2fa2e3e800f1fe7ed039a076f28b03a92ab664dd",
+      "role": "adversarial",
+      "tree": "5c3800f42fc30ec51715768d0d00161685887769",
+      "url": "https://github.com/carabinshely/bandido-alcatraz-solve/pull/40#issuecomment-5982781729",
+      "verdict": "clean"
+    }
+  ],
+  "latest_revision_record": {
+    "path": "revisions/seven-corrections-ecc5f3c7/ROOT-FINDINGS.json",
+    "sha256": "a1e028efc3995b8710ca0056a037d47ceb38f1bc60ee18c82b1daef93eb6eb74",
+    "size_bytes": 3874
+  },
+  "preserved_reviewed_snapshot": {
+    "bound_files_plus_handoff": 10,
+    "handoff_sha256": "ecc5f3c74a1bf7e448ce57d656bd24241962db8ccc8a4351a52cc892cdf0df5a",
+    "parent_handoff_metadata_clarification_preserved": true,
+    "path": "revisions/pre-seven-corrections-ecc5f3c7",
+    "protocol_sha256": "005ea0f549e97de1326a520fd2b4dfc13ca6e898847256f013a1dffc215c62ee"
+  },
+  "preserved_revision": {
+    "handoff_sha256": "3a041f9e0f720b5b90876fe1e81f1e2fb3e5ce10955f0cfae92b2784d31b475d",
+    "original_files": 6,
+    "path": "revisions/pre-worker37-3a041f9e",
+    "prior_reviews_preserved_in_subdirectory": "review-notes"
+  },
+  "primary_documentation": [
+    {
+      "source": "Root-provided preserved host-policy research; no web request by this drafting task",
+      "supports": "302 artifact Location, one-minute expiry, Actions read permission",
+      "url": "https://docs.github.com/en/rest/actions/artifacts?apiVersion=2022-11-28#download-an-artifact"
+    },
+    {
+      "source": "Root-provided preserved host-policy research",
+      "supports": "Documented blob.core.windows.net artifact transport family, not exact observed account",
+      "url": "https://docs.github.com/en/actions/reference/runners/self-hosted-runners#accessible-domains-by-function"
+    },
+    {
+      "source": "Primary citation and contract supplied by parent; no probe or web request by this drafting task",
+      "supports": "Foreground timeout avoids a new process group and does not time child descendants; leaf Python contract",
+      "url": "https://www.gnu.org/software/coreutils/manual/html_node/timeout-invocation.html"
+    }
+  ],
+  "review_inputs": [
+    {
+      "path": "inputs/worker37-initial-exhaustive-review-preserved.json",
+      "preserved_verbatim": true,
+      "reviewed_handoff": "3a041f9e0f720b5b90876fe1e81f1e2fb3e5ce10955f0cfae92b2784d31b475d",
+      "reviewer_role": "exhaustive",
+      "sha256": "c1407311defe8d04183fdf8d6f73e87b54440a32a28065ead0996417b843da8e",
+      "size_bytes": 3948
+    },
+    {
+      "path": "inputs/worker37-initial-adversarial-review-preserved.json",
+      "preserved_verbatim": true,
+      "reviewed_handoff": "3a041f9e0f720b5b90876fe1e81f1e2fb3e5ce10955f0cfae92b2784d31b475d",
+      "reviewer_role": "adversarial",
+      "sha256": "5e8920366330cdd3d28554b98e54a88d95c5ea6f579531d1e30b9cfa51ddec6f",
+      "size_bytes": 4487
+    }
+  ],
+  "schema": "worker37-source-evidence-v3",
+  "selected_host_policy": {
+    "is_documented_host_family": true,
+    "is_observed_account_pin": false,
+    "path": "inputs/worker37-host-policy-evidence.json",
+    "sha256": "6ac0850fc20c4aaa9a8b8f4696e505246f8974daa4c0aea174a18365befded01"
+  },
+  "source_head": "78506a6647b0163c93bda086501f4f45927abf65",
+  "source_tree": "5c3800f42fc30ec51715768d0d00161685887769",
+  "worker37_selected_base": {
+    "acceptance_comment_id": 5983492122,
+    "acceptance_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5983492122",
+    "accepted_at": "2026-10-04T19:18:18Z",
+    "main_head": "2b00e0d1e76364ae287946f7c0e3dc2baac4653f",
+    "postmerge_ci_conclusion": "success",
+    "postmerge_ci_job_id": 111509252102,
+    "postmerge_ci_run_id": 37227213235,
+    "tree": "a40cceee052f97141275cb44bd0a86a1a52c76a6",
+    "verification_scope": "Local exact metadata readbacks inspected; no new network request by drafting task"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "approval_meaning": "Root distinct protocol/source/preparation/execution admission under standing mandate, not an extra routine end-user permission gate.",
+  "architecture_blockers": [],
+  "bounded_revision_record": {
+    "path": "revisions/seven-corrections-ecc5f3c7/ROOT-FINDINGS.json",
+    "sha256": "a1e028efc3995b8710ca0056a037d47ceb38f1bc60ee18c82b1daef93eb6eb74",
+    "size_bytes": 3874
+  },
+  "decisions": [
+    {
+      "external_freeze_or_review_note": "No architecture choice open.",
+      "id": "D01",
+      "selected_design": "Use main2b00e0d1e76364ae287946f7c0e3dc2baac4653f/treea40cceee052f97141275cb44bd0a86a1a52c76a6, CI37227213235 and Issue2 acceptance5983492122; later drift guard.",
+      "state": "concrete_for_review",
+      "subject": "Accepted base"
+    },
+    {
+      "external_freeze_or_review_note": "Future exact PR/branch/head/tree/review/body/digest values bind after source completion; no routine end-user approval request.",
+      "id": "D02",
+      "selected_design": "New engineering PR, reviewed external descriptor and first WORKER37_ENGINEERING_ADMISSION marker. Owner-restricted pull_request edited; no assumed branch-only workflow_dispatch. Authorization review stays outside client. Final root freeze record binds descriptor SHA256 and complete-body SHA256; neither hashed object contains its own digest or the final freeze-record hash. Descriptor may reference only an earlier immutable preregistration identity. Descriptor-digest line may be outside JSON in the body; body SHA remains outside the body.",
+      "state": "concrete_for_review",
+      "subject": "External descriptor and first engineering marker"
+    },
+    {
+      "external_freeze_or_review_note": "Future new source does not inherit readiness from this artifact.",
+      "id": "D03",
+      "selected_design": "Old run37221141227/artifact11310585783 is immutable historical network/ZIP fixture. Current PR/reviews/base-CI bind Worker37 source separately. No preflight-before-preflight run and no old scientific-admission verifier reconstruction.",
+      "state": "concrete_for_review",
+      "subject": "Historical artifact only"
+    },
+    {
+      "external_freeze_or_review_note": "Exact observed inherited limit vector becomes external freeze input.",
+      "id": "D04",
+      "selected_design": "Direct existing absolute CPython3.11.16 cache executable and corresponding library with preserved exact pins/stability/mapping checks; no setup-python, PATH selection, installation or fallback.",
+      "state": "concrete_for_review",
+      "subject": "Cache-only runtime"
+    },
+    {
+      "external_freeze_or_review_note": "Selected evidence SHA2566ac0850fc20c4aaa9a8b8f4696e505246f8974daa4c0aea174a18365befded01 is preserved with primary citations.",
+      "id": "D05",
+      "selected_design": "Only one302 from the TLS-authenticated exact artifact endpoint; one ASCII account/DNS label.blob.core.windows.net, HTTPS443/defaultTLS, no userinfo/fragment/credential forwarding/nested labels/alternate suffix/IDNA substitution/second hop. No speculative path prefix. Final exact83342-byte ZIP and SHA256 required. Documented host-family policy, not an observed account pin. Retain exact HTTP200 application input bytes, including malformed JSON; omit redirect and storage-error raw body files/logs/hash because they may echo signed URLs, with status/observed byte count/fixed omission reason and honest aggregate accounting.",
+      "state": "concrete_for_review",
+      "subject": "Documented provider-host family"
+    },
+    {
+      "external_freeze_or_review_note": "Five-minute platform step and10-second supplementary socket bounds are concrete draft choices for this review, not previously observed performance guarantees; no design placeholder remains.",
+      "id": "D06",
+      "selected_design": "Builtin-only identity; one separately bounded5-minute checkout; one GNU default-group timeout --signal=KILL 600s launcher; inner timeout --foreground --signal=KILL 120s for sole leaf Python includingDNS; no extra grace/watchdog/setsid/job-control escape. Body bytes16MiB, not wire traffic;512MiB memory; at most7 authenticated and1 unauthenticated GET, no retry. Native60 cases once/600s/512MiB/16MiB output. Repeat builtin LD*/PYTHON* sanitation and umask 077 in fresh P02 workflow shell and at launcher entry before any external command.",
+      "state": "concrete_for_review",
+      "subject": "Simple finite deadlines and body budget"
+    },
+    {
+      "external_freeze_or_review_note": "Final artifact name and exact member hashes are external freeze/output fields; no new sharing permissions.",
+      "id": "D07",
+      "selected_design": "Single payload<=30MiB inclusive of1MiB terminal reserve; one5-minute platform upload; independently verify actual provider ZIP strictly<32MiB and inventory. No multipart/repack/rerun. Preserve durable prefix/logs on failure; canonical acceptance requires later authorized readback.",
+      "state": "concrete_for_review",
+      "subject": "One bounded artifact"
+    },
+    {
+      "external_freeze_or_review_note": "Final code/fixture/stub/test command hashes are preparation freeze inputs; no tests executed now.",
+      "id": "D08",
+      "selected_design": "Exactly eight new proposed paths: workflow, Bash launcher, Python module, test module and four records. Finite60 cases distinguish17 actual Bash/inert-stub cases,42 Python actual-entrypoint literal cases and1static case. Actual stub bytes are frozen before tests. Twelve paths was a maximum, not a target. T006/T038 execute actual P02 workflow invocation and launcher. Seventeen Bash cases is not a physical-process count. T033 changes GET5 head_sha; T048-T050 reject first-PR JSON at P07 before GET2; T046 uses truthful chunked framing.",
+      "state": "concrete_for_review",
+      "subject": "Small actual-entrypoint scope"
+    },
+    {
+      "external_freeze_or_review_note": "Exact ID bytes are supplied for root acceptance in this review; mechanism is concrete.",
+      "id": "D09",
+      "selected_design": "Stable proposed ID worker37-bootstrap-readiness-01, exclusive new worker37-bootstrap-readiness/allocations/<id> reservation recording external descriptor/run, attempt1 and fixed concurrency. Different source/hash/run does not permit another reservation. Early failure closes externally too. No Worker36 claim access.",
+      "state": "concrete_for_review",
+      "subject": "Stable new allocation"
+    }
+  ],
+  "execution_authority": false,
+  "future_external_freeze_fields": [
+    "new PR/branch/head/tree and descriptor/body bytes/digest",
+    "new review comment IDs/body/report bindings",
+    "root preregistration/freeze record",
+    "exact final implementation/source/fixture/stub/test hashes and finite command",
+    "expected inherited limits",
+    "artifact name/final output member inventory"
+  ],
+  "schema": "worker37-design-decisions-draft-v2",
+  "status": "all_design_choices_concrete_for_renewed_root_review"
+}
