@@ -19,7 +19,7 @@ from .sources import git, read_manifest, restore, verify_files
 
 ROOT = Path(__file__).resolve().parents[2]
 EXPERIMENT = ROOT / 'experiments/synthetic-profile-overhead'
-TEST_RECEIPT = EXPERIMENT / 'focused-recovery-r1-test-isolation-receipt.json'
+TEST_RECEIPT = EXPERIMENT / 'focused-external-review-repair-test-receipt.json'
 EXIT_CODES = {'integrity_invalid': 65, 'execution_incomplete': 74,
               'resource_incomplete': 75, 'execution_blocked': 78}
 SUPERVISION_LIMITS = {'wall_seconds': 720, 'cpu_seconds': 720, 'address_space_bytes': 512 * 1024 ** 2,
@@ -53,7 +53,8 @@ def checked_source_paths(repo):
         'evidence-design/recovery-r1-preflight-shell-test-plan.json', 'evidence-design/recovery-r1-verifier-test-plan.json',
         'evidence-design/recovery-r1-loader-integration-test-plan.json', 'evidence-design/recovery-r1-driver-test-plan.json',
         'evidence-design/recovery-r1-runner-repair-test-plan.json',
-        'evidence-design/recovery-r1-test-isolation-test-plan.json'}
+        'evidence-design/recovery-r1-test-isolation-test-plan.json',
+        'evidence-design/external-review-5406951565-test-plan.json'}
 
 
 def verify_test_receipt(repo, expected_hash):
@@ -105,11 +106,21 @@ def read_admission(path, expected_sha256, repo, provenance_path=None, provenance
     for name, pin in go['diagnostic_files_sha256'].items():
         require(file_info(Path(repo) / name)['sha256'] == pin, 'diagnostic source drift: ' + name)
     reviews = go['reviews']
-    require(type(reviews) is list and len(reviews) >= 2 and all(r.get('head') == head and r.get('tree') == tree and
+    require(type(reviews) is list and len(reviews) == 2 and all(r.get('head') == head and r.get('tree') == tree and
             r.get('verdict') == 'clean' and r.get('url', '').startswith('https://github.com/' + REPOSITORY + '/')
-            for r in reviews) and len({r['reviewer'] for r in reviews}) >= 2, 'two independent exact-head clean reviews required')
+            for r in reviews) and [r['role'] for r in reviews] == ['exhaustive', 'adversarial'] and
+            len({r['native_reviewer_id'] for r in reviews}) == 2,
+            'two authenticated independent exact-head review attestations required')
     require(go['postmerge_ci'] == provenance['postmerge_ci'], 'authenticated postmerge CI prerequisite')
-    verify_test_receipt(repo, go['stub_test_receipt_sha256'])
+    tested = verify_test_receipt(repo, go['stub_test_receipt_sha256'])
+    receipt_name = TEST_RECEIPT.relative_to(ROOT).as_posix()
+    expected_preflight_pins = {**tested['checked_file_sha256'],
+                              receipt_name: go['stub_test_receipt_sha256']}
+    preflight = go['runner_preflight']
+    require(preflight['checked_file_sha256'] == expected_preflight_pins and
+            preflight['focused_source_receipt'] ==
+                {'path': receipt_name, **file_info(Path(repo) / receipt_name)},
+            'authenticated runner preflight does not bind every current tested source byte')
     return go, provenance
 
 

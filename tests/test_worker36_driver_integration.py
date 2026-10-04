@@ -1,4 +1,4 @@
-"""D01–D54 and fixed recovery R1D01–R1D16; no historical policy execution."""
+"""D01–D54, R1D01–R1D16 and ER-I01/ER-I02; no historical policy execution."""
 from contextlib import ExitStack
 import copy
 import hashlib
@@ -16,6 +16,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 from worker36 import common as c, driver as d
+from worker36 import admission as admission_subject
 from worker36 import supervision as supervision
 from worker36 import verify as verification, transport
 
@@ -109,7 +110,7 @@ class DriverIntegration(unittest.TestCase):
         self.test_receipt = self.root/'stub-test-receipt.json'; self.test_receipt.write_bytes(c.canonical({'literal':'stub'}))
         self.admission=self.auth/'admission.json';self.admission.write_bytes(c.canonical({'literal':'GO stub'}))
         self.provenance=self.auth/'provenance.json';self.provenance.write_bytes(c.canonical({'literal':'provenance stub'}))
-        for name in ('event.json','pull-request.json','postmerge-ci.json','request-context.json'):
+        for name in admission_subject.INPUT_NAMES:
             (self.auth/name).write_bytes(c.canonical({'literal':'authenticated-input stub'}))
         self.go={'head':'a'*40,'tree':'b'*40,'inherited_limits':{n:list(resource.getrlimit(getattr(resource,n))) for n in dir(resource) if n.startswith('RLIMIT_')},'diagnostic_files_sha256':{}}
         self.go['inherited_limits']['RLIMIT_AS']=[-1,-1]
@@ -1127,5 +1128,145 @@ class DriverIntegration(unittest.TestCase):
                 self.assertIs(retained['spawn_ownership_uncertain'],not known)
                 self.assertFalse(retained['phase_accounting_complete'])
                 self.assertFalse((self.attempt/'measurement-phase-close.json').exists())
+
+    def fixed_authenticated_metadata(self, label, *, stale_preflight=None):
+        """Tiny invented checkout plus genuine retained-input authentication.
+
+        No source fixture is imported. The protocol is the unchanged hash pin;
+        all other checked files here contain explicitly invented metadata bytes.
+        """
+        from test_worker36_admission_integration import write_literal_auth_inputs
+        case=self.root/('metadata-'+label);case.mkdir()
+        repo=case/'checkout';repo.mkdir()
+        cache=case/'tool-cache';cache.mkdir()
+        temporary=case/'runner-temp';temporary.mkdir()
+        receipt_name=d.TEST_RECEIPT.relative_to(d.ROOT).as_posix()
+        experiment=repo/'experiments/synthetic-profile-overhead'
+        for name in sorted(d.checked_source_paths(ROOT)):
+            path=repo/name;path.parent.mkdir(parents=True,exist_ok=True)
+            path.write_bytes(b'# fixed invented checked-source metadata only\n')
+        protocol=(ROOT/'experiments/synthetic-profile-overhead/PROTOCOL.md').read_bytes()
+        self.assertEqual(c.sha(protocol),d.PROTOCOL_SHA256)
+        (experiment/'PROTOCOL.md').write_bytes(protocol)
+        (experiment/'source-manifest.json').write_bytes(c.canonical({'files':[]}))
+        checked={name:c.file_info(repo/name)['sha256'] for name in sorted(d.checked_source_paths(repo))}
+        test_record={'success':True,'failures':0,'errors':0,'candidate_evaluator_calls':0,
+            'reference_evaluator_calls':0,'games':0,'measurement_fixture_constructions':0,
+            'historical_source_imports':0,'checked_file_sha256':checked,
+            'literal_fixture':'invented metadata receipt; no measurement authority'}
+        receipt=repo/receipt_name;receipt.write_bytes(c.canonical(test_record))
+        receipt_info={'path':receipt_name,**c.file_info(receipt)}
+        preflight_pins={**checked,receipt_name:receipt_info['sha256']}
+        if stale_preflight=='source_map':preflight_pins['tests/fixed-obsolete-source.py']='f'*64
+        if stale_preflight=='receipt_size':receipt_info['size_bytes']+=1
+        go={'schema':'worker36-one-shot-admission-v1','admitted':True,
+            'repository':d.REPOSITORY,'branch':admission_subject.BRANCH,
+            'preregistration_url':d.PREREGISTRATION,'protocol_sha256':d.PROTOCOL_SHA256,
+            'admission_url':admission_subject.WEB+'/pull/41','head':'1'*40,'tree':'2'*40,
+            'maximum_evaluator_calls':40,'games':0,'schedule':list(d.SCHEDULE),
+            'runtime':copy.deepcopy(c.RUNTIME),'resources':copy.deepcopy(c.RESOURCES),
+            'loader_pin':copy.deepcopy(LITERAL_LOADER_PIN),'runner':'bandido-alcatraz-ci',
+            'inherited_limits':copy.deepcopy(self.go['inherited_limits']),
+            'source_manifest_sha256':c.file_info(experiment/'source-manifest.json')['sha256'],
+            'diagnostic_files_sha256':{name:checked[name] for name in d.required_diagnostic_paths(repo)},
+            'stub_test_receipt_sha256':c.file_info(receipt)['sha256'],
+            'postmerge_ci':{'run_id':admission_subject.CI_RUN,'head':admission_subject.BASE_HEAD,
+                           'status':'completed','conclusion':'success'}}
+        self.auth=case/'auth'
+        raw,verified=write_literal_auth_inputs(self.auth,go,cache=str(cache),checkout=str(repo),
+            temporary=str(temporary),focused_source_receipt=receipt_info,checked_file_sha256=preflight_pins)
+        self.go=c.strict_json(raw);self.prov=verified
+        self.admission=self.auth/'admission.json';self.provenance=self.auth/'provenance.json'
+        self.attempt=Path(verified['attempt_path']);self.attempt.parent.mkdir(parents=True)
+        self.claim=case/'claims';self.claim.mkdir()
+        self.assertEqual(set(verified['admission_input_hashes']),set(admission_subject.INPUT_NAMES))
+        self.assertEqual(len(verified['admission_input_hashes']),9)
+        return repo,experiment,receipt,temporary
+
+    def fixed_metadata_environment(self, paths):
+        repo,experiment,receipt,temporary=paths
+        stack=ExitStack();self.addCleanup(stack.close)
+        for name,value in (('ROOT',repo),('EXPERIMENT',experiment),('TEST_RECEIPT',receipt)):
+            stack.enter_context(patch.object(d,name,value))
+        stack.enter_context(patch.dict(os.environ,{'WORKER36_CLAIM_DIRECTORY':str(self.claim),
+            'GITHUB_EVENT_NAME':'pull_request','GITHUB_RUN_ID':'9001','GITHUB_RUN_ATTEMPT':'1',
+            'RUNNER_NAME':'bandido-alcatraz-ci','RUNNER_TEMP':str(temporary)}))
+        def git_metadata(actual_repo,*args):
+            self.assertEqual(Path(actual_repo),repo)
+            values={('rev-parse','HEAD'):('1'*40+'\n').encode(),
+                    ('rev-parse','HEAD^{tree}'):('2'*40+'\n').encode(),
+                    ('status','--porcelain','--untracked-files=no'):b''}
+            self.assertIn(args,values,'only the fixed read-only Git metadata observations are allowed')
+            return values[args]
+        self.metadata_git=stack.enter_context(patch.object(d,'git',side_effect=git_metadata))
+        self.metadata_runtime=stack.enter_context(patch.object(d,'runtime_check',
+            side_effect=c.IntegrityError('fixed metadata-only stop after authenticated claim')))
+        self.metadata_restore=stack.enter_context(patch.object(d,'restore',side_effect=AssertionError('source restoration forbidden in metadata probe')))
+        self.metadata_child=stack.enter_context(patch.object(supervision,'run_child',side_effect=AssertionError('child launch forbidden in metadata probe')))
+        self.metadata_handoff=stack.enter_context(patch.object(d,'publish_preservation_handoff',side_effect=AssertionError('preservation handoff forbidden in metadata probe')))
+        return stack
+
+    def assert_genuine_metadata_admission(self, repo):
+        admitted,verified=d.read_admission(self.admission,c.sha(self.admission.read_bytes()),repo,
+            self.provenance,c.sha(self.provenance.read_bytes()))
+        self.assertEqual(admitted,self.go);self.assertEqual(verified,self.prov)
+        self.assertFalse(list(self.claim.iterdir()))
+        self.assertFalse(self.attempt.exists())
+
+    def assert_metadata_probe_stopped(self, *, reached_claim, error):
+        receipt=self.read_receipt()
+        self.assertEqual(receipt['status'],'execution_blocked')
+        self.assertIs(receipt['admission_verified'],reached_claim)
+        self.assertEqual((receipt['actual_starts'],receipt['actual_starts_upper_bound'],
+            receipt['actual_returns'],receipt['confirmed_captures']),(0,0,0,0))
+        self.assertIn(error,receipt['failure']['error'])
+        claims=list(self.claim.iterdir())
+        self.assertEqual(len(claims),int(reached_claim))
+        if reached_claim:
+            self.assertEqual(c.strict_json(claims[0].read_bytes())['head'],'1'*40)
+            self.metadata_runtime.assert_called_once()
+            retained=self.attempt/'admission-inputs'
+            for name in admission_subject.INPUT_NAMES:
+                self.assertEqual((retained/name).read_bytes(),(self.auth/name).read_bytes())
+        else:self.metadata_runtime.assert_not_called()
+        self.metadata_restore.assert_not_called();self.metadata_child.assert_not_called()
+        self.metadata_handoff.assert_not_called()
+        self.assertFalse((self.attempt/'restored').exists());self.assertFalse((self.attempt/'cells').exists())
+
+    def test_ER_I01_genuine_prerequisites_and_source_binding_precede_claim(self):
+        cases=(('valid',None),*((name,'missing') for name in admission_subject.PREREQUISITE_NAMES),
+            ('source_map','stale'),('receipt_size','stale'))
+        for label,kind in cases:
+            with self.subTest(case=label):
+                paths=self.fixed_authenticated_metadata(label,stale_preflight=label if kind=='stale' else None)
+                with self.fixed_metadata_environment(paths):
+                    if kind!='stale':self.assert_genuine_metadata_admission(paths[0])
+                    if kind=='missing':(self.auth/label).unlink()
+                    self.assertEqual(self.run_measure(),1)
+                    expected=('fixed metadata-only stop after authenticated claim' if label=='valid' else
+                        'authenticated runner preflight does not bind every current tested source byte'
+                        if kind=='stale' else 'regular non-symlink auth input required')
+                    self.assert_metadata_probe_stopped(reached_claim=label=='valid',error=expected)
+                    if kind=='missing':
+                        self.assertEqual(self.read_receipt()['failure']['error_type'],'AdmissionError')
+                        self.assertFalse((self.auth/label).exists())
+
+    def test_ER_I02_each_retained_raw_input_is_revalidated_before_claim(self):
+        for name in admission_subject.INPUT_NAMES:
+            with self.subTest(input=name):
+                paths=self.fixed_authenticated_metadata('tamper-'+name)
+                with self.fixed_metadata_environment(paths):
+                    self.assert_genuine_metadata_admission(paths[0])
+                    provenance_before=self.provenance.read_bytes()
+                    target=self.auth/name;before=target.read_bytes();target.write_bytes(before+b'\n')
+                    expected=('preflight archive bytes/hash mismatch' if name=='preflight.zip' else
+                        'stored provenance does not match authenticated input reconciliation')
+                    with self.assertRaisesRegex(admission_subject.AdmissionError,expected):
+                        admission_subject.verify_provenance(self.provenance,self.admission,c.sha(self.admission.read_bytes()))
+                    self.assertEqual(self.run_measure(),1)
+                    self.assert_metadata_probe_stopped(reached_claim=False,error=expected)
+                    self.assertEqual(self.provenance.read_bytes(),provenance_before)
+                    self.assertEqual(target.read_bytes(),before+b'\n')
+                    self.assertEqual(self.read_receipt()['failure']['error_type'],'AdmissionError')
 
 if __name__=='__main__':unittest.main()
