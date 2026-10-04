@@ -1,0 +1,128 @@
+{
+  "actual_counts": {
+    "actual_main": 42,
+    "evaluator_calls": 0,
+    "games": 0,
+    "harness_bash": 17,
+    "historical_imports": 0,
+    "inert_pinned_entrypoint": 4,
+    "inner_timeout_stub": 4,
+    "live_network": 0,
+    "measurement_fixture_constructions": 0,
+    "mock_http_attempts": 132,
+    "outer_timeout_stub": 2,
+    "seeds": 0,
+    "static_source_case": 1
+  },
+  "all_source_and_fixture_hashes_unchanged_after": true,
+  "attempt": 1,
+  "batches_executed": 1,
+  "caps": {
+    "case_snapshot_bytes": 8388608,
+    "combined_output_bytes": 16777216,
+    "enforcement": "Frozen wrapper set real RLIMIT_AS/RLIMIT_FSIZE before loading tests; outer GNU timeout supervised the single native process. Later getrlimit/setrlimit test mocks did not mutate those actual process limits.",
+    "memory_bytes": 536870912,
+    "stdout_stderr_bytes": 8388608,
+    "wall_seconds": 600
+  },
+  "errors": 0,
+  "exact_command": "/usr/bin/timeout --signal=KILL 600s /usr/bin/python3 -B evidence/fixtures/run-literal-batch.py",
+  "exit_code": 0,
+  "failed": 0,
+  "fixture_command_map_sha256": "c8a27f020b22edacbb104282a6aee0b1015fd6b6adb2bb57eed3a69c6f20d72d",
+  "fixture_inventory_sha256": "69afb5fa7ac8456a3ae4f122c9e0b121e01c99352dee55e0bb5ff8e3ae8d92ee",
+  "games": 0,
+  "historical_imports": 0,
+  "limitations": [
+    "Literal/command-stub tests do not prove actual cached Python3.11.16, real tools/fsync/timeout behavior, network credentials or real runner readiness.",
+    "Current source still requires complete independent and external review, exact source/runtime/input freeze and separate engineering GO.",
+    "The native suite elapsed value is not a scientific timing or performance result.",
+    "No digest of this receipt, containing commit/tree or final external freeze is embedded."
+  ],
+  "measurement_admitted": false,
+  "native_interpreter": {
+    "actual_version": "not recorded by frozen batch; no post-hoc version probe",
+    "command_path": "/usr/bin/python3"
+  },
+  "observed_output": {
+    "case_snapshot_bytes": 2988769,
+    "combined_bytes": 3007728,
+    "full_result_sha256": "ed8b411117b07582907df84cfc467f8a6eaf4cdd094007d2a4ca47dc1920f562",
+    "inventory_files": 577,
+    "stdout_stderr_sha256": "4c81f50b41e126cbdd4b639144f76c204876710254467b5eb9aed0fe5c5de6ab",
+    "stdout_stderr_size_bytes": 18959
+  },
+  "observed_stub_invocations": {
+    "cat": 14,
+    "git": 8,
+    "id": 12,
+    "inner_timeout": 4,
+    "mkdir": 17,
+    "outer_timeout": 2,
+    "python3.11": 4,
+    "readlink": 97,
+    "realpath": 97,
+    "sha256sum": 87,
+    "stat": 294,
+    "sync": 233,
+    "timeout": 6
+  },
+  "observed_unique_stub_pids": 865,
+  "passed": 60,
+  "physical_process_count": null,
+  "physical_process_count_note": "Observed initiating Bash PIDs and inert command PIDs/PPIDs are preserved; unobserved subshell forks are not counted or inferred.",
+  "planned_counts_match": true,
+  "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5983940003",
+  "protocol_sha256": "599f21cefbca5440e288639b4a450f65b4046872a810417b2cb237db1d8408c7",
+  "real_network_requests": 0,
+  "real_runner_execution": false,
+  "reruns": 0,
+  "schema": "worker37-literal-preparation-receipt-v1",
+  "scientific_calls": 0,
+  "scientific_classification": null,
+  "seeds": 0,
+  "skipped": 0,
+  "source_bindings": [
+    {
+      "path": ".github/workflows/worker37-bootstrap-readiness.yml",
+      "sha256": "40beb0a911df7fa744f6f733616310e0e8e51f380337f81c601493b909e56081",
+      "size_bytes": 6509
+    },
+    {
+      "path": "scripts/worker37-bootstrap.sh",
+      "sha256": "8f5f06a96af1cb3c55e8f7db8cf8ca8be813d6d73c2c49052b0ee5df0ae2c7bc",
+      "size_bytes": 18495
+    },
+    {
+      "path": "scripts/worker37_bootstrap.py",
+      "sha256": "2f34ffc87bf9bef46e25c8f1095512aee3ebf4caf071b47945bdd3cc195debee",
+      "size_bytes": 53208
+    },
+    {
+      "path": "tests/test_worker37_bootstrap.py",
+      "sha256": "456decdaa62c597c9cfe47b4a87bbba1f7db9d95e91b2a478dc8a479524303e4",
+      "size_bytes": 80147
+    },
+    {
+      "path": "experiments/worker37-bootstrap-readiness/PROTOCOL.md",
+      "sha256": "599f21cefbca5440e288639b4a450f65b4046872a810417b2cb237db1d8408c7",
+      "size_bytes": 32417
+    },
+    {
+      "path": "experiments/worker37-bootstrap-readiness/literal-test-plan.json",
+      "sha256": "4373898b46e40c4687dacaf55114d8c9ed3a4667ccc548374d3b64f63dd42426",
+      "size_bytes": 35209
+    },
+    {
+      "path": "experiments/worker37-bootstrap-readiness/source-manifest.json",
+      "sha256": "0dcd9d46390f97604bf30f905d08a66614faa1c0d4ad576b878187e053a6ae73",
+      "size_bytes": 32808
+    }
+  ],
+  "source_manifest_sha256": "0dcd9d46390f97604bf30f905d08a66614faa1c0d4ad576b878187e053a6ae73",
+  "status": "passed_fixed_native_preparation",
+  "suite_reported_seconds": 3.063,
+  "tests_run": 60,
+  "unchanged_fixture_inputs": 146,
+  "unchanged_source_inputs": 7
+}
