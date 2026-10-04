@@ -16,6 +16,12 @@ import re
 import stat
 import sys
 
+if __name__ == '__main__' and not __package__:
+    # Direct script invocation has only this sibling module directory on sys.path.
+    from common import IntegrityError as LoaderIntegrityError, loader_identity, loader_pin
+else:
+    from worker36.common import IntegrityError as LoaderIntegrityError, loader_identity, loader_pin
+
 REPOSITORY = 'carabinshely/bandido-alcatraz-solve'
 OWNER = 'carabinshely'
 BRANCH = 'research/worker36-synthetic-profile-overhead'
@@ -95,6 +101,16 @@ def bounded_body(value):
     return value
 
 
+def admitted_loader_pin(value):
+    """Require the portable exact-key pin; no host file access or fallback."""
+    try:
+        pin = loader_pin(value)
+    except LoaderIntegrityError as error:
+        raise AdmissionError('invalid admitted loader pin: ' + str(error)) from error
+    require(value == pin, 'admission requires the exact portable loader pin')
+    return pin
+
+
 def extract_pr_admission(event, live_pr, live_ci):
     """Return exact GO bytes and verified provenance from fixed input objects.
 
@@ -161,6 +177,7 @@ def extract_pr_admission(event, live_pr, live_ci):
             'GO PR URL/head mismatch')
     require(type(go.get('tree')) is str and re.fullmatch('[0-9a-f]{40}', go['tree']) is not None,
             'exact diagnostic tree required')
+    admitted_loader_pin(go.get('loader_pin'))
     ci_repository = object_at(live_ci, 'repository')
     require(ci_repository.get('full_name') == REPOSITORY and ci_repository.get('html_url') == WEB
             and ci_repository.get('url') == API and identity(object_at(ci_repository, 'owner')) == owner,
@@ -190,8 +207,13 @@ def validate_interpreter():
             sys.flags.isolated == 0 and sys.flags.no_site == 0, 'exact -B -s auth interpreter required')
     require({key: value for key, value in os.environ.items() if key.startswith('PYTHON')} ==
             {'PYTHONHASHSEED': '0', 'PYTHONDONTWRITEBYTECODE': '1'}, 'unclean Python auth environment')
-    require('LD_PRELOAD' not in os.environ and 'LD_LIBRARY_PATH' not in os.environ,
-            'unclean dynamic-loader environment')
+    # The shared helper admits only the corresponding trusted toolcache library.
+    # The observer checks actual mapped device/inode/path, stable file bytes and
+    # the exact singleton LD_LIBRARY_PATH environment, rather than trusting it.
+    try:
+        return loader_identity()
+    except LoaderIntegrityError as error:
+        raise AdmissionError('unverified authentication loader: ' + str(error)) from error
 
 
 def read_input(path):
@@ -281,7 +303,7 @@ def verify_provenance(provenance_path, admission_path, expected_admission_sha256
 
 
 def authenticate(args):
-    validate_interpreter()
+    observed_loader = validate_interpreter()
     require(re.fullmatch('[1-9][0-9]*', args.workflow_run) is not None and
             args.workflow_attempt == '1', 'first workflow attempt required')
     inputs = {'event.json': args.event, 'pull-request.json': args.pull_request,
@@ -295,6 +317,8 @@ def authenticate(args):
         raw_inputs[name], values[name] = read_input(path)
     raw, provenance = extract_pr_admission(values['event.json'], values['pull-request.json'],
                                          values['postmerge-ci.json'])
+    require(admitted_loader_pin(strict_json(raw)['loader_pin']) == loader_pin(observed_loader),
+            'authentication loader differs from the external admitted pin')
     context = values['request-context.json']
     provenance.update(verified_context(context, provenance, args.workflow_run, args.workflow_attempt))
     require(parent == Path(context['durable_root']) / 'admission-inputs', 'wrong original durable auth location')

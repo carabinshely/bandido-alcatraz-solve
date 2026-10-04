@@ -1,4 +1,4 @@
-"""Finite V01–V15 offline integration cases; no evaluator/import execution.
+"""Finite baseline and recovery-R1 offline integration cases; no evaluator/import execution.
 
 Science, RNG, source and observation objects below are literal invented stubs.
 Only metadata/hashes/copies are constructed. Neither an evaluator nor a fixture
@@ -36,6 +36,21 @@ INHERITED = {'RLIMIT_AS': [-1, -1], 'RLIMIT_CPU': [-1, -1]}
 ORIGINAL = '/invented-cache/worker36-evidence/run-123-attempt-1/worker36-123-1'
 SCRIPT = '/invented-checkout/scripts/run_worker36_synthetic.py'
 SOURCE_BYTES = b'# Fixed invented inert source; never imported.\n'
+LOADER_PIN = {'schema': 'worker36-loader-pin-v1', 'executable_sha256': c.RUNTIME['executable_sha256'],
+              'library_relative_path': 'Python/3.11.16/x64/lib/libpython3.11.so.1.0',
+              'library_sha256': 'b' * 64, 'library_size_bytes': 12345}
+LOADER_IDENTITY = {
+    'schema': 'worker36-loader-identity-v1', 'tool_cache': '/invented-cache',
+    'executable_path': '/invented-cache/Python/3.11.16/x64/bin/python3.11',
+    'executable_sha256': c.RUNTIME['executable_sha256'],
+    'library_relative_path': 'Python/3.11.16/x64/lib/libpython3.11.so.1.0',
+    'library_path': '/invented-cache/Python/3.11.16/x64/lib/libpython3.11.so.1.0',
+    'library_directory': '/invented-cache/Python/3.11.16/x64/lib',
+    'library_sha256': 'b' * 64, 'library_size_bytes': 12345,
+    'library_device': {'major': 8, 'minor': 1}, 'library_inode': 1234,
+    'mapped_library': {'path': '/invented-cache/Python/3.11.16/x64/lib/libpython3.11.so.1.0',
+                       'device': {'major': 8, 'minor': 1}, 'inode': 1234},
+    'loader_environment': {'LD_LIBRARY_PATH': '/invented-cache/Python/3.11.16/x64/lib'}}
 IDENTITIES = ['literal01', 'literal02', 'literal03', 'literal04', 'literal05', 'literal06', 'literal07',
               'literal08', 'literal09', 'literal10', 'literal11', 'literal12', 'literal13', 'literal14',
               'literal15', 'literal16', 'literal17', 'literal18', 'literal19', 'literal20', 'literal21',
@@ -87,7 +102,7 @@ class LiteralBundle:
         write(self.root / 'source-manifest.json', self.manifest)
         diagnostic = {'scripts/worker36/' + name: 'a' * 64 for name in
                       ('__init__.py', 'admission.py', 'cell.py', 'common.py', 'driver.py', 'runner_preflight.py', 'sources.py', 'supervision.py', 'transport.py', 'verify.py')}
-        diagnostic.update({name: 'a' * 64 for name in ('scripts/run_worker36_synthetic.py',
+        diagnostic.update({name: 'a' * 64 for name in ('scripts/run_worker36_synthetic.py', 'scripts/worker36-loader.sh',
                           '.github/workflows/worker36-synthetic-profile.yml', '.github/workflows/worker36-runner-preflight.yml',
                           'experiments/synthetic-profile-overhead/fault-test-manifest.json')})
         diagnostic['experiments/synthetic-profile-overhead/PROTOCOL.md'] = c.PROTOCOL_SHA256
@@ -99,7 +114,7 @@ class LiteralBundle:
                    'repository': c.REPOSITORY, 'branch': a.BRANCH, 'preregistration_url': c.PREREGISTRATION,
                    'protocol_sha256': c.PROTOCOL_SHA256, 'admission_url': a.WEB + '/pull/40',
                    'head': HEAD, 'tree': TREE, 'runner': 'bandido-alcatraz-ci',
-                   'runtime': c.RUNTIME, 'resources': c.RESOURCES, 'schedule': list(c.SCHEDULE),
+                   'runtime': c.RUNTIME, 'loader_pin': copy.deepcopy(LOADER_PIN), 'resources': c.RESOURCES, 'schedule': list(c.SCHEDULE),
                    'maximum_evaluator_calls': 40, 'games': 0,
                    'source_manifest_sha256': diagnostic['experiments/synthetic-profile-overhead/source-manifest.json'],
                    'diagnostic_files_sha256': diagnostic,
@@ -113,7 +128,7 @@ class LiteralBundle:
                                 'url': a.WEB + '/pull/40#issuecomment-200'}]}
         self.write_auth()
         parent_runtime = self.runtime()
-        parent_runtime['flags'] = ['/invented/python', '-B', '-s', SCRIPT, 'measure']
+        parent_runtime['flags'] = [LOADER_IDENTITY['executable_path'], '-B', '-s', SCRIPT, 'measure']
         parent_runtime['address_space'] = [-1, -1]; parent_runtime['inherited_limits'] = INHERITED
         write(self.root / 'source-runtime-preflight.json', {'phase': 'source_runtime_preflight', 'evaluator_starts': 0,
               'runtime': parent_runtime, 'coordinator_address_space': [512 * 1024 ** 2] * 2,
@@ -174,8 +189,9 @@ class LiteralBundle:
             write(self.root / 'admission-inputs' / name, (self.auth / name).read_bytes(), raw=True)
 
     def runtime(self, index=None):
-        return {**c.RUNTIME, 'executable': '/invented/python',
-                'flags': ['/invented/python', '-B', '-s', SCRIPT, '_cell', '--attempt', ORIGINAL, '--cell', str(index)],
+        return {**c.RUNTIME, 'executable': LOADER_IDENTITY['executable_path'],
+                'loader': copy.deepcopy(LOADER_IDENTITY),
+                'flags': [LOADER_IDENTITY['executable_path'], '-B', '-s', SCRIPT, '_cell', '--attempt', ORIGINAL, '--cell', str(index)],
                 'python_environment': {'PYTHONHASHSEED': '0', 'PYTHONDONTWRITEBYTECODE': '1'},
                 'gc_enabled': True, 'gc_threshold': [700, 10, 10],
                 'effective_flags': {'dont_write_bytecode': 1, 'no_user_site': 1, 'ignore_environment': 0,
@@ -243,6 +259,11 @@ class LiteralBundle:
         log_name = f'supervisor-cell-{index:02d}.log'; write(self.root / log_name, b'', raw=True)
         supervisor = {'schema': 'worker36.supervision.v1', 'status': 'completed', 'reason': 'child_exit_zero',
                  'primary_outcome': {'status': 'completed', 'reason': 'child_exit_zero'}, 'secondary_failures': [], 'child_accounting_complete': True, 'phase_accounting_complete': True,
+                      'spawn_attempted': True, 'spawn_initialization_complete': True,
+                      'spawn_ownership_uncertain': False, 'spawn_discovery': 'not_required', 'spawn_recovered_pids': [],
+                      'preservation_deadline_monotonic': None, 'preservation_transition_attempted': False,
+                      'preservation_transition_complete': False, 'preservation_expired': False,
+                      'preservation_blocked': False,
                       'spawned': True, 'pid': 2000 + index, 'parent_pid': 1000, 'parent_death_signal': 9,
                       'returncode': 0, 'exit_code': 0, 'signal': None, 'scientific_returns_inferred': False,
                       'active_call_at_stop': None, 'errors': [],
@@ -600,6 +621,181 @@ class VerifyIntegrationTests(unittest.TestCase):
                 self.reconfirm(2,'candidate');self.bundle.refresh()
                 with self.assertRaises(kind):self.bundle.verify()
         path.write_bytes(original);self.reconfirm(2,'candidate');self.bundle.refresh()
+        self.assertTrue(self.bundle.verify()['complete'])
+
+
+    def test_V19_recovery_loader_runtime_binding(self):
+        self.assertTrue(self.bundle.verify()['complete'])
+        cases = (
+            ('null_loader', 'update', ['runtime', 'loader'], None),
+            ('portable_substitute', 'update', ['runtime', 'loader'], LOADER_PIN),
+            ('wrong_schema', 'update', ['runtime', 'loader', 'schema'], 'untrusted-loader'),
+            ('missing_mapping', 'delete', ['runtime', 'loader', 'mapped_library'], None),
+            ('wrong_library_hash', 'update', ['runtime', 'loader', 'library_sha256'], 'e' * 64),
+            ('boolean_library_size', 'update', ['runtime', 'loader', 'library_size_bytes'], True),
+            ('wrong_executable_path', 'update', ['runtime', 'loader', 'executable_path'], '/ambient/python'),
+            ('wrong_mapped_inode', 'update', ['runtime', 'loader', 'mapped_library', 'inode'], 5678),
+            ('wrong_mapped_device', 'update', ['runtime', 'loader', 'mapped_library', 'device'], {'major': 8, 'minor': 2}),
+            ('wrong_loader_environment', 'update', ['runtime', 'loader', 'loader_environment'], {'LD_LIBRARY_PATH': '/ambient/lib'}),
+            ('extra_identity_field', 'update', ['runtime', 'loader', 'extra'], False),
+            ('different_runtime_executable', 'update', ['runtime', 'executable'], '/ambient/python'))
+        self.assertEqual(len(cases), 12)
+        for name in ('source-runtime-preflight.json', 'cells/02/source-runtime-preflight.json'):
+            path = self.bundle.root / name; original = path.read_bytes()
+            try:
+                for label, action, keys, replacement in cases:
+                    with self.subTest(record=name, case=label):
+                        value = c.strict_json(original)
+                        if action == 'delete':
+                            parent = value
+                            for key in keys[:-1]:
+                                parent = parent[key]
+                            del parent[keys[-1]]
+                        else:
+                            set_nested(value, keys, copy.deepcopy(replacement))
+                        write(path, value); self.bundle.refresh()
+                        with self.assertRaises(c.IntegrityError):
+                            self.bundle.verify()
+            finally:
+                path.write_bytes(original); self.bundle.refresh()
+        path = self.bundle.root / 'cells/02/source-runtime-preflight.json'; original = path.read_bytes()
+        try:
+            value = c.strict_json(original)
+            value['runtime']['loader']['library_inode'] = 5678
+            value['runtime']['loader']['mapped_library']['inode'] = 5678
+            write(path, value); self.bundle.refresh()
+            with self.assertRaisesRegex(c.IntegrityError, 'parent/child loader mapped identity'):
+                self.bundle.verify()
+        finally:
+            path.write_bytes(original); self.bundle.refresh()
+        self.assertTrue(self.bundle.verify()['complete'])
+
+    def test_V20_supervisor_preservation_boundary_consistency(self):
+        path = self.bundle.root / 'supervisor-cell-01.json'
+        original = path.read_bytes()
+        self.assertTrue(self.bundle.verify()['complete'])
+        flags = ('preservation_transition_attempted', 'preservation_transition_complete',
+                 'preservation_expired', 'preservation_blocked')
+        failure = {'status': 'resource_incomplete', 'reason': 'literal_preservation_failure'}
+        cases = [('missing_' + key, 'delete', {key: None})
+                 for key in ('preservation_deadline_monotonic', *flags)]
+        cases += [('nonnull_deadline_' + repr(value), 'update', {'preservation_deadline_monotonic': value})
+                  for value in (0, 10000, '10000', False)]
+        cases += [('wrong_' + key + '_' + repr(value), 'update', {key: value})
+                  for key in flags for value in (True, None, 0, 'false')]
+        cases += [('forbidden_' + key + '_' + repr(value), 'update', {key: value})
+                  for key in ('first_terminal_failure', 'preservation_boundary_failure')
+                  for value in (None, failure)]
+        cases.append(('contradictory_completed_record', 'update', {
+            'preservation_deadline_monotonic': 10000,
+            'preservation_transition_attempted': True, 'preservation_transition_complete': True,
+            'first_terminal_failure': failure}))
+        self.assertEqual(len(cases), 30)
+        try:
+            for name, action, changes in cases:
+                with self.subTest(case=name):
+                    value = c.strict_json(original)
+                    if action == 'delete':
+                        for key in changes:
+                            del value[key]
+                    else:
+                        value.update(changes)
+                    write(path, value)
+                    self.bundle.refresh()
+                    with self.assertRaisesRegex(c.IntegrityError, 'preservation-boundary evidence'):
+                        self.bundle.verify()
+        finally:
+            path.write_bytes(original)
+            self.bundle.refresh()
+        self.assertTrue(self.bundle.verify()['complete'])
+
+    def test_V21_supervisor_partial_spawn_consistency(self):
+        path = self.bundle.root / 'supervisor-cell-01.json'
+        original = path.read_bytes()
+        self.assertTrue(self.bundle.verify()['complete'])
+        true_flags = ('spawn_attempted', 'spawn_initialization_complete')
+        cases = [('missing_' + key, 'delete', {key: None})
+                 for key in (*true_flags, 'spawn_ownership_uncertain')]
+        cases += [('wrong_' + key + '_' + repr(value), 'update', {key: value})
+                  for key in true_flags for value in (False, None, 1, 'true')]
+        cases += [('wrong_uncertainty_' + repr(value), 'update', {'spawn_ownership_uncertain': value})
+                  for value in (True, None, 0, 'false')]
+        cases += [
+            ('partial_constructor_contradiction', 'update', {
+                'spawn_attempted': True, 'spawn_initialization_complete': False,
+                'spawn_ownership_uncertain': True}),
+            ('unattempted_constructor_contradiction', 'update', {
+                'spawn_attempted': False, 'spawn_initialization_complete': False,
+                'spawn_ownership_uncertain': False})]
+        cases += [('missing_' + key, 'delete', {key: None})
+                  for key in ('spawn_discovery', 'spawn_recovered_pids')]
+        cases += [('wrong_discovery_' + repr(value), 'update', {'spawn_discovery': value})
+                  for value in (None, False, 'initialized', 'recovered')]
+        cases += [('wrong_recovered_pids_' + repr(value), 'update', {'spawn_recovered_pids': value})
+                  for value in (None, False, 0, {}, '[]', [123])]
+        cases.append(('recovery_diagnostics_contradiction', 'update', {
+            'spawn_discovery': 'recovered', 'spawn_recovered_pids': [123]}))
+        self.assertEqual(len(cases), 30)
+        try:
+            for name, action, changes in cases:
+                with self.subTest(case=name):
+                    value = c.strict_json(original)
+                    if action == 'delete':
+                        for key in changes:
+                            del value[key]
+                    else:
+                        value.update(changes)
+                    write(path, value)
+                    self.bundle.refresh()
+                    with self.assertRaisesRegex(c.IntegrityError, 'spawn-ownership evidence'):
+                        self.bundle.verify()
+        finally:
+            path.write_bytes(original)
+            self.bundle.refresh()
+        self.assertTrue(self.bundle.verify()['complete'])
+
+    def test_V22_recovery_loader_admission_and_helper_pin(self):
+        self.assertTrue(self.bundle.verify()['complete'])
+        original_go = copy.deepcopy(self.bundle.go)
+        stub_path = self.bundle.root / 'stub-test-receipt.json'; original_stub = stub_path.read_bytes()
+        cases = ('missing_loader_pin', 'full_identity_in_go', 'extra_portable_field',
+                 'changed_library_hash', 'changed_library_size', 'missing_loader_shell_pin',
+                 'missing_loader_shell_test_pin')
+        self.assertEqual(len(cases), 7)
+        try:
+            for label in cases:
+                with self.subTest(case=label):
+                    self.bundle.go = copy.deepcopy(original_go); stub_path.write_bytes(original_stub)
+                    if label == 'missing_loader_pin':
+                        del self.bundle.go['loader_pin']
+                    elif label == 'full_identity_in_go':
+                        self.bundle.go['loader_pin'] = copy.deepcopy(LOADER_IDENTITY)
+                    elif label == 'extra_portable_field':
+                        self.bundle.go['loader_pin']['extra'] = False
+                    elif label == 'changed_library_hash':
+                        self.bundle.go['loader_pin']['library_sha256'] = 'e' * 64
+                    elif label == 'changed_library_size':
+                        self.bundle.go['loader_pin']['library_size_bytes'] = 12346
+                    elif label == 'missing_loader_shell_pin':
+                        del self.bundle.go['diagnostic_files_sha256']['scripts/worker36-loader.sh']
+                    else:
+                        stub = c.strict_json(original_stub)
+                        del stub['checked_file_sha256']['scripts/worker36-loader.sh']
+                        write(stub_path, stub)
+                        self.bundle.go['stub_test_receipt_sha256'] = c.file_info(stub_path)['sha256']
+                    if label in ('missing_loader_pin', 'full_identity_in_go', 'extra_portable_field'):
+                        # Invalid GO cannot produce authenticated evidence. Its
+                        # authoritative admission rejection is the expected gate.
+                        with self.assertRaises(a.AdmissionError):
+                            self.bundle.write_auth()
+                        continue
+                    self.bundle.write_auth()
+                    self.bundle.mutate('receipt.json', ['admission_sha256'], c.sha(self.bundle.admission.read_bytes()))
+                    with self.assertRaises((c.IntegrityError, KeyError)):
+                        self.bundle.verify()
+        finally:
+            self.bundle.go = original_go; stub_path.write_bytes(original_stub); self.bundle.write_auth()
+            self.bundle.mutate('receipt.json', ['admission_sha256'], c.sha(self.bundle.admission.read_bytes()))
         self.assertTrue(self.bundle.verify()['complete'])
 
 if __name__ == '__main__':

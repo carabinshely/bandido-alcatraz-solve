@@ -1,4 +1,4 @@
-"""Fourteen prospectively fixed literal preflight cases; no real child process."""
+"""R1 finite preflight/loader/bootstrap cases; no pinned or scientific execution."""
 from contextlib import ExitStack
 import copy
 import json
@@ -16,12 +16,31 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 from worker36 import runner_preflight as p
 
+STUB_POPEN_CALLS = 0
+STUB_SHELL_PROCESS_STARTS = 0
+STUB_TIMEOUT_INVOCATIONS = 0
+STUB_EXECUTABLE_ENTRIES = 0
+STUB_SLEEP_INVOCATIONS = 0
 CLEAN = {'PYTHONHASHSEED': '0', 'PYTHONDONTWRITEBYTECODE': '1'}
+PREFIX = '/literal/toolcache/Python/3.11.16/x64'
+LOADER = {'schema': 'worker36-loader-identity-v1', 'tool_cache': '/literal/toolcache',
+          'executable_path': PREFIX + '/bin/python3.11', 'executable_sha256': p.c.RUNTIME['executable_sha256'],
+          'library_relative_path': 'Python/3.11.16/x64/lib/libpython3.11.so.1.0',
+          'library_path': PREFIX + '/lib/libpython3.11.so.1.0', 'library_directory': PREFIX + '/lib',
+          'library_sha256': 'a' * 64, 'library_size_bytes': 123456,
+          'library_device': {'major': 8, 'minor': 1}, 'library_inode': 123,
+          'mapped_library': {'path': PREFIX + '/lib/libpython3.11.so.1.0',
+                             'device': {'major': 8, 'minor': 1}, 'inode': 123},
+          'loader_environment': {'LD_LIBRARY_PATH': PREFIX + '/lib'}}
+SHELL_ENV = {'WORKER36_PYTHON': LOADER['executable_path'], 'WORKER36_LOADER_DIRECTORY': LOADER['library_directory'],
+             'WORKER36_LOADER_LIBRARY': LOADER['library_path'], 'WORKER36_LOADER_SHA256': LOADER['library_sha256'],
+             'WORKER36_LOADER_SIZE_BYTES': str(LOADER['library_size_bytes'])}
+SANITIZED = {**CLEAN, **SHELL_ENV, **LOADER['loader_environment']}
 RUNTIME = {'implementation': 'CPython', 'version': '3.11.16',
-           'executable_sha256': p.c.RUNTIME['executable_sha256'], 'executable': '/literal/python',
+           'executable_sha256': p.c.RUNTIME['executable_sha256'], 'executable': LOADER['executable_path'],
            'effective_flags': {'dont_write_bytecode': 1, 'no_user_site': 1},
            'python_environment': CLEAN, 'gc_enabled': True, 'gc_threshold': [700, 10, 10],
-           'address_space': list(p.MEMORY)}
+           'address_space': list(p.MEMORY), 'loader': LOADER}
 
 
 def parent_proof():
@@ -43,7 +62,8 @@ class RunnerPreflightTests(unittest.TestCase):
 
     def runtime_mocks(self, pair):
         stack = ExitStack()
-        stack.enter_context(patch.dict(os.environ, CLEAN, clear=True))
+        stack.enter_context(patch.dict(os.environ, SANITIZED, clear=True))
+        stack.enter_context(patch.object(p.c, 'loader_identity', return_value=copy.deepcopy(LOADER)))
         self.runtime = stack.enter_context(patch.object(p.c, 'runtime_check', return_value=copy.deepcopy(RUNTIME)))
         stack.enter_context(patch.object(p, 'limits', return_value={'RLIMIT_AS': list(pair)}))
         self.getlimit = stack.enter_context(patch.object(resource, 'getrlimit', return_value=pair))
@@ -52,7 +72,13 @@ class RunnerPreflightTests(unittest.TestCase):
 
     def fake_child(self, folder, proof=None, *, returncode=0):
         process = Mock(pid=876543, returncode=returncode)
+        communicated = False
         def complete(*args, **kwargs):
+            global STUB_POPEN_CALLS
+            nonlocal communicated
+            if not communicated:
+                STUB_POPEN_CALLS += 1
+                communicated = True
             if proof is not None:
                 raw = proof if isinstance(proof, bytes) else p.c.canonical(proof)
                 (folder / 'fresh-child.json').write_bytes(raw)
@@ -106,6 +132,7 @@ class RunnerPreflightTests(unittest.TestCase):
     def test_R06_child_command_and_proof(self):
         process = self.fake_child(self.root, child_proof())
         with patch.object(p.subprocess, 'Popen', return_value=process) as popen, \
+                patch.object(p.c, 'loader_identity', return_value=copy.deepcopy(LOADER)), \
                 patch.dict(os.environ, {'PYTHONPATH': '/literal/path', 'LD_LIBRARY_PATH': '/literal/lib',
                                        'GH_TOKEN': 'literal-noncredential', 'GITHUB_TOKEN': 'literal-noncredential',
                                        'ACTIONS_RUNTIME_TOKEN': 'literal-noncredential'}):
@@ -115,7 +142,7 @@ class RunnerPreflightTests(unittest.TestCase):
         self.assertEqual(command[3:], [str(Path(p.__file__).resolve()), '--child', '--report', str(self.root / 'fresh-child.json')])
         env = popen.call_args.kwargs['env']
         self.assertEqual({k: v for k, v in env.items() if k.startswith('PYTHON')}, CLEAN)
-        self.assertNotIn('LD_LIBRARY_PATH', env); self.assertNotIn('LD_PRELOAD', env)
+        self.assertEqual({k: v for k, v in env.items() if k.startswith('LD')}, LOADER['loader_environment'])
         for key in ('GH_TOKEN', 'GITHUB_TOKEN', 'ACTIONS_RUNTIME_TOKEN'): self.assertNotIn(key, env)
         self.assertEqual(proof['pid'], 876543)
         process.communicate.assert_called_once_with(timeout=30)
@@ -123,7 +150,8 @@ class RunnerPreflightTests(unittest.TestCase):
 
     def test_R07_loader_failure_retained(self):
         process = self.fake_child(self.root, returncode=127)
-        with patch.object(p.subprocess, 'Popen', return_value=process) as popen:
+        with patch.object(p.subprocess, 'Popen', return_value=process) as popen, \
+                patch.object(p.c, 'loader_identity', return_value=copy.deepcopy(LOADER)):
             with self.assertRaisesRegex(p.c.IntegrityError, 'startup failed'):
                 p.spawn_probe(self.root, parent_proof())
         self.assertEqual(popen.call_count, 1)
@@ -140,7 +168,8 @@ class RunnerPreflightTests(unittest.TestCase):
             if case == 'wrong-runtime': proof['runtime']['version'] = '0.0.0'
             value = None if case == 'absent' else (b'{torn' if case == '{torn' else proof)
             process = self.fake_child(folder, value)
-            with self.subTest(case=case), patch.object(p.subprocess, 'Popen', return_value=process):
+            with self.subTest(case=case), patch.object(p.subprocess, 'Popen', return_value=process), \
+                    patch.object(p.c, 'loader_identity', return_value=copy.deepcopy(LOADER)):
                 with self.assertRaises((OSError, ValueError, KeyError)):
                     p.spawn_probe(folder, parent_proof())
 
@@ -239,9 +268,9 @@ class RunnerPreflightTests(unittest.TestCase):
                         "github.event.pull_request.base.ref == 'main'",
                         "github.event.pull_request.base.sha == '9c1eeeb8a26868d41f8d8d89b17fc897a60cb38b'",
                         "github.event.sender.login == 'carabinshely'", "python-version: '3.11.16'",
-                        'unset LD_PRELOAD LD_LIBRARY_PATH', 'export PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1',
-                        '"$name" == PYTHON*', '"$executable" -B -s scripts/worker36/runner_preflight.py',
-                        p.c.RUNTIME['executable_sha256'], 'parent_exit_code=%s', 'parent.stderr',
+                        'source "$GITHUB_WORKSPACE/scripts/worker36-loader.sh"', 'worker36_loader_setup',
+                        '"$WORKER36_PYTHON" -B -s scripts/worker36/runner_preflight.py',
+                        'library_sha256=%s', 'parent_exit_code=%s', 'parent.stderr',
                         "if: always() && env.WORKER36_PREFLIGHT_OUTPUT != ''"):
             self.assertIn(literal, workflow)
         for forbidden in ('workflow_dispatch:', 'pull_request_target:', 'run_worker36_synthetic.py',
@@ -261,6 +290,219 @@ class RunnerPreflightTests(unittest.TestCase):
         self.assertFalse(record['success']); self.assertEqual(record['parent'], parent_proof())
         self.assertFalse(record['measurement_admitted']); self.assertEqual(record['games'], 0)
         self.assertEqual(record['error'], 'literal fresh-child blocker')
+
+
+    def test_L01_shell_identity_matches_runtime(self):
+        with patch.dict(os.environ, SHELL_ENV, clear=True):
+            self.assertEqual(p.shell_loader_identity(LOADER),
+                             {key: LOADER[key] for key in p.SHELL_LOADER_FIELDS.values()})
+        for name in SHELL_ENV:
+            for absent in (True, False):
+                environment = dict(SHELL_ENV)
+                if absent: environment.pop(name)
+                else: environment[name] = 'fixed-mismatch'
+                with self.subTest(name=name, absent=absent), patch.dict(os.environ, environment, clear=True):
+                    with self.assertRaisesRegex(p.c.IntegrityError, 'shell/runtime loader identity mismatch'):
+                        p.shell_loader_identity(LOADER)
+
+    def test_L02_child_loader_drift_blocks(self):
+        for index, field in enumerate(('executable_path', 'library_path', 'library_directory',
+                                       'library_sha256', 'library_size_bytes')):
+            folder = self.root / str(index); folder.mkdir()
+            proof = child_proof(); proof['runtime']['loader'][field] = 'fixed-mismatch'
+            process = self.fake_child(folder, proof)
+            with self.subTest(field=field), patch.object(p.subprocess, 'Popen', return_value=process), \
+                    patch.object(p.c, 'loader_identity', return_value=copy.deepcopy(LOADER)):
+                with self.assertRaisesRegex(p.c.IntegrityError, 'fresh child runtime differs'):
+                    p.spawn_probe(folder, parent_proof())
+
+    def test_L03_shared_loader_workflow_contract(self):
+        preflight = (ROOT / '.github/workflows/worker36-runner-preflight.yml').read_text()
+        diagnostic = (ROOT / '.github/workflows/worker36-synthetic-profile.yml').read_text()
+        source = 'source "$GITHUB_WORKSPACE/scripts/worker36-loader.sh"'
+        self.assertEqual(preflight.count(source), 1)
+        self.assertEqual(diagnostic.count(source), 2)
+        self.assertIn('worker36_loader_setup "$expected_library_sha256" "$expected_library_size_bytes"', diagnostic)
+        self.assertIn('"$WORKER36_PYTHON" -B -s scripts/worker36/admission.py authenticate', diagnostic)
+        self.assertIn('"$WORKER36_PYTHON" -B -s "$GITHUB_WORKSPACE/scripts/run_worker36_synthetic.py" measure', diagnostic)
+        self.assertIn('"$WORKER36_PRESERVE_EXECUTABLE" -B -s "$GITHUB_WORKSPACE/scripts/run_worker36_synthetic.py" preserve', diagnostic)
+        self.assertIn('> "$output/shell-loader.json"', preflight)
+        self.assertIn('types: [edited]', diagnostic)
+        self.assertNotIn('workflow_dispatch:', diagnostic)
+        for name in ('WORKER36_PRESERVE_EXECUTABLE', 'WORKER36_PRESERVE_LIBRARY_DIRECTORY',
+                     'WORKER36_PRESERVE_LIBRARY_SHA256', 'WORKER36_PRESERVE_LIBRARY_SIZE_BYTES'):
+            self.assertIn(name + '=%s', diagnostic)
+
+    def test_L04_shell_and_plan_in_checked_inventory(self):
+        paths = p.checked_paths(ROOT)
+        self.assertIn('scripts/worker36-loader.sh', paths)
+        self.assertIn('evidence-design/recovery-r1-preflight-shell-test-plan.json', paths)
+        self.assertEqual(len(p.TEST_MODULES), 8)
+        path = self.root / 'literal.sh'; path.write_text('true\n')
+        with patch.object(p, 'checked_paths', return_value=['literal.sh']), patch.object(p.subprocess, 'run') as run:
+            self.assertEqual(p.snapshot(self.root), {'literal.sh': p.c.sha(b'true\n')})
+            run.assert_called_once_with(['bash', '-n', str(path)], check=True,
+                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    def test_L05_verified_loader_is_recorded_before_work(self):
+        with self.runtime_mocks(p.MEMORY):
+            proof = p.runtime_probe(child=True)
+        self.assertEqual(proof['runtime']['loader'], LOADER)
+        self.assertEqual(proof['shell_loader'], {key: LOADER[key] for key in p.SHELL_LOADER_FIELDS.values()})
+        result = {'success': True, 'tests_run': 1, 'failures': 0, 'errors': 0, 'skipped': 0}
+        record = dict(p.ZERO)
+        with self.preflight_mocks(result): p.preflight(self.root, 'a' * 40, 'b' * 40, record)
+        self.assertEqual(record['loader_pin'], p.c.loader_pin(LOADER))
+        with patch.object(p.c, 'loader_identity', side_effect=p.c.IntegrityError('literal identity failure')), \
+                patch.object(p, 'spawn_probe') as spawn, patch.object(p, 'run_focused_tests') as tests:
+            with self.assertRaisesRegex(p.c.IntegrityError, 'literal identity failure'):
+                p.preflight(self.root, 'a' * 40, 'b' * 40, {})
+            spawn.assert_not_called(); tests.assert_not_called()
+
+    def test_L06_explicit_loader_environment_only(self):
+        for key in ('LD_AUDIT', 'LD_DEBUG'):
+            with self.runtime_mocks(p.MEMORY), patch.dict(os.environ, {key: 'fixed-ambient'}):
+                with self.assertRaisesRegex(p.c.IntegrityError, 'not sanitized'):
+                    p.runtime_probe(child=True)
+                self.runtime.assert_not_called()
+        with patch.object(p.c, 'loader_identity', return_value=copy.deepcopy(LOADER)):
+            environment = p.c.clean_environment({'LD_AUDIT': 'bad', 'LD_DEBUG': 'bad',
+                'LD_LIBRARY_PATH': '/wrong', 'PYTHONPATH': '/wrong'}, loader=LOADER)
+        self.assertEqual(environment, {**CLEAN, **LOADER['loader_environment']})
+
+    def preservation_shell(self):
+        workflow = (ROOT / '.github/workflows/worker36-synthetic-profile.yml').read_text()
+        step = workflow.split('      - name: Preserve verification result and all partial transport without retry\n', 1)[1]
+        block = step.split('        run: |\n', 1)[1].split('      - uses:', 1)[0]
+        return '\n'.join(line[10:] for line in block.splitlines())
+
+    def run_shell_stub(self, *, changes=None, uptime='123.45 0.00\n', boot_id=None,
+                       hang=False, absent=False, collision=False):
+        global STUB_SHELL_PROCESS_STARTS, STUB_TIMEOUT_INVOCATIONS, STUB_EXECUTABLE_ENTRIES, STUB_SLEEP_INVOCATIONS
+        folder = self.root / ('shell-' + str(len(list(self.root.iterdir())))); folder.mkdir()
+        boot = '12345678-1234-1234-1234-123456789abc'
+        (folder / 'uptime').write_text(uptime)
+        (folder / 'boot-id').write_text((boot_id or boot) + '\n')
+        (folder / 'raw-prefix').write_bytes(b'literal retained prefix\n')
+        stub = folder / 'inert-shell'
+        # Only this finite literal program can be launched as the fake runtime.
+        source = "#!/bin/bash\nprintf 'entered\n' > \"$ENTRY\"\nprintf '%s\n' \"$@\" > \"$ARGUMENTS\"\n"
+        source += "printf '%s\n' \"$LD_LIBRARY_PATH\" \"$PYTHONHASHSEED\" \"$PYTHONDONTWRITEBYTECODE\" \"${LD_FAKE-unset}\" \"${PYTHONPATH-unset}\" > \"$ENVIRONMENT\"\n"
+        source += "if [[ \"$HANG\" == yes ]]; then\n  printf 'sleep\n' > \"$SLEEP\"\n  /bin/sleep 1\n  printf 'returned\n' > \"$RETURNED\"\nfi\nexit 0\n"
+        with os.fdopen(os.open(stub, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o700), 'w') as stream:
+            stream.write(source)
+        environment = {'PATH': os.defpath, 'LANG': 'C', 'LC_ALL': 'C',
+            'DURABLE': str(folder), 'ATTEMPT': str(folder / 'attempt'), 'TRANSPORT': str(folder / 'transport'),
+            'AUTH': str(folder / 'auth'), 'GITHUB_WORKSPACE': str(ROOT), 'GITHUB_RUN_ID': '1',
+            'ADMISSION_SHA256': 'a' * 64, 'ADMISSION_PROVENANCE_SHA256': 'b' * 64,
+            'EXPECTED_HEAD': 'a' * 40, 'EXPECTED_TREE': 'b' * 40,
+            'PRESERVATION_MONOTONIC_DEADLINE_MS': '124460', 'PRESERVATION_BOOTTIME_DEADLINE_MS': '124460',
+            'PRESERVATION_BOOT_ID': boot, 'WORKER36_PRESERVE_EXECUTABLE': str(folder / 'absent' if absent else stub),
+            'WORKER36_PRESERVE_LIBRARY_DIRECTORY': '/literal/stub-lib',
+            'WORKER36_PRESERVE_LIBRARY_SHA256': 'a' * 64, 'WORKER36_PRESERVE_LIBRARY_SIZE_BYTES': '123456',
+            'ENTRY': str(folder / 'entry'), 'ARGUMENTS': str(folder / 'arguments'),
+            'ENVIRONMENT': str(folder / 'environment'), 'SLEEP': str(folder / 'sleep'),
+            'RETURNED': str(folder / 'returned'), 'HANG': 'yes' if hang else 'no',
+            'LD_FAKE': 'ambient', 'PYTHONPATH': '/literal/ambient'}
+        environment.update(changes or {})
+        report = folder / 'preservation-shell-outcome.json'
+        if collision: report.write_bytes(b'{"original":"unchanged"}\n')
+        code = self.preservation_shell().replace('/proc/sys/kernel/random/boot_id', str(folder / 'boot-id'))
+        code = code.replace('/proc/uptime', str(folder / 'uptime'))
+        STUB_SHELL_PROCESS_STARTS += 1
+        result = subprocess.run(['/bin/bash', '-c', code], env=environment, cwd=folder,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=5)
+        outcome = json.loads(report.read_bytes())
+        entered = (folder / 'entry').exists()
+        STUB_EXECUTABLE_ENTRIES += int(entered)
+        STUB_SLEEP_INVOCATIONS += int((folder / 'sleep').exists())
+        STUB_TIMEOUT_INVOCATIONS += int(entered or outcome.get('launch_attempted') is True)
+        self.assertEqual((folder / 'raw-prefix').read_bytes(), b'literal retained prefix\n')
+        return result, outcome, folder
+
+    def test_B01_builtin_original_deadline_contract(self):
+        workflow = (ROOT / '.github/workflows/worker36-synthetic-profile.yml').read_text()
+        code = self.preservation_shell()
+        before = code.split('if timeout ', 1)[0]
+        before = '\n'.join(line for line in before.splitlines() if not line.lstrip().startswith('#')).replace('$((', '')
+        for forbidden in ('jq ', 'sha256sum', 'source ', 'realpath ', 'python -', '$(', '600s'):
+            self.assertNotIn(forbidden, before)
+        for name in ('preservation_deadline_monotonic_ms', 'preservation_deadline_boottime_ms', 'preservation_boot_id'):
+            self.assertIn('steps.measurement.outputs.' + name, workflow)
+        self.assertIn('timeout --signal=KILL "$duration"', code)
+        self.assertNotIn('--kill-after', code); self.assertNotIn('--foreground', code)
+        self.assertIn('--preservation-deadline-monotonic-ms "$PRESERVATION_MONOTONIC_DEADLINE_MS"', code)
+        self.assertIn('remaining_ms <= 600000', code)
+        self.assertIn('${!LD@}', code); self.assertIn('${!PYTHON@}', code)
+
+    def test_B02_success_has_original_deadline_and_environment(self):
+        result, outcome, folder = self.run_shell_stub()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(outcome['remaining_ms_at_launch'], 1000)
+        self.assertEqual(outcome['original_monotonic_deadline_ms'], 124460)
+        self.assertEqual(outcome['original_boottime_deadline_ms'], 124460)
+        self.assertEqual(outcome['original_boot_id'], '12345678-1234-1234-1234-123456789abc')
+        self.assertTrue(outcome['boot_id_verified']); self.assertFalse(outcome['fsync_confirmed'])
+        self.assertEqual((folder / 'environment').read_text().splitlines(), ['/literal/stub-lib', '0', '1', 'unset', 'unset'])
+        args = (folder / 'arguments').read_text().splitlines()
+        self.assertEqual(args[:2], ['-B', '-s'])
+        self.assertEqual(args[-2:], ['--preservation-deadline-monotonic-ms', '124460'])
+
+    def test_B03_loader_start_failure_retains_exit127(self):
+        result, outcome, folder = self.run_shell_stub(absent=True)
+        self.assertEqual(result.returncode, 127)
+        self.assertEqual(outcome['exit_code'], 127)
+        self.assertTrue(outcome['launch_attempted']); self.assertFalse(outcome['fsync_confirmed'])
+        self.assertFalse((folder / 'entry').exists())
+
+    def test_B04_invalid_handoffs_block_before_launch(self):
+        cases = (({'PRESERVATION_MONOTONIC_DEADLINE_MS': ''}, {}, 78),
+                 ({'PRESERVATION_BOOTTIME_DEADLINE_MS': 'literal'}, {}, 78),
+                 ({'PRESERVATION_BOOTTIME_DEADLINE_MS': '1' * 16}, {}, 78),
+                 ({'PRESERVATION_BOOTTIME_DEADLINE_MS': '0'}, {}, 78),
+                 ({'PRESERVATION_BOOTTIME_DEADLINE_MS': '123460'}, {}, 75),
+                 ({}, {'boot_id': '87654321-4321-4321-4321-cba987654321'}, 78),
+                 ({'PRESERVATION_BOOTTIME_DEADLINE_MS': '999000'}, {}, 78),
+                 ({}, {'uptime': 'literal-invalid\n'}, 78))
+        for changes, options, expected in cases:
+            with self.subTest(changes=changes, options=options):
+                result, outcome, folder = self.run_shell_stub(changes=changes, **options)
+                self.assertEqual(result.returncode, expected, result.stderr)
+                self.assertFalse(outcome['launch_attempted']); self.assertFalse((folder / 'entry').exists())
+                self.assertFalse(outcome['fsync_confirmed'])
+
+    def test_B05_hang_uses_remaining_hard_kill(self):
+        result, outcome, folder = self.run_shell_stub(hang=True, changes={'PRESERVATION_BOOTTIME_DEADLINE_MS': '123960'})
+        self.assertEqual(result.returncode, 137, result.stderr)
+        self.assertEqual(outcome['status'], 'deadline_exhausted')
+        self.assertEqual(outcome['remaining_ms_at_launch'], 500)
+        self.assertTrue((folder / 'entry').exists()); self.assertTrue((folder / 'sleep').exists())
+        self.assertFalse((folder / 'returned').exists())
+
+    def test_B06_prior_suspend_uses_paired_boottime(self):
+        result, outcome, folder = self.run_shell_stub(changes={'PRESERVATION_MONOTONIC_DEADLINE_MS': '24460'})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(outcome['remaining_ms_at_launch'], 1000)
+        self.assertEqual(outcome['original_monotonic_deadline_ms'], 24460)
+        self.assertEqual(outcome['original_boottime_deadline_ms'], 124460)
+        self.assertEqual((folder / 'arguments').read_text().splitlines()[-1], '24460')
+
+    def test_B07_invalid_loader_handoff_blocks(self):
+        cases = ({'WORKER36_PRESERVE_EXECUTABLE': ''}, {'WORKER36_PRESERVE_LIBRARY_DIRECTORY': ''},
+                 {'WORKER36_PRESERVE_LIBRARY_SHA256': 'wrong'}, {'WORKER36_PRESERVE_LIBRARY_SIZE_BYTES': '0'})
+        for changes in cases:
+            with self.subTest(changes=changes):
+                result, outcome, folder = self.run_shell_stub(changes=changes)
+                self.assertEqual(result.returncode, 78, result.stderr)
+                self.assertEqual(outcome['reason'], 'invalid_carried_loader')
+                self.assertFalse(outcome['launch_attempted']); self.assertFalse((folder / 'entry').exists())
+
+    def test_B08_existing_report_is_preserved(self):
+        result, outcome, folder = self.run_shell_stub(collision=True)
+        self.assertEqual(result.returncode, 74)
+        self.assertEqual(outcome, {'original': 'unchanged'})
+        self.assertTrue((folder / 'entry').exists())
+        self.assertEqual((folder / 'preservation-shell-outcome.json').read_bytes(), b'{"original":"unchanged"}\n')
 
 
 if __name__ == '__main__':

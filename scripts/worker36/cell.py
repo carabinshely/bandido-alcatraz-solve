@@ -9,7 +9,7 @@ import resource
 import signal
 import sys
 from .common import (Budget, CALL_CAPS, IntegrityError, OP_CAPS, RESOURCES, SCHEDULE, TimingDelegate,
-                     U_FLAGS, canonical, digest, error_record, fsync_directory, require, runtime_check, strict_json,
+                     U_FLAGS, canonical, digest, error_record, fsync_directory, loader_pin, require, runtime_check, strict_json,
                      suppress_profile, write_failure_receipt)
 from .sources import construct_fixture, isolated_imports, read_manifest, verify_files, verify_modules
 
@@ -68,6 +68,17 @@ def run_cell(attempt, index):
 
     try:
         runtime = runtime_check(child=True)
+        # A trusted parent is necessary but does not substitute for the child's
+        # own actual mapped-loader identity. Bind it before historical file
+        # access, imports, fixture construction or either evaluator can occur.
+        admitted = strict_json((attempt / 'external-admission.json').read_bytes())
+        require(type(admitted) is dict and 'loader_pin' in admitted and
+                type(runtime) is dict and 'loader' in runtime,
+                'cell requires an external admitted and observed loader pin')
+        admitted_pin = loader_pin(admitted['loader_pin'])
+        require(admitted['loader_pin'] == admitted_pin and
+                loader_pin(runtime['loader']) == admitted_pin,
+                'cell mapped loader differs from admitted freeze')
         # Runtime preflight must establish idle hooks/timers before this cell
         # owns any restoration obligation. An already occupied countdown may
         # naturally decrease while being rejected; that is not cell drift.
@@ -96,7 +107,6 @@ def run_cell(attempt, index):
                 caught.worker36_failure = error_record(caught, 'evaluator_source_check',
                     observed_drift=isinstance(caught, IntegrityError), resource_types=resource_types)
                 raise
-        admitted = strict_json((attempt / 'external-admission.json').read_bytes())
         expected_modules = admitted['cell_preflight_modules']
         module_records = verify_modules(restored, manifest)
         require(type(expected_modules) is list and all(type(name) is str for name in expected_modules)

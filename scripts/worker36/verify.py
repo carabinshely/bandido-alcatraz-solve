@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from urllib.parse import urlsplit
 from pathlib import Path
 from .common import (Budget, OP_CAPS, RESOURCES, RUNTIME, SCHEDULE, U_FLAGS, canonical, digest,
-                     file_info, require, strict_json, sha, ResourceExceeded, HISTORICAL, REPOSITORY, PREREGISTRATION, PROTOCOL_SHA256)
+                     file_info, require, strict_json, sha, loader_pin, ResourceExceeded, HISTORICAL, REPOSITORY, PREREGISTRATION, PROTOCOL_SHA256)
 from .sources import read_manifest, verify_files
 from .admission import verify_provenance, INPUT_NAMES
 
@@ -87,6 +87,8 @@ def _admission(root, trusted_path, trusted_hash, head, tree):
             go['maximum_evaluator_calls'] == 40 and go['games'] == 0 and
             go['runner'] == 'bandido-alcatraz-ci' and
             go['branch'] == 'research/worker36-synthetic-profile-overhead', 'authenticated freeze mismatch')
+    require(loader_pin(go['loader_pin']) == go['loader_pin'],
+            'admission requires the exact portable loader pin')
     require(go['postmerge_ci'] == {'run_id': 37108669492, 'head': '9c1eeeb8a26868d41f8d8d89b17fc897a60cb38b',
             'status': 'completed', 'conclusion': 'success'}, 'postmerge CI prerequisite')
     reviews = go['reviews']
@@ -101,7 +103,7 @@ def _admission(root, trusted_path, trusted_hash, head, tree):
     pins = go['diagnostic_files_sha256']
     required = {'scripts/worker36/' + name for name in
                 ('__init__.py', 'admission.py', 'cell.py', 'common.py', 'driver.py', 'runner_preflight.py', 'sources.py', 'supervision.py', 'transport.py', 'verify.py')}
-    required |= {'scripts/run_worker36_synthetic.py', '.github/workflows/worker36-synthetic-profile.yml', '.github/workflows/worker36-runner-preflight.yml',
+    required |= {'scripts/run_worker36_synthetic.py', 'scripts/worker36-loader.sh', '.github/workflows/worker36-synthetic-profile.yml', '.github/workflows/worker36-runner-preflight.yml',
                  'experiments/synthetic-profile-overhead/PROTOCOL.md',
                  'experiments/synthetic-profile-overhead/source-manifest.json',
                  'experiments/synthetic-profile-overhead/fault-test-manifest.json'}
@@ -117,7 +119,7 @@ def _admission(root, trusted_path, trusted_hash, head, tree):
                 'expected_head': head, 'expected_tree': tree}
 
 
-def _runtime(runtime, *, child, attempt_path=None, index=None):
+def _runtime(runtime, *, child, loader_freeze, attempt_path=None, index=None):
     require({k: runtime[k] for k in RUNTIME} == RUNTIME and
             runtime['gc_enabled'] is True and runtime['gc_threshold'] == [700, 10, 10] and
             runtime['python_environment'] == {'PYTHONHASHSEED': '0', 'PYTHONDONTWRITEBYTECODE': '1'},
@@ -127,6 +129,10 @@ def _runtime(runtime, *, child, attempt_path=None, index=None):
             'effective interpreter flags mismatch')
     require(type(runtime['executable']) is str and Path(runtime['executable']).is_absolute(),
             'runtime executable path missing')
+    identity = runtime['loader']
+    require(type(identity) is dict and identity.get('schema') == 'worker36-loader-identity-v1' and
+            loader_pin(identity) == loader_freeze and runtime['executable'] == identity['executable_path'],
+            'runtime loader identity differs from the authenticated loader freeze')
     flags = runtime['flags']
     require(type(flags) is list and len(flags) >= 4 and all(type(x) is str for x in flags) and
             flags[1:3] == ['-B', '-s'] and Path(flags[3]).is_absolute() and
@@ -194,6 +200,15 @@ def _supervisor(root, identity, admission, receipt, previous):
             value['parent_death_signal'] == 9 and value['returncode'] == value['exit_code'] == 0 and
             value['signal'] is None and value['scientific_returns_inferred'] is False and
             value['active_call_at_stop'] is None and value['errors'] == [], 'supervisor completion evidence mismatch')
+    require(value.get('spawn_attempted') is True and value.get('spawn_initialization_complete') is True and
+            value.get('spawn_ownership_uncertain') is False and value.get('spawn_discovery') == 'not_required' and
+            type(value.get('spawn_recovered_pids')) is list and value['spawn_recovered_pids'] == [],
+            'successful supervisor requires complete and certain spawn-ownership evidence')
+    require('preservation_deadline_monotonic' in value and value['preservation_deadline_monotonic'] is None and
+            all(value.get(key) is False for key in ('preservation_transition_attempted',
+                'preservation_transition_complete', 'preservation_expired', 'preservation_blocked')) and
+            'first_terminal_failure' not in value and 'preservation_boundary_failure' not in value,
+            'successful supervisor cannot have missing or contradictory preservation-boundary evidence')
     require(value['cleanup'] == {'complete': True, 'sigkill_used': False, 'remaining_pids': [], 'errors': [], 'failure_details': []},
             'supervisor cleanup not clean')
     require(value['output_log'] == str(Path(receipt['attempt_path']) / (name + '.log')) and
@@ -274,7 +289,7 @@ def verify_attempt(root, *, trusted_admission_path, trusted_admission_sha256,
             preflight['runtime']['inherited_limits'] == admission['inherited_limits'] and
             preflight['coordinator_address_space'] == [RESOURCES['address_space_bytes']] * 2,
             'parent source/runtime preflight differs from authenticated freeze')
-    executable_script = _runtime(preflight['runtime'], child=False)
+    executable_script = _runtime(preflight['runtime'], child=False, loader_freeze=admission['loader_pin'])
     inventory = Budget(root).inventory()
     require(receipt['file_inventory'] == [x for x in inventory if x['path'] not in ('receipt.json', 'measurement-phase-close.json')],
             'parent final evidence inventory mismatch')
@@ -313,8 +328,11 @@ def verify_attempt(root, *, trusted_admission_path, trusted_admission_sha256,
         pre = read(folder / 'source-runtime-preflight.json')
         require(pre['phase'] == 'source_runtime_preflight' and pre['evaluator_starts'] == 0 and
                 pre['modules'] == module_records, 'cell module path/hash inventory mismatch')
-        require(_runtime(pre['runtime'], child=True, attempt_path=receipt['attempt_path'],
-                         index=identity['cell']) == executable_script, 'child diagnostic executable path drift')
+        require(_runtime(pre['runtime'], child=True, loader_freeze=admission['loader_pin'],
+                         attempt_path=receipt['attempt_path'], index=identity['cell']) == executable_script,
+                'child diagnostic executable path drift')
+        require(pre['runtime']['loader'] == preflight['runtime']['loader'],
+                'parent/child loader mapped identity mismatch')
         supervisor = _supervisor(root, identity, admission, receipt, previous_phase)
         previous_phase = supervisor['phase']; supervisors.append(supervisor)
         require(read(folder / 'active-call.json') == {'active': False}, 'call protection marker incomplete')

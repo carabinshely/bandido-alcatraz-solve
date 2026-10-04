@@ -41,29 +41,34 @@ jobs:
         run: |
           set -euo pipefail
           umask 077
+          for variable in "${!LD@}" "${!PYTHON@}"; do
+            [[ -z "$variable" ]] || unset "$variable"
+          done
           output="$RUNNER_TEMP/worker36-runner-preflight-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
           mkdir -m 700 -- "$output"
           printf 'WORKER36_PREFLIGHT_OUTPUT=%s\n' "$output" >> "$GITHUB_ENV"
-          executable=$(command -v python)
-          executable=$(readlink -f -- "$executable")
-          test -f "$executable" && test -x "$executable"
-          executable_sha256=$(sha256sum -- "$executable" | cut -d ' ' -f 1)
-          {
-            printf 'resolved_executable=%s\nexecutable_sha256=%s\n' "$executable" "$executable_sha256"
-            printf 'setup_ld_library_path_present=%s\n' "${LD_LIBRARY_PATH+x}"
-            printf 'measurement_admitted=false\nevaluator_calls=0\n'
-          } > "$output/launcher.txt"
-          test "$executable_sha256" = a15ccdaf07655a8667a3687b13171486c9a265d92273ba3ad820fbb64d2cfecc
-          while IFS='=' read -r name unused; do [[ "$name" == PYTHON* ]] && unset "$name" || true; done < <(env)
-          unset LD_PRELOAD LD_LIBRARY_PATH
-          export PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1
-          printf 'sanitized_before_parent_start=true\nflags=-B -s\nPYTHONHASHSEED=0\nPYTHONDONTWRITEBYTECODE=1\n' >> "$output/launcher.txt"
+          printf 'measurement_admitted=false\nevaluator_calls=0\n' > "$output/launcher.txt"
+          source "$GITHUB_WORKSPACE/scripts/worker36-loader.sh"
+          if worker36_loader_setup; then
+            printf 'loader_setup_exit_code=0\n' >> "$output/launcher.txt"
+          else
+            status=$?
+            printf 'loader_setup_exit_code=%s\n' "$status" >> "$output/launcher.txt"
+            exit "$status"
+          fi
+          printf 'executable=%s\nlibrary=%s\nlibrary_sha256=%s\nlibrary_size_bytes=%s\n' \
+            "$WORKER36_PYTHON" "$WORKER36_LOADER_LIBRARY" "$WORKER36_LOADER_SHA256" "$WORKER36_LOADER_SIZE_BYTES" >> "$output/launcher.txt"
+          jq -n --arg executable "$WORKER36_PYTHON" --arg directory "$WORKER36_LOADER_DIRECTORY" \
+            --arg library "$WORKER36_LOADER_LIBRARY" --arg sha256 "$WORKER36_LOADER_SHA256" \
+            --argjson bytes "$WORKER36_LOADER_SIZE_BYTES" \
+            '{executable_path:$executable,library_directory:$directory,library_path:$library,
+              library_sha256:$sha256,library_size_bytes:$bytes}' > "$output/shell-loader.json"
           test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
           tree=$(git rev-parse 'HEAD^{tree}')
-          # Do not restore LD_LIBRARY_PATH if setup-python's executable cannot
-          # start here. Its actual loader error is evidence of a blocked freeze.
+          # Setup supplies exactly the verified corresponding library directory.
+          # Actual pinned startup is observed without fallback or retry.
           if timeout --signal=TERM --kill-after=5s 600s \
-            "$executable" -B -s scripts/worker36/runner_preflight.py \
+            "$WORKER36_PYTHON" -B -s scripts/worker36/runner_preflight.py \
             --report "$output/runner-preflight.json" \
             --expected-head "$EXPECTED_HEAD" --expected-tree "$tree" \
             > "$output/parent.stdout" 2> "$output/parent.stderr"; then

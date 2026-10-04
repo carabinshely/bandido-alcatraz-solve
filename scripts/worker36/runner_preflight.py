@@ -37,17 +37,38 @@ def limits():
             for name in dir(resource) if name.startswith('RLIMIT_')}
 
 
+SHELL_LOADER_FIELDS = {
+    'WORKER36_PYTHON': 'executable_path',
+    'WORKER36_LOADER_DIRECTORY': 'library_directory',
+    'WORKER36_LOADER_LIBRARY': 'library_path',
+    'WORKER36_LOADER_SHA256': 'library_sha256',
+    'WORKER36_LOADER_SIZE_BYTES': 'library_size_bytes',
+}
+
+
+def shell_loader_identity(loader):
+    c.loader_pin(loader)
+    c.require(all(os.environ.get(name) == str(loader[key]) for name, key in SHELL_LOADER_FIELDS.items()),
+              'shell/runtime loader identity mismatch')
+    return {key: loader[key] for key in SHELL_LOADER_FIELDS.values()}
+
+
 def runtime_probe(*, child=False):
-    c.require(dict(os.environ) == c.clean_environment(), 'preflight environment is not sanitized')
+    loader = c.loader_identity()
+    shell_loader = shell_loader_identity(loader)
+    c.require(dict(os.environ) == c.clean_environment(loader=loader), 'preflight environment is not sanitized')
     before = c.runtime_check(child=child)
+    c.require(before['loader'] == loader, 'runtime loader identity changed')
     inherited = limits()
     if not child:
         c.require(resource.getrlimit(resource.RLIMIT_AS) == (resource.RLIM_INFINITY,) * 2,
                   'unexpected initial preflight address-space ceiling')
         resource.setrlimit(resource.RLIMIT_AS, MEMORY)
     c.require(resource.getrlimit(resource.RLIMIT_AS) == MEMORY, 'exact512MiB preflight memory cap')
-    return {'pid': os.getpid(), 'parent_pid': os.getppid(), 'initial_runtime': before,
-            'inherited_limits': inherited, 'runtime': c.runtime_check(child=True),
+    after = c.runtime_check(child=True)
+    c.require(after['loader'] == loader, 'runtime loader identity changed')
+    return {'pid': os.getpid(), 'parent_pid': os.getppid(), 'initial_runtime': before, 'shell_loader': shell_loader,
+            'inherited_limits': inherited, 'runtime': after,
             'capped_limits': limits(), 'sanitized_environment': True, **ZERO}
 
 
@@ -64,7 +85,7 @@ def spawn_probe(folder, parent):
     c.require(not report.exists(), 'fresh child report already exists')
     command = [str(Path(sys.executable).resolve()), '-B', '-s', str(Path(__file__).resolve()),
                '--child', '--report', str(report)]
-    env = c.clean_environment()
+    env = c.clean_environment(loader=parent['runtime']['loader'])
     for key in ('GH_TOKEN', 'GITHUB_TOKEN', 'ACTIONS_RUNTIME_TOKEN'):
         env.pop(key, None)
     process = subprocess.Popen(command, env=env, cwd=ROOT,
@@ -85,7 +106,7 @@ def spawn_probe(folder, parent):
     proof = c.strict_json(report.read_bytes())
     c.require(proof['pid'] == process.pid and proof['parent_pid'] == os.getpid(), 'fresh child identity mismatch')
     keys = ('implementation', 'version', 'executable_sha256', 'executable', 'effective_flags',
-            'python_environment', 'gc_enabled', 'gc_threshold', 'address_space')
+            'python_environment', 'gc_enabled', 'gc_threshold', 'address_space', 'loader')
     c.require(all(proof['runtime'][key] == parent['runtime'][key] for key in keys),
               'fresh child runtime differs from parent')
     c.require(proof['inherited_limits'] == parent['capped_limits'] == proof['capped_limits'] and
@@ -101,7 +122,7 @@ def checked_paths(root):
               'focused test files differ from explicit allowlist')
     return sorted(test_paths | {p.relative_to(root).as_posix() for p in (root / 'scripts/worker36').glob('*.py')}
                   | {p.relative_to(root).as_posix() for p in (root / 'evidence-design').glob('*-test-plan.json')}
-                  | {'scripts/run_worker36_synthetic.py', 'tests/worker36_constructor_source.txt',
+                  | {'scripts/run_worker36_synthetic.py', 'scripts/worker36-loader.sh', 'tests/worker36_constructor_source.txt',
                      '.github/workflows/worker36-synthetic-profile.yml', '.github/workflows/worker36-runner-preflight.yml',
                      EXPERIMENT + 'PROTOCOL.md', EXPERIMENT + 'source-manifest.json',
                      EXPERIMENT + 'fault-test-manifest.json', d.TEST_RECEIPT.relative_to(d.ROOT).as_posix()})
@@ -117,6 +138,8 @@ def snapshot(root):
             ast.parse(path.read_bytes(), filename=name)
         elif path.suffix == '.json':
             c.strict_json(path.read_bytes())
+        elif path.suffix == '.sh':
+            subprocess.run(['bash', '-n', str(path)], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return result
 
 
@@ -181,6 +204,7 @@ def run_focused_tests(root, historical_names):
 
 def preflight(folder, expected_head, expected_tree, report):
     report['parent'] = runtime_probe()
+    report['loader_pin'] = c.loader_pin(report['parent']['runtime']['loader'])
     write_json(Path(folder) / 'parent-runtime.json', report['parent'])
     report['fresh_child'] = spawn_probe(folder, report['parent'])
     before, names = static_check(ROOT, expected_head, expected_tree)

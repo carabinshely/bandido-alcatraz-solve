@@ -1,4 +1,4 @@
-"""Fixed C01-C14 plan plus P3/C15 and fourth-batch C16-C20; no historical imports or measurements."""
+"""Fixed C01-C20 plus recovery-R1 C21-C22; no historical imports or measurements."""
 from contextlib import ExitStack, contextmanager
 import copy
 import os
@@ -20,7 +20,8 @@ STUB_CALLS = 0
 PUBLIC = {'literal_stub': 'public', 'items': ['fixed']}
 COST = {'legal_enumerations': 1, 'previews': 0, 'exit_geometry_checks': 0, 'roots': 0}
 EXPECTED_CALLS = {1: 2, 2: 2, 3: 1, 4: 0, 5: 0, 6: 0, 7: 1,
-                  8: 0, 9: 0, 10: 0, 11: 0, 12: 1, 13: 1, 14: 1, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0}
+                  8: 0, 9: 0, 10: 0, 11: 0, 12: 1, 13: 1, 14: 1, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0,
+                  21: 0, 22: 0}
 
 
 class CellIntegrationTests(unittest.TestCase):
@@ -30,13 +31,26 @@ class CellIntegrationTests(unittest.TestCase):
         self.events = []
         self.start_calls = STUB_CALLS
         self.method_error = None
+        self.loader_pin = {'schema': 'worker36-loader-pin-v1',
+            'executable_sha256': c.RUNTIME['executable_sha256'],
+            'library_relative_path': 'Python/3.11.16/x64/lib/libpython3.11.so.1.0',
+            'library_sha256': '4' * 64, 'library_size_bytes': 4096}
+        cache = '/literal-runner/tool-cache'
+        library = cache + '/' + self.loader_pin['library_relative_path']
+        directory = library.rsplit('/', 1)[0]
+        self.loader = {**self.loader_pin, 'schema': 'worker36-loader-identity-v1',
+            'tool_cache': cache, 'executable_path': cache + '/Python/3.11.16/x64/bin/python3.11',
+            'library_path': library, 'library_directory': directory,
+            'library_device': {'major': 8, 'minor': 1}, 'library_inode': 101,
+            'mapped_library': {'path': library, 'device': {'major': 8, 'minor': 1}, 'inode': 101},
+            'loader_environment': {'LD_LIBRARY_PATH': directory}}
         self.runtime = {**c.RUNTIME, 'executable': '/literal/python',
                         'flags': ['/literal/python', '-B', '-s', 'literal-entry', '_cell'],
                         'effective_flags': {'dont_write_bytecode': 1, 'no_user_site': 1,
                             'ignore_environment': 0, 'isolated': 0, 'optimize': 0, 'no_site': 0},
                         'python_environment': {'PYTHONHASHSEED': '0', 'PYTHONDONTWRITEBYTECODE': '1'},
                         'gc_enabled': True, 'gc_threshold': [700, 10, 10],
-                        'address_space': [512*c.MIB, 512*c.MIB]}
+                        'address_space': [512*c.MIB, 512*c.MIB], 'loader': self.loader}
         self.module_evidence = {'literal_stub': {'path': '/literal/stub.py',
                                 'sha256': 'a'*64, 'git_blob': 'b'*40, 'size_bytes': 1}}
 
@@ -52,7 +66,7 @@ class CellIntegrationTests(unittest.TestCase):
         (root / 'receipt.json').write_bytes(c.canonical({'admission_verified': True,
             'status': 'measuring', 'current_cell': index, 'supervisor_pid': os.getppid()}))
         (root / 'external-admission.json').write_bytes(c.canonical(
-            {'cell_preflight_modules': list(self.module_evidence)}))
+            {'cell_preflight_modules': list(self.module_evidence), 'loader_pin': self.loader_pin}))
         return root, folder
 
     def literal_method(self, scope):
@@ -588,6 +602,64 @@ class CellIntegrationTests(unittest.TestCase):
                 self.assertEqual(len(result['secondary_errors']), 1)
                 self.assertEqual(result['secondary_errors'][0]['error_type'], type(first if promote else later).__name__)
                 self.assertEqual((result['actual_starts'], result['actual_starts_upper_bound'], result['actual_returns']), (0,0,0))
+                self.assertEqual(self.events, [])
+
+
+    def test_C21_loader_binding_precedes_historical_access(self):
+        root, folder = self.prepare()
+        order = []
+        actual_pin = subject.loader_pin
+        sentinel = c.IntegrityError('literal stop before manifest or historical access')
+        def pin(value):
+            order.append('admitted_pin' if value.get('schema') == 'worker36-loader-pin-v1' else 'observed_pin')
+            return actual_pin(value)
+        def stop_manifest(path):
+            order.append('manifest_boundary')
+            raise sentinel
+        with self.injected(read_manifest=stop_manifest), patch.object(subject, 'loader_pin', side_effect=pin), \
+                patch.object(subject, 'verify_files') as files, patch.object(subject, 'isolated_imports') as imports, \
+                patch.object(subject, 'construct_fixture') as fixture:
+            with self.assertRaises(c.IntegrityError) as caught:
+                subject.run_cell(root, 2)
+            self.assertIs(caught.exception, sentinel)
+            files.assert_not_called(); imports.assert_not_called(); fixture.assert_not_called()
+        self.assertEqual(order, ['admitted_pin', 'observed_pin', 'manifest_boundary'])
+        result = self.read(folder/'cell-receipt.json')
+        self.assertEqual(result['status'], 'execution_blocked')
+        self.assertEqual(result['actual_starts'], 0)
+        self.assertEqual(result['actual_returns'], 0)
+        self.assertEqual(self.events, [])
+
+    def test_C22_loader_mismatch_blocks_before_import(self):
+        for variant in ('missing_pin', 'bad_pin', 'missing_observation', 'library_hash', 'library_size'):
+            with self.subTest(variant=variant):
+                root, folder = self.prepare(name=variant)
+                admission = self.read(root/'external-admission.json')
+                runtime = copy.deepcopy(self.runtime)
+                if variant == 'missing_pin': del admission['loader_pin']
+                if variant == 'bad_pin': admission['loader_pin']['extra'] = 'forbidden'
+                if variant == 'missing_observation': del runtime['loader']
+                if variant == 'library_hash': runtime['loader']['library_sha256'] = '5' * 64
+                if variant == 'library_size': runtime['loader']['library_size_bytes'] = 4097
+                (root/'external-admission.json').write_bytes(c.canonical(admission))
+                with self.injected(runtime_check=lambda **kwargs: runtime), \
+                        patch.object(subject, 'read_manifest') as manifest, \
+                        patch.object(subject, 'verify_files') as files, \
+                        patch.object(subject, 'isolated_imports') as imports, \
+                        patch.object(subject, 'construct_fixture') as fixture:
+                    with self.assertRaises(c.IntegrityError): subject.run_cell(root, 2)
+                    manifest.assert_not_called(); files.assert_not_called()
+                    imports.assert_not_called(); fixture.assert_not_called()
+                result = self.read(folder/'cell-receipt.json')
+                self.assertEqual(result['status'], 'execution_blocked')
+                self.assertEqual(result['phase'], 'cell_source_runtime_preflight')
+                self.assertEqual(result['secondary_errors'], [])
+                self.assertIsNone(result['hook_restored'])
+                self.assertIsNone(result['timer_restored'])
+                for field in ('actual_starts', 'actual_starts_upper_bound', 'actual_returns',
+                              'confirmed_captures', 'pre_call_markers', 'invocation_attempts'):
+                    self.assertEqual(result[field], 0)
+                self.assertEqual(result['calls'], {})
                 self.assertEqual(self.events, [])
 
 
