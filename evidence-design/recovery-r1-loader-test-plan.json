@@ -1,0 +1,30 @@
+{
+  "schema": "worker36.recovery-r1-loader-test-plan.v1",
+  "status": "prospectively_fixed_not_executed",
+  "scope": "New recovery-R1 loader foundation candidate from durable PR40 head386a3d182bf3e5e6229fc7b4826185fa2ad39e6f. This is not restoration of unavailable bytes or receipts.",
+  "execution_authorized_here": false,
+  "contract": {
+    "identity_schema": "worker36-loader-identity-v1",
+    "runtime_record_key": "loader",
+    "pin_schema": "worker36-loader-pin-v1",
+    "pin_keys": ["schema", "executable_sha256", "library_relative_path", "library_sha256", "library_size_bytes"],
+    "library_relative_path": "Python/3.11.16/x64/lib/libpython3.11.so.1.0",
+    "shell_callable": "worker36_loader_setup",
+    "shell_variables": ["WORKER36_PYTHON", "WORKER36_LOADER_DIRECTORY", "WORKER36_LOADER_LIBRARY", "WORKER36_LOADER_SHA256", "WORKER36_LOADER_SIZE_BYTES"]
+  },
+  "finite_cases": [
+    {"id":"L24","test_method":"test_24_loader_identity_literal_files_and_maps","case":"One invented temporary toolcache, literal executable and library bytes, two literal proc-map segments and mocked process executable produce a complete identity. The executable pin is patched only inside this inert test. Recheck exact path, hash, size, device, inode and permitted loader environment.","variants":1},
+    {"id":"L25","test_method":"test_25_loader_rejects_noncanonical_paths","case":"Fixed rejection variants: relative toolcache, toolcache containing dot-dot, wrong executable location, symlink library, symlink library directory, missing library and non-regular library directory.","variants":7},
+    {"id":"L26","test_method":"test_26_loader_file_identity_stays_stable","case":"A literal file hashes successfully; synchronous mocked reads then mutate same-length bytes or replace the path during a read. Both changes must fail stable identity verification, with no threads or subprocesses.","variants":3},
+    {"id":"L27","test_method":"test_27_loader_rejects_mapping_variants","case":"Nine fixed failures: absent libpython mapping, alias path, deleted path, wrong device, wrong inode, additional other-version libpython, malformed proc-map line, same-inode differently named alias and a changed map between the two reads.","variants":9},
+    {"id":"L28","test_method":"test_28_loader_rejects_ambient_loader_settings","case":"Seven fixed failures: LD_PRELOAD, LD_AUDIT, LD_DEBUG, LD_UNKNOWN, missing LD_LIBRARY_PATH, colon-separated LD_LIBRARY_PATH and wrong LD_LIBRARY_PATH.","variants":7},
+    {"id":"L29","test_method":"test_29_loader_portable_pin_exact_fields","case":"A full identity and its exact five-field portable pin normalize identically. Nine literal malformed pins reject: missing field, extra field, wrong schema, boolean size, zero size, negative size, malformed library hash, wrong executable hash and wrong relative library path.","variants":11},
+    {"id":"L30","test_method":"test_30_loader_full_identity_consistency","case":"Ten fixed malformed full identities reject: extra field, missing field, noncanonical cache, wrong executable path, wrong library path, wrong directory, mismatched mapped path, device mismatch, inode mismatch and unexpected loader environment.","variants":10},
+    {"id":"L31","test_method":"test_31_clean_environment_requires_verified_loader","case":"No loader strips every LD/PYTHON prefix; matching full identity and matching portable pin each restore only the verified directory. Mismatched full identity, mismatched pin, arbitrary path and unverified local identity each reject. Input dictionaries remain unchanged.","variants":7},
+    {"id":"L32","test_method":"test_32_runtime_binds_loader_identity","case":"Mock only runtime prerequisites and the loader verifier. Verify runtime records full loader identity, propagates loader-verification failure and still rejects an extra PYTHON variable.","variants":3},
+    {"id":"L33","test_method":"test_33_loader_shell_static_contract","case":"Read shell helper as inert text. Verify callable and exported contract, pinned executable SHA, exact toolcache-derived library, all-LD/PYTHON sanitation before external probes, non-symlink checks and failure guards. Verify absence of Python execution, eval, installation, global configuration and credential operations.","variants":1}
+  ],
+  "finite_execution_budget": {"new_test_methods":10,"literal_variants":59,"new_process_starts":0,"historical_module_imports":0,"constructor_compilations":0,"measurement_fixture_constructions":0,"candidate_evaluator_calls":0,"reference_evaluator_calls":0,"games":0},
+  "preserved_boundaries": "Do not alter protocol, executable/version pin, historical source closure, science, RNG/deck semantics or any cap. Do not guess the actual runner library hash. No actual runner process, evaluator or fixture execution is authorized by this plan.",
+  "test_execution": "Implementation worker writes this prospective finite plan and owned files only. The parent coordinates the fixed combined suite and retains every fresh run outcome. No unavailable historical receipt is recreated."
+}

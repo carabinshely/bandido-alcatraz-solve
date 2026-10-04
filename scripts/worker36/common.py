@@ -8,8 +8,10 @@ import math
 import os
 from pathlib import Path
 import platform
+import re
 import resource
 import signal
+import stat
 import sys
 import threading
 import time
@@ -21,6 +23,10 @@ PREREGISTRATION = 'https://github.com/carabinshely/bandido-alcatraz-solve/issues
 PROTOCOL_SHA256 = '8eec0f7e7418fba0e58ab5aee09226cab30555338b4e21f5761509648bfaaa6b'
 RUNTIME = {'implementation': 'CPython', 'version': '3.11.16',
            'executable_sha256': 'a15ccdaf07655a8667a3687b13171486c9a265d92273ba3ad820fbb64d2cfecc'}
+LOADER_IDENTITY_SCHEMA = 'worker36-loader-identity-v1'
+LOADER_PIN_SCHEMA = 'worker36-loader-pin-v1'
+LOADER_RELATIVE_PATH = 'Python/3.11.16/x64/lib/libpython3.11.so.1.0'
+LOADER_EXECUTABLE_RELATIVE_PATH = 'Python/3.11.16/x64/bin/python3.11'
 OPS = ('legal_enumerations', 'previews', 'exit_geometry_checks')
 OP_CAPS = dict(zip(OPS, (32768, 32768, 16384)))
 CALL_CAPS = {**OP_CAPS, 'roots': 16384, 'wall_seconds': 360, 'cpu_seconds': 360}
@@ -302,11 +308,178 @@ def update_receipt(root, **updates):
     return value
 
 
-def clean_environment(environ=None):
+def _loader_path(value):
+    require(type(value) is str and value.startswith('/') and
+            not any(character in value for character in (':', '\\', '\x00', '\n', '\r')) and
+            all(part not in ('', '.', '..') for part in value.split('/')[1:]),
+            'absolute canonical loader path required')
+    return Path(value)
+
+
+def _loader_device(value):
+    require(type(value) is dict and set(value) == {'major', 'minor'} and
+            all(type(value[key]) is int and value[key] >= 0 for key in value),
+            'invalid loader device identity')
+
+
+def loader_pin(value):
+    """Validate recorded identity or portable pin; never infer a library digest."""
+    require(type(value) is dict, 'explicit loader identity or pin required')
+    pin_keys = {'schema', 'executable_sha256', 'library_relative_path',
+                'library_sha256', 'library_size_bytes'}
+    if value.get('schema') == LOADER_IDENTITY_SCHEMA:
+        require(set(value) == pin_keys | {'tool_cache', 'executable_path', 'library_path',
+                'library_directory', 'library_device', 'library_inode', 'mapped_library',
+                'loader_environment'}, 'unexpected loader identity fields')
+        cache = _loader_path(value['tool_cache'])
+        executable = _loader_path(value['executable_path'])
+        library = _loader_path(value['library_path'])
+        directory = _loader_path(value['library_directory'])
+        require(executable == cache / LOADER_EXECUTABLE_RELATIVE_PATH and
+                library == cache / LOADER_RELATIVE_PATH and directory == library.parent,
+                'loader paths do not match the pinned toolcache layout')
+        _loader_device(value['library_device'])
+        require(type(value['library_inode']) is int and value['library_inode'] > 0,
+                'invalid loader inode')
+        mapped = value['mapped_library']
+        require(type(mapped) is dict and set(mapped) == {'path', 'device', 'inode'},
+                'invalid mapped loader identity fields')
+        _loader_device(mapped['device'])
+        require(type(mapped['inode']) is int and mapped['inode'] > 0 and
+                mapped['path'] == str(library) and mapped['device'] == value['library_device'] and
+                mapped['inode'] == value['library_inode'], 'mapped loader identity mismatch')
+        require(type(value['loader_environment']) is dict and
+                value['loader_environment'] == {'LD_LIBRARY_PATH': str(directory)},
+                'unexpected recorded loader environment')
+    else:
+        require(value.get('schema') == LOADER_PIN_SCHEMA and set(value) == pin_keys,
+                'unexpected loader pin schema or fields')
+    require(value['executable_sha256'] == RUNTIME['executable_sha256'] and
+            value['library_relative_path'] == LOADER_RELATIVE_PATH,
+            'loader pin differs from the pinned executable or library layout')
+    require(type(value['library_sha256']) is str and
+            re.fullmatch('[0-9a-f]{64}', value['library_sha256']) is not None and
+            type(value['library_size_bytes']) is int and value['library_size_bytes'] > 0,
+            'explicit library SHA256 and positive integer byte size required')
+    return {'schema': LOADER_PIN_SCHEMA, **{key: value[key] for key in pin_keys - {'schema'}}}
+
+
+def _loader_stat_signature(value):
+    return (value.st_dev, value.st_ino, value.st_mode, value.st_size,
+            value.st_mtime_ns, value.st_ctime_ns, value.st_nlink)
+
+
+def _stable_loader_file(path):
+    """Hash one non-symlink regular file through its held, rechecked descriptor."""
+    path = Path(path)
+    require(path.resolve(strict=True) == path, 'noncanonical loader file path')
+    initial = path.lstat()
+    require(stat.S_ISREG(initial.st_mode) and initial.st_size > 0,
+            'nonempty regular non-symlink loader file required')
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    try:
+        before = os.fstat(descriptor)
+        require(_loader_stat_signature(before) == _loader_stat_signature(initial),
+                'loader file changed before hashing')
+        hasher = hashlib.sha256()
+        count = 0
+        while True:
+            block = os.read(descriptor, MIB)
+            if not block:
+                break
+            count += len(block)
+            require(count <= before.st_size, 'loader file grew during hashing')
+            hasher.update(block)
+        after = os.fstat(descriptor)
+        current = path.lstat()
+        require(count == before.st_size and _loader_stat_signature(before) ==
+                _loader_stat_signature(after) == _loader_stat_signature(current) and
+                path.resolve(strict=True) == path, 'loader file changed while hashing')
+        return {'sha256': hasher.hexdigest(), 'size_bytes': count,
+                'device': {'major': os.major(before.st_dev), 'minor': os.minor(before.st_dev)},
+                'inode': before.st_ino, '_stat': _loader_stat_signature(before)}
+    finally:
+        os.close(descriptor)
+
+
+def _loader_maps():
+    return Path('/proc/self/maps').read_text(encoding='utf-8')
+
+
+def _mapped_loader(raw, *, path, device, inode):
+    """All libpython mappings must name exactly the held library inode/path."""
+    require(type(raw) is str, 'proc maps text required')
+    found = False
+    segments = []
+    for line in raw.splitlines():
+        fields = line.split(maxsplit=5)
+        require(len(fields) in (5, 6) and
+                re.fullmatch('[0-9a-f]+-[0-9a-f]+', fields[0]) is not None and
+                re.fullmatch('[r-][w-][x-][ps]', fields[1]) is not None and
+                re.fullmatch('[0-9a-f]+', fields[2]) is not None and
+                re.fullmatch('[0-9a-f]+:[0-9a-f]+', fields[3]) is not None and
+                re.fullmatch('[0-9]+', fields[4]) is not None, 'malformed proc maps')
+        mapped_device = dict(zip(('major', 'minor'), (int(x, 16) for x in fields[3].split(':'))))
+        mapped_inode = int(fields[4])
+        mapped_path = fields[5] if len(fields) == 6 else ''
+        same_inode = mapped_device == device and mapped_inode == inode
+        if 'libpython' in mapped_path or same_inode:
+            require(mapped_path == path and same_inode, 'unexpected, aliased or deleted libpython mapping')
+            found = True
+            segments.append(tuple(fields))
+    require(found, 'mapped libpython identity unavailable')
+    return {'path': path, 'device': dict(device), 'inode': inode}, tuple(segments)
+
+
+def loader_identity():
+    """Observe the exact trusted-toolcache library actually mapped in this process."""
+    cache = _loader_path(os.environ.get('RUNNER_TOOL_CACHE'))
+    require(cache.is_dir() and not cache.is_symlink() and cache.resolve(strict=True) == cache,
+            'canonical trusted RUNNER_TOOL_CACHE required')
+    executable = Path(sys.executable).resolve(strict=True)
+    require(executable == cache / LOADER_EXECUTABLE_RELATIVE_PATH,
+            'interpreter is outside its pinned toolcache location')
+    executable_info = _stable_loader_file(executable)
+    require(executable_info['sha256'] == RUNTIME['executable_sha256'], 'wrong pinned executable bytes')
+    library = cache / LOADER_RELATIVE_PATH
+    directory = library.parent
+    require(directory.is_dir() and not directory.is_symlink() and
+            directory.resolve(strict=True) == directory, 'canonical loader directory required')
+    environment = {key: value for key, value in os.environ.items() if key.startswith('LD')}
+    require(environment == {'LD_LIBRARY_PATH': str(directory)}, 'unexpected dynamic-loader environment')
+    info = _stable_loader_file(library)
+    mapped, segments = _mapped_loader(_loader_maps(), path=str(library),
+                                     device=info['device'], inode=info['inode'])
+    # Rehash through a fresh descriptor after reading mappings, then check the
+    # mapping segments again. Replacement, mutation, aliases and unmapping fail.
+    require(_stable_loader_file(library) == info, 'mapped library bytes changed during verification')
+    repeated, repeated_segments = _mapped_loader(_loader_maps(), path=str(library),
+                                                device=info['device'], inode=info['inode'])
+    require(repeated == mapped and repeated_segments == segments, 'libpython mappings changed during verification')
+    require(_stable_loader_file(executable) == executable_info, 'executable changed during loader verification')
+    identity = {'schema': LOADER_IDENTITY_SCHEMA, 'tool_cache': str(cache),
+                'executable_path': str(executable), 'executable_sha256': executable_info['sha256'],
+                'library_relative_path': LOADER_RELATIVE_PATH, 'library_path': str(library),
+                'library_directory': str(directory), 'library_sha256': info['sha256'],
+                'library_size_bytes': info['size_bytes'], 'library_device': info['device'],
+                'library_inode': info['inode'], 'mapped_library': mapped,
+                'loader_environment': environment}
+    loader_pin(identity)
+    return identity
+
+
+def clean_environment(environ=None, *, loader=None):
     env = dict(os.environ if environ is None else environ)
     for k in tuple(env):
-        if k.startswith('PYTHON') or k in ('LD_PRELOAD', 'LD_LIBRARY_PATH'):
+        if k.startswith(('PYTHON', 'LD')):
             env.pop(k)
+    if loader is not None:
+        pin = loader_pin(loader)
+        actual = loader_identity()
+        require(loader_pin(actual) == pin, 'explicit loader pin differs from verified local loader')
+        if loader['schema'] == LOADER_IDENTITY_SCHEMA:
+            require(loader == actual, 'explicit loader identity differs from verified local loader')
+        env.update(actual['loader_environment'])
     env.update(PYTHONHASHSEED='0', PYTHONDONTWRITEBYTECODE='1')
     return env
 
@@ -336,7 +509,9 @@ def runtime_check(*, child=False):
             'occupied wall/CPU timers')
     if child:
         require(resource.getrlimit(resource.RLIMIT_AS) == (512 * MIB, 512 * MIB), 'exact child address-space limit')
+    loader = loader_identity()
     return {**actual, 'executable': str(Path(sys.executable).resolve()), 'flags': list(sys.orig_argv),
+            'loader': loader,
             'effective_flags': {name: getattr(sys.flags, name) for name in (
                 'dont_write_bytecode', 'no_user_site', 'ignore_environment', 'isolated', 'optimize', 'no_site')},
             'python_environment': {k: v for k, v in os.environ.items() if k.startswith('PYTHON')},

@@ -4,6 +4,7 @@ from contextlib import contextmanager
 import copy
 import hashlib
 import json
+import os
 from pathlib import Path
 from random import Random
 import sys
@@ -221,6 +222,234 @@ class CoreTests(unittest.TestCase):
             with self.subTest(variant=name):
                 with self.assertRaises(c.IntegrityError):
                     s.verify_constructor(source, altered)
+
+    @contextmanager
+    def literal_loader(self):
+        # Entirely invented file bytes and proc-map text. No child process,
+        # platform interpreter, historical source or evaluator is executed.
+        with tempfile.TemporaryDirectory() as temporary:
+            cache = Path(temporary).resolve() / 'toolcache'
+            executable = cache / 'Python/3.11.16/x64/bin/python3.11'
+            library = cache / 'Python/3.11.16/x64/lib/libpython3.11.so.1.0'
+            executable.parent.mkdir(parents=True)
+            library.parent.mkdir()
+            executable.write_bytes(b'literal executable bytes\n')
+            library.write_bytes(b'literal library bytes\n')
+            status = library.stat()
+            device = {'major': os.major(status.st_dev), 'minor': os.minor(status.st_dev)}
+            devtext = '%x:%x' % (device['major'], device['minor'])
+            maps = ('1000-2000 r--p 00000000 %s %s %s\n'
+                    '2000-3000 r-xp 00001000 %s %s %s\n') % (
+                        devtext, status.st_ino, library, devtext, status.st_ino, library)
+            environment = {'RUNNER_TOOL_CACHE': str(cache), 'LD_LIBRARY_PATH': str(library.parent),
+                           'PYTHONHASHSEED': '0', 'PYTHONDONTWRITEBYTECODE': '1'}
+            identity = {'schema': 'worker36-loader-identity-v1', 'tool_cache': str(cache),
+                        'executable_path': str(executable),
+                        'executable_sha256': hashlib.sha256(executable.read_bytes()).hexdigest(),
+                        'library_relative_path': 'Python/3.11.16/x64/lib/libpython3.11.so.1.0',
+                        'library_path': str(library), 'library_directory': str(library.parent),
+                        'library_sha256': hashlib.sha256(library.read_bytes()).hexdigest(),
+                        'library_size_bytes': len(b'literal library bytes\n'),
+                        'library_device': device, 'library_inode': status.st_ino,
+                        'mapped_library': {'path': str(library), 'device': dict(device), 'inode': status.st_ino},
+                        'loader_environment': {'LD_LIBRARY_PATH': str(library.parent)}}
+            with patch.dict(c.RUNTIME, executable_sha256=identity['executable_sha256']), \
+                 patch.object(c.sys, 'executable', str(executable)), \
+                 patch.dict(os.environ, environment, clear=True), \
+                 patch.object(c, '_loader_maps', return_value=maps):
+                yield cache, executable, library, maps, identity
+
+    def test_24_loader_identity_literal_files_and_maps(self):
+        with self.literal_loader() as (_, _, _, _, expected):
+            self.assertEqual(c.loader_identity(), expected)
+
+    def test_25_loader_rejects_noncanonical_paths(self):
+        for name in ('relative_cache', 'dotdot_cache', 'wrong_executable', 'symlink_library',
+                     'symlink_directory', 'missing_library', 'directory_library'):
+            with self.subTest(variant=name), self.literal_loader() as (cache, executable, library, _, _):
+                if name == 'relative_cache':
+                    os.environ['RUNNER_TOOL_CACHE'] = 'relative/cache'
+                elif name == 'dotdot_cache':
+                    os.environ['RUNNER_TOOL_CACHE'] = str(cache) + '/../toolcache'
+                elif name == 'wrong_executable':
+                    other = executable.with_name('other-python')
+                    other.write_bytes(executable.read_bytes())
+                    c.sys.executable = str(other)
+                elif name == 'symlink_library':
+                    target = library.with_name('target')
+                    library.rename(target)
+                    library.symlink_to(target)
+                elif name == 'symlink_directory':
+                    target = library.parent.with_name('other-lib')
+                    library.parent.rename(target)
+                    library.parent.symlink_to(target, target_is_directory=True)
+                elif name == 'missing_library':
+                    library.unlink()
+                else:
+                    library.unlink()
+                    library.mkdir()
+                with self.assertRaises((c.IntegrityError, OSError)):
+                    c.loader_identity()
+
+    def test_26_loader_file_identity_stays_stable(self):
+        literal = self.root / 'literal-library'
+        literal.write_bytes(b'fixed literal file')
+        self.assertEqual(c._stable_loader_file(literal)['sha256'], hashlib.sha256(b'fixed literal file').hexdigest())
+        for variant in ('same_size_change', 'path_replacement'):
+            literal.write_bytes(b'fixed literal file')
+            original = os.read
+            changed = False
+            def mutating_read(descriptor, size):
+                nonlocal changed
+                result = original(descriptor, size)
+                if not changed:
+                    changed = True
+                    if variant == 'same_size_change':
+                        literal.write_bytes(b'other literal file')
+                    else:
+                        replacement = literal.with_name('replacement')
+                        replacement.write_bytes(b'fixed literal file')
+                        os.replace(replacement, literal)
+                return result
+            with self.subTest(variant=variant), patch.object(c.os, 'read', side_effect=mutating_read):
+                with self.assertRaises(c.IntegrityError):
+                    c._stable_loader_file(literal)
+
+    def test_27_loader_rejects_mapping_variants(self):
+        with self.literal_loader() as (_, _, library, maps, identity):
+            device = identity['library_device']
+            devtext = '%x:%x' % (device['major'], device['minor'])
+            inode = identity['library_inode']
+            variants = (
+                ('absent', '1000-2000 rw-p 00000000 00:00 0\n'),
+                ('alias_path', maps.replace(str(library), str(library.parent / 'alias-libpython.so'))),
+                ('deleted', maps.replace(str(library), str(library) + ' (deleted)')),
+                ('wrong_device', maps.replace(' ' + devtext + ' ', ' ff:ff ')),
+                ('wrong_inode', maps.replace(' %s ' % inode, ' %s ' % (inode + 1))),
+                ('other_version', maps + '3000-4000 r-xp 00000000 00:01 987 /other/libpython3.12.so.1.0\n'),
+                ('malformed', maps + 'not a proc map\n'),
+                ('same_inode_alias', maps + '3000-4000 r-xp 00000000 %s %s /other/alias.so\n' % (devtext, inode)))
+            for name, raw in variants:
+                with self.subTest(variant=name), patch.object(c, '_loader_maps', return_value=raw):
+                    with self.assertRaises(c.IntegrityError):
+                        c.loader_identity()
+            with self.subTest(variant='changed_mapping'), patch.object(c, '_loader_maps',
+                    side_effect=(maps, maps.replace('2000-3000', '2000-4000'))):
+                with self.assertRaises(c.IntegrityError):
+                    c.loader_identity()
+
+    def test_28_loader_rejects_ambient_loader_settings(self):
+        for key, value in (('LD_PRELOAD', '/literal.so'), ('LD_AUDIT', '/literal.so'),
+                           ('LD_DEBUG', 'libs'), ('LD_UNKNOWN', 'literal'),
+                           ('LD_LIBRARY_PATH', None), ('LD_LIBRARY_PATH', '/one:/two'),
+                           ('LD_LIBRARY_PATH', '/wrong/library')):
+            with self.subTest(key=key, value=value), self.literal_loader():
+                if value is None:
+                    os.environ.pop(key)
+                else:
+                    os.environ[key] = value
+                with self.assertRaises(c.IntegrityError):
+                    c.loader_identity()
+
+    def test_29_loader_portable_pin_exact_fields(self):
+        with self.literal_loader() as (_, _, _, _, identity):
+            expected = {'schema': 'worker36-loader-pin-v1',
+                        'executable_sha256': identity['executable_sha256'],
+                        'library_relative_path': identity['library_relative_path'],
+                        'library_sha256': identity['library_sha256'],
+                        'library_size_bytes': identity['library_size_bytes']}
+            self.assertEqual(c.loader_pin(identity), expected)
+            self.assertEqual(c.loader_pin(expected), expected)
+            invalid = [dict(expected), {**expected, 'extra': 1}, {**expected, 'schema': 'other'},
+                       {**expected, 'library_size_bytes': True}, {**expected, 'library_size_bytes': 0},
+                       {**expected, 'library_size_bytes': -1}, {**expected, 'library_sha256': 'f' * 63},
+                       {**expected, 'executable_sha256': '0' * 64},
+                       {**expected, 'library_relative_path': '../libpython3.11.so.1.0'}]
+            invalid[0].pop('library_sha256')
+            for index, value in enumerate(invalid):
+                with self.subTest(variant=index), self.assertRaises(c.IntegrityError):
+                    c.loader_pin(value)
+
+    def test_30_loader_full_identity_consistency(self):
+        with self.literal_loader() as (_, _, _, _, identity):
+            for variant in ('extra', 'missing', 'cache', 'executable', 'library', 'directory',
+                            'mapped_path', 'device', 'inode', 'environment'):
+                value = copy.deepcopy(identity)
+                if variant == 'extra': value['extra'] = 1
+                elif variant == 'missing': value.pop('mapped_library')
+                elif variant == 'cache': value['tool_cache'] += '/..'
+                elif variant == 'executable': value['executable_path'] += '-other'
+                elif variant == 'library': value['library_path'] += '-other'
+                elif variant == 'directory': value['library_directory'] += '-other'
+                elif variant == 'mapped_path': value['mapped_library']['path'] += '-other'
+                elif variant == 'device': value['mapped_library']['device']['minor'] += 1
+                elif variant == 'inode': value['mapped_library']['inode'] += 1
+                else: value['loader_environment']['LD_PRELOAD'] = '/literal.so'
+                with self.subTest(variant=variant), self.assertRaises(c.IntegrityError):
+                    c.loader_pin(value)
+
+    def test_31_clean_environment_requires_verified_loader(self):
+        with self.literal_loader() as (_, _, library, _, identity):
+            dirty = {'KEEP': 'yes', 'LD_LIBRARY_PATH': '/wrong', 'LD_AUDIT': '/wrong',
+                     'LD_UNKNOWN': 'yes', 'PYTHONPATH': '/wrong', 'PYTHONUNKNOWN': 'yes'}
+            original = dict(dirty)
+            clean = {'KEEP': 'yes', 'PYTHONHASHSEED': '0', 'PYTHONDONTWRITEBYTECODE': '1'}
+            self.assertEqual(c.clean_environment(dirty), clean)
+            expected = {**clean, 'LD_LIBRARY_PATH': str(library.parent)}
+            self.assertEqual(c.clean_environment(dirty, loader=identity), expected)
+            self.assertEqual(c.clean_environment(dirty, loader=c.loader_pin(identity)), expected)
+            different = copy.deepcopy(identity)
+            different['library_inode'] += 1
+            different['mapped_library']['inode'] += 1
+            different_pin = c.loader_pin(identity)
+            different_pin['library_sha256'] = '0' * 64
+            for variant in (different, different_pin, '/arbitrary/library'):
+                with self.subTest(loader=variant), self.assertRaises(c.IntegrityError):
+                    c.clean_environment(dirty, loader=variant)
+            with patch.object(c, 'loader_identity', side_effect=c.IntegrityError('literal local verification failure')):
+                with self.assertRaises(c.IntegrityError):
+                    c.clean_environment(dirty, loader=identity)
+            self.assertEqual(dirty, original)
+
+    def test_32_runtime_binds_loader_identity(self):
+        with self.literal_loader() as (_, executable, _, _, identity), \
+             patch.object(c, 'idle_hooks'), \
+             patch.object(c.platform, 'python_implementation', return_value='CPython'), \
+             patch.object(c.platform, 'python_version', return_value='3.11.16'), \
+             patch.object(c.sys, 'platform', 'linux'), \
+             patch.object(c.sys, 'flags', types.SimpleNamespace(dont_write_bytecode=1,
+                 no_user_site=1, ignore_environment=0, isolated=0, optimize=0, no_site=0)), \
+             patch.object(c.gc, 'isenabled', return_value=True), \
+             patch.object(c.gc, 'get_threshold', return_value=(700, 10, 10)), \
+             patch.object(c.signal, 'getitimer', return_value=(0, 0)), \
+             patch.object(c.resource, 'getrlimit', return_value=(512 * c.MIB, 512 * c.MIB)), \
+             patch.dict(os.environ, {'GITHUB_ACTIONS': 'true', 'GITHUB_REPOSITORY': c.REPOSITORY,
+                                     'RUNNER_NAME': 'bandido-alcatraz-ci'}), \
+             patch.object(c, 'loader_identity', return_value=identity) as observe:
+            actual = c.runtime_check(child=True)
+            self.assertEqual(actual['loader'], identity)
+            self.assertEqual(actual['executable'], str(executable))
+            observe.side_effect = c.IntegrityError('fixed loader verification failure')
+            with self.assertRaises(c.IntegrityError): c.runtime_check()
+            observe.side_effect = None
+            with patch.dict(os.environ, PYTHONUNEXPECTED='literal'):
+                with self.assertRaises(c.IntegrityError): c.runtime_check()
+
+    def test_33_loader_shell_static_contract(self):
+        shell = (ROOT / 'scripts/worker36-loader.sh').read_text()
+        for token in ('worker36_loader_setup()', 'WORKER36_PYTHON', 'WORKER36_LOADER_DIRECTORY',
+                      'WORKER36_LOADER_LIBRARY', 'WORKER36_LOADER_SHA256', 'WORKER36_LOADER_SIZE_BYTES',
+                      'RUNNER_TOOL_CACHE', 'Python/3.11.16/x64/bin/python3.11',
+                      'Python/3.11.16/x64/lib/libpython3.11.so.1.0', c.RUNTIME['executable_sha256'],
+                      '"$name" == LD* || "$name" == PYTHON*', '! -L "$library"',
+                      '! -L "$directory"', '"$before" == "$after"', 'return 1',
+                      'export LD_LIBRARY_PATH="$directory" PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1'):
+            self.assertIn(token, shell)
+        self.assertLess(shell.index('unset "$name"'), shell.index('readlink -f'))
+        active = '\n'.join(line for line in shell.splitlines() if not line.lstrip().startswith('#'))
+        for forbidden in ('python -', '"$executable" -', 'eval ', 'pip install', 'apt-get',
+                          'sudo ', 'chmod ', 'GITHUB_TOKEN', 'LD_PRELOAD='):
+            self.assertNotIn(forbidden, active)
 
 if __name__=='__main__':
     unittest.main()
