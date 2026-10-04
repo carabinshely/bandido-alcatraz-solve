@@ -9,8 +9,10 @@ test switches, children, background workers, retries, or alternate input clients
 import argparse
 import gc
 import hashlib
+import http.client
 import io
 import json
+import math
 import os
 import re
 import resource
@@ -105,6 +107,42 @@ def require(condition, code, classification="integrity_invalid"):
         raise Failure(classification, code)
 
 
+def record_failure(report, classification, code, phase, error=None):
+    """The first cause owns the result; subsequent causes keep their own phase."""
+    failure = {"classification": classification, "code": code, "phase": phase}
+    if report["primary_failure"] is None:
+        report["primary_failure"] = failure
+        report["classification"] = classification
+        report["error_code"] = code
+        report["failed_phase"] = phase
+    else:
+        report["secondary_failures"].append(failure)
+    for cleanup in getattr(error, "_worker37_cleanup_failures", ()):
+        report["secondary_failures"].append({**cleanup, "phase": phase})
+
+
+def close_descriptor(fd, operation, record=None, *, pending=None):
+    """Close once, retaining an active body/resource error if cleanup also fails."""
+    failure = None
+    try:
+        os.close(fd)
+    except MemoryError:
+        failure = Failure("resource_incomplete", "descriptor_close_memory_exhausted")
+    except Exception:
+        failure = Failure("evidence_incomplete", "descriptor_close_failed")
+    if record is not None:
+        record["close_confirmed"] = failure is None
+    if failure is not None:
+        detail = {"classification": failure.classification, "code": failure.code,
+                  "operation": operation}
+        if record is not None:
+            record["close_failure"] = detail
+        if pending is None:
+            raise failure from None
+        previous = getattr(pending, "_worker37_cleanup_failures", ())
+        pending._worker37_cleanup_failures = [*previous, detail]
+
+
 def sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
@@ -125,9 +163,14 @@ def strict_json(raw):
     def nonfinite(_value):
         raise Failure("integrity_invalid", "nonfinite_json")
 
+    def finite_float(value):
+        number = float(value)
+        require(math.isfinite(number), "nonfinite_json")
+        return number
+
     try:
         return json.loads(raw.decode("utf-8"), object_pairs_hook=pairs,
-                          parse_constant=nonfinite)
+                          parse_constant=nonfinite, parse_float=finite_float)
     except (UnicodeError, ValueError, RecursionError):
         raise Failure("integrity_invalid", "invalid_json") from None
 
@@ -192,7 +235,7 @@ def bounded_read(path, cap):
                 "local_file_changed")
         return b"".join(pieces)
     finally:
-        os.close(fd)
+        close_descriptor(fd, "bounded_read", pending=sys.exc_info()[1])
 
 
 def file_tuple(value):
@@ -594,14 +637,14 @@ class Evidence:
         try:
             info = os.fstat(fd)
             require(info.st_uid == os.getuid() and stat.S_IMODE(info.st_mode) == 0o700, "output_custody")
-        except Exception:
-            os.close(fd)
+        except Exception as error:
+            close_descriptor(fd, "custody_open", pending=error)
             raise
         self.directory_fd = fd
 
     def close(self):
         if self.directory_fd is not None:
-            os.close(self.directory_fd)
+            close_descriptor(self.directory_fd, "custody_directory_close")
             self.directory_fd = None
 
     def adopt_event(self, path, raw):
@@ -625,7 +668,7 @@ class Evidence:
             os.fsync(self.directory_fd)
             record["directory_fsync_confirmed"] = True
         finally:
-            os.close(fd)
+            close_descriptor(fd, "event_snapshot", record, pending=sys.exc_info()[1])
         require(bounded_read(path, MAX_INPUT) == raw, "event_snapshot_readback")
         record["readback_confirmed"] = True
 
@@ -673,7 +716,7 @@ class Evidence:
             raise Failure("evidence_incomplete", "persistence_failed") from None
         finally:
             if fd is not None:
-                os.close(fd)
+                close_descriptor(fd, "evidence_write", record, pending=sys.exc_info()[1])
         return record
 
     def verify(self):
@@ -740,8 +783,17 @@ class Client:
                     body_failure = Failure("resource_incomplete", "aggregate_body_budget")
                     break
                 size = min(65536, allowance + 1 - record["received_bytes"], available)
+                incomplete = False
                 try:
                     part = response.read(size)
+                except http.client.IncompleteRead as error:
+                    # These bytes have already been read by the HTTP parser.
+                    # Its message/expected count can contain untrusted context;
+                    # retain only the actual bytes and a fixed incomplete flag.
+                    part = error.partial
+                    incomplete = True
+                    record["incomplete_read"] = True
+                    record["unknown_remainder"] = True
                 except MemoryError:
                     body_failure = Failure("resource_incomplete", "response_memory_exhausted")
                     break
@@ -749,20 +801,30 @@ class Client:
                     # Transport exceptions may contain credentials or signed URLs.
                     body_failure = Failure("evidence_incomplete", "response_read_failed")
                     break
-                if not part:
+                require(type(part) is bytes, "response_read_contract")
+                if not part and not incomplete:
                     record["complete"] = True
                     break
-                require(type(part) is bytes and len(part) <= size, "response_read_contract")
                 self.report["response_body_bytes"] += len(part)
                 prior = record["received_bytes"]
                 record["received_bytes"] += len(part)
                 if not omit and prior < allowance:
-                    retained = part[:allowance - prior]
+                    retained = part[:min(allowance - prior, available)]
                     pieces.append(retained)
                     record["buffered_bytes"] += len(retained)
+                if self.report["response_body_bytes"] > MAX_BODY:
+                    record["truncated"] = True
+                    body_failure = Failure("resource_incomplete", "aggregate_body_budget")
+                    break
                 if record["received_bytes"] > allowance:
                     record["truncated"] = True
                     body_failure = Failure("resource_incomplete", "input_body_overflow")
+                    break
+                if len(part) > size:
+                    body_failure = Failure("integrity_invalid", "response_read_contract")
+                    break
+                if incomplete:
+                    body_failure = Failure("evidence_incomplete", "response_incomplete_read")
                     break
             raw = b"".join(pieces)
             if not omit:
@@ -773,13 +835,19 @@ class Client:
                         self.report.setdefault("input_persistence_failures", []).append({
                             "classification": error.classification, "code": error.code,
                             "phase": "P07", "name": name})
+                        self.report["input_persistence_failures"].extend(
+                            {**cleanup, "phase": "P07", "name": name}
+                            for cleanup in getattr(error, "_worker37_cleanup_failures", ()))
                         raise body_failure from None
                     raise
-                except MemoryError:
+                except MemoryError as error:
                     if body_failure is not None:
                         self.report.setdefault("input_persistence_failures", []).append({
                             "classification": "resource_incomplete", "code": "persistence_memory_exhausted",
                             "phase": "P07", "name": name})
+                        self.report["input_persistence_failures"].extend(
+                            {**cleanup, "phase": "P07", "name": name}
+                            for cleanup in getattr(error, "_worker37_cleanup_failures", ()))
                         raise body_failure from None
                     raise
                 finally:
@@ -853,6 +921,7 @@ def main(argv=None):
               "measurement_admitted": False, "scientific_classification": None,
               "allocation_id": ALLOCATION, "classification": "execution_blocked",
               "phase": "P05", "phases_completed": [], "error_code": None,
+              "primary_failure": None, "secondary_failures": [], "failed_phase": None,
               "requested_prefix": [], "completed_prefix": [], "requests": [],
               "response_body_bytes": 0, "restoration": {"confirmed": False},
               "runtime": {},
@@ -911,20 +980,16 @@ def main(argv=None):
         report["phases_completed"].append("P08")
         report["classification"] = "bootstrap_ready"
     except Failure as error:
-        report["classification"], report["error_code"] = error.classification, error.code
-    except MemoryError:
-        report["classification"], report["error_code"] = "resource_incomplete", "memory_exhausted"
-    except Exception:
-        report["classification"], report["error_code"] = "evidence_incomplete", "local_operation_failed"
+        record_failure(report, error.classification, error.code, report["phase"], error)
+    except MemoryError as error:
+        record_failure(report, "resource_incomplete", "memory_exhausted", report["phase"], error)
+    except Exception as error:
+        record_failure(report, "evidence_incomplete", "local_operation_failed", report["phase"], error)
     finally:
         if client is not None:
             client.token = None
-    failed_phase = report["phase"]
-    report["primary_failure"] = ({"classification": report["classification"],
-                                  "code": report["error_code"], "phase": failed_phase}
-                                 if report["error_code"] else None)
-    report["secondary_failures"] = [item for item in report.get("transport_restoration_failures", [])
-                                    if item["code"] != report["error_code"]]
+    report["secondary_failures"].extend(item for item in report.get("transport_restoration_failures", [])
+                                         if item["code"] != report["error_code"])
     report["secondary_failures"].extend(report.get("input_persistence_failures", []))
     try:
         report["phase"] = "P09"
@@ -939,24 +1004,11 @@ def main(argv=None):
             require(restored, "restoration_mismatch", "evidence_incomplete")
         evidence.verify()
     except Failure as error:
-        if report["error_code"]:
-            report["secondary_failures"].append({"classification": error.classification, "code": error.code})
-        else:
-            failed_phase = "P09"
-        report["classification"], report["error_code"] = error.classification, error.code
-    except MemoryError:
-        if report["error_code"]:
-            report["secondary_failures"].append({"classification": "resource_incomplete", "code": "terminal_memory_exhausted"})
-        else:
-            failed_phase = "P09"
-        report["classification"], report["error_code"] = "resource_incomplete", "terminal_memory_exhausted"
-    except Exception:
-        if report["error_code"]:
-            report["secondary_failures"].append({"classification": "evidence_incomplete", "code": "terminal_readback_failed"})
-        else:
-            failed_phase = "P09"
-        report["classification"], report["error_code"] = "evidence_incomplete", "terminal_readback_failed"
-    report["failed_phase"] = failed_phase if report["error_code"] else None
+        record_failure(report, error.classification, error.code, "P09", error)
+    except MemoryError as error:
+        record_failure(report, "resource_incomplete", "terminal_memory_exhausted", "P09", error)
+    except Exception as error:
+        record_failure(report, "evidence_incomplete", "terminal_readback_failed", "P09", error)
     report["inputs"] = {name: dict(record) for name, record in evidence.files.items()}
     report["terminal_state"] = "candidate_requires_terminal_receipt"
     exit_code = EXIT_CODES[report["classification"]]
@@ -983,34 +1035,45 @@ def main(argv=None):
         evidence.verify()
         terminal_confirmed = True
     except Failure as error:
-        exit_code = EXIT_CODES[error.classification]
+        record_failure(report, error.classification, error.code, "P09", error)
         terminal_error = error.code
-    except MemoryError:
-        exit_code = EXIT_CODES["resource_incomplete"]
+    except MemoryError as error:
+        record_failure(report, "resource_incomplete", "terminal_memory_exhausted", "P09", error)
         terminal_error = "terminal_memory_exhausted"
-    except Exception:
-        exit_code = EXIT_CODES["evidence_incomplete"]
+    except Exception as error:
+        record_failure(report, "evidence_incomplete", "terminal_write_or_readback_failed", "P09", error)
         terminal_error = "terminal_write_or_readback_failed"
     finally:
         try:
             evidence.close()
-        except MemoryError:
+        except Failure as error:
             terminal_confirmed = False
-            exit_code = EXIT_CODES["resource_incomplete"]
-            terminal_error = "custody_close_memory_exhausted"
-        except OSError:
+            record_failure(report, error.classification, error.code, "P09", error)
+            if terminal_error == "none":
+                terminal_error = error.code
+        except MemoryError as error:
             terminal_confirmed = False
-            exit_code = EXIT_CODES["evidence_incomplete"]
-            terminal_error = "custody_close_failed"
-        except Exception:
+            record_failure(report, "resource_incomplete", "custody_close_memory_exhausted", "P09", error)
+            if terminal_error == "none":
+                terminal_error = "custody_close_memory_exhausted"
+        except Exception as error:
             terminal_confirmed = False
-            exit_code = EXIT_CODES["evidence_incomplete"]
-            terminal_error = "custody_close_failed"
+            record_failure(report, "evidence_incomplete", "custody_close_failed", "P09", error)
+            if terminal_error == "none":
+                terminal_error = "custody_close_failed"
+    exit_code = EXIT_CODES[report["classification"]]
     # Fixed scalars follow the final readback AND descriptor close. JSON is a
     # candidate until these and the shell's actual exit/custody agree. A kill or
     # late failure cannot be mistaken for a self-attested successful receipt.
     print("WORKER37_TERMINAL_CONFIRMED=" + str(int(terminal_confirmed)))
     print("WORKER37_TERMINAL_ERROR=" + terminal_error)
+    if report["primary_failure"] is not None:
+        print("WORKER37_PRIMARY_CLASSIFICATION=" + report["classification"])
+        print("WORKER37_PRIMARY_ERROR=" + report["error_code"])
+        print("WORKER37_PRIMARY_PHASE=" + report["failed_phase"])
+    for failure in report["secondary_failures"]:
+        print("WORKER37_SECONDARY_FAILURE=" + failure["phase"] + ":"
+              + failure["classification"] + ":" + failure["code"])
     print("WORKER37_METADATA_EXIT=" + str(exit_code))
     return exit_code
 
