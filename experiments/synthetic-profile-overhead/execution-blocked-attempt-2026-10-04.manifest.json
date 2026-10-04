@@ -1,0 +1,937 @@
+{
+  "GO_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5982974661",
+  "PR": 40,
+  "admission": {
+    "accepted_first_body_transitions": 1,
+    "body_sha256": "0ac7f6eb560487b5b0a14b4911144e5fb01c313a4241966879d4b6fafafe244f",
+    "earlier_approval_rejection_and_same_argument_retry_preserved": true,
+    "recorded_freeze_sha256": "c671795cfb7bff8cf37e3ef09906fcf3c3fceb0a6b8936c8ae0d16b6ed5a00cd",
+    "sha256": "ac26e8f0d17825cd368092d30ef8db195b09ea46697b7d4c54c52584146a8cb3",
+    "size_bytes": 17219
+  },
+  "allocation_closed": true,
+  "base_main": "9c1eeeb8a26868d41f8d8d89b17fc897a60cb38b",
+  "base_tree": "e05ed74aba3b290f194e2871d950fa26ead6c55e",
+  "canonical_custody": {
+    "custody_receipt_sha256": "5a95cd162b47c79ca7b8263c4ab1a7d521afa243b3c23904973c6a4035b8ed24",
+    "failure_bundle_member_inventory": [
+      {
+        "path": "admission/DURABLE-GO-API.json",
+        "sha256": "e067c088e0294f153fd960469abbf7ac9b9d2f8ccc374d0a77775b89b8790e43",
+        "size_bytes": 6632
+      },
+      {
+        "path": "admission/FINAL-ADMISSION.json",
+        "sha256": "ac26e8f0d17825cd368092d30ef8db195b09ea46697b7d4c54c52584146a8cb3",
+        "size_bytes": 17219
+      },
+      {
+        "path": "admission/FINAL-PR-BODY.txt",
+        "sha256": "0ac7f6eb560487b5b0a14b4911144e5fb01c313a4241966879d4b6fafafe244f",
+        "size_bytes": 21266
+      },
+      {
+        "path": "admission/FINAL-PUBLICATION-RECEIPT.json",
+        "sha256": "62ce9576bde065dd175c23be3e4c1d1fa657b2ab784ca1eaf72a852b0c83d429",
+        "size_bytes": 1587
+      },
+      {
+        "path": "admission/final-freeze-78506a66-accepted-body-readback.json",
+        "sha256": "df3a412ec0289f264acf706b7a61e9daa3ebea6d04bd1b74b42c5a93ed930801",
+        "size_bytes": 1792
+      },
+      {
+        "path": "admission/final-freeze-78506a66-body-transition-retry.json",
+        "sha256": "8abb31004969c1835259e67bca66b238b49cea7cf6ff7b98139b4e2bb2dd9219",
+        "size_bytes": 24594
+      },
+      {
+        "path": "admission/final-freeze-78506a66-custody-verified.json",
+        "sha256": "12393070f6ed1d315552face8cb91dc15ed7282475357deaad6a6fcd36813efc",
+        "size_bytes": 709
+      },
+      {
+        "path": "admission/final-freeze-78506a66-immediate-live-guard.json",
+        "sha256": "2627d3d5b530ed0108e46e882736066aef0a01c93f910c10d81747f7f3d50d28",
+        "size_bytes": 3666
+      },
+      {
+        "path": "admission/final-freeze-78506a66-rejected-body-transition.json",
+        "sha256": "d7f1309ff4f573caee0d54721cdb3c1535abc3da7bd6ae8aeac76f3c6a0f70d5",
+        "size_bytes": 23847
+      },
+      {
+        "path": "admission/final-freeze-78506a66-rejection-readback.json",
+        "sha256": "2d6988529055faa89c8d3170ef4f3fced1c8b4d49fe44ce4651e57b15e655bc0",
+        "size_bytes": 1122
+      },
+      {
+        "path": "failure-receipt-and-diagnosis.json",
+        "sha256": "44d8073eff11eb93bf4b2fe54e97f48bff58d43501446a1af71b4d12f8b7786e",
+        "size_bytes": 5122
+      },
+      {
+        "path": "job-111500820466.log",
+        "sha256": "050655c6647e4dff632c939a9061f19eb6cb68c2e75261e7bf8770578e953bbe",
+        "size_bytes": 5343
+      },
+      {
+        "path": "job-log-exact.json",
+        "sha256": "ddb58744bcec1cb303a3df65e0d54d1fb2927ae4213c216b1d8041673c21fdc8",
+        "size_bytes": 6033
+      },
+      {
+        "path": "terminal-run-metadata.json",
+        "sha256": "8aaaa82faf60a224386644c1f612c8ad906c665f1f9e3c4d8d5eba2d7c3c54e9",
+        "size_bytes": 18790
+      }
+    ],
+    "locators": [
+      {
+        "canonical_parent_folder": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+        "drive_file_id": "1ec-bevavck4eqb3ApnDjI2mmmnl7d2eM",
+        "entries": 106,
+        "fresh_full_byte_hash_readback_verified": true,
+        "permissions": "owner-only unchanged",
+        "purpose": "Exact83-file execution/preparation source and current repair history",
+        "sha256": "e7e169d479496119182ee4f60b8d5472c9465f274572d1ce6839a0ba07c19f7c",
+        "size_bytes": 589553,
+        "url": "https://drive.google.com/file/d/1ec-bevavck4eqb3ApnDjI2mmmnl7d2eM/view?usp=drivesdk"
+      },
+      {
+        "canonical_parent_folder": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+        "drive_file_id": "1_Kypo6NfKejXnmr64YcdoptBpGA_p08U",
+        "entries": 33,
+        "fresh_full_byte_hash_readback_verified": true,
+        "permissions": "owner-only unchanged",
+        "purpose": "Final authorized admission/body/freeze package before transition",
+        "sha256": "bc748a00c4635663cef5efce41e3862269509c867803abd2ae8606c9d041a035",
+        "size_bytes": 159163,
+        "url": "https://drive.google.com/file/d/1_Kypo6NfKejXnmr64YcdoptBpGA_p08U/view?usp=drivesdk"
+      },
+      {
+        "canonical_parent_folder": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+        "drive_file_id": "1tpfEgZImcRVNeWEoNZrN_vrlvmn6j3k8",
+        "entries": 15,
+        "fresh_full_byte_hash_readback_verified": true,
+        "permissions": "owner-only unchanged",
+        "purpose": "Complete failed-run/log/API/admission evidence",
+        "sha256": "1441325bc3a737836d7c447fe82c4fb5e0f0b6b963a3fe926c1fc92ad8e23120",
+        "size_bytes": 46019,
+        "url": "https://drive.google.com/file/d/1tpfEgZImcRVNeWEoNZrN_vrlvmn6j3k8/view?usp=drivesdk"
+      },
+      {
+        "canonical_parent_folder": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+        "drive_file_id": "13llopZ35rNOUzo8QNxAehKuhuK6wCkvU",
+        "entries": 10,
+        "fresh_full_byte_hash_readback_verified": true,
+        "permissions": "owner-only unchanged",
+        "purpose": "Successful zero-evaluator preflight original artifact",
+        "sha256": "f7447bc2c7d8bd8c84fc940b83567d0c4f1c1ba34523310b75046916883ea971",
+        "size_bytes": 83342,
+        "url": "https://drive.google.com/file/d/13llopZ35rNOUzo8QNxAehKuhuK6wCkvU/view?usp=drivesdk"
+      },
+      {
+        "canonical_parent_folder": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+        "drive_file_id": "1k15OdWIs5PqZzDBiY3ivX740nfPrkz58",
+        "entries": 25,
+        "fresh_full_byte_hash_readback_verified": true,
+        "permissions": "owner-only unchanged",
+        "purpose": "Successful CI/preflight/review logs and API evidence",
+        "sha256": "6f599c9083fdb3f05403bc7fd4fed03abc3bbbb954299484162bf2d71233824a",
+        "size_bytes": 68186,
+        "url": "https://drive.google.com/file/d/1k15OdWIs5PqZzDBiY3ivX740nfPrkz58/view?usp=drivesdk"
+      },
+      {
+        "canonical_parent_folder": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+        "drive_file_id": "1YVVs2vbZOhOgncUJTVGHhwV0BnY9rDbj",
+        "entries": 22,
+        "fresh_full_byte_hash_readback_verified": true,
+        "permissions": "owner-only unchanged",
+        "purpose": "Reviewed draft and exact native review report bytes",
+        "sha256": "74c7ff27630a73dfc7c7152681e32f141622320d5d807444a03e87579cb45c0f",
+        "size_bytes": 95166,
+        "url": "https://drive.google.com/file/d/1YVVs2vbZOhOgncUJTVGHhwV0BnY9rDbj/view?usp=drivesdk"
+      }
+    ],
+    "status": "verified"
+  },
+  "checkpoint_acceptance_pending": [
+    "complete independent exact-final-tree checkpoint reviews",
+    "root-approved checkpoint publication",
+    "actual exact-final-head routine CI and external Codex review",
+    "guarded squash and postmerge main/tree/CI reconciliation",
+    "Issue2 checkpoint acceptance record"
+  ],
+  "checkpoint_status": "terminal_record_prepared_for_exact_tree_review",
+  "classification": null,
+  "durable_terminal_disposition_body_sha256": "4567589d1d782cd8d08f7eec14070602284369876315086483061e4058fc4bc8",
+  "durable_terminal_disposition_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5983130986",
+  "efficacy_claim": false,
+  "experiment": "Worker36 synthetic profiling diagnostic",
+  "failure_cause": {
+    "confirmed": "Initial shell step exited1 before checkout; no actual command trace or specific failing-command stderr was emitted.",
+    "leading_hypothesis": "command -v gh returned1 because the GitHub CLI was unavailable. The command would print a path on success; no such output appears. Earlier identity values agree with authenticated run/job metadata and printed step inputs.",
+    "uncertainty": "The shell uses -e without xtrace or a phase-specific error marker, so a preceding silent guard failure cannot be excluded solely from these logs. The later filesystem checks likewise were not individually observed.",
+    "unsafe_inference_avoided": "No claim that all durable directories are absent or that the complete machine has no existing claim."
+  },
+  "failure_closure": {
+    "no_cap_or_source_change_authorized_by_failure": true,
+    "no_old_GO_reuse": true,
+    "no_replacement_attempt_authorized": true,
+    "no_rerun_or_resumption": true,
+    "protocol_lines": [
+      13,
+      50,
+      54,
+      106,
+      108,
+      120,
+      142,
+      148
+    ],
+    "zero_calls_not_retry_authority": true
+  },
+  "failure_stage": "initial durable-path bootstrap before checkout/setup/authentication/measurement",
+  "final_tree_scope": {
+    "final_tree_blob_count": 159,
+    "new_archival_manifest_files": 1,
+    "remove_all_83_transient_additions": true,
+    "retain_canonical_base_files_unchanged": 158,
+    "seed_ledger_changed": false,
+    "selected_option": "A_manifest_only",
+    "source_branch_and_canonical_archive_retained": true
+  },
+  "historical_evidence_limits": "Prior failed/superseded preparation and custody attempts remain referenced in retained source/history archives. Lost unpublished history remains explicitly unavailable and is not recreated.",
+  "job_log": {
+    "representation": "Exact decoded GitHub job-log text; raw scientific attempt files were not produced by the skipped measurement step.",
+    "sha256": "050655c6647e4dff632c939a9061f19eb6cb68c2e75261e7bf8770578e953bbe",
+    "size_bytes": 5343
+  },
+  "material_non_material_conclusion": null,
+  "next_engineering_question_authorized_by_checkpoint": false,
+  "observed_execution": {
+    "candidate_evaluator_calls": 0,
+    "evidence_basis": "Positive authenticated job-step state: checkout, Python setup, authentication and measurement were skipped. No absence of machine-wide files is inferred.",
+    "games": 0,
+    "historical_imports": 0,
+    "measurement_fixture_constructions": 0,
+    "new_game_seeds_allocated_or_spent": 0,
+    "persistent_claim_creation_step_reached": false,
+    "reference_evaluator_calls": 0,
+    "whole_machine_claim_absence_verified": false
+  },
+  "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5967160389",
+  "prior_gates": {
+    "external_clean_comment": 5982689020,
+    "final_draft_handoff_sha256": "3332515453644d1ab672a9e367b6177372490b685147d1bb7596214e8cc9fd9f",
+    "interpretation": "These gates did not validate the initial measurement workflow bootstrap path; no scientific result is established.",
+    "native_attestations": [
+      5982784021,
+      5982781729
+    ],
+    "native_complete_reviews": "clean on exact175b45d3 source handoff",
+    "routine_CI": {
+      "id": 37221141243,
+      "passed": 1110,
+      "skipped": 2,
+      "status": "success"
+    },
+    "zero_evaluator_preflight": {
+      "focused_tests": 312,
+      "id": 37221141227,
+      "runtime": "CPython3.11.16",
+      "status": "success"
+    }
+  },
+  "protocol_sha256": "8eec0f7e7418fba0e58ab5aee09226cab30555338b4e21f5761509648bfaaa6b",
+  "repository": "carabinshely/bandido-alcatraz-solve",
+  "retained_source_ref": "research/worker36-recovery-r1",
+  "retained_source_ref_expected_head": "78506a6647b0163c93bda086501f4f45927abf65",
+  "root_disposition": "closed execution_blocked with zero calls per protocol142/148",
+  "schema": "worker36-terminal-execution-blocked-checkpoint-v1",
+  "scientific_status": "execution_blocked",
+  "seed_ledger": {
+    "Worker35_spent_provenance_unchanged": true,
+    "base_git_blob": "073da7492e62c4c6234c44d84acdfb061b985ad7",
+    "base_size_bytes": 21871,
+    "change_required": false,
+    "path": "experiments/seed-ledger.json"
+  },
+  "source_handoff_sha256": "175b45d3d4735388fc6d6e15e3b2b38dbbca8034da7ad9469b0a1998eb451915",
+  "source_head": "78506a6647b0163c93bda086501f4f45927abf65",
+  "source_inventory": [
+    {
+      "git_blob": "b310271b2105b71baa590973b8956ed73735d1a4",
+      "mode": "100644",
+      "path": ".github/workflows/worker36-runner-preflight.yml",
+      "sha256": "39810e273b976026ef7568bd47c1ed34c5f2156d6b2fcc1f920555cbc9d911d9",
+      "size_bytes": 3884
+    },
+    {
+      "git_blob": "018f8bb4d6071d7927b60c5be98e1cc6d09705a3",
+      "mode": "100644",
+      "path": ".github/workflows/worker36-synthetic-profile.yml",
+      "sha256": "bdf77af330c28b79053fe4325b81a8f7497c89821fefa02f4a4f31b1f7edacee",
+      "size_bytes": 16165
+    },
+    {
+      "git_blob": "03dac4d7b2cde3ef8eeb0f8ada7b175897692ed8",
+      "mode": "100644",
+      "path": "evidence-design/admission-integration-test-plan.json",
+      "sha256": "156587413a47f858d4696e7c6de6317610b85aa7bde62974154955dcf2e03d05",
+      "size_bytes": 3502
+    },
+    {
+      "git_blob": "c21a059827f62e321f967c04c715f2130cd71cff",
+      "mode": "100644",
+      "path": "evidence-design/ast-fifth-repair-test-plan.json",
+      "sha256": "e27897529cd827510f3404383fdfb0d22d018c93c442867c470fb4bf7a393fc8",
+      "size_bytes": 2399
+    },
+    {
+      "git_blob": "fa3d58ab11ecb5523cf099f5ba21f17aecf4244e",
+      "mode": "100644",
+      "path": "evidence-design/cell-fourth-repair-test-plan.json",
+      "sha256": "db3ae8af2902366eddc0cd029bc212f31ae8bc3c46c3af3a46f1641e7c51b546",
+      "size_bytes": 3080
+    },
+    {
+      "git_blob": "d398bbfaa733c03f1c39b848dbe60a7cee5effb8",
+      "mode": "100644",
+      "path": "evidence-design/cell-integration-test-plan.json",
+      "sha256": "3074d869530971ffb6fe53f2c37dd79759c4a8655abe32270a65923ebfc18a34",
+      "size_bytes": 4303
+    },
+    {
+      "git_blob": "17c621769517a3c9205ad76f2c80f75ab77d1bef",
+      "mode": "100644",
+      "path": "evidence-design/cell-third-repair-test-plan.json",
+      "sha256": "825adea0212cf9b6fda119c7d807d7554028e748d74dc5d8f8f4ae4f3869973f",
+      "size_bytes": 1834
+    },
+    {
+      "git_blob": "6afb8f13877aea83e97192c3bf2b60b70918ce6e",
+      "mode": "100644",
+      "path": "evidence-design/driver-fifth-repair-test-plan.json",
+      "sha256": "57a83eb882b08501f528005cdea0e51c9ab7906faf7577725d23cad0c146de25",
+      "size_bytes": 2757
+    },
+    {
+      "git_blob": "7e4a8c05f12158e015deee89e660857b8afdb135",
+      "mode": "100644",
+      "path": "evidence-design/driver-fourth-repair-test-plan.json",
+      "sha256": "9700d1e8a29badf23e285be07a8457aecbb63c86f5bde26c80c25137b373068a",
+      "size_bytes": 4105
+    },
+    {
+      "git_blob": "3cc9b2360bb61f926a80a51530ede24e07941c1e",
+      "mode": "100644",
+      "path": "evidence-design/driver-integration-test-plan.json",
+      "sha256": "e699540511958faf604603368ba1d23afc63b801abb508e03a53719d5f710176",
+      "size_bytes": 2175
+    },
+    {
+      "git_blob": "85d1dc2dc33798a6823b827a928e01225c81b277",
+      "mode": "100644",
+      "path": "evidence-design/driver-sixth-repair-test-plan.json",
+      "sha256": "25530b7968bc68f01455f1800cd86a7e8e6598f077165e669d3dcb5e6fc9dfbf",
+      "size_bytes": 2438
+    },
+    {
+      "git_blob": "46cd16f476f99af0a22e76543c60a1fe2361ac16",
+      "mode": "100644",
+      "path": "evidence-design/driver-third-repair-test-plan.json",
+      "sha256": "6345c69722269e802741a3e396ab22cb3a3896d4faf7e9ba22603700f6ae4924",
+      "size_bytes": 3354
+    },
+    {
+      "git_blob": "5a5158cf6ef4e94a660bf3d37d756731913e5f56",
+      "mode": "100644",
+      "path": "evidence-design/external-review-5406951565-test-plan.json",
+      "sha256": "99c962ae05535fb93f5718a5750d4070d6c08f55179e60b75f5b9dcfcfd67fe3",
+      "size_bytes": 11266
+    },
+    {
+      "git_blob": "10464f09ec4d9b1d937f24bb8c9f5ef563ca18da",
+      "mode": "100644",
+      "path": "evidence-design/failure-state-test-plan.json",
+      "sha256": "a71162ed8366aee70105d26a81bf666e4adaaffdb3273579d524e68e3a423932",
+      "size_bytes": 2662
+    },
+    {
+      "git_blob": "2985b226d34fe3dc1c04a0df9aafd02e81482a87",
+      "mode": "100644",
+      "path": "evidence-design/normal-ownership-repair-test-plan.json",
+      "sha256": "9a3ccdef641edb3e17ce0c7564b530ba8d52ae4dae6725fc87a5dc226e4920a8",
+      "size_bytes": 5421
+    },
+    {
+      "git_blob": "92badcc4d5c3d52f0dd241397f0f90c1effdae2c",
+      "mode": "100644",
+      "path": "evidence-design/recovery-r1-driver-test-plan.json",
+      "sha256": "8b08cb068bd20fad1314358b6beda5c342db8a72765c247cb8afacf2e41d5c87",
+      "size_bytes": 6344
+    },
+    {
+      "git_blob": "1e39afe8228ade9edae34c49c885bccdf0f73d88",
+      "mode": "100644",
+      "path": "evidence-design/recovery-r1-loader-integration-test-plan.json",
+      "sha256": "835d91173b564a61be5e7e8caeda1d88695c2157d6b9fc6590c34f73eb2f13d9",
+      "size_bytes": 4482
+    },
+    {
+      "git_blob": "a4d41894999d76959e97213523aa79b7bc9833fd",
+      "mode": "100644",
+      "path": "evidence-design/recovery-r1-loader-test-plan.json",
+      "sha256": "bda22711bd30ab8be001467408b4e7a99ab8a449c0bff0f96d4de82784ae2d85",
+      "size_bytes": 5047
+    },
+    {
+      "git_blob": "571f10659c984f54ae2ce4e1416b2bb0f0a27165",
+      "mode": "100644",
+      "path": "evidence-design/recovery-r1-preflight-shell-test-plan.json",
+      "sha256": "f9d14fdd5535bc176701fd7721e4805562ac0369bee9c53044ecb3d7f5f1ebf4",
+      "size_bytes": 4462
+    },
+    {
+      "git_blob": "c6310026e10d43dfd711aef9ab91a8063f0776e2",
+      "mode": "100644",
+      "path": "evidence-design/recovery-r1-runner-repair-test-plan.json",
+      "sha256": "8c52923f44569e3a5c7786d1c2a316be52bb4d345f40a771ee28fc31f53f9107",
+      "size_bytes": 3419
+    },
+    {
+      "git_blob": "ab47f68d439e27997917d5f81b31d69cd9bdbec0",
+      "mode": "100644",
+      "path": "evidence-design/recovery-r1-supervisor-test-plan.json",
+      "sha256": "bf8f709c023c568ac8158c2fef7e134d8acf8cc2394e1401a3fe24de2308ce68",
+      "size_bytes": 4970
+    },
+    {
+      "git_blob": "47a2968088d604f53c6481389a78aca1c9c56ea8",
+      "mode": "100644",
+      "path": "evidence-design/recovery-r1-test-isolation-test-plan.json",
+      "sha256": "64cff05bc3542565bf821bc11d0e056808228952ccd3bbe9cebad739672e629b",
+      "size_bytes": 1512
+    },
+    {
+      "git_blob": "28e89fff47cf79fc28a02546cc6b34c91de0f444",
+      "mode": "100644",
+      "path": "evidence-design/recovery-r1-verifier-test-plan.json",
+      "sha256": "700c2b623147b001a6163e0708c584f752e2cd6b13db85e750cc0628ba3ea4d2",
+      "size_bytes": 9760
+    },
+    {
+      "git_blob": "4cd754eb0f03445e20efd74d06c31899317a546e",
+      "mode": "100644",
+      "path": "evidence-design/runner-preflight-test-plan.json",
+      "sha256": "6d37abcc515c82c191b233d79ebf569e3e863becc66f297170600c1bc67bab83",
+      "size_bytes": 3614
+    },
+    {
+      "git_blob": "cfba88d4825f9dc467c6a317dd4ba79b084fd52d",
+      "mode": "100644",
+      "path": "evidence-design/supervisor-fifth-repair-test-plan.json",
+      "sha256": "95c7532c626d613e8d11867343068273a62962d57d2a80aba2a52b228fa0d01a",
+      "size_bytes": 2160
+    },
+    {
+      "git_blob": "91026c4ea6a9e7803fcec5044016f3eae2751f9c",
+      "mode": "100644",
+      "path": "evidence-design/supervisor-fourth-repair-test-plan.json",
+      "sha256": "3be6759a6ee986e70988eacff99d5a1bc69466e98f9c729e50817c5fe009d834",
+      "size_bytes": 3883
+    },
+    {
+      "git_blob": "769d1719031d44efb1a2c65c2035390008bf623c",
+      "mode": "100644",
+      "path": "evidence-design/supervisor-sixth-repair-test-plan.json",
+      "sha256": "99f1fb45afa2f7b83495a7954421cce2a78c7642283bc4ec988991e714eb08de",
+      "size_bytes": 2422
+    },
+    {
+      "git_blob": "b2e132807770ae93b5acd810da0295b95a0e50e1",
+      "mode": "100644",
+      "path": "evidence-design/supervisor-test-plan.json",
+      "sha256": "f96243615f549d9cc78de67eb844d6d44d57eb432047deda2dbe91576df71827",
+      "size_bytes": 4195
+    },
+    {
+      "git_blob": "6ce48999b09ec1c07fb673adaac23f29c708e363",
+      "mode": "100644",
+      "path": "evidence-design/supervisor-third-repair-test-plan.json",
+      "sha256": "92383421fc732d8c5b209008e6f2af8dc77b192e83c2e792c753418d93abc6bb",
+      "size_bytes": 4325
+    },
+    {
+      "git_blob": "f458e20d81876724c3434f2956003b35c5d0cf93",
+      "mode": "100644",
+      "path": "evidence-design/transport-test-plan.json",
+      "sha256": "3895327212b2f11cab95083c345385485230dd18c404116c164bc4fa3e90c2a1",
+      "size_bytes": 3527
+    },
+    {
+      "git_blob": "e718ab848d15040f2f5389baf1dc04c786d4f9be",
+      "mode": "100644",
+      "path": "evidence-design/verifier-integration-test-plan.json",
+      "sha256": "c346e4619aeaf5378330d367a514a374cff3c0b4d0c37fd90e4b9b5e1a2058ac",
+      "size_bytes": 3372
+    },
+    {
+      "git_blob": "2a0caf56bfdf11034c3686f5e0364f9348112fd2",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/IMPLEMENTATION.md",
+      "sha256": "662a8bdaab9a0132690beb52af723b7eb3de1107da281d737dd4a306e5fd2722",
+      "size_bytes": 50808
+    },
+    {
+      "git_blob": "cbc9694af383d4cf66f050f76653ff28b82ac052",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/PROTOCOL.md",
+      "sha256": "8eec0f7e7418fba0e58ab5aee09226cab30555338b4e21f5761509648bfaaa6b",
+      "size_bytes": 24282
+    },
+    {
+      "git_blob": "9240b4cc9e86a04ce40378bab2fff2045ea11311",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/RECOVERY-R1.md",
+      "sha256": "99e352623de34d2b658bbf7ed150ce55dc5244ec49dd2f2b333e7a90b0ea4432",
+      "size_bytes": 5324
+    },
+    {
+      "git_blob": "87c6d7d45cf6189e58702dc5dd6ab4aa69ebb191",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/external-review-repair-handoff.json",
+      "sha256": "dae401c6302c3823a3f5c2d43cc305c57448bdca09cc8ff76021d5c176daa3c6",
+      "size_bytes": 34743
+    },
+    {
+      "git_blob": "5184132be909c3cd688ba876a42fc9858fa809e9",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/external-review-transport-slice-receipt.json",
+      "sha256": "d23af025724b21a189462781f092c6870623602bb40f9bb74504c86de33a65c1",
+      "size_bytes": 2396
+    },
+    {
+      "git_blob": "b063d56c97b5033666399f78339a4a571a5a5b04",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/fault-test-manifest.json",
+      "sha256": "468e0f88331a9ab0cc5ea27d5539dbf4a106acae395c12eb4a3b080c2a2c6a08",
+      "size_bytes": 1951
+    },
+    {
+      "git_blob": "4246cdc4f8d52905e02bdfac3be6582db985c897",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/focused-external-review-repair-test-receipt.json",
+      "sha256": "11a4938f8ecfcb24a17afd6b2902360cefcc0095d2410067c2752fd54047bf7a",
+      "size_bytes": 22338
+    },
+    {
+      "git_blob": "0e4d92cd6a926e67989f02ce6082822029e6f850",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/focused-fifth-repair-test-receipt.json",
+      "sha256": "d46fb35bdbd64a119394ea18c8053d6654c1b38c880240067fba319035fbb652",
+      "size_bytes": 19928
+    },
+    {
+      "git_blob": "3e744c5be197cd6c2180a6e79cf0f5c4f92a0c3f",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/focused-fourth-repair-test-receipt.json",
+      "sha256": "efbc6b0b3c99554782da6525e0e7ea05d09f5f33b12f42ca5328ec3ac39e3c24",
+      "size_bytes": 15958
+    },
+    {
+      "git_blob": "91e3425d8edb0ccd92363577d41e28eb4f6bc5e9",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/focused-normal-ownership-repair-test-receipt.json",
+      "sha256": "d6e3b07a125ba57f4a6eeec6bd69606726eefd5129c567dbdeae335d342f06ec",
+      "size_bytes": 16412
+    },
+    {
+      "git_blob": "11f8264520605518ecfe5deae0cc9f6198c9e962",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/focused-recovery-r1-runner-repair-test-receipt.json",
+      "sha256": "aa07e2db214b32c7c1668999f3ef793261599fbe72ece721d75f9a5b04652499",
+      "size_bytes": 19293
+    },
+    {
+      "git_blob": "05d28450ef5ec1a62a9e94a1ead22c32f693ec2a",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/focused-recovery-r1-test-isolation-receipt.json",
+      "sha256": "36c944fe422418568f8e0b7ea539c7009d4bd6df26a1a717b993375fdccba59e",
+      "size_bytes": 25617
+    },
+    {
+      "git_blob": "d40e274587bc88a2a70fd8047057b10f70b56a3c",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/focused-recovery-r1-test-receipt.json",
+      "sha256": "9f13aad3b394e39896f4538be47d69f9820dc21744e787b0f677ec0b5c084929",
+      "size_bytes": 18351
+    },
+    {
+      "git_blob": "49a707b31d26326056d0d4ad1ffc71aa52d81585",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/focused-repair-test-receipt.json",
+      "sha256": "d023758ad4a05520f7c98d97aecf660a9469b4eb86518744e346c1aff5be1a36",
+      "size_bytes": 6028
+    },
+    {
+      "git_blob": "a84b650fc29be6091309e7f273b84e84943f52f5",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/focused-second-repair-test-receipt.json",
+      "sha256": "94ae67529c186ffe362870bc56a5d5994f1bcb2df1781680d925c644be1bd259",
+      "size_bytes": 12565
+    },
+    {
+      "git_blob": "daeebb2ec39dc2c584e042f23cc04df9e83fbd3d",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/focused-sixth-repair-test-receipt.json",
+      "sha256": "0e27c422d9fcfe61d215249e1ddc59620d444fd2c12d09bffa3c9141e4969265",
+      "size_bytes": 18587
+    },
+    {
+      "git_blob": "11a8c9ad116d91718a7d15fd79e327a13d43f4a0",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/focused-test-receipt.json",
+      "sha256": "a559061c8cf578bbbcd4831821f34eaa13500176b27484db1b78f064813d8373",
+      "size_bytes": 3747
+    },
+    {
+      "git_blob": "becaf1472fcb1de333fb1d28269611ab145aa6a8",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/focused-third-repair-test-receipt.json",
+      "sha256": "5fbed5df39e401ccb85e52b467208a01c5c6347b41528892199e9cd78fa03dc5",
+      "size_bytes": 14704
+    },
+    {
+      "git_blob": "52a5386b8f1d5a6d76c002bdc0b165e3fcdebcac",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/normal-ownership-repair-handoff.json",
+      "sha256": "175b45d3d4735388fc6d6e15e3b2b38dbbca8034da7ad9469b0a1998eb451915",
+      "size_bytes": 31962
+    },
+    {
+      "git_blob": "219b83b2652eff214584ec2c13b712c5dc9121b1",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/recovery-r1-batch-01-loader-receipt.json",
+      "sha256": "99567c5823ea5d4e0b92fe50baa0ec379f3576d0e87dfb93d8cf0deb08278ba4",
+      "size_bytes": 2116
+    },
+    {
+      "git_blob": "29d0d9b56a3d45981a2b58c1b5f755f83ab345e0",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/recovery-r1-batch-02-supervisor-receipt.json",
+      "sha256": "c8a2793e08338a46c0b945df2584903c3c91b065dc30b9bb8bd30caf1458ea77",
+      "size_bytes": 1659
+    },
+    {
+      "git_blob": "fa099d2b57618a1ecdec46e1d2d91cdb9f9ec5a7",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/recovery-r1-batch-03-bindings-receipt.json",
+      "sha256": "6024fc1dab4779c4e7f38f2721fce299e3b8c175dade81de3e51f9a6d3c91d27",
+      "size_bytes": 6976
+    },
+    {
+      "git_blob": "6729ed85969d0e9fc2c33015983224644f538d86",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/recovery-r1-batch-03-preflight-receipt.json",
+      "sha256": "62e3d9d6f46edc473982cd661fd57837add398b285c0e8974b6996c993b80117",
+      "size_bytes": 5579
+    },
+    {
+      "git_blob": "0b845873a0fb1754e519b678d1fd3581b3692315",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/recovery-r1-handoff.json",
+      "sha256": "6ffec2ab81efdec0bae852d8ccd1cb8e09f788541468bbdeea9b5ff64726e8e5",
+      "size_bytes": 21977
+    },
+    {
+      "git_blob": "ac677f8bf7ab8b08540f9a0aebc21434a4356876",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/recovery-r1-provenance.json",
+      "sha256": "bb597030b3b4ac4e66c3aedbaa363db7cce1aa8b984ba4ae02206a9b8885370b",
+      "size_bytes": 5778
+    },
+    {
+      "git_blob": "f1523764373f9fa51f56b1c1df8e539b19bf4acf",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/recovery-r1-runner-repair-core-attempt01.json",
+      "sha256": "1aeb3f84c0224cedf727e8d0358fd195580c6acc4f14312cbb18e35272913320",
+      "size_bytes": 1029
+    },
+    {
+      "git_blob": "566b288c3e637f61f06bd585960f11012d7e3c10",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/recovery-r1-runner-repair-core-attempt01.log",
+      "sha256": "5e00aa9438add9b948e678db304ce50864636894817d4c4eccbf0964161d6d6e",
+      "size_bytes": 4656
+    },
+    {
+      "git_blob": "8980b921ce053d4f4cb42f8e6e399009465e317f",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/recovery-r1-runner-repair-handoff.json",
+      "sha256": "2b5413322a6d528b4c46f434fb161f2c0efffea6999da5861bc49fe8419c646c",
+      "size_bytes": 32605
+    },
+    {
+      "git_blob": "444478c6d334851d54c85447ae1bf39ead6320a4",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/recovery-r1-source-inventory.json",
+      "sha256": "5a35ecca30dd1fe4a6b1ab2c04b35f9f4924407a9c2eee2818de5f96149ca6a9",
+      "size_bytes": 13147
+    },
+    {
+      "git_blob": "d23df093d11ec94e3e009bd0c97a44f919fc8a66",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/recovery-r1-test-isolation-handoff.json",
+      "sha256": "bc335a6229ac4c63beecf3ccc44d4e4d79a7fae0f0eb6daa0c54f06f52872da0",
+      "size_bytes": 31594
+    },
+    {
+      "git_blob": "426df1f0f6a25c0c460f258ade5d2040d02df619",
+      "mode": "100644",
+      "path": "experiments/synthetic-profile-overhead/source-manifest.json",
+      "sha256": "5ebb2c30c74f6d8c820b1b4ae63eebcd7ba235d94d9076310aebf10efd4c83eb",
+      "size_bytes": 15705
+    },
+    {
+      "git_blob": "8f9ec846702140076438c55e6ccaf2bd1dd4cdb7",
+      "mode": "100644",
+      "path": "scripts/run_worker36_synthetic.py",
+      "sha256": "95e80cf8086e70a0884ac73580f61b3e019f265db33a8586d880ff87daa82c65",
+      "size_bytes": 166
+    },
+    {
+      "git_blob": "a31e470af284e24abbcd78930007ba8c6cabe60a",
+      "mode": "100644",
+      "path": "scripts/worker36-loader.sh",
+      "sha256": "acdce5b62b5fc72f81bc8047afe17e574a067c2d7cc9bba776caa5cfec7440e7",
+      "size_bytes": 3627
+    },
+    {
+      "git_blob": "9b59298c68fd0d542615c8b04f51295568b875e1",
+      "mode": "100644",
+      "path": "scripts/worker36/__init__.py",
+      "sha256": "f75454b9ecffe14eaf970e601031294f103f40352e49da5355d70482edc2b913",
+      "size_bytes": 87
+    },
+    {
+      "git_blob": "f3d640b66452fa4279e4fad036f518e05bf3f3ee",
+      "mode": "100644",
+      "path": "scripts/worker36/admission.py",
+      "sha256": "84692302aabcf84b1d1515d6305e843c47c213153726cbf023192504a84bf8fd",
+      "size_bytes": 51105
+    },
+    {
+      "git_blob": "ee78a24c0ed99baed319fd46453815581ec04abf",
+      "mode": "100644",
+      "path": "scripts/worker36/cell.py",
+      "sha256": "dc2f62dca1cb4f7b0d862ce01b2c3733b3843b1983f1dc27ae414ed823422df6",
+      "size_bytes": 16946
+    },
+    {
+      "git_blob": "ea2d10d6e8c995a011e667176faa45e139382330",
+      "mode": "100644",
+      "path": "scripts/worker36/common.py",
+      "sha256": "0efdea3e367cf1f8c9a965d8dcf413ab262bba851130eaa7c7a0617eeb11ec4e",
+      "size_bytes": 31915
+    },
+    {
+      "git_blob": "6fbd099129f13d332dd7bb94a4eb1e926d72e80e",
+      "mode": "100644",
+      "path": "scripts/worker36/driver.py",
+      "sha256": "90f78f9fb220d5c4566c6de88aa482331dd4ccd79fa1756d988dc2b2e872c3eb",
+      "size_bytes": 67908
+    },
+    {
+      "git_blob": "da8c87ec0565923cd9572051df4cafa289ee9e94",
+      "mode": "100644",
+      "path": "scripts/worker36/runner_preflight.py",
+      "sha256": "e20751bb8448df5256c2709bf5935dd2784bbb1d91d679d235ee602cc0784c8d",
+      "size_bytes": 12565
+    },
+    {
+      "git_blob": "d540b52c68adcfba5f0e068a7816086a4179bcf4",
+      "mode": "100644",
+      "path": "scripts/worker36/sources.py",
+      "sha256": "14482ad4c90add0a8b81881d4f65a479ba1b37f6762370357e76e2fb3450a177",
+      "size_bytes": 10956
+    },
+    {
+      "git_blob": "ce3ec1620349b883b220fb2012dc3056a1600a70",
+      "mode": "100644",
+      "path": "scripts/worker36/supervision.py",
+      "sha256": "0d66d90cdbe1e7b94b629936c4dbc42cf4d04a2c367cca00afe5cc1eba605ea9",
+      "size_bytes": 74188
+    },
+    {
+      "git_blob": "f9e5b8a4f62703ef0df3234cda0229d7d51f2059",
+      "mode": "100644",
+      "path": "scripts/worker36/transport.py",
+      "sha256": "7146153f5153371cac760f0a3a71b2e14de6646d9aec1990a321f78dfc7a1285",
+      "size_bytes": 45647
+    },
+    {
+      "git_blob": "57c09ad957582e8bd3eeadc298bc5c7fec1db5f5",
+      "mode": "100644",
+      "path": "scripts/worker36/verify.py",
+      "sha256": "00422bb400d074f07ca4e840fbd8467cf9b49d50fadbd7e27c180257a007dc7d",
+      "size_bytes": 46249
+    },
+    {
+      "git_blob": "a6bd8eab626ac569e475efce2c4b5ce704e92b0f",
+      "mode": "100644",
+      "path": "tests/test_worker36_admission_integration.py",
+      "sha256": "8b4d505720a736e0d47753419aee0bdff44a4d00ea8fdc19fb4afe65d50b7888",
+      "size_bytes": 62242
+    },
+    {
+      "git_blob": "623667d2ddceb49eec29830fccc41021a7dccd95",
+      "mode": "100644",
+      "path": "tests/test_worker36_cell_integration.py",
+      "sha256": "90f62b6be63efa738c00953af04be73e89b8f4263aa3c53b95f497025c67c7ba",
+      "size_bytes": 38969
+    },
+    {
+      "git_blob": "bd428e2d97bc4efa8375365d84abeb0eba61df0e",
+      "mode": "100644",
+      "path": "tests/test_worker36_core.py",
+      "sha256": "0a4ab52c8d8da2acd1c3064b87c0381a9f024f450f05624ceb442cfe8622c171",
+      "size_bytes": 30198
+    },
+    {
+      "git_blob": "5bc1d531349c787a4d5c9b9d67ea6bd3347e394e",
+      "mode": "100644",
+      "path": "tests/test_worker36_driver_integration.py",
+      "sha256": "7abebb9dcc4659644612ee8fbeeb5ac4bcc054ed0cef521b61b9ef02f7fca7e0",
+      "size_bytes": 96160
+    },
+    {
+      "git_blob": "fad90fae20329560f493c57b72979bbc0749f542",
+      "mode": "100644",
+      "path": "tests/test_worker36_runner_preflight.py",
+      "sha256": "d68e5f58f84c417cce8acba08ae7cd50bf5c0fc160eb37848c22276cae1a45de",
+      "size_bytes": 38076
+    },
+    {
+      "git_blob": "39c7b35db81a127be62ea6db3b15eba6f4c69944",
+      "mode": "100644",
+      "path": "tests/test_worker36_supervision.py",
+      "sha256": "b6b951ab29a0b29408475627a0c3cf03b1169b71c5f5064b7bb4be3a51dce1f5",
+      "size_bytes": 91927
+    },
+    {
+      "git_blob": "aa1c6630ebc5388d8d75af2f32cabf9b1140696d",
+      "mode": "100644",
+      "path": "tests/test_worker36_transport.py",
+      "sha256": "fbdf8ca4e734e2b4640ba164278acff2591e4524f1466b36472b262c898a95f6",
+      "size_bytes": 33593
+    },
+    {
+      "git_blob": "215f2ba5d349f51f8bce7df3a7d219b133cbe5b4",
+      "mode": "100644",
+      "path": "tests/test_worker36_verify_integration.py",
+      "sha256": "ca42d63e38955e151f2c42b5dcf6a8eb1bec4bd5460fe1fdd6efa2fb54cc6af4",
+      "size_bytes": 75236
+    },
+    {
+      "git_blob": "c552da477744f0f0984204bb3078331ab48cfb54",
+      "mode": "100644",
+      "path": "tests/worker36_constructor_source.txt",
+      "sha256": "eae10578a56b0a94857b9d9b6132ce6d0772706e57c1f11df1573cd0112fa6cf",
+      "size_bytes": 8645
+    }
+  ],
+  "source_inventory_bytes": 1461059,
+  "source_inventory_count": 83,
+  "source_issue": 2,
+  "source_tree": "5c3800f42fc30ec51715768d0d00161685887769",
+  "unchanged_canonical_files": 158,
+  "workflow": {
+    "artifacts": [],
+    "bootstrap_exit_code": 1,
+    "completed_at": "2026-10-04T18:25:15Z",
+    "conclusion": "failure",
+    "created_at": "2026-10-04T18:25:01Z",
+    "job_id": 111500820466,
+    "run_attempt": 1,
+    "run_id": 37224355312,
+    "run_url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/37224355312",
+    "status": "completed",
+    "steps": [
+      {
+        "conclusion": "success",
+        "name": "Set up job",
+        "number": 1,
+        "status": "completed"
+      },
+      {
+        "conclusion": "failure",
+        "name": "Initialize exclusive runner-owned durable custody paths",
+        "number": 2,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Run actions/checkout@v4",
+        "number": 3,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Run actions/setup-python@v5",
+        "number": 4,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Authenticate fresh PR-body first admission and postmerge CI",
+        "number": 5,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "One admitted serial measurement allocation",
+        "number": 6,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Preserve verification result and all partial transport without retry",
+        "number": 7,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Run actions/upload-artifact@v4",
+        "number": 8,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Run actions/upload-artifact@v4",
+        "number": 9,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Run actions/upload-artifact@v4",
+        "number": 10,
+        "status": "completed"
+      },
+      {
+        "conclusion": "skipped",
+        "name": "Run actions/upload-artifact@v4",
+        "number": 11,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "name": "Complete job",
+        "number": 12,
+        "status": "completed"
+      }
+    ]
+  }
+}
