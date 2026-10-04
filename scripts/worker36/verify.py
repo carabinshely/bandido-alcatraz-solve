@@ -42,7 +42,7 @@ PRIMARY_MODULES = {'worker35_resources', 'run_quota_reserve_closure_development'
                    'benchmark_worker35_synthetic', 'bandido_alcatraz.quota_reserve_closure',
                    'bandido_alcatraz.quota_reserve_closure_reference', 'bandido_alcatraz.worker32.evidence'}
 CANONICAL_FOLDER = '1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd'
-FOCUSED_SOURCE_RECEIPT = 'experiments/synthetic-profile-overhead/focused-external-review-repair-test-receipt.json'
+FOCUSED_SOURCE_RECEIPT = 'experiments/synthetic-profile-overhead/focused-normal-ownership-repair-test-receipt.json'
 
 
 def _number(value, maximum=None, *, positive=False):

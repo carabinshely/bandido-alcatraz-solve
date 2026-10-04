@@ -1,0 +1,79 @@
+{
+  "combined_counter_note": "The existing driver integrated boundary invokes one additional mocked Popen, so combined STUB_MOCKED_PROCESS_STARTS is expected21. Existing literal methods and other process counts remain unchanged.",
+  "current_receipt": "focused-normal-ownership-repair-test-receipt.json",
+  "execution_boundary": "All16 new variants use fixed literal process metadata, mocked pidfd/open/send/close/scan/wait/clock calls, and no new OS child or OS-reuse probe. Complete fixed suite retains its45 established tiny generic children. Production pre-spawn pidfd capability checking may be exercised only within that established allocation or later authenticated runner preflight; no standalone native OS probe.",
+  "expected_standalone_supervisor_counters": {
+    "STUB_MOCKED_PROCESS_STARTS": 20,
+    "STUB_PROCESS_STARTS": 45,
+    "STUB_SUPERVISOR_INVOCATIONS": 79
+  },
+  "finding": "Normal root was reaped before identity capture; numeric PID/group/session ownership and unconditional killpg could select a reused unrelated identity. Both complete reviews found this same P2 and no other P0-P3.",
+  "finite_cases": [
+    {
+      "case": "Capture original PID/start_ticks before wait4 for running and already-zombie roots; unavailable initial proof cannot reap or replace the original identity.",
+      "fixed_variants": 3,
+      "id": "S46"
+    },
+    {
+      "case": "Exclude reaped-root PID/group/session replacements, verified baseline identities and a replacement parent's child; preserve ownership of an escaped descendant with its original tracked identity.",
+      "fixed_variants": 1,
+      "id": "S47"
+    },
+    {
+      "case": "Admit newly observed descendants only through a currently matching parent identity; replacement between scan and validation cannot confer ownership.",
+      "fixed_variants": 2,
+      "id": "S48"
+    },
+    {
+      "case": "Fixed pidfd races: replacement before acquisition; replacement after acquisition before recheck; disappearance/reuse after recheck before send. No replacement is signaled and each acquired FD receives its close attempt.",
+      "fixed_variants": 3,
+      "id": "S49"
+    },
+    {
+      "case": "Normal inventory failure and emergency inventory failure target only retained original root/descendant identities, excluding replacement PIDs, preserving typed failures and original cleanup cutoff, with no killpg or numeric kill.",
+      "fixed_variants": 2,
+      "id": "S50"
+    },
+    {
+      "case": "One literal mocked run_child with normal constructor completion then unavailable root identity leaves ownership/cleanup/accounting unconfirmed, retains the first failure and preservation deadlines, and performs mandatory restoration without guessed signaling.",
+      "fixed_variants": 1,
+      "id": "S51"
+    },
+    {
+      "case": "Fixed missing pidfd_open, missing pidfd_send_signal, unsupported kernel and typed close failure cases fail closed without numeric fallback or a false FD-close confirmation.",
+      "fixed_variants": 4,
+      "id": "S52"
+    }
+  ],
+  "finite_totals": {
+    "complete_eight_module_methods_expected": 312,
+    "fixed_variants": 16,
+    "new_actual_OS_children": 0,
+    "new_mocked_run_child_invocations": 1,
+    "new_research_or_game_calls": 0,
+    "new_test_methods": 7,
+    "supervisor_test_methods": 52
+  },
+  "implementation_scope": [
+    "Retain original normal root PID/start_ticks before the first wait4 and through cleanup.",
+    "Exclude pre-spawn identities and replacement identities; stable observed lineage only.",
+    "Replace numeric cleanup signaling and unproven process-group signals with minimal Linux standard-library pidfd targeting, acquired before identity revalidation and closed in finally.",
+    "Fail closed before spawn if required APIs/kernel support are unavailable; no numeric fallback.",
+    "Share narrow identity-safe targeting across normal, partial-spawn and emergency paths without introducing a generic process manager.",
+    "Preserve all typed primary failures, mandatory teardown, accounting uncertainty and original failure/preservation/cleanup deadlines."
+  ],
+  "no_external_activation": true,
+  "predecessor_commit": "2ed2b3026f12f81e2801de30e757b4c63fabfb9f",
+  "predecessor_handoff_sha256": "dae401c6302c3823a3f5c2d43cc305c57448bdca09cc8ff76021d5c176daa3c6",
+  "schema": "worker36-normal-ownership-repair-test-plan-v1",
+  "status": "prospectively_fixed_before_execution",
+  "unchanged_limits": {
+    "address_space_bytes": 536870912,
+    "call_wall_CPU_seconds": 360,
+    "cell_wall_CPU_seconds": 720,
+    "cleanup_seconds": 5,
+    "measurement_wall_CPU_seconds": 1800,
+    "preservation_wall_seconds": 600
+  },
+  "unchanged_science": "Protocol, raw historical sources, constructors, fixtures, deck/RNG/order, evaluators, ratio rule and resource allocations stay unchanged. No historical module import, actual evaluator or game is run in native preparation."
+}
