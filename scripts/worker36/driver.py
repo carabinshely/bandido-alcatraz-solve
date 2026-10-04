@@ -19,7 +19,7 @@ from .sources import git, read_manifest, restore, verify_files
 
 ROOT = Path(__file__).resolve().parents[2]
 EXPERIMENT = ROOT / 'experiments/synthetic-profile-overhead'
-TEST_RECEIPT = EXPERIMENT / 'focused-recovery-r1-test-receipt.json'
+TEST_RECEIPT = EXPERIMENT / 'focused-recovery-r1-test-isolation-receipt.json'
 EXIT_CODES = {'integrity_invalid': 65, 'execution_incomplete': 74,
               'resource_incomplete': 75, 'execution_blocked': 78}
 SUPERVISION_LIMITS = {'wall_seconds': 720, 'cpu_seconds': 720, 'address_space_bytes': 512 * 1024 ** 2,
@@ -51,7 +51,9 @@ def checked_source_paths(repo):
         'evidence-design/supervisor-sixth-repair-test-plan.json', 'evidence-design/driver-sixth-repair-test-plan.json',
         'evidence-design/recovery-r1-loader-test-plan.json', 'evidence-design/recovery-r1-supervisor-test-plan.json',
         'evidence-design/recovery-r1-preflight-shell-test-plan.json', 'evidence-design/recovery-r1-verifier-test-plan.json',
-        'evidence-design/recovery-r1-loader-integration-test-plan.json', 'evidence-design/recovery-r1-driver-test-plan.json'}
+        'evidence-design/recovery-r1-loader-integration-test-plan.json', 'evidence-design/recovery-r1-driver-test-plan.json',
+        'evidence-design/recovery-r1-runner-repair-test-plan.json',
+        'evidence-design/recovery-r1-test-isolation-test-plan.json'}
 
 
 def verify_test_receipt(repo, expected_hash):

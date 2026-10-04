@@ -13,6 +13,7 @@ import math
 import os
 from pathlib import Path, PurePosixPath
 import re
+import resource
 import stat
 import sys
 
@@ -36,6 +37,10 @@ DIGEST = 'WORKER36_ADMISSION_SHA256'
 MAX_BODY_BYTES = 65536
 MAX_GO_BYTES = 60000
 MAX_INPUT_BYTES = 2 * 1024 ** 2
+METADATA_MEMORY = (512 * 1024 ** 2,) * 2
+SHELL_LOADER_FIELDS = ('WORKER36_PYTHON', 'WORKER36_LOADER_DIRECTORY',
+                       'WORKER36_LOADER_LIBRARY', 'WORKER36_LOADER_SHA256',
+                       'WORKER36_LOADER_SIZE_BYTES')
 
 
 class AdmissionError(ValueError):
@@ -226,6 +231,7 @@ def read_input(path):
 
 
 def write_exclusive(path, raw):
+    require(type(raw) is bytes and len(raw) <= MAX_INPUT_BYTES, 'bounded metadata output required')
     path = Path(path)
     require(path.parent.is_dir() and not path.parent.is_symlink(), 'durable auth output parent required')
     require(stat.S_IMODE(path.parent.stat().st_mode) & 0o022 == 0 and
@@ -280,6 +286,98 @@ def verified_context(context, provenance, workflow_run, workflow_attempt):
             'durable_root': str(durable)}
 
 
+def request_context_from_environment(environ):
+    """Serialize only the existing fixed request schema, never ambient secrets."""
+    def required(name):
+        value = environ.get(name)
+        require(type(value) is str and 0 < len(value) <= 4096 and
+                all(ord(char) >= 32 and ord(char) != 127 for char in value),
+                'missing or invalid metadata environment: ' + name)
+        return value
+    for name, expected in {'GITHUB_REPOSITORY': REPOSITORY, 'GITHUB_EVENT_NAME': 'pull_request',
+                           'GITHUB_ACTOR': OWNER, 'GITHUB_RUN_ATTEMPT': '1',
+                           'GITHUB_SERVER_URL': 'https://github.com',
+                           'GITHUB_API_URL': 'https://api.github.com',
+                           'RUNNER_NAME': 'bandido-alcatraz-ci'}.items():
+        require(required(name) == expected, 'wrong metadata environment: ' + name)
+    run, number = required('GITHUB_RUN_ID'), required('PR_NUMBER')
+    require(re.fullmatch('[1-9][0-9]{0,19}', run) is not None and
+            re.fullmatch('[1-9][0-9]{0,19}', number) is not None, 'invalid run or PR identity')
+    paths = {key: required(env) for key, env in (
+        ('runner_tool_cache', 'RUNNER_TOOL_CACHE'), ('checkout_path', 'GITHUB_WORKSPACE'),
+        ('runner_temp', 'RUNNER_TEMP'), ('durable_root', 'DURABLE'), ('attempt_path', 'ATTEMPT'))}
+    require(required('AUTH') == paths['durable_root'] + '/admission-inputs', 'wrong retained metadata directory')
+    context = {'schema': 'worker36-github-request-context-v1', 'repository': REPOSITORY,
+        'event_name': 'pull_request', 'workflow_run': run, 'workflow_attempt': '1',
+        'server_url': 'https://github.com', 'api_url': 'https://api.github.com',
+        'authentication': 'github-repository-read-token',
+        'pull_request_request': {'method': 'GET', 'url': API + '/pulls/' + number},
+        'postmerge_ci_request': {'method': 'GET', 'url': API + '/actions/runs/' + str(CI_RUN)},
+        'runner_name': 'bandido-alcatraz-ci', 'actor': OWNER,
+        'run_url': WEB + '/actions/runs/' + run, 'attempt_id': 'worker36-' + run + '-1', **paths}
+    verified_context(context, {'pull_request_number': int(number)}, run, '1')
+    return context
+
+
+def create_request_context(args):
+    validate_interpreter()
+    # Preserve the original shell realpath semantics for these existing paths.
+    environ = dict(os.environ)
+    for name in ('RUNNER_TOOL_CACHE', 'GITHUB_WORKSPACE', 'RUNNER_TEMP'):
+        require(type(environ.get(name)) is str and environ[name].startswith('/'),
+                'absolute metadata source path required: ' + name)
+        environ[name] = str(Path(environ[name]).resolve(strict=True))
+    context = request_context_from_environment(environ)
+    expected = Path(context['durable_root']) / 'admission-inputs' / 'request-context.json'
+    require(Path(args.destination).absolute() == expected, 'exact retained request-context output required')
+    write_exclusive(args.destination, canonical(context))
+    return 0
+
+
+def authentication_handoff(raw, provenance, observed_loader, *, expected_head, expected_tree,
+                           admission_sha256, shell_loader):
+    """Validate the former shell metadata checks before exporting fixed fields."""
+    require(type(raw) is bytes and len(raw) <= MAX_GO_BYTES and type(provenance) is dict,
+            'bounded authenticated handoff inputs required')
+    go = strict_json(raw)
+    require(type(go) is dict and type(expected_head) is str and type(expected_tree) is str and
+            re.fullmatch('[a-f0-9]{40}', expected_head) is not None and
+            re.fullmatch('[a-f0-9]{40}', expected_tree) is not None, 'exact handoff head/tree required')
+    require(go.get('head') == provenance.get('head') == expected_head, 'authenticated handoff head mismatch')
+    require(go.get('tree') == provenance.get('tree') == expected_tree, 'authenticated handoff tree mismatch')
+    require(type(admission_sha256) is str and re.fullmatch('[a-f0-9]{64}', admission_sha256) is not None and
+            sha(raw) == provenance.get('admission_sha256') == admission_sha256,
+            'authenticated handoff admission digest mismatch')
+    pin = admitted_loader_pin(go.get('loader_pin'))
+    try:
+        require(loader_pin(observed_loader) == pin, 'authenticated handoff mapped loader mismatch')
+    except LoaderIntegrityError as error:
+        raise AdmissionError('invalid handoff loader identity: ' + str(error)) from error
+    require(type(shell_loader) is dict and set(shell_loader) == set(SHELL_LOADER_FIELDS),
+            'exact shell loader metadata required')
+    require(shell_loader['WORKER36_PYTHON'] == observed_loader['executable_path'] and
+            shell_loader['WORKER36_LOADER_DIRECTORY'] == observed_loader['library_directory'] and
+            shell_loader['WORKER36_LOADER_LIBRARY'] == observed_loader['library_path'],
+            'authenticated handoff loader path mismatch')
+    require(shell_loader['WORKER36_LOADER_SHA256'] == pin['library_sha256'],
+            'authenticated handoff library digest mismatch')
+    require(type(shell_loader['WORKER36_LOADER_SIZE_BYTES']) is str and
+            re.fullmatch('[1-9][0-9]{0,14}', shell_loader['WORKER36_LOADER_SIZE_BYTES']) is not None and
+            shell_loader['WORKER36_LOADER_SIZE_BYTES'] == str(pin['library_size_bytes']),
+            'authenticated handoff library size mismatch')
+    values = {'ADMISSION_SHA256': admission_sha256,
+        'ADMISSION_PROVENANCE_SHA256': sha(canonical(provenance)), 'EXPECTED_TREE': expected_tree,
+        'WORKER36_PRESERVE_EXECUTABLE': observed_loader['executable_path'],
+        'WORKER36_PRESERVE_LIBRARY_DIRECTORY': observed_loader['library_directory'],
+        'WORKER36_PRESERVE_LIBRARY_SHA256': pin['library_sha256'],
+        'WORKER36_PRESERVE_LIBRARY_SIZE_BYTES': str(pin['library_size_bytes'])}
+    for value in values.values():
+        require(type(value) is str and 0 < len(value) <= 4096 and
+                all(ord(char) >= 32 and ord(char) != 127 for char in value),
+                'invalid fixed-format workflow environment value')
+    return ''.join(name + '=' + value + '\n' for name, value in values.items()).encode('utf-8')
+
+
 def verify_provenance(provenance_path, admission_path, expected_admission_sha256):
     """Read-only retained-input reconciliation; caller pins provenance raw SHA.
 
@@ -311,6 +409,8 @@ def authenticate(args):
     raw_inputs, values = {}, {}
     parent = Path(args.provenance).parent.resolve()
     require(Path(args.destination).parent.resolve() == parent, 'same retained auth directory required')
+    require(Path(args.handoff).absolute() == parent / 'authenticated-handoff.env',
+            'exact retained authentication handoff location required')
     for name, path in inputs.items():
         require(Path(path).name == name and Path(path).parent.resolve() == parent,
                 'exact retained auth input location required')
@@ -333,21 +433,36 @@ def authenticate(args):
             os.environ.get('GITHUB_ACTOR') == OWNER and
             os.environ.get('RUNNER_NAME') == 'bandido-alcatraz-ci', 'runner auth context mismatch')
     provenance['admission_input_hashes'] = {name: sha(data) for name, data in raw_inputs.items()}
+    handoff = authentication_handoff(raw, provenance, observed_loader,
+        expected_head=args.expected_head, expected_tree=args.expected_tree, admission_sha256=sha(raw),
+        shell_loader={name: os.environ.get(name) for name in SHELL_LOADER_FIELDS})
     # A partial write/failure remains retained; the workflow does not measure
     # unless both exclusive outputs and this command complete successfully.
     write_exclusive(args.destination, raw)
     write_exclusive(args.provenance, canonical(provenance))
+    write_exclusive(args.handoff, handoff)
     return 0
 
 
 def main(argv=None):
+    inherited = resource.getrlimit(resource.RLIMIT_AS)
+    require(inherited in ((resource.RLIM_INFINITY,) * 2, METADATA_MEMORY),
+            'unexpected metadata address-space limit')
+    if inherited != METADATA_MEMORY:
+        resource.setrlimit(resource.RLIMIT_AS, METADATA_MEMORY)
+    require(resource.getrlimit(resource.RLIMIT_AS) == METADATA_MEMORY, 'exact512MiB metadata memory cap')
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest='command', required=True)
+    context_command = commands.add_parser('request-context')
+    context_command.add_argument('--destination', required=True)
     command = commands.add_parser('authenticate')
     for name in ('event', 'pull-request', 'ci', 'request-context', 'destination', 'provenance',
-                 'workflow-run', 'workflow-attempt'):
+                 'workflow-run', 'workflow-attempt', 'expected-head', 'expected-tree', 'handoff'):
         command.add_argument('--' + name, required=True)
-    return authenticate(parser.parse_args(argv))
+    args = parser.parse_args(argv)
+    if args.command == 'request-context':
+        return create_request_context(args)
+    return authenticate(args)
 
 
 if __name__ == '__main__':

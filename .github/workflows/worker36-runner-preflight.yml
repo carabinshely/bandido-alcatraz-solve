@@ -58,11 +58,7 @@ jobs:
           fi
           printf 'executable=%s\nlibrary=%s\nlibrary_sha256=%s\nlibrary_size_bytes=%s\n' \
             "$WORKER36_PYTHON" "$WORKER36_LOADER_LIBRARY" "$WORKER36_LOADER_SHA256" "$WORKER36_LOADER_SIZE_BYTES" >> "$output/launcher.txt"
-          jq -n --arg executable "$WORKER36_PYTHON" --arg directory "$WORKER36_LOADER_DIRECTORY" \
-            --arg library "$WORKER36_LOADER_LIBRARY" --arg sha256 "$WORKER36_LOADER_SHA256" \
-            --argjson bytes "$WORKER36_LOADER_SIZE_BYTES" \
-            '{executable_path:$executable,library_directory:$directory,library_path:$library,
-              library_sha256:$sha256,library_size_bytes:$bytes}' > "$output/shell-loader.json"
+          # The capped pinned parent records validated shell identity as JSON.
           test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
           tree=$(git rev-parse 'HEAD^{tree}')
           # Setup supplies exactly the verified corresponding library directory.

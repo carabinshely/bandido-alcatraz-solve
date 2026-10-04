@@ -206,6 +206,8 @@ def preflight(folder, expected_head, expected_tree, report):
     report['parent'] = runtime_probe()
     report['loader_pin'] = c.loader_pin(report['parent']['runtime']['loader'])
     write_json(Path(folder) / 'parent-runtime.json', report['parent'])
+    # runtime_probe has validated the shell identity and installed the exact cap.
+    write_json(Path(folder) / 'shell-loader.json', report['parent']['shell_loader'])
     report['fresh_child'] = spawn_probe(folder, report['parent'])
     before, names = static_check(ROOT, expected_head, expected_tree)
     report['checked_file_sha256'] = before

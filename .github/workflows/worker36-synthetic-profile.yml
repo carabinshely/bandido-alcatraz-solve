@@ -53,7 +53,6 @@ jobs:
           [[ "$PR_NUMBER" =~ ^[1-9][0-9]*$ ]]
           [[ "$EXPECTED_HEAD_INPUT" =~ ^[a-f0-9]{40}$ ]]
           command -v gh
-          command -v jq
           test -d "$RUNNER_TOOL_CACHE"
           test ! -L "$RUNNER_TOOL_CACHE"
           cache=$(realpath -e -- "$RUNNER_TOOL_CACHE")
@@ -78,17 +77,6 @@ jobs:
           test ! -e "$attempt" && test ! -e "$transport"
           set -o noclobber
           cat -- "$GITHUB_EVENT_PATH" > "$auth/event.json"
-          jq -n --arg cache "$cache" --arg workspace "$workspace" --arg temporary "$temporary" \
-            --arg durable "$durable" --arg attempt "$attempt" --arg run "$GITHUB_RUN_ID" --arg number "$PR_NUMBER" \
-            '{schema:"worker36-github-request-context-v1",repository:"carabinshely/bandido-alcatraz-solve",
-              event_name:"pull_request",workflow_run:$run,workflow_attempt:"1",server_url:"https://github.com",
-              api_url:"https://api.github.com",authentication:"github-repository-read-token",
-              pull_request_request:{method:"GET",url:("https://api.github.com/repos/carabinshely/bandido-alcatraz-solve/pulls/"+$number)},
-              postmerge_ci_request:{method:"GET",url:"https://api.github.com/repos/carabinshely/bandido-alcatraz-solve/actions/runs/37108669492"},
-              runner_name:"bandido-alcatraz-ci",actor:"carabinshely",
-              run_url:("https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/"+$run),
-              attempt_id:("worker36-"+$run+"-1"),runner_tool_cache:$cache,checkout_path:$workspace,
-              runner_temp:$temporary,durable_root:$durable,attempt_path:$attempt}' > "$auth/request-context.json"
           sync -f "$auth"
           {
             printf 'DURABLE=%s\nAUTH=%s\nATTEMPT=%s\nTRANSPORT=%s\n' "$durable" "$auth" "$attempt" "$transport"
@@ -112,33 +100,26 @@ jobs:
           umask 077
           source "$GITHUB_WORKSPACE/scripts/worker36-loader.sh"
           worker36_loader_setup
+          "$WORKER36_PYTHON" -B -s scripts/worker36/admission.py request-context \
+            --destination "$AUTH/request-context.json"
           set -o noclobber
           gh api --hostname github.com --method GET -H 'Accept: application/vnd.github+json' \
             "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > "$AUTH/pull-request.json"
           gh api --hostname github.com --method GET -H 'Accept: application/vnd.github+json' \
             "repos/$GITHUB_REPOSITORY/actions/runs/37108669492" > "$AUTH/postmerge-ci.json"
           sync -f "$AUTH"
+          tree=$(git rev-parse 'HEAD^{tree}')
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
           "$WORKER36_PYTHON" -B -s scripts/worker36/admission.py authenticate \
             --event "$AUTH/event.json" --pull-request "$AUTH/pull-request.json" \
             --ci "$AUTH/postmerge-ci.json" --request-context "$AUTH/request-context.json" \
             --destination "$AUTH/admission.json" --provenance "$AUTH/provenance.json" \
-            --workflow-run "$GITHUB_RUN_ID" --workflow-attempt "$GITHUB_RUN_ATTEMPT"
-          digest=$(sha256sum "$AUTH/admission.json" | cut -d ' ' -f 1)
-          provenance_digest=$(sha256sum "$AUTH/provenance.json" | cut -d ' ' -f 1)
-          tree=$(git rev-parse 'HEAD^{tree}')
-          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
-          test "$(jq -r .head "$AUTH/provenance.json")" = "$EXPECTED_HEAD"
-          test "$(jq -r .tree "$AUTH/provenance.json")" = "$tree"
-          test "$(jq -r .admission_sha256 "$AUTH/provenance.json")" = "$digest"
-          printf 'ADMISSION_SHA256=%s\nADMISSION_PROVENANCE_SHA256=%s\nEXPECTED_TREE=%s\n' "$digest" "$provenance_digest" "$tree" >> "$GITHUB_ENV"
-          # These authenticated values may bootstrap preservation without hashing
-          # or JSON parsing outside its already established original deadline.
-          verified_library_sha256=$(jq -er '.loader_pin.library_sha256' "$AUTH/admission.json")
-          verified_library_size_bytes=$(jq -er '.loader_pin.library_size_bytes' "$AUTH/admission.json")
-          test "$WORKER36_LOADER_SHA256" = "$verified_library_sha256"
-          test "$WORKER36_LOADER_SIZE_BYTES" = "$verified_library_size_bytes"
-          printf 'WORKER36_PRESERVE_EXECUTABLE=%s\nWORKER36_PRESERVE_LIBRARY_DIRECTORY=%s\nWORKER36_PRESERVE_LIBRARY_SHA256=%s\nWORKER36_PRESERVE_LIBRARY_SIZE_BYTES=%s\n' \
-            "$WORKER36_PYTHON" "$WORKER36_LOADER_DIRECTORY" "$verified_library_sha256" "$verified_library_size_bytes" >> "$GITHUB_ENV"
+            --workflow-run "$GITHUB_RUN_ID" --workflow-attempt "$GITHUB_RUN_ATTEMPT" \
+            --expected-head "$EXPECTED_HEAD" --expected-tree "$tree" \
+            --handoff "$AUTH/authenticated-handoff.env"
+          # Authentication validates head/tree, raw digests and actual/shell
+          # loader identities before writing this exclusive fixed-field handoff.
+          cat -- "$AUTH/authenticated-handoff.env" >> "$GITHUB_ENV"
       - name: One admitted serial measurement allocation
         id: measurement
         shell: bash
@@ -148,9 +129,7 @@ jobs:
             [[ -z "$variable" ]] || unset "$variable"
           done
           source "$GITHUB_WORKSPACE/scripts/worker36-loader.sh"
-          expected_library_sha256=$(jq -er '.loader_pin.library_sha256' "$AUTH/admission.json")
-          expected_library_size_bytes=$(jq -er '.loader_pin.library_size_bytes' "$AUTH/admission.json")
-          worker36_loader_setup "$expected_library_sha256" "$expected_library_size_bytes"
+          worker36_loader_setup "$WORKER36_PRESERVE_LIBRARY_SHA256" "$WORKER36_PRESERVE_LIBRARY_SIZE_BYTES"
           "$WORKER36_PYTHON" -B -s "$GITHUB_WORKSPACE/scripts/run_worker36_synthetic.py" measure \
             --attempt "$ATTEMPT" --admission "$AUTH/admission.json" \
             --admission-sha256 "$ADMISSION_SHA256" --admission-provenance "$AUTH/provenance.json" \

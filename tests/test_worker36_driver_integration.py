@@ -260,7 +260,7 @@ class DriverIntegration(unittest.TestCase):
         self.assertEqual((self.root/'transport/attempt.zip.partial').read_bytes(),b'fixed partial bytes')
         recovery=c.strict_json((self.root/'recovery.json').read_bytes());self.assertTrue(recovery['no_cleanup']);self.assertIn('retained_inventory',recovery)
     def test_D11_actual_test_receipt_and_checked_bytes(self):
-        repo=self.root/'repo';repo.mkdir();path=repo/'experiments/synthetic-profile-overhead/focused-recovery-r1-test-receipt.json';path.parent.mkdir(parents=True)
+        repo=self.root/'repo';repo.mkdir();path=repo/d.TEST_RECEIPT.relative_to(d.ROOT);path.parent.mkdir(parents=True)
         source=repo/'literal.py';source.write_bytes(b'# fixed source stub\n')
         record={'success':True,'failures':0,'errors':0,'candidate_evaluator_calls':0,'reference_evaluator_calls':0,'games':0,'measurement_fixture_constructions':0,'historical_source_imports':0,'checked_file_sha256':{'literal.py':c.sha(source.read_bytes())}}
         path.write_bytes(c.canonical(record));pin=c.sha(path.read_bytes())

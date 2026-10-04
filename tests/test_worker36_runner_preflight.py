@@ -44,7 +44,8 @@ RUNTIME = {'implementation': 'CPython', 'version': '3.11.16',
 
 
 def parent_proof():
-    return {'runtime': copy.deepcopy(RUNTIME), 'capped_limits': {'RLIMIT_AS': list(p.MEMORY)}}
+    return {'runtime': copy.deepcopy(RUNTIME), 'capped_limits': {'RLIMIT_AS': list(p.MEMORY)},
+            'shell_loader': {key: LOADER[key] for key in p.SHELL_LOADER_FIELDS.values()}}
 
 
 def child_proof():
@@ -322,16 +323,19 @@ class RunnerPreflightTests(unittest.TestCase):
         source = 'source "$GITHUB_WORKSPACE/scripts/worker36-loader.sh"'
         self.assertEqual(preflight.count(source), 1)
         self.assertEqual(diagnostic.count(source), 2)
-        self.assertIn('worker36_loader_setup "$expected_library_sha256" "$expected_library_size_bytes"', diagnostic)
+        self.assertIn('worker36_loader_setup "$WORKER36_PRESERVE_LIBRARY_SHA256" "$WORKER36_PRESERVE_LIBRARY_SIZE_BYTES"', diagnostic)
+        self.assertIn('"$WORKER36_PYTHON" -B -s scripts/worker36/admission.py request-context', diagnostic)
         self.assertIn('"$WORKER36_PYTHON" -B -s scripts/worker36/admission.py authenticate', diagnostic)
+        self.assertIn('--expected-head "$EXPECTED_HEAD" --expected-tree "$tree"', diagnostic)
+        self.assertIn('--handoff "$AUTH/authenticated-handoff.env"', diagnostic)
         self.assertIn('"$WORKER36_PYTHON" -B -s "$GITHUB_WORKSPACE/scripts/run_worker36_synthetic.py" measure', diagnostic)
         self.assertIn('"$WORKER36_PRESERVE_EXECUTABLE" -B -s "$GITHUB_WORKSPACE/scripts/run_worker36_synthetic.py" preserve', diagnostic)
-        self.assertIn('> "$output/shell-loader.json"', preflight)
+        self.assertNotRegex(preflight, r'(?m)^\s*jq(?:\s|$)')
         self.assertIn('types: [edited]', diagnostic)
         self.assertNotIn('workflow_dispatch:', diagnostic)
         for name in ('WORKER36_PRESERVE_EXECUTABLE', 'WORKER36_PRESERVE_LIBRARY_DIRECTORY',
                      'WORKER36_PRESERVE_LIBRARY_SHA256', 'WORKER36_PRESERVE_LIBRARY_SIZE_BYTES'):
-            self.assertIn(name + '=%s', diagnostic)
+            self.assertIn(name, diagnostic)
 
     def test_L04_shell_and_plan_in_checked_inventory(self):
         paths = p.checked_paths(ROOT)
@@ -503,6 +507,72 @@ class RunnerPreflightTests(unittest.TestCase):
         self.assertEqual(outcome, {'original': 'unchanged'})
         self.assertTrue((folder / 'entry').exists())
         self.assertEqual((folder / 'preservation-shell-outcome.json').read_bytes(), b'{"original":"unchanged"}\n')
+
+
+
+    def test_P05_validated_shell_loader_record_precedes_child(self):
+        expected = {key: LOADER[key] for key in p.SHELL_LOADER_FIELDS.values()}
+        result = {'success': True, 'tests_run': 1, 'failures': 0, 'errors': 0, 'skipped': 0}
+        def observe_child(folder, parent):
+            path = Path(folder) / 'shell-loader.json'
+            self.assertTrue(path.exists(), 'validated metadata must be written before fresh child')
+            self.assertEqual(json.loads(path.read_bytes()), expected)
+            self.assertEqual(parent['runtime']['address_space'], list(p.MEMORY))
+            return child_proof()
+        with self.runtime_mocks((-1, -1)), \
+                patch.object(p, 'spawn_probe', side_effect=observe_child) as child, \
+                patch.object(p, 'static_check', return_value=({'literal.py': 'a' * 64}, set())), \
+                patch.object(p.c, 'file_info', return_value={'sha256': 'c' * 64, 'size_bytes': 1}), \
+                patch.object(p, 'run_focused_tests', return_value=result), \
+                patch.object(p, 'snapshot', return_value={'literal.py': 'a' * 64}):
+            self.getlimit.side_effect = [(-1, -1), p.MEMORY]
+            record = dict(p.ZERO)
+            p.preflight(self.root, 'a' * 40, 'b' * 40, record)
+            child.assert_called_once()
+        for index, (name, value) in enumerate((('WORKER36_LOADER_SHA256', 'not-a-hash'),
+                ('WORKER36_LOADER_SIZE_BYTES', '12.5'), ('WORKER36_LOADER_LIBRARY', '/mismatched/library'))):
+            folder = self.root / str(index); folder.mkdir()
+            with self.runtime_mocks((-1, -1)), patch.dict(os.environ, {name: value}), \
+                    patch.object(p, 'spawn_probe') as child, patch.object(p, 'run_focused_tests') as tests:
+                self.assertEqual(p.main(['--report', str(folder / 'report.json'), '--expected-head', 'a' * 40,
+                                        '--expected-tree', 'b' * 40]), 1)
+                child.assert_not_called(); tests.assert_not_called()
+                self.assertFalse((folder / 'shell-loader.json').exists())
+                self.assertFalse(json.loads((folder / 'report.json').read_bytes())['success'])
+
+    def test_P08_preflight_workflow_has_no_jq_dependency(self):
+        workflow = (ROOT / '.github/workflows/worker36-runner-preflight.yml').read_text()
+        for name in ('worker36-runner-preflight.yml', 'worker36-synthetic-profile.yml'):
+            text = (ROOT / '.github/workflows' / name).read_text()
+            commands = '\n'.join(line for line in text.splitlines() if not line.lstrip().startswith('#'))
+            self.assertNotRegex(commands, r'\bjq\b')
+        self.assertLess(workflow.index('worker36_loader_setup'),
+                        workflow.index('"$WORKER36_PYTHON" -B -s scripts/worker36/runner_preflight.py'))
+        self.assertNotIn('> "$output/shell-loader.json"', workflow)
+        self.assertIn('> "$output/parent.stdout" 2> "$output/parent.stderr"', workflow)
+        self.assertIn('timeout --signal=TERM --kill-after=5s 600s', workflow)
+
+    def test_P10_preservation_bootstrap_matches_reviewed_bytes(self):
+        workflow = (ROOT / '.github/workflows/worker36-synthetic-profile.yml').read_text()
+        start = workflow.index('      - name: Preserve verification result and all partial transport without retry')
+        end = workflow.index('      - uses: actions/upload-artifact@v4', start)
+        self.assertEqual(p.c.sha(workflow[start:end].encode()), '38aeb7504b1d2e733ee2a1c4046f81e8403817e6e2fbb6a84f2d4cba8c14e00d')
+
+    def test_P11_metadata_collision_blocks_child_and_measurement(self):
+        path = self.root / 'shell-loader.json'
+        original = b'{"fixed":"existing metadata"}\n'
+        path.write_bytes(original)
+        result = {'success': True, 'tests_run': 1, 'failures': 0, 'errors': 0, 'skipped': 0}
+        report = self.root / 'report.json'
+        with self.preflight_mocks(result), patch.object(p, 'spawn_probe', return_value=child_proof()) as child, \
+                patch.object(p.d, 'measure') as measurement:
+            status = p.main(['--report', str(report), '--expected-head', 'a' * 40, '--expected-tree', 'b' * 40])
+            self.assertEqual(status, 1)
+            child.assert_not_called(); measurement.assert_not_called()
+        self.assertEqual(path.read_bytes(), original)
+        failure = json.loads(report.read_bytes())
+        self.assertFalse(failure['success']); self.assertFalse(failure['measurement_admitted'])
+        self.assertEqual(failure['error_type'], 'FileExistsError')
 
 
 if __name__ == '__main__':

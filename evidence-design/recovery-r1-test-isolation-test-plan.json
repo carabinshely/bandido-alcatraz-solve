@@ -1,0 +1,31 @@
+{
+  "batch": "recovery-r1-test-isolation",
+  "constraints": [
+    "Production CLI cap code and all scientific/runtime/resource semantics unchanged",
+    "No historical imports, constructors, measurement fixtures, evaluators or games",
+    "No Git retry, branch activation or workflow run"
+  ],
+  "frozen_before_execution": true,
+  "frozen_utc": "2026-10-04T08:59:27.658179+00:00",
+  "predecessor_handoff_sha256": "2b5413322a6d528b4c46f434fb161f2c0efffea6999da5861bc49fe8419c646c",
+  "predecessor_receipt_sha256": "aa07e2db214b32c7c1668999f3ef793261599fbe72ece721d75f9a5b04652499",
+  "rows": [
+    {
+      "case": "A09 mocks resource getrlimit/setrlimit with fixed unlimited-to512MiB transition; snapshots actual process limits before/after and asserts unchanged.",
+      "id": "I01"
+    },
+    {
+      "case": "A12 mocks resource getrlimit/setrlimit with fixed unlimited-to512MiB transition; successful and rejected admission paths leave actual process limits unchanged.",
+      "id": "I02"
+    },
+    {
+      "case": "A19 mocks resource getrlimit/setrlimit with fixed unlimited-to512MiB transition; metadata and authentication failure paths leave actual process limits unchanged.",
+      "id": "I03"
+    },
+    {
+      "case": "Run fixed admission module and explicit eight-module combined suite under the already established512MiB test cap; no actual hard-limit changes inside unit tests, no test discovery outside allowlist.",
+      "id": "I04"
+    }
+  ],
+  "schema": "worker36-finite-literal-test-plan-v1"
+}

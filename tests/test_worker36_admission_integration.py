@@ -1,4 +1,4 @@
-"""Finite A01-A13 literal auth cases, including recovery-R1 loader binding."""
+"""Finite A01-A19 literal auth cases; P06-P11 are frozen runner metadata repair."""
 import ast
 import copy
 from pathlib import Path
@@ -6,11 +6,13 @@ import sys
 import tempfile
 import types
 import unittest
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
 from worker36 import admission as a
+
+CLI_LIMIT_OBSERVATIONS = []
 
 LITERAL_LOADER_PIN = {'schema': 'worker36-loader-pin-v1',
     'executable_sha256': 'a15ccdaf07655a8667a3687b13171486c9a265d92273ba3ad820fbb64d2cfecc',
@@ -29,6 +31,25 @@ def literal_loader_identity(cache='/literal-runner/tool-cache'):
             'library_device': device, 'library_inode': 101,
             'mapped_library': {'path': library, 'device': dict(device), 'inode': 101},
             'loader_environment': {'LD_LIBRARY_PATH': directory}}
+
+
+def literal_context_environment(context):
+    return {'GITHUB_REPOSITORY': a.REPOSITORY, 'GITHUB_EVENT_NAME': 'pull_request',
+            'GITHUB_ACTOR': a.OWNER, 'GITHUB_RUN_ID': context['workflow_run'],
+            'GITHUB_RUN_ATTEMPT': '1', 'GITHUB_SERVER_URL': 'https://github.com',
+            'GITHUB_API_URL': 'https://api.github.com', 'RUNNER_NAME': 'bandido-alcatraz-ci',
+            'PR_NUMBER': '41', 'RUNNER_TOOL_CACHE': context['runner_tool_cache'],
+            'GITHUB_WORKSPACE': context['checkout_path'], 'RUNNER_TEMP': context['runner_temp'],
+            'DURABLE': context['durable_root'], 'ATTEMPT': context['attempt_path'],
+            'AUTH': context['durable_root'] + '/admission-inputs'}
+
+
+def literal_shell_loader(loader):
+    return {'WORKER36_PYTHON': loader['executable_path'],
+            'WORKER36_LOADER_DIRECTORY': loader['library_directory'],
+            'WORKER36_LOADER_LIBRARY': loader['library_path'],
+            'WORKER36_LOADER_SHA256': loader['library_sha256'],
+            'WORKER36_LOADER_SIZE_BYTES': str(loader['library_size_bytes'])}
 
 
 def literal_auth_inputs(go=None, *, workflow_run='9001', cache='/literal-runner/tool-cache',
@@ -106,6 +127,28 @@ class AdmissionIntegrationTests(unittest.TestCase):
         event, pr = copy.deepcopy(self.event), copy.deepcopy(self.pr)
         event['pull_request']['body'] = pr['body'] = body
         return event, pr
+
+    def isolated_cli_main(self, args):
+        """Exercise the production cap transition without mutating the test host."""
+        real_getrlimit = a.resource.getrlimit
+        target = a.resource.RLIMIT_AS
+        before = real_getrlimit(target)
+        unlimited = (a.resource.RLIM_INFINITY,) * 2
+        capped = (512 * 1024 ** 2,) * 2
+        try:
+            with patch.object(a.resource, 'getrlimit', side_effect=[unlimited, capped]) as get_limit, \
+                    patch.object(a.resource, 'setrlimit') as set_limit:
+                try:
+                    return a.main(args)
+                finally:
+                    self.assertEqual(get_limit.call_args_list, [call(target), call(target)])
+                    set_limit.assert_called_once_with(target, capped)
+        finally:
+            after = real_getrlimit(target)
+            CLI_LIMIT_OBSERVATIONS.append({'test': self._testMethodName,
+                'before': list(before), 'after': list(after),
+                'mocked_transition': [list(unlimited), list(capped)]})
+            self.assertEqual(after, before, 'admission CLI test changed the real process limits')
 
     def test_A01_valid_first_admission(self):
         raw, provenance = a.extract_pr_admission(self.event, self.pr, self.ci)
@@ -201,7 +244,8 @@ class AdmissionIntegrationTests(unittest.TestCase):
             args = ['authenticate', '--event', str(folder/'event.json'), '--pull-request', str(folder/'pull-request.json'),
                     '--ci', str(folder/'postmerge-ci.json'), '--request-context', str(folder/'request-context.json'),
                     '--destination', str(folder/'admission.json'), '--provenance', str(folder/'provenance.json'),
-                    '--workflow-run', '9001', '--workflow-attempt', '1']
+                    '--workflow-run', '9001', '--workflow-attempt', '1', '--expected-head', '1' * 40,
+                    '--expected-tree', '2' * 40, '--handoff', str(folder/'authenticated-handoff.env')]
             env = {'PYTHONHASHSEED': '0', 'PYTHONDONTWRITEBYTECODE': '1', 'RUNNER_TOOL_CACHE': str(cache),
                    'GITHUB_WORKSPACE': str(checkout), 'RUNNER_TEMP': str(temporary), 'GITHUB_RUN_ID': '9001',
                    'GITHUB_RUN_ATTEMPT': '1', 'GITHUB_EVENT_NAME': 'pull_request', 'GITHUB_REPOSITORY': a.REPOSITORY,
@@ -210,10 +254,11 @@ class AdmissionIntegrationTests(unittest.TestCase):
                                           ignore_environment=0, isolated=0, no_site=0)
             observed = literal_loader_identity(str(cache))
             env.update(observed['loader_environment'])
+            env.update(literal_shell_loader(observed))
             with patch.dict(a.os.environ, env, clear=True), patch.object(a.sys, 'flags', flags), \
                     patch.object(a, 'loader_identity', return_value=observed):
-                self.assertEqual(a.main(args), 0)
-                with self.assertRaises(FileExistsError): a.main(args)
+                self.assertEqual(self.isolated_cli_main(args), 0)
+                with self.assertRaises(FileExistsError): self.isolated_cli_main(args)
                 a.os.environ['PYTHONOPTIMIZE'] = '1'
                 with self.assertRaises(a.AdmissionError): a.validate_interpreter()
                 del a.os.environ['PYTHONOPTIMIZE']; flags.optimize = 1
@@ -292,6 +337,8 @@ class AdmissionIntegrationTests(unittest.TestCase):
                             '--pull-request', str(folder/'pull-request.json'), '--ci', str(folder/'postmerge-ci.json'),
                             '--request-context', str(folder/'request-context.json'), '--destination', str(folder/'admission.json'),
                             '--provenance', str(folder/'provenance.json'), '--workflow-run', '9001', '--workflow-attempt', '1']
+                    args += ['--expected-head', '1' * 40, '--expected-tree', '2' * 40,
+                             '--handoff', str(folder/'authenticated-handoff.env')]
                     observed = literal_loader_identity(str(cache))
                     if variant == 'library_hash': observed['library_sha256'] = '5' * 64
                     if variant == 'library_size': observed['library_size_bytes'] = 4097
@@ -301,6 +348,7 @@ class AdmissionIntegrationTests(unittest.TestCase):
                            'GITHUB_EVENT_NAME': 'pull_request', 'GITHUB_REPOSITORY': a.REPOSITORY,
                            'GITHUB_ACTOR': 'other' if variant == 'actor' else a.OWNER,
                            'RUNNER_NAME': 'bandido-alcatraz-ci', **observed['loader_environment']}
+                    env.update(literal_shell_loader(observed))
                     if variant == 'pythonoptimize': env['PYTHONOPTIMIZE'] = '1'
                     flags = types.SimpleNamespace(dont_write_bytecode=1, no_user_site=1,
                                 optimize=0, ignore_environment=0, isolated=0, no_site=0)
@@ -309,9 +357,9 @@ class AdmissionIntegrationTests(unittest.TestCase):
                     with patch.dict(a.os.environ, env, clear=True), patch.object(a.sys, 'flags', flags), \
                             patch.object(a, 'loader_identity', return_value=observed, side_effect=observation_error):
                         if variant == 'matching':
-                            self.assertEqual(a.main(args), 0)
+                            self.assertEqual(self.isolated_cli_main(args), 0)
                         else:
-                            with self.assertRaises(a.AdmissionError): a.main(args)
+                            with self.assertRaises(a.AdmissionError): self.isolated_cli_main(args)
                     self.assertEqual((folder/'admission.json').exists(), variant == 'matching')
                     self.assertEqual((folder/'provenance.json').exists(), variant == 'matching')
 
@@ -328,6 +376,114 @@ class AdmissionIntegrationTests(unittest.TestCase):
                           and node.name == 'required_diagnostic_paths')
         self.assertIn('scripts/worker36-loader.sh',
                       [node.value for node in ast.walk(definition) if isinstance(node, ast.Constant)])
+
+    def test_A14_P06_request_context_exact_and_quoted_paths(self):
+        self.assertTrue(hasattr(a, 'request_context_from_environment'), 'fixed-purpose context serializer missing')
+        contexts = [self.context, literal_auth_inputs(cache='/literal-runner/cache"quoted\\name',
+                    checkout='/literal-runner/work"quoted', temporary='/literal-runner/temp\\name')[3]]
+        for context in contexts:
+            env = literal_context_environment(context)
+            self.assertEqual(a.request_context_from_environment(env), context)
+            self.assertEqual(a.strict_json(a.canonical(a.request_context_from_environment(env))), context)
+        variants = (('GITHUB_RUN_ID', None), ('GITHUB_RUN_ATTEMPT', '2'), ('PR_NUMBER', '41\n42'),
+                    ('GITHUB_REPOSITORY', 'other/repo'), ('GITHUB_WORKSPACE', 'relative'),
+                    ('AUTH', '/outside/admission-inputs'), ('DURABLE', '/outside/run'))
+        for key, value in variants:
+            with self.subTest(key=key):
+                env = literal_context_environment(self.context)
+                if value is None: del env[key]
+                else: env[key] = value
+                with self.assertRaises(a.AdmissionError): a.request_context_from_environment(env)
+
+    def test_A15_P07_authenticated_handoff_exact_and_mismatches(self):
+        self.assertTrue(hasattr(a, 'authentication_handoff'), 'fixed-purpose authentication handoff missing')
+        raw, provenance = a.extract_pr_admission(self.event, self.pr, self.ci)
+        observed = literal_loader_identity()
+        kwargs = {'expected_head': '1' * 40, 'expected_tree': '2' * 40,
+                  'admission_sha256': a.sha(raw), 'shell_loader': literal_shell_loader(observed)}
+        result = a.authentication_handoff(raw, provenance, observed, **kwargs)
+        values = dict(line.split('=', 1) for line in result.decode().splitlines())
+        self.assertEqual(values, {'ADMISSION_SHA256': a.sha(raw),
+            'ADMISSION_PROVENANCE_SHA256': a.sha(a.canonical(provenance)), 'EXPECTED_TREE': '2' * 40,
+            'WORKER36_PRESERVE_EXECUTABLE': observed['executable_path'],
+            'WORKER36_PRESERVE_LIBRARY_DIRECTORY': observed['library_directory'],
+            'WORKER36_PRESERVE_LIBRARY_SHA256': observed['library_sha256'],
+            'WORKER36_PRESERVE_LIBRARY_SIZE_BYTES': str(observed['library_size_bytes'])})
+        for field, value in (('expected_head', '3' * 40), ('expected_tree', '3' * 40),
+                             ('admission_sha256', '5' * 64), ('WORKER36_LOADER_SHA256', '5' * 64),
+                             ('WORKER36_LOADER_SIZE_BYTES', '4097')):
+            with self.subTest(field=field):
+                bad = copy.deepcopy(kwargs)
+                if field.startswith('WORKER36_'): bad['shell_loader'][field] = value
+                else: bad[field] = value
+                with self.assertRaises(a.AdmissionError): a.authentication_handoff(raw, provenance, observed, **bad)
+
+    def test_A16_P08_no_jq_and_metadata_after_loader(self):
+        source = (ROOT/'.github/workflows/worker36-synthetic-profile.yml').read_text()
+        self.assertNotIn('jq', source)
+        auth = next(step for step in source.split('      - ') if 'id: admission' in step)
+        self.assertLess(source.index('uses: actions/checkout@v4'), source.index('admission.py request-context'))
+        self.assertLess(source.index('uses: actions/setup-python@v5'), source.index('admission.py request-context'))
+        self.assertLess(auth.index('worker36_loader_setup'), auth.index('admission.py request-context'))
+        self.assertLess(auth.index('admission.py request-context'), auth.index('admission.py authenticate'))
+        for literal in ('"$GITHUB_EVENT_PATH"', '"$AUTH/pull-request.json"', '"$AUTH/postmerge-ci.json"',
+                        '--request-context "$AUTH/request-context.json"', '--expected-head "$EXPECTED_HEAD"',
+                        '--expected-tree "$tree"', '--handoff "$AUTH/authenticated-handoff.env"'):
+            self.assertIn(literal, source)
+        self.assertIn('cat -- "$AUTH/authenticated-handoff.env" >> "$GITHUB_ENV"', auth)
+        self.assertNotIn('continue-on-error', source)
+
+    def test_A17_P09_measurement_uses_authenticated_library_fields(self):
+        source = (ROOT/'.github/workflows/worker36-synthetic-profile.yml').read_text()
+        measurement = next(step for step in source.split('      - ') if 'id: measurement' in step)
+        self.assertIn('worker36_loader_setup "$WORKER36_PRESERVE_LIBRARY_SHA256" "$WORKER36_PRESERVE_LIBRARY_SIZE_BYTES"', measurement)
+        self.assertNotIn('jq', measurement)
+        self.assertNotIn('json', measurement.split('worker36_loader_setup', 1)[0])
+        self.assertLess(measurement.index('worker36_loader_setup'), measurement.index('scripts/run_worker36_synthetic.py" measure'))
+
+    def test_A18_P10_preservation_run_is_byte_identical(self):
+        source = (ROOT/'.github/workflows/worker36-synthetic-profile.yml').read_bytes()
+        marker = b'      - name: Preserve verification result and all partial transport without retry\n'
+        preserved = source.split(marker, 1)[1].split(b'        run: |\n', 1)[1].split(b'      - uses:', 1)[0]
+        self.assertEqual(len(preserved), 5304)
+        self.assertEqual(a.sha(preserved), '81450dce731726fd3cad88f95681a64682773a498158b3930ecd42e546342a27')
+
+    def test_A19_P11_metadata_failure_publishes_no_success(self):
+        self.assertTrue(hasattr(a, 'request_context_from_environment'), 'fixed-purpose metadata entry missing')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            cache, checkout, temporary = root/'cache', root/'work', root/'temp'
+            for path in (cache, checkout, temporary): path.mkdir()
+            folder = cache/'worker36-evidence/run-9001-attempt-1/admission-inputs'
+            folder.mkdir(parents=True, mode=0o700)
+            event, pr, ci, context, raw = literal_auth_inputs(cache=str(cache), checkout=str(checkout), temporary=str(temporary))
+            env = literal_context_environment(context)
+            env.update(PYTHONHASHSEED='0', PYTHONDONTWRITEBYTECODE='1')
+            observed = literal_loader_identity(str(cache))
+            env.update(observed['loader_environment']); env.update(literal_shell_loader(observed))
+            flags = types.SimpleNamespace(dont_write_bytecode=1, no_user_site=1, optimize=0,
+                                          ignore_environment=0, isolated=0, no_site=0)
+            with patch.dict(a.os.environ, env, clear=True), patch.object(a.sys, 'flags', flags), \
+                    patch.object(a, 'loader_identity', return_value=observed):
+                del a.os.environ['GITHUB_RUN_ID']
+                with self.assertRaises(a.AdmissionError):
+                    self.isolated_cli_main(['request-context', '--destination', str(folder/'request-context.json')])
+                self.assertFalse((folder/'request-context.json').exists())
+                a.os.environ['GITHUB_RUN_ID'] = '9001'
+                self.assertEqual(self.isolated_cli_main(['request-context', '--destination', str(folder/'request-context.json')]), 0)
+                self.assertEqual(a.strict_json((folder/'request-context.json').read_bytes()), context)
+                with self.assertRaises(FileExistsError):
+                    self.isolated_cli_main(['request-context', '--destination', str(folder/'request-context.json')])
+                for name, value in zip(a.INPUT_NAMES[:3], (event, pr, ci)):
+                    (folder/name).write_bytes(a.canonical(value))
+                args = ['authenticate', '--event', str(folder/'event.json'), '--pull-request', str(folder/'pull-request.json'),
+                        '--ci', str(folder/'postmerge-ci.json'), '--request-context', str(folder/'request-context.json'),
+                        '--destination', str(folder/'admission.json'), '--provenance', str(folder/'provenance.json'),
+                        '--workflow-run', '9001', '--workflow-attempt', '1', '--expected-head', '3' * 40,
+                        '--expected-tree', '2' * 40, '--handoff', str(folder/'authenticated-handoff.env')]
+                with self.assertRaises(a.AdmissionError): self.isolated_cli_main(args)
+                for name in ('admission.json', 'provenance.json', 'authenticated-handoff.env'):
+                    self.assertFalse((folder/name).exists())
 
 
 if __name__ == '__main__':
