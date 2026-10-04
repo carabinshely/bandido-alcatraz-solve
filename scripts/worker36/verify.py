@@ -12,6 +12,7 @@ from .common import (Budget, OP_CAPS, RESOURCES, RUNTIME, SCHEDULE, U_FLAGS, can
                      file_info, require, strict_json, sha, loader_pin, ResourceExceeded, HISTORICAL, REPOSITORY, PREREGISTRATION, PROTOCOL_SHA256)
 from .sources import read_manifest, verify_files
 from .admission import verify_provenance, INPUT_NAMES
+from .transport import verify_provider_wrappers
 
 
 def read(path):
@@ -41,6 +42,7 @@ PRIMARY_MODULES = {'worker35_resources', 'run_quota_reserve_closure_development'
                    'benchmark_worker35_synthetic', 'bandido_alcatraz.quota_reserve_closure',
                    'bandido_alcatraz.quota_reserve_closure_reference', 'bandido_alcatraz.worker32.evidence'}
 CANONICAL_FOLDER = '1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd'
+FOCUSED_SOURCE_RECEIPT = 'experiments/synthetic-profile-overhead/focused-external-review-repair-test-receipt.json'
 
 
 def _number(value, maximum=None, *, positive=False):
@@ -54,6 +56,32 @@ def _number(value, maximum=None, *, positive=False):
     if maximum is not None and value >= maximum:
         raise ResourceExceeded('observed resource boundary exhausted: ' + str(maximum))
     return value
+
+
+
+def _rss(value):
+    """Descriptive same-process KiB high-water; never an RLIMIT_AS-derived cap."""
+    require(type(value) is int and value >= 0, 'nonnegative integer high-water RSS required')
+    return value
+
+
+def _decision_metric(metric, *, scope):
+    """Validate the unchanged original decision record, not a method interval."""
+    keys = {'kind', 'pass', 'seed', 'ordinal', 'scope', 'wall_seconds', 'cpu_seconds',
+            'peak_rss_kib', 'cost', 'status'}
+    require(type(metric) is dict and set(metric) == keys, 'exact original P decision metric schema required')
+    require(scope in ('candidate', 'reference') and
+            canonical({key: metric[key] for key in ('kind', 'pass', 'seed', 'ordinal', 'scope', 'status')}) ==
+            canonical({'kind': 'decision', 'pass': 2, 'seed': 11, 'ordinal': 1,
+                       'scope': scope, 'status': 'returned'}), 'original P decision metric identity mismatch')
+    for key in ('wall_seconds', 'cpu_seconds'):
+        value = _number(metric[key])
+        # Original artifact acceptance is inclusive at the fixed decision cap.
+        # Its window encloses delegate/persistence/restoration work and is not
+        # interchangeable with the narrower matched evaluator timing window.
+        if value > RESOURCES['per_call'][scope][key]:
+            raise ResourceExceeded('original P decision time ceiling exceeded: ' + key)
+    return _rss(metric['peak_rss_kib'])
 
 
 def _hash(value):
@@ -92,10 +120,12 @@ def _admission(root, trusted_path, trusted_hash, head, tree):
     require(go['postmerge_ci'] == {'run_id': 37108669492, 'head': '9c1eeeb8a26868d41f8d8d89b17fc897a60cb38b',
             'status': 'completed', 'conclusion': 'success'}, 'postmerge CI prerequisite')
     reviews = go['reviews']
-    require(type(reviews) is list and len(reviews) >= 2 and
+    require(type(reviews) is list and len(reviews) == 2 and
             all(r['head'] == head and r['tree'] == tree and r['verdict'] == 'clean' and
                 r['url'].startswith('https://github.com/' + REPOSITORY + '/') for r in reviews) and
-            len({r['reviewer'] for r in reviews}) >= 2, 'independent exact-head reviews missing')
+            [r['role'] for r in reviews] == ['exhaustive', 'adversarial'] and
+            len({r['native_reviewer_id'] for r in reviews}) == 2,
+            'two authenticated independent exact-head review attestations required')
     require(file_info(root / 'stub-test-receipt.json')['sha256'] == _hash(go['stub_test_receipt_sha256']),
             'frozen literal-stub test receipt bytes mismatch')
     require(file_info(root / 'source-manifest.json')['sha256'] == go['source_manifest_sha256'],
@@ -112,9 +142,18 @@ def _admission(root, trusted_path, trusted_hash, head, tree):
             pins['experiments/synthetic-profile-overhead/source-manifest.json'] == go['source_manifest_sha256'],
             'authenticated diagnostic input pins mismatch')
     stub = read(root / 'stub-test-receipt.json')
-    require(all(stub['checked_file_sha256'].get(name) == value for name, value in pins.items()) and
-            stub['candidate_evaluator_calls'] == stub['reference_evaluator_calls'] == stub['games'] == 0 and
+    require(stub['success'] is True and
+            all(stub['checked_file_sha256'].get(name) == value for name, value in pins.items()) and
+            stub['candidate_evaluator_calls'] == stub['reference_evaluator_calls'] == stub['games'] ==
+            stub['measurement_fixture_constructions'] == stub['historical_source_imports'] == 0 and
             stub['failures'] == stub['errors'] == 0, 'test receipt does not cover authenticated diagnostic sources')
+    preflight = go['runner_preflight']
+    require(FOCUSED_SOURCE_RECEIPT not in stub['checked_file_sha256'] and
+            preflight['checked_file_sha256'] == {**stub['checked_file_sha256'],
+                FOCUSED_SOURCE_RECEIPT: go['stub_test_receipt_sha256']} and
+            preflight['focused_source_receipt'] ==
+                {'path': FOCUSED_SOURCE_RECEIPT, **file_info(root / 'stub-test-receipt.json')},
+            'authenticated runner preflight does not bind the complete retained tested-source map and receipt')
     return go, {'trusted_admission_path': str(path), 'trusted_admission_sha256': trusted_hash,
                 'expected_head': head, 'expected_tree': tree}
 
@@ -224,7 +263,7 @@ def _supervisor(root, identity, admission, receipt, previous):
                        'output_log_limit_bytes': 63 * 1024 ** 2}
     require(value['limits'] == expected_limits, 'supervisor configured protection limits mismatch')
     _number(value['wall_seconds'], 720); _number(value['child_cpu_seconds'], 720)
-    _number(value['child_high_water_rss_kib'], positive=True)
+    _rss(value['child_high_water_rss_kib'])
     _number(value['cpu_tick_seconds'], positive=True)
     require(value['poll_seconds'] == .02, 'supervisor polling evidence drift')
     _phase(value['phase'], previous)
@@ -252,6 +291,9 @@ def verify_attempt(root, *, trusted_admission_path, trusted_admission_sha256,
             provenance['workflow_run'] == expected_workflow_run and type(expected_workflow_run) is str and
             expected_workflow_run.isdecimal() and provenance['workflow_attempt'] == expected_workflow_attempt == '1',
             'externally authenticated workflow/admission provenance mismatch')
+    require(provenance['reviews'] == admission['reviews'] and
+            provenance['runner_preflight'] == admission['runner_preflight'],
+            'authenticated raw prerequisite replay differs from the admitted reviews/preflight')
     preserved_auth = root / 'admission-inputs'
     for name in (*INPUT_NAMES, Path(trusted_admission_path).name, provenance_path.name):
         require((preserved_auth / name).read_bytes() == (provenance_path.parent / name).read_bytes(),
@@ -336,7 +378,7 @@ def verify_attempt(root, *, trusted_admission_path, trusted_admission_sha256,
         supervisor = _supervisor(root, identity, admission, receipt, previous_phase)
         previous_phase = supervisor['phase']; supervisors.append(supervisor)
         require(read(folder / 'active-call.json') == {'active': False}, 'call protection marker incomplete')
-        _number(cell['peak_rss_kib'], positive=True)
+        _rss(cell['peak_rss_kib'])
         if identity['condition'] == 'U':
             require(read(folder / 'unmeasured-accounting.json') == U_FLAGS, 'U accounting record missing/drift')
         begin = read(folder / 'cell-start.json'); end = read(folder / 'cell-boundaries.json')
@@ -414,9 +456,20 @@ def verify_attempt(root, *, trusted_admission_path, trusted_admission_sha256,
             whole = read(folder / 'whole-wrapper-resources.json')
             require([r['scope'] for r in metrics] == [r['scope'] for r in calls] == ['candidate', 'reference'], 'P scope sequence')
             require([r['event'] for r in traces] == ['decision_started', 'decision_completed'], 'P decision sequence')
-            require(canonical(calls[0]['result']['scientific']) == canonical(payloads[0]['scientific']) and
-                    calls[1]['result']['scientific_sha256'] == payloads[1]['scientific_sha256'], 'P original return journal')
-            for payload, metric, call in zip(payloads, metrics, calls):
+            expected_calls = []
+            for scope, payload in zip(('candidate', 'reference'), payloads):
+                result = {'chosen': payload['chosen'], 'cost': payload['physical_cost']}
+                if scope == 'candidate':
+                    result['scientific'] = payload['scientific']
+                else:
+                    # The historical producer adds full reference science only
+                    # on disagreement. It cannot occur in successful evidence.
+                    result['scientific_sha256'] = payload['scientific_sha256']
+                expected_calls.append({'ordinal': 1, 'scope': scope, 'result': result})
+            require(canonical(calls) == canonical(expected_calls), 'exact original successful P return journal required')
+            metric_rss = []
+            for scope, payload, metric, call in zip(('candidate', 'reference'), payloads, metrics, calls):
+                metric_rss.append(_decision_metric(metric, scope=scope))
                 cost = payload['physical_cost']
                 require(payload['physical_operation_caps_enforced'] is True and payload['choice_events_observed'] is True,
                         'P accounting flags')
@@ -429,7 +482,9 @@ def verify_attempt(root, *, trusted_admission_path, trusted_admission_sha256,
             require(whole['operations'] == summed, 'P whole-wrapper counts differ from sum')
             _number(whole['wall_seconds'], 720, positive=True)
             _number(whole['cpu_seconds'], 720, positive=True)
-            _number(whole['peak_rss_kib'], positive=True)
+            wrapper_rss = _rss(whole['peak_rss_kib'])
+            require(metric_rss[0] <= metric_rss[1] <= wrapper_rss <= cell['peak_rss_kib'] <=
+                    supervisor['child_high_water_rss_kib'], 'P same-child high-water RSS decreased')
             for k in OP_CAPS:
                 total[k] += summed[k]
                 require(total[k] <= 1000000, 'summed P operations exceed frozen bound')
@@ -473,7 +528,7 @@ def _timestamp(value):
 
 def _custody_bytes(custody, verification):
     """Check local bytes and provenance consistency, NOT remote authentication."""
-    require(custody['schema'] == 'worker36-authenticated-custody-v1' and custody['status'] == 'verified' and
+    require(custody['schema'] == 'worker36-authenticated-custody-v2' and custody['status'] == 'verified' and
             custody['authenticated_by'] == 'parent-connected-Drive-readback' and
             custody['folder_id'] == CANONICAL_FOLDER and
             custody['verification_sha256'] == verification['verification_sha256'] and
@@ -492,6 +547,13 @@ def _custody_bytes(custody, verification):
             archive_record['path'] == 'attempt.zip' and archive_record['format'] == 'zip-stored-v1' and
             type(archive_record['size']) is int and 0 < archive_record['size'] <= RESOURCES['archive_bytes'],
             'complete bounded custody transport required')
+    # Mandatory outer provider wrappers are a distinct archive layer. This
+    # read-only checker receives no newly allocated preservation clock; its
+    # caller owns the existing external time supervision. Byte/ZIP caps and
+    # exact repository/run/attempt/part coverage are always enforced.
+    wrapper_checks = verify_provider_wrappers(custody.get('provider_wrappers'), parts,
+        repository=REPOSITORY, workflow_run=verification['binding']['expected_workflow_run'],
+        workflow_attempt=verification['binding']['expected_workflow_attempt'], deadline_monotonic=None)
     chunks = []; seen_ids = set(); seen_inodes = set(); seen_events = set()
     root = Path(verification['binding']['root']); total_bytes = 0
     for order, (part, descriptor) in enumerate(zip(parts, descriptors), 1):
@@ -542,6 +604,7 @@ def _custody_bytes(custody, verification):
             raw = bundle.read(member)
             require(len(raw) == expected['size_bytes'] and sha(raw) == expected['sha256'],
                     'fresh canonical raw bytes differ from complete verified evidence')
+    return wrapper_checks
 
 
 def timing_report(verification, *, authenticated_custody_receipt,
@@ -549,8 +612,8 @@ def timing_report(verification, *, authenticated_custody_receipt,
     """Classify only after complete re-verification and external custody binding.
 
     The parent must authenticate the referenced Drive operations independently,
-    then supply the externally pinned receipt. This function checks exact local
-    upload/readback/reassembly bytes and evidence bindings. It cannot establish
+    then supply the externally pinned v2 receipt. This function checks actual
+    provider wrappers, exact local upload/readback/reassembly bytes and evidence bindings. It cannot establish
     remote authenticity from IDs, filenames, timestamps or asserted strings.
     """
     require(type(verification) is dict and verification.get('schema') == 'worker36-offline-verification-v2',
@@ -562,7 +625,7 @@ def timing_report(verification, *, authenticated_custody_receipt,
     custody = strict_json(custody_raw)
     require(canonical(custody) == canonical(authenticated_custody_receipt),
             'custody receipt differs from independently authenticated exact bytes')
-    _custody_bytes(custody, refreshed)
+    wrapper_checks = _custody_bytes(custody, refreshed)
     cells = refreshed['cells']; primary = {}; matched = {}
     def cpu(cell):
         return cell['candidate']['cpu_seconds'] + cell['reference']['cpu_seconds']
@@ -577,6 +640,7 @@ def timing_report(verification, *, authenticated_custody_receipt,
     return {'schema': 'worker36-timing-report-v2', 'cells': cells, 'primary_U_over_P_CPU': primary,
             'repetition_matched_U_over_P_CPU': matched, 'custody': 'verified',
             'verification_sha256': refreshed['verification_sha256'], 'custody_sha256': trusted_custody_sha256,
+            'provider_wrappers': wrapper_checks,
             'remote_authentication': 'External parent responsibility; not established by local strings or byte checks',
             'classification': 'profile_overhead_material' if material else 'profile_overhead_not_material',
             'interpretation': 'Finite invented inputs only; no production optimization, error-equivalence, efficacy or future run allocation.'}

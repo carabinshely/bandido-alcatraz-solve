@@ -104,12 +104,36 @@ jobs:
             --destination "$AUTH/request-context.json"
           set -o noclobber
           gh api --hostname github.com --method GET -H 'Accept: application/vnd.github+json' \
-            "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > "$AUTH/pull-request.json"
+            "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" | \
+            "$WORKER36_PYTHON" -B -s scripts/worker36/admission.py retain-input --directory "$AUTH" --name pull-request.json
           gh api --hostname github.com --method GET -H 'Accept: application/vnd.github+json' \
-            "repos/$GITHUB_REPOSITORY/actions/runs/37108669492" > "$AUTH/postmerge-ci.json"
+            "repos/$GITHUB_REPOSITORY/actions/runs/37108669492" | \
+            "$WORKER36_PYTHON" -B -s scripts/worker36/admission.py retain-input --directory "$AUTH" --name postmerge-ci.json
           sync -f "$AUTH"
           tree=$(git rev-parse 'HEAD^{tree}')
           test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          # Discovery emits only four numeric IDs, never an admission handoff.
+          "$WORKER36_PYTHON" -B -s scripts/worker36/admission.py evidence-refs \
+            --event "$AUTH/event.json" --pull-request "$AUTH/pull-request.json" --ci "$AUTH/postmerge-ci.json" \
+            --expected-head "$EXPECTED_HEAD" --expected-tree "$tree" --destination "$AUTH/evidence-refs.txt"
+          mapfile -t evidence_refs < "$AUTH/evidence-refs.txt"
+          test "${#evidence_refs[@]}" = 4
+          for value in "${evidence_refs[@]}"; do [[ "$value" =~ ^[1-9][0-9]*$ ]]; done
+          gh api --hostname github.com --method GET -H 'Accept: application/vnd.github+json' \
+            "repos/$GITHUB_REPOSITORY/issues/comments/${evidence_refs[0]}" | \
+            "$WORKER36_PYTHON" -B -s scripts/worker36/admission.py retain-input --directory "$AUTH" --name review-exhaustive.json
+          gh api --hostname github.com --method GET -H 'Accept: application/vnd.github+json' \
+            "repos/$GITHUB_REPOSITORY/issues/comments/${evidence_refs[1]}" | \
+            "$WORKER36_PYTHON" -B -s scripts/worker36/admission.py retain-input --directory "$AUTH" --name review-adversarial.json
+          gh api --hostname github.com --method GET -H 'Accept: application/vnd.github+json' \
+            "repos/$GITHUB_REPOSITORY/actions/runs/${evidence_refs[2]}" | \
+            "$WORKER36_PYTHON" -B -s scripts/worker36/admission.py retain-input --directory "$AUTH" --name preflight-run.json
+          gh api --hostname github.com --method GET -H 'Accept: application/vnd.github+json' \
+            "repos/$GITHUB_REPOSITORY/actions/artifacts/${evidence_refs[3]}" | \
+            "$WORKER36_PYTHON" -B -s scripts/worker36/admission.py retain-input --directory "$AUTH" --name preflight-artifact.json
+          gh api --hostname github.com --method GET \
+            "repos/$GITHUB_REPOSITORY/actions/artifacts/${evidence_refs[3]}/zip" | \
+            "$WORKER36_PYTHON" -B -s scripts/worker36/admission.py retain-input --directory "$AUTH" --name preflight.zip
           "$WORKER36_PYTHON" -B -s scripts/worker36/admission.py authenticate \
             --event "$AUTH/event.json" --pull-request "$AUTH/pull-request.json" \
             --ci "$AUTH/postmerge-ci.json" --request-context "$AUTH/request-context.json" \
@@ -237,6 +261,7 @@ jobs:
           name: worker36-custody-reports-${{ github.run_id }}
           path: |
             ${{ env.AUTH }}/*.json
+            ${{ env.AUTH }}/preflight.zip
             ${{ env.DURABLE }}/verification.json
             ${{ env.DURABLE }}/recovery.json
             ${{ env.DURABLE }}/preservation-shell-outcome.json

@@ -20,6 +20,7 @@ sys.path.insert(0, str(ROOT / 'scripts'))
 from worker36 import admission as a
 from worker36 import common as c
 from worker36 import verify as v
+from worker36 import transport as t
 
 HEAD = '1111111111111111111111111111111111111111'
 TREE = '2222222222222222222222222222222222222222'
@@ -36,6 +37,7 @@ INHERITED = {'RLIMIT_AS': [-1, -1], 'RLIMIT_CPU': [-1, -1]}
 ORIGINAL = '/invented-cache/worker36-evidence/run-123-attempt-1/worker36-123-1'
 SCRIPT = '/invented-checkout/scripts/run_worker36_synthetic.py'
 SOURCE_BYTES = b'# Fixed invented inert source; never imported.\n'
+TESTED_EXTRA_PATHS = ('evidence-design/admission-integration-test-plan.json', 'evidence-design/ast-fifth-repair-test-plan.json', 'evidence-design/cell-fourth-repair-test-plan.json', 'evidence-design/cell-integration-test-plan.json', 'evidence-design/cell-third-repair-test-plan.json', 'evidence-design/driver-fifth-repair-test-plan.json', 'evidence-design/driver-fourth-repair-test-plan.json', 'evidence-design/driver-integration-test-plan.json', 'evidence-design/driver-sixth-repair-test-plan.json', 'evidence-design/driver-third-repair-test-plan.json', 'evidence-design/external-review-5406951565-test-plan.json', 'evidence-design/failure-state-test-plan.json', 'evidence-design/recovery-r1-driver-test-plan.json', 'evidence-design/recovery-r1-loader-integration-test-plan.json', 'evidence-design/recovery-r1-loader-test-plan.json', 'evidence-design/recovery-r1-preflight-shell-test-plan.json', 'evidence-design/recovery-r1-runner-repair-test-plan.json', 'evidence-design/recovery-r1-supervisor-test-plan.json', 'evidence-design/recovery-r1-test-isolation-test-plan.json', 'evidence-design/recovery-r1-verifier-test-plan.json', 'evidence-design/runner-preflight-test-plan.json', 'evidence-design/supervisor-fifth-repair-test-plan.json', 'evidence-design/supervisor-fourth-repair-test-plan.json', 'evidence-design/supervisor-sixth-repair-test-plan.json', 'evidence-design/supervisor-test-plan.json', 'evidence-design/supervisor-third-repair-test-plan.json', 'evidence-design/transport-test-plan.json', 'evidence-design/verifier-integration-test-plan.json', 'tests/test_worker36_admission_integration.py', 'tests/test_worker36_cell_integration.py', 'tests/test_worker36_core.py', 'tests/test_worker36_driver_integration.py', 'tests/test_worker36_runner_preflight.py', 'tests/test_worker36_supervision.py', 'tests/test_worker36_transport.py', 'tests/test_worker36_verify_integration.py', 'tests/worker36_constructor_source.txt')
 LOADER_PIN = {'schema': 'worker36-loader-pin-v1', 'executable_sha256': c.RUNTIME['executable_sha256'],
               'library_relative_path': 'Python/3.11.16/x64/lib/libpython3.11.so.1.0',
               'library_sha256': 'b' * 64, 'library_size_bytes': 12345}
@@ -107,8 +109,10 @@ class LiteralBundle:
                           'experiments/synthetic-profile-overhead/fault-test-manifest.json')})
         diagnostic['experiments/synthetic-profile-overhead/PROTOCOL.md'] = c.PROTOCOL_SHA256
         diagnostic['experiments/synthetic-profile-overhead/source-manifest.json'] = c.file_info(self.root / 'source-manifest.json')['sha256']
-        stub = {'checked_file_sha256': diagnostic, 'candidate_evaluator_calls': 0,
-                'reference_evaluator_calls': 0, 'games': 0, 'failures': 0, 'errors': 0}
+        tested_sources = {**diagnostic, **{path: 'c' * 64 for path in TESTED_EXTRA_PATHS}}
+        stub = {'success': True, 'checked_file_sha256': tested_sources, 'candidate_evaluator_calls': 0,
+                'reference_evaluator_calls': 0, 'measurement_fixture_constructions': 0,
+                'historical_source_imports': 0, 'games': 0, 'failures': 0, 'errors': 0}
         write(self.root / 'stub-test-receipt.json', stub)
         self.go = {'schema': 'worker36-one-shot-admission-v1', 'admitted': True,
                    'repository': c.REPOSITORY, 'branch': a.BRANCH, 'preregistration_url': c.PREREGISTRATION,
@@ -152,6 +156,15 @@ class LiteralBundle:
         write(self.root / 'receipt.json', self.receipt); self.refresh()
 
     def write_auth(self):
+        from test_worker36_admission_integration import literal_prerequisite_bundle
+        # Invalid structural pins are rejected by the authoritative gate before
+        # any literal prerequisite provenance is constructed.
+        a.admitted_loader_pin(self.go.get('loader_pin'))
+        stub_path = self.root / 'stub-test-receipt.json'
+        source = {'path': v.FOCUSED_SOURCE_RECEIPT, **c.file_info(stub_path)}
+        checked = {**read(stub_path)['checked_file_sha256'], v.FOCUSED_SOURCE_RECEIPT: source['sha256']}
+        self.go, proof_bytes = literal_prerequisite_bundle(self.go, pr_number=40, owner_id=456,
+            cache='/invented-cache', focused_source_receipt=source, checked_file_sha256=checked)
         raw = c.canonical(self.go)
         body = a.START + '\n' + raw.decode() + a.END + '\n' + a.DIGEST + ': ' + c.sha(raw) + '\n'
         owner = {'login': a.OWNER, 'id': 456, 'type': 'User'}
@@ -177,12 +190,15 @@ class LiteralBundle:
                    'runner_tool_cache': '/invented-cache', 'checkout_path': '/invented-checkout',
                    'runner_temp': '/invented-temp',
                    'durable_root': '/invented-cache/worker36-evidence/run-123-attempt-1', 'attempt_path': ORIGINAL}
-        inputs = dict(zip(a.INPUT_NAMES, (event, pr, ci, context)))
+        inputs = dict(zip(a.INPUT_NAMES[:4], (event, pr, ci, context)))
         for name, value in inputs.items():
             write(self.auth / name, value)
         extracted, provenance = a.extract_pr_admission(event, pr, ci)
         provenance.update(a.verified_context(context, provenance, '123', '1'))
-        provenance['admission_input_hashes'] = {name: c.file_info(self.auth / name)['sha256'] for name in inputs}
+        provenance.update(a.validate_prerequisites(self.go, provenance, proof_bytes))
+        for name, raw_proof in proof_bytes.items():
+            write(self.auth / name, raw_proof, raw=True)
+        provenance['admission_input_hashes'] = {name: c.file_info(self.auth / name)['sha256'] for name in a.INPUT_NAMES}
         write(self.admission, extracted, raw=True); write(self.provenance, provenance)
         write(self.root / 'external-admission.json', extracted, raw=True)
         for name in (*a.INPUT_NAMES, self.admission.name, self.provenance.name):
@@ -239,9 +255,12 @@ class LiteralBundle:
             calls[scope] = {'start_marker_durable': True, 'invocation_attempted': True, 'method_entered': True, 'returned': True, 'durable_capture_confirmed': True, 'evidence': evidence}
             payloads.append(payload)
         if identity['condition'] == 'P':
-            metrics = [{'scope': scope, 'cost': cost, 'status': 'returned'} for scope in ('candidate', 'reference')]
-            journals = [{'scope': scope, 'result': {'scientific': science, 'scientific_sha256': c.digest(science), 'cost': cost}}
-                        for scope in ('candidate', 'reference')]
+            metrics = [{'kind': 'decision', 'pass': 2, 'seed': 11, 'ordinal': 1, 'scope': scope,
+                        'wall_seconds': 13, 'cpu_seconds': 11, 'peak_rss_kib': 1000,
+                        'cost': cost, 'status': 'returned'} for scope in ('candidate', 'reference')]
+            journals = [
+                {'ordinal': 1, 'scope': 'candidate', 'result': {'chosen': None, 'scientific': science, 'cost': cost}},
+                {'ordinal': 1, 'scope': 'reference', 'result': {'chosen': None, 'scientific_sha256': c.digest(science), 'cost': cost}}]
             traces = [{'event': 'decision_started'}, {'event': 'decision_completed', 'audit': {'boundary':
                       {'choice_calls': 0, 'reference_choice_calls': 0, 'choice_tier': [], 'reference_choice_tier': []}}}]
             for name, values in (('resource-metrics.jsonl', metrics), ('call-results/pass-2/11.jsonl', journals),
@@ -318,7 +337,19 @@ class LiteralBundle:
                                          'completed_at': '2026-10-03T00:00:00Z', 'parent_folder_id': v.CANONICAL_FOLDER},
                       'download_receipt': {**event, 'operation': 'download', 'event_id': 'literal-download-event',
                                            'completed_at': '2026-10-03T00:01:00Z'}}
-        result = {'schema': 'worker36-authenticated-custody-v1', 'status': 'verified',
+        wrapper_path = self.base / 'github-provider-wrapper-001.zip'
+        with zipfile.ZipFile(wrapper_path, 'w', compression=zipfile.ZIP_STORED) as wrapper:
+            wrapper.writestr(part['path'], raw)
+        wrapper_info = {'size': wrapper_path.stat().st_size, 'sha256': c.sha(wrapper_path.read_bytes())}
+        provider_wrapper = {'order': 1, 'part_path': part['path'], 'member_name': part['path'],
+                            'path': str(wrapper_path), **wrapper_info,
+                            'download_receipt': {'provider': 'github_actions', 'operation': 'download',
+                                'repository': c.REPOSITORY, 'run_id': '123', 'run_attempt': '1',
+                                'artifact_id': '456', 'artifact_name': 'worker36-transport-001-123',
+                                'event_id': 'literal-provider-download', 'completed_at': '2026-10-03T00:00:00Z',
+                                **wrapper_info}}
+        result = {'schema': 'worker36-authenticated-custody-v2', 'status': 'verified',
+                  'provider_wrappers': [provider_wrapper],
                   'authenticated_by': 'parent-connected-Drive-readback', 'folder_id': v.CANONICAL_FOLDER,
                   'verification_sha256': verification['verification_sha256'], 'raw_inventory': verification['raw_inventory'],
                   'files': [descriptor], 'transport_manifest': {'schema': 'worker36.transport.v1',
@@ -384,9 +415,11 @@ class VerifyIntegrationTests(unittest.TestCase):
         for keys, value in mutations:
             with self.subTest(keys=keys):
                 self.bundle.go = copy.deepcopy(original); set_nested(self.bundle.go, keys, value)
-                self.bundle.write_auth()
-                self.bundle.mutate('receipt.json', ['admission_sha256'], c.sha(self.bundle.admission.read_bytes()))
+                # Stronger admission may reject an invalid freeze before an
+                # authenticated offline bundle can exist. Do not fake that step.
                 with self.assertRaises((ValueError, KeyError, c.ResourceExceeded)):
+                    self.bundle.write_auth()
+                    self.bundle.mutate('receipt.json', ['admission_sha256'], c.sha(self.bundle.admission.read_bytes()))
                     self.bundle.verify()
         self.bundle.go = original; self.bundle.write_auth()
 
@@ -789,13 +822,276 @@ class VerifyIntegrationTests(unittest.TestCase):
                         with self.assertRaises(a.AdmissionError):
                             self.bundle.write_auth()
                         continue
-                    self.bundle.write_auth()
-                    self.bundle.mutate('receipt.json', ['admission_sha256'], c.sha(self.bundle.admission.read_bytes()))
-                    with self.assertRaises((c.IntegrityError, KeyError)):
+                    with self.assertRaises((c.IntegrityError, a.AdmissionError, KeyError)):
+                        self.bundle.write_auth()
+                        self.bundle.mutate('receipt.json', ['admission_sha256'], c.sha(self.bundle.admission.read_bytes()))
                         self.bundle.verify()
         finally:
             self.bundle.go = original_go; stub_path.write_bytes(original_stub); self.bundle.write_auth()
             self.bundle.mutate('receipt.json', ['admission_sha256'], c.sha(self.bundle.admission.read_bytes()))
+        self.assertTrue(self.bundle.verify()['complete'])
+
+
+    def rewrite_rows(self, relative, edit):
+        path = self.bundle.root / relative
+        values = v.rows(path); edit(values)
+        write(path, b''.join(c.canonical(row) for row in values), raw=True)
+        self.bundle.refresh()
+
+    def reject_row_mutation(self, relative, edit, error=c.IntegrityError):
+        path = self.bundle.root / relative; original = path.read_bytes()
+        try:
+            self.rewrite_rows(relative, edit)
+            with self.assertRaises(error):
+                self.bundle.verify()
+        finally:
+            path.write_bytes(original); self.bundle.refresh()
+
+    def test_JR01_exact_successful_journal_schema(self):
+        verified = self.bundle.verify()
+        calls = v.rows(self.bundle.root / 'cells/01/call-results/pass-2/11.jsonl')
+        self.assertEqual(set(calls[0]), {'ordinal', 'scope', 'result'})
+        self.assertEqual(set(calls[0]['result']), {'chosen', 'cost', 'scientific'})
+        self.assertEqual(set(calls[1]['result']), {'chosen', 'cost', 'scientific_sha256'})
+        self.assertEqual(len(verified['cells']), 20)
+        self.assertIn('scientific', read(self.bundle.root / 'cells/01/reference-return.json'))
+
+    def test_JR02_identical_reference_science_contradiction(self):
+        for index in (1, 20):
+            def edit(rows):
+                science = copy.deepcopy(rows[0]['result']['scientific'])
+                science['guards'] = [{'literal': 'contradictory reference object'}]
+                rows[1]['result']['scientific'] = science
+            self.rewrite_rows(f'cells/{index:02d}/call-results/pass-2/11.jsonl', edit)
+        with self.assertRaises(c.IntegrityError):
+            self.bundle.verify()
+
+    def test_JR03_matching_extra_reference_science_rejected(self):
+        def edit(rows):
+            rows[1]['result']['scientific'] = copy.deepcopy(rows[0]['result']['scientific'])
+        self.reject_row_mutation('cells/01/call-results/pass-2/11.jsonl', edit)
+
+    def test_JR04_reference_digest_required_and_bound(self):
+        for missing in (False, True):
+            with self.subTest(missing=missing):
+                def edit(rows):
+                    if missing:
+                        del rows[1]['result']['scientific_sha256']
+                    else:
+                        rows[1]['result']['scientific_sha256'] = 'e' * 64
+                self.reject_row_mutation('cells/01/call-results/pass-2/11.jsonl', edit)
+
+    def test_JR05_chosen_bound_to_each_full_sidecar(self):
+        for index in (0, 1):
+            with self.subTest(scope=index):
+                def edit(rows):
+                    rows[index]['result']['chosen'] = {'literal': 'different chosen value'}
+                self.reject_row_mutation('cells/01/call-results/pass-2/11.jsonl', edit)
+
+    def test_JR06_ordinal_scope_and_exact_result_keys(self):
+        for index in (0, 1):
+            for kind in ('changed_ordinal', 'missing_ordinal', 'wrong_scope', 'extra_result_key'):
+                with self.subTest(scope=index, kind=kind):
+                    def edit(rows):
+                        if kind == 'changed_ordinal':
+                            rows[index]['ordinal'] = 2
+                        elif kind == 'missing_ordinal':
+                            del rows[index]['ordinal']
+                        elif kind == 'wrong_scope':
+                            rows[index]['scope'] = 'control'
+                        else:
+                            rows[index]['result']['extra'] = False
+                    self.reject_row_mutation('cells/01/call-results/pass-2/11.jsonl', edit)
+
+    def test_JR07_full_reference_sidecar_still_required(self):
+        path = self.bundle.root / 'cells/01/reference-return.json'; original = path.read_bytes()
+        for kind in ('missing', 'corrupt'):
+            with self.subTest(kind=kind):
+                if kind == 'missing':
+                    path.unlink()
+                else:
+                    path.write_bytes(b'{')
+                self.bundle.refresh()
+                with self.assertRaises((ValueError, OSError)):
+                    self.bundle.verify()
+                path.write_bytes(original); self.bundle.refresh()
+        self.assertTrue(self.bundle.verify()['complete'])
+
+    def test_MR01_complete_original_metric_fields(self):
+        result = self.bundle.verify()
+        metrics = v.rows(self.bundle.root / 'cells/01/resource-metrics.jsonl')
+        for scope, metric in zip(('candidate', 'reference'), metrics):
+            self.assertEqual(v._decision_metric(metric, scope=scope), 1000)
+        self.assertEqual(len(result['cells']), 20)
+
+    def test_MR02_inclusive_clock_and_uncapped_rss_fields(self):
+        metrics = v.rows(self.bundle.root / 'cells/01/resource-metrics.jsonl')
+        for scope, original in zip(('candidate', 'reference'), metrics):
+            for key in ('wall_seconds', 'cpu_seconds'):
+                for value in (0, 360):
+                    with self.subTest(scope=scope, key=key, value=value):
+                        metric = copy.deepcopy(original); metric[key] = value
+                        self.assertEqual(v._decision_metric(metric, scope=scope), 1000)
+            for value in (0, 1000, 600000):
+                with self.subTest(scope=scope, rss=value):
+                    metric = copy.deepcopy(original); metric['peak_rss_kib'] = value
+                    self.assertEqual(v._decision_metric(metric, scope=scope), value)
+        # Coherent high-water samples above AS/1024 must not create a new RSS cap.
+        self.rewrite_rows('cells/01/resource-metrics.jsonl',
+                          lambda rows: [row.update(peak_rss_kib=600000) for row in rows])
+        self.bundle.mutate('cells/01/whole-wrapper-resources.json', ['peak_rss_kib'], 600001)
+        self.bundle.mutate('cells/01/cell-receipt.json', ['peak_rss_kib'], 600002)
+        self.bundle.mutate('supervisor-cell-01.json', ['child_high_water_rss_kib'], 600003)
+        self.assertTrue(self.bundle.verify()['complete'])
+
+    def test_MR03_missing_malformed_and_over_cap_metrics(self):
+        for index in (0, 1):
+            for key in ('wall_seconds', 'cpu_seconds', 'peak_rss_kib'):
+                cases = ('missing', -1, True, None, '0', 1.5) if key == 'peak_rss_kib' else ('missing', -1, True, None, '0', 360.000001)
+                for replacement in cases:
+                    with self.subTest(scope=index, key=key, value=replacement):
+                        def edit(rows):
+                            if replacement == 'missing':
+                                del rows[index][key]
+                            else:
+                                rows[index][key] = replacement
+                        expected = c.ResourceExceeded if key != 'peak_rss_kib' and replacement == 360.000001 else c.IntegrityError
+                        self.reject_row_mutation('cells/01/resource-metrics.jsonl', edit, expected)
+
+    def test_MR04_metric_identity_fields(self):
+        for index in (0, 1):
+            for key, replacement in (('kind', 'policy'), ('pass', 3), ('seed', 12),
+                                     ('ordinal', 2), ('scope', 'control'), ('status', 'failed')):
+                with self.subTest(scope=index, key=key):
+                    self.reject_row_mutation('cells/01/resource-metrics.jsonl',
+                                              lambda rows: rows[index].update({key: replacement}))
+
+    def test_MR05_identical_invalid_repeated_metrics(self):
+        for index in (1, 20):
+            self.rewrite_rows(f'cells/{index:02d}/resource-metrics.jsonl',
+                              lambda rows: [row.update(wall_seconds=-1) for row in rows])
+        with self.assertRaises(c.IntegrityError):
+            self.bundle.verify()
+
+    def test_MR06_nonfinite_and_huge_integer_metrics(self):
+        path = self.bundle.root / 'cells/01/resource-metrics.jsonl'; original = path.read_bytes()
+        for token in (b'NaN', b'Infinity', b'-Infinity'):
+            with self.subTest(token=token):
+                path.write_bytes(original.replace(b'"wall_seconds":13', b'"wall_seconds":' + token, 1))
+                self.bundle.refresh()
+                with self.assertRaises(c.IntegrityError):
+                    self.bundle.verify()
+                path.write_bytes(original); self.bundle.refresh()
+        self.reject_row_mutation('cells/01/resource-metrics.jsonl',
+                                  lambda rows: rows[0].update(cpu_seconds=10 ** 400))
+
+    def test_MR07_true_integer_monotonic_high_water(self):
+        participants = (('candidate', 'cells/01/resource-metrics.jsonl', 0, 'peak_rss_kib'),
+                        ('reference', 'cells/01/resource-metrics.jsonl', 1, 'peak_rss_kib'),
+                        ('wrapper', 'cells/01/whole-wrapper-resources.json', None, 'peak_rss_kib'),
+                        ('cell', 'cells/01/cell-receipt.json', None, 'peak_rss_kib'),
+                        ('supervisor', 'supervisor-cell-01.json', None, 'child_high_water_rss_kib'))
+        for name, relative, row, key in participants:
+            for value in (-1, True, None, 1.5, '1000'):
+                with self.subTest(participant=name, value=value):
+                    if row is not None:
+                        self.reject_row_mutation(relative, lambda rows: rows[row].update({key: value}))
+                    else:
+                        self.rejected_mutation(relative, [key], value)
+        for name, relative, row, key in participants[:-1]:
+            with self.subTest(decreasing_after=name):
+                if row is not None:
+                    self.reject_row_mutation(relative, lambda rows: rows[row].update({key: 1001}))
+                else:
+                    self.rejected_mutation(relative, [key], 1001)
+
+    def test_MR08_method_rows_and_unmeasured_flags_unchanged(self):
+        verified = self.bundle.verify(); custody = self.bundle.custody(verified)
+        report = self.bundle.timing(verified, custody)
+        self.assertEqual(report['cells'], verified['cells'])
+        self.assertEqual(len(report['cells']), 20)
+        self.assertEqual(read(self.bundle.root / 'cells/02/unmeasured-accounting.json'), c.U_FLAGS)
+        self.assertEqual(report['classification'], 'profile_overhead_material')
+
+    def test_PW01_complete_wrapper_final_classification(self):
+        verified = self.bundle.verify(); custody = self.bundle.custody(verified)
+        report = self.bundle.timing(verified, custody)
+        self.assertEqual(report['classification'], 'profile_overhead_material')
+        self.assertEqual(len(report['provider_wrappers']), 1)
+        self.assertIs(report['provider_wrappers'][0]['external_origin_authenticated'], False)
+
+    def test_PW02_wrapper_coverage_is_mandatory(self):
+        verified = self.bundle.verify(); custody = self.bundle.custody(verified)
+        for kind in ('missing', 'null', 'empty'):
+            with self.subTest(kind=kind):
+                changed = copy.deepcopy(custody)
+                if kind == 'missing':
+                    del changed['provider_wrappers']
+                else:
+                    changed['provider_wrappers'] = None if kind == 'null' else []
+                write(self.bundle.custody_path, changed)
+                with self.assertRaises((c.IntegrityError, t.TransportError)):
+                    self.bundle.timing(verified, changed)
+
+    def test_PW13_outer_wrapper_is_not_canonical_part(self):
+        verified = self.bundle.verify(); custody = self.bundle.custody(verified)
+        outer = Path(custody['provider_wrappers'][0]['path']).read_bytes()
+        for key in ('upload_input_path', 'readback_path'):
+            Path(custody['files'][0][key]).write_bytes(outer)
+        with self.assertRaises(c.IntegrityError):
+            self.bundle.timing(verified, custody)
+
+    def test_PW14_exact_and_semantic_wrapper_binding(self):
+        verified = self.bundle.verify(); custody = self.bundle.custody(verified)
+        changed = copy.deepcopy(custody)
+        changed['provider_wrappers'][0]['download_receipt']['run_id'] = '999'
+        with self.assertRaises(c.IntegrityError):
+            self.bundle.timing(verified, changed)
+        write(self.bundle.custody_path, changed)
+        with self.assertRaises(t.TransportError):
+            self.bundle.timing(verified, changed)
+
+    def test_PW15_legacy_custody_is_not_accepted(self):
+        verified = self.bundle.verify(); custody = self.bundle.custody(verified)
+        custody['schema'] = 'worker36-authenticated-custody-v1'
+        write(self.bundle.custody_path, custody)
+        with self.assertRaises(c.IntegrityError):
+            self.bundle.timing(verified, custody)
+
+
+    def test_ER_I02_retained_prerequisites_replayed_offline(self):
+        for name in a.PREREQUISITE_NAMES:
+            with self.subTest(input=name):
+                external = self.bundle.auth / name
+                retained = self.bundle.root / 'admission-inputs' / name
+                original = external.read_bytes(); provenance_bytes = self.bundle.provenance.read_bytes()
+                try:
+                    if name == 'preflight.zip':
+                        changed = b'fixed literal corrupt prerequisite ZIP'
+                    else:
+                        value = c.strict_json(original)
+                        if name.startswith('review-'):
+                            value['body'] = 'fixed literal unstructured review statement'
+                        elif name == 'preflight-run.json':
+                            value['status'] = 'in_progress'
+                        else:
+                            value['expired'] = True
+                        changed = c.canonical(value)
+                    external.write_bytes(changed); retained.write_bytes(changed)
+                    provenance = c.strict_json(provenance_bytes)
+                    provenance['admission_input_hashes'][name] = c.sha(changed)
+                    write(self.bundle.provenance, provenance)
+                    write(self.bundle.root / 'admission-inputs' / self.bundle.provenance.name, provenance)
+                    self.bundle.refresh()
+                    # Even updated local hash metadata and earlier validated
+                    # descriptor flags cannot replace replay of the raw proofs.
+                    with self.assertRaises((a.AdmissionError, c.IntegrityError)):
+                        self.bundle.verify()
+                finally:
+                    external.write_bytes(original); retained.write_bytes(original)
+                    self.bundle.provenance.write_bytes(provenance_bytes)
+                    (self.bundle.root / 'admission-inputs' / self.bundle.provenance.name).write_bytes(provenance_bytes)
+                    self.bundle.refresh()
         self.assertTrue(self.bundle.verify()['complete'])
 
 if __name__ == '__main__':

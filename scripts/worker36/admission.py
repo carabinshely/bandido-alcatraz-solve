@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import io
 import json
 import math
 import os
@@ -16,12 +17,13 @@ import re
 import resource
 import stat
 import sys
+import zipfile
 
 if __name__ == '__main__' and not __package__:
     # Direct script invocation has only this sibling module directory on sys.path.
-    from common import IntegrityError as LoaderIntegrityError, loader_identity, loader_pin
+    from common import IntegrityError as LoaderIntegrityError, RUNTIME, loader_identity, loader_pin
 else:
-    from worker36.common import IntegrityError as LoaderIntegrityError, loader_identity, loader_pin
+    from worker36.common import IntegrityError as LoaderIntegrityError, RUNTIME, loader_identity, loader_pin
 
 REPOSITORY = 'carabinshely/bandido-alcatraz-solve'
 OWNER = 'carabinshely'
@@ -41,6 +43,19 @@ METADATA_MEMORY = (512 * 1024 ** 2,) * 2
 SHELL_LOADER_FIELDS = ('WORKER36_PYTHON', 'WORKER36_LOADER_DIRECTORY',
                        'WORKER36_LOADER_LIBRARY', 'WORKER36_LOADER_SHA256',
                        'WORKER36_LOADER_SIZE_BYTES')
+REVIEW_ROLES = ('exhaustive', 'adversarial')
+REVIEW_START = 'WORKER36_NATIVE_REVIEW_JSON'
+REVIEW_END = 'END_WORKER36_NATIVE_REVIEW_JSON'
+PREFLIGHT_WORKFLOW = '.github/workflows/worker36-runner-preflight.yml'
+PREFLIGHT_MEMBERS = frozenset(('fresh-child-process.json', 'fresh-child.stderr', 'fresh-child.json',
+    'fresh-child.stdout', 'launcher.txt', 'parent-runtime.json', 'parent.stderr', 'parent.stdout',
+    'runner-preflight.json', 'shell-loader.json'))
+PREFLIGHT_TEST_MODULES = ('test_worker36_core', 'test_worker36_supervision', 'test_worker36_transport',
+    'test_worker36_admission_integration', 'test_worker36_cell_integration', 'test_worker36_driver_integration',
+    'test_worker36_verify_integration', 'test_worker36_runner_preflight')
+PREFLIGHT_ZERO = {'preparation_only': True, 'measurement_admitted': False,
+    'candidate_evaluator_calls': 0, 'reference_evaluator_calls': 0,
+    'measurement_fixture_constructions': 0, 'historical_source_imports': 0, 'games': 0}
 
 
 class AdmissionError(ValueError):
@@ -221,12 +236,17 @@ def validate_interpreter():
         raise AdmissionError('unverified authentication loader: ' + str(error)) from error
 
 
-def read_input(path):
+def read_raw_input(path):
     path = Path(path)
     require(path.is_file() and not path.is_symlink(), 'regular non-symlink auth input required')
     with path.open('rb') as stream:
         raw = stream.read(MAX_INPUT_BYTES + 1)
     require(len(raw) <= MAX_INPUT_BYTES, 'auth input byte cap')
+    return raw
+
+
+def read_input(path):
+    raw = read_raw_input(path)
     return raw, strict_json(raw)
 
 
@@ -247,7 +267,295 @@ def write_exclusive(path, raw):
         os.close(fd)
 
 
-INPUT_NAMES = ('event.json', 'pull-request.json', 'postmerge-ci.json', 'request-context.json')
+PREREQUISITE_NAMES = ('review-exhaustive.json', 'review-adversarial.json',
+                     'preflight-run.json', 'preflight-artifact.json', 'preflight.zip')
+INPUT_NAMES = ('event.json', 'pull-request.json', 'postmerge-ci.json', 'request-context.json',
+               *PREREQUISITE_NAMES)
+NETWORK_INPUT_NAMES = ('pull-request.json', 'postmerge-ci.json', *PREREQUISITE_NAMES)
+
+
+def hex_digest(value, label):
+    require(type(value) is str and re.fullmatch('[0-9a-f]{64}', value) is not None,
+            'invalid ' + label)
+
+
+def prerequisite_descriptors(go, provenance):
+    """Only these two attestation roles and this one named preflight are supported."""
+    reviews = go.get('reviews')
+    keys = {'role', 'native_reviewer_id', 'comment_id', 'url', 'body_sha256',
+            'head', 'tree', 'verdict', 'handoff_sha256', 'report_sha256'}
+    require(type(reviews) is list and len(reviews) == 2, 'exactly two native review attestations required')
+    for role, review in zip(REVIEW_ROLES, reviews):
+        require(type(review) is dict and set(review) == keys and review['role'] == role,
+                'fixed native review descriptor schema/role required')
+        number = positive_int(review['comment_id'], 'review comment ID')
+        require(review['url'] == provenance['admission_url'] + '#issuecomment-' + str(number),
+                'exact attestation comment URL required')
+        require(type(review['native_reviewer_id']) is str and
+                re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}', review['native_reviewer_id']) is not None,
+                'explicit native reviewer identity required')
+        require(review['head'] == go['head'] and review['tree'] == go['tree'] and
+                review['verdict'] == 'clean', 'exact-head clean review required')
+        for key in ('body_sha256', 'handoff_sha256', 'report_sha256'):
+            hex_digest(review[key], key)
+    require(reviews[0]['comment_id'] != reviews[1]['comment_id'] and
+            reviews[0]['native_reviewer_id'] != reviews[1]['native_reviewer_id'] and
+            reviews[0]['handoff_sha256'] == reviews[1]['handoff_sha256'],
+            'distinct native review identities and one reviewed handoff required')
+    preflight = go.get('runner_preflight')
+    required = {'schema', 'run_id', 'run_attempt', 'artifact_id', 'artifact_name',
+                'artifact_sha256', 'artifact_size_bytes', 'report_sha256', 'report_size_bytes',
+                'checked_file_sha256', 'focused_source_receipt'}
+    require(type(preflight) is dict and set(preflight) == required and
+            preflight['schema'] == 'worker36-preflight-binding-v1', 'explicit runner preflight binding required')
+    for key in ('run_id', 'run_attempt', 'artifact_id', 'artifact_size_bytes', 'report_size_bytes'):
+        positive_int(preflight[key], key)
+    require(preflight['artifact_size_bytes'] <= MAX_INPUT_BYTES and preflight['report_size_bytes'] <= MAX_INPUT_BYTES,
+            'bounded preflight evidence required')
+    require(preflight['artifact_name'] == 'worker36-zero-evaluator-preflight-' +
+            str(preflight['run_id']) + '-' + str(preflight['run_attempt']), 'exact preflight artifact name required')
+    for key in ('artifact_sha256', 'report_sha256'):
+        hex_digest(preflight[key], key)
+    pins = preflight['checked_file_sha256']
+    require(type(pins) is dict and 0 < len(pins) <= 256, 'bounded preflight source map required')
+    for path, digest_value in pins.items():
+        require(type(path) is str and PurePosixPath(path).as_posix() == path and
+                not PurePosixPath(path).is_absolute() and '..' not in PurePosixPath(path).parts and
+                path not in ('', '.'), 'relative preflight source path required')
+        hex_digest(digest_value, 'preflight source hash')
+    source = preflight['focused_source_receipt']
+    require(type(source) is dict and set(source) == {'path', 'sha256', 'size_bytes'} and
+            type(source['path']) is str and source['path'].startswith('experiments/synthetic-profile-overhead/') and
+            source['path'].endswith('.json') and source['path'] in pins and
+            source['sha256'] == go.get('stub_test_receipt_sha256') == pins[source['path']],
+            'preflight focused source receipt binding required')
+    positive_int(source['size_bytes'], 'focused source receipt size')
+    require(source['size_bytes'] <= MAX_INPUT_BYTES, 'focused source receipt byte cap')
+    diagnostics = go.get('diagnostic_files_sha256')
+    require(type(diagnostics) is dict and bool(diagnostics) and
+            all(pins.get(path) == value for path, value in diagnostics.items()),
+            'preflight source map must bind the diagnostic files')
+    return reviews, preflight
+
+
+def prerequisite_requests(go, provenance):
+    reviews, preflight = prerequisite_descriptors(go, provenance)
+    urls = [API + '/issues/comments/' + str(review['comment_id']) for review in reviews]
+    urls += [API + '/actions/runs/' + str(preflight['run_id']),
+             API + '/actions/artifacts/' + str(preflight['artifact_id']),
+             API + '/actions/artifacts/' + str(preflight['artifact_id']) + '/zip']
+    return {name: {'method': 'GET', 'url': url} for name, url in zip(PREREQUISITE_NAMES, urls)}
+
+
+def _review_attestation(raw, review, provenance):
+    comment = strict_json(raw)
+    require(type(comment) is dict and type(comment.get('id')) is int and
+            comment['id'] == review['comment_id'] and comment.get('url') == API + '/issues/comments/' + str(review['comment_id']) and
+            comment.get('html_url') == review['url'] and
+            comment.get('issue_url') == API + '/issues/' + str(provenance['pull_request_number']),
+            'authenticated review comment identity mismatch')
+    require(identity(object_at(comment, 'user')) == provenance['author'], 'review attestation owner mismatch')
+    body = bounded_body(comment.get('body'))
+    require(sha(body.encode('utf-8')) == review['body_sha256'], 'review attestation body hash mismatch')
+    prefix, suffix = REVIEW_START + '\n', REVIEW_END + '\n'
+    require(body.startswith(prefix) and body.endswith(suffix) and
+            body.count(REVIEW_START) == 2 and body.count(REVIEW_END) == 1,
+            'one exact structured native review block required')
+    record = strict_json(body[len(prefix):-len(suffix)])
+    expected = {'schema': 'worker36-owner-attested-native-review-v1', 'repository': REPOSITORY,
+        'pr_number': provenance['pull_request_number'], 'role': review['role'],
+        'native_reviewer_id': review['native_reviewer_id'], 'head': review['head'], 'tree': review['tree'],
+        'verdict': 'clean', 'complete_review': True, 'independent_review_attested': True,
+        'actionable_findings': {'P0': 0, 'P1': 0, 'P2': 0, 'P3': 0},
+        'handoff_sha256': review['handoff_sha256'], 'report_sha256': review['report_sha256']}
+    require(canonical(record) == canonical(expected), 'native review attestation differs from exact clean binding')
+    # This is an authenticated OWNER ATTESTATION of native independence. It is
+    # not a claim that two different GitHub authors or cryptographic native
+    # signatures have been observed.
+
+
+def _preflight_report_from_zip(raw, descriptor):
+    require(type(raw) is bytes and len(raw) == descriptor['artifact_size_bytes'] <= MAX_INPUT_BYTES and
+            sha(raw) == descriptor['artifact_sha256'], 'preflight archive bytes/hash mismatch')
+    try:
+        with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+            members = archive.infolist()
+            names = [member.filename for member in members]
+            require(len(names) == len(set(names)) and set(names) == PREFLIGHT_MEMBERS,
+                    'exact safe preflight artifact members required')
+            require(sum(member.file_size for member in members) <= MAX_INPUT_BYTES,
+                    'preflight uncompressed evidence cap')
+            for member in members:
+                mode = stat.S_IFMT(member.external_attr >> 16)
+                require(not member.is_dir() and mode in (0, stat.S_IFREG) and
+                        not member.flag_bits & 1 and member.compress_type in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED) and
+                        0 <= member.file_size <= MAX_INPUT_BYTES and 0 <= member.compress_size <= MAX_INPUT_BYTES,
+                        'unsupported preflight ZIP member')
+            components = {}; expanded = 0
+            for member in members:
+                with archive.open(member) as stream:
+                    component = stream.read(MAX_INPUT_BYTES - expanded + 1)
+                expanded += len(component)
+                require(expanded <= MAX_INPUT_BYTES and len(component) == member.file_size,
+                        'preflight actual expanded evidence cap/size')
+                components[member.filename] = component
+            report_raw = components['runner-preflight.json']
+    except (zipfile.BadZipFile, RuntimeError, NotImplementedError, UnicodeError) as error:
+        raise AdmissionError('invalid preflight ZIP') from error
+    require(len(report_raw) == descriptor['report_size_bytes'] <= MAX_INPUT_BYTES and
+            sha(report_raw) == descriptor['report_sha256'], 'preflight report bytes/hash mismatch')
+    report = strict_json(report_raw)
+    parent, child = object_at(report, 'parent'), object_at(report, 'fresh_child')
+    require(components['parent-runtime.json'] == canonical(parent) and
+            components['fresh-child.json'] == canonical(child) and
+            components['shell-loader.json'] == canonical(object_at(parent, 'shell_loader')),
+            'preflight component bytes disagree with the report')
+    runtime = object_at(parent, 'runtime'); loader = object_at(runtime, 'loader')
+    child_runtime = object_at(child, 'runtime')
+    process = {**PREFLIGHT_ZERO, 'command': child_runtime.get('flags'), 'pid': child.get('pid'),
+               'returncode': 0, 'timed_out': False}
+    require(components['fresh-child-process.json'] == canonical(process) and
+            child.get('parent_pid') == parent.get('pid'),
+            'preflight fresh-child process proof mismatch')
+    # stdout/stderr are retained diagnostic bytes, not additional success gates.
+    # Fixed negative tests can emit warnings/sidecar records while the structured
+    # preflight remains successful; every member's bytes/CRC were checked above.
+    try:
+        loader_pin(loader)
+    except LoaderIntegrityError as error:
+        raise AdmissionError('invalid preflight launcher loader') from error
+    launcher = ('measurement_admitted=false\nevaluator_calls=0\nloader_setup_exit_code=0\n'
+                + 'executable=' + loader['executable_path'] + '\n'
+                + 'library=' + loader['library_path'] + '\n'
+                + 'library_sha256=' + loader['library_sha256'] + '\n'
+                + 'library_size_bytes=' + str(loader['library_size_bytes']) + '\nparent_exit_code=0\n')
+    require(components['launcher.txt'] == launcher.encode('utf-8'), 'preflight successful launcher proof mismatch')
+    return report
+
+
+def _preflight_runtime(record, go, *, child):
+    require(type(record) is dict, 'preflight process record required')
+    for key, value in PREFLIGHT_ZERO.items():
+        require(canonical(record.get(key)) == canonical(value), 'preflight process zero-call boundary')
+    require(record.get('sanitized_environment') is True, 'unsanitized preflight process')
+    capped = dict(go['inherited_limits']); capped['RLIMIT_AS'] = list(METADATA_MEMORY)
+    require(canonical(record.get('inherited_limits')) == canonical(capped if child else go['inherited_limits']) and
+            canonical(record.get('capped_limits')) == canonical(capped), 'preflight inherited/capped limits mismatch')
+    for initial, field in ((True, 'initial_runtime'), (False, 'runtime')):
+        runtime = object_at(record, field)
+        require(all(runtime.get(key) == value for key, value in RUNTIME.items()), 'preflight pinned runtime mismatch')
+        try:
+            require(loader_pin(runtime.get('loader')) == go['loader_pin'], 'preflight loader pin mismatch')
+        except LoaderIntegrityError as error:
+            raise AdmissionError('invalid preflight mapped loader') from error
+        flags = runtime.get('flags')
+        executable = runtime['loader'].get('executable_path')
+        require(runtime.get('executable') == executable and type(flags) is list and
+                len(flags) == (7 if child else 10) and flags[:3] == [executable, '-B', '-s'],
+                'preflight executable/flags mismatch')
+        require((child and type(flags[3]) is str and flags[3].startswith('/') and
+                 flags[3].endswith('/scripts/worker36/runner_preflight.py') and
+                 flags[4:6] == ['--child', '--report']) or
+                (not child and flags[3:5] == ['scripts/worker36/runner_preflight.py', '--report'] and
+                 flags[6:] == ['--expected-head', go['head'], '--expected-tree', go['tree']]),
+                'preflight command identity mismatch')
+        expected_flags = {'dont_write_bytecode': 1, 'no_user_site': 1, 'ignore_environment': 0,
+                          'isolated': 0, 'optimize': 0, 'no_site': 0}
+        require(canonical(runtime.get('effective_flags')) == canonical(expected_flags) and
+                runtime.get('python_environment') == {'PYTHONHASHSEED': '0', 'PYTHONDONTWRITEBYTECODE': '1'} and
+                runtime.get('gc_enabled') is True and canonical(runtime.get('gc_threshold')) == canonical([700, 10, 10]) and
+                canonical(runtime.get('address_space')) == canonical(
+                    go['inherited_limits']['RLIMIT_AS'] if initial and not child else list(METADATA_MEMORY)),
+                'preflight flags/environment/GC/memory evidence mismatch')
+    positive_int(record.get('pid'), 'preflight process PID')
+    positive_int(record.get('parent_pid'), 'preflight parent PID')
+    require(record['initial_runtime']['loader'] == record['runtime']['loader'], 'preflight loader changed in process')
+    shell = {key: record['runtime']['loader'][key] for key in
+             ('executable_path', 'library_directory', 'library_path', 'library_sha256', 'library_size_bytes')}
+    require(record.get('shell_loader') == shell, 'preflight shell/runtime loader mismatch')
+    return record['runtime']
+
+
+def validate_prerequisites(go, provenance, proof_bytes):
+    """Replay retained authenticated proof bytes; no networking or policy import."""
+    reviews, preflight = prerequisite_descriptors(go, provenance)
+    require(type(proof_bytes) is dict and set(proof_bytes) == set(PREREQUISITE_NAMES) and
+            all(type(raw) is bytes and len(raw) <= MAX_INPUT_BYTES for raw in proof_bytes.values()),
+            'all bounded authenticated prerequisite inputs required')
+    for review, name in zip(reviews, PREREQUISITE_NAMES[:2]):
+        _review_attestation(proof_bytes[name], review, provenance)
+    run = strict_json(proof_bytes['preflight-run.json'])
+    require(type(run) is dict and type(run.get('id')) is int and run['id'] == preflight['run_id'] and
+            type(run.get('run_attempt')) is int and run['run_attempt'] == preflight['run_attempt'] and
+            run.get('url') == API + '/actions/runs/' + str(preflight['run_id']) and
+            run.get('html_url') == WEB + '/actions/runs/' + str(preflight['run_id']) and
+            run.get('path') == PREFLIGHT_WORKFLOW and run.get('event') == 'pull_request' and
+            run.get('status') == 'completed' and run.get('conclusion') == 'success' and
+            run.get('head_branch') == BRANCH and run.get('head_sha') == go['head'],
+            'successful exact-head preflight run required')
+    repo = object_at(run, 'repository'); head_repo = object_at(run, 'head_repository')
+    require(identity(object_at(run, 'actor')) == provenance['author'] and
+            identity(object_at(run, 'triggering_actor')) == provenance['author'],
+            'preflight run actor/triggering actor mismatch')
+    repository_id = positive_int(repo.get('id'), 'preflight repository ID')
+    require(repo.get('full_name') == head_repo.get('full_name') == REPOSITORY and
+            head_repo.get('id') == repository_id and repo.get('url') == head_repo.get('url') == API and
+            identity(object_at(repo, 'owner')) == provenance['author'], 'preflight run repository mismatch')
+    commit = object_at(run, 'head_commit')
+    require(commit.get('id') == go['head'] and commit.get('tree_id') == go['tree'], 'preflight head/tree mismatch')
+    pulls = run.get('pull_requests')
+    require(type(pulls) is list and len(pulls) == 1 and type(pulls[0]) is dict and
+            pulls[0].get('number') == provenance['pull_request_number'] and
+            pulls[0].get('url') == API + '/pulls/' + str(provenance['pull_request_number']), 'preflight PR binding mismatch')
+    for key, ref, commit_sha in (('head', BRANCH, go['head']), ('base', 'main', BASE_HEAD)):
+        endpoint = object_at(pulls[0], key); pr_repo = object_at(endpoint, 'repo')
+        require(endpoint.get('ref') == ref and endpoint.get('sha') == commit_sha and
+                pr_repo.get('id') == repository_id and pr_repo.get('url') == API, 'preflight PR head/base mismatch')
+    artifact = strict_json(proof_bytes['preflight-artifact.json'])
+    require(type(artifact) is dict and type(artifact.get('id')) is int and artifact['id'] == preflight['artifact_id'] and
+            artifact.get('name') == preflight['artifact_name'] and artifact.get('expired') is False and
+            artifact.get('url') == API + '/actions/artifacts/' + str(preflight['artifact_id']) and
+            artifact.get('archive_download_url') == API + '/actions/artifacts/' + str(preflight['artifact_id']) + '/zip' and
+            artifact.get('digest') == 'sha256:' + preflight['artifact_sha256'] and
+            type(artifact.get('size_in_bytes')) is int and artifact['size_in_bytes'] == preflight['artifact_size_bytes'],
+            'preflight artifact identity/hash/size mismatch')
+    binding = object_at(artifact, 'workflow_run')
+    require(binding.get('id') == preflight['run_id'] and binding.get('head_sha') == go['head'] and
+            binding.get('head_branch') == BRANCH and binding.get('repository_id') ==
+            binding.get('head_repository_id') == repository_id, 'preflight artifact run mismatch')
+    report = _preflight_report_from_zip(proof_bytes['preflight.zip'], preflight)
+    require(type(report) is dict and report.get('schema') == 'worker36-runner-preflight-v1' and
+            report.get('success') is True and report.get('status') == 'preparation_passed' and
+            report.get('repository') == REPOSITORY and report.get('runner_name') == 'bandido-alcatraz-ci' and
+            report.get('diagnostic_head') == go['head'] and report.get('diagnostic_tree') == go['tree'] and
+            report.get('workflow_run') == str(preflight['run_id']) and
+            report.get('workflow_attempt') == str(preflight['run_attempt']) and report.get('event_name') == 'pull_request',
+            'successful exact-head preflight report required')
+    for key, value in PREFLIGHT_ZERO.items():
+        require(canonical(report.get(key)) == canonical(value), 'preflight report zero-call boundary')
+    require(report.get('loader_pin') == go['loader_pin'] and
+            report.get('checked_sources_unchanged_during_run') is True and
+            report.get('checked_file_sha256') == preflight['checked_file_sha256'] and
+            report.get('focused_source_receipt') == preflight['focused_source_receipt'],
+            'preflight report loader/source proof mismatch')
+    focused = object_at(report, 'focused_tests')
+    require(focused.get('success') is True and type(focused.get('tests_run')) is int and focused['tests_run'] > 0 and
+            all(type(focused.get(key)) is int and focused[key] == 0 for key in ('failures', 'errors', 'skipped')) and
+            focused.get('test_modules') == list(PREFLIGHT_TEST_MODULES), 'preflight focused test gate failed')
+    for key, value in PREFLIGHT_ZERO.items():
+        require(canonical(focused.get(key)) == canonical(value), 'focused test zero-call boundary')
+    require(go.get('runtime') == RUNTIME and type(go.get('inherited_limits')) is dict and
+            go['inherited_limits'].get('RLIMIT_AS') == [-1, -1], 'preflight runtime/initial limits binding required')
+    parent = object_at(report, 'parent'); child = object_at(report, 'fresh_child')
+    parent_runtime = _preflight_runtime(parent, go, child=False)
+    child_runtime = _preflight_runtime(child, go, child=True)
+    require(child['parent_pid'] == parent['pid'] and child['pid'] != parent['pid'], 'preflight fresh child identity mismatch')
+    shared = ('implementation', 'version', 'executable_sha256', 'executable', 'effective_flags',
+              'python_environment', 'gc_enabled', 'gc_threshold', 'address_space', 'loader')
+    require(all(canonical(parent_runtime[key]) == canonical(child_runtime[key]) for key in shared),
+            'preflight parent/fresh child runtime mismatch')
+    return {'reviews': reviews, 'runner_preflight': preflight,
+            'prerequisite_requests': prerequisite_requests(go, provenance)}
 
 
 def verified_context(context, provenance, workflow_run, workflow_attempt):
@@ -388,14 +696,16 @@ def verify_provenance(provenance_path, admission_path, expected_admission_sha256
     require(Path(admission_path).parent.resolve() == parent.resolve(), 'admission input directory mismatch')
     _, stored = read_input(provenance_path)
     require(type(stored) is dict, 'provenance object required')
-    inputs = {name: read_input(parent / name) for name in INPUT_NAMES}
-    raw, verified = extract_pr_admission(*(inputs[name][1] for name in INPUT_NAMES[:3]))
+    inputs = {name: read_raw_input(parent / name) for name in INPUT_NAMES}
+    raw, verified = extract_pr_admission(*(strict_json(inputs[name]) for name in INPUT_NAMES[:3]))
     raw_admission, _ = read_input(admission_path)
     require(raw == raw_admission and sha(raw) == expected_admission_sha256,
             'retained admission bytes/hash mismatch')
-    verified.update(verified_context(inputs['request-context.json'][1], verified,
+    verified.update(verified_context(strict_json(inputs['request-context.json']), verified,
                                      stored.get('workflow_run'), stored.get('workflow_attempt')))
-    verified['admission_input_hashes'] = {name: sha(value[0]) for name, value in inputs.items()}
+    verified.update(validate_prerequisites(strict_json(raw), verified,
+                                          {name: inputs[name] for name in PREREQUISITE_NAMES}))
+    verified['admission_input_hashes'] = {name: sha(value) for name, value in inputs.items()}
     require(stored == verified, 'stored provenance does not match authenticated input reconciliation')
     return verified
 
@@ -415,6 +725,8 @@ def authenticate(args):
         require(Path(path).name == name and Path(path).parent.resolve() == parent,
                 'exact retained auth input location required')
         raw_inputs[name], values[name] = read_input(path)
+    for name in PREREQUISITE_NAMES:
+        raw_inputs[name] = read_raw_input(parent / name)
     raw, provenance = extract_pr_admission(values['event.json'], values['pull-request.json'],
                                          values['postmerge-ci.json'])
     require(admitted_loader_pin(strict_json(raw)['loader_pin']) == loader_pin(observed_loader),
@@ -432,6 +744,8 @@ def authenticate(args):
             os.environ.get('GITHUB_REPOSITORY') == REPOSITORY and
             os.environ.get('GITHUB_ACTOR') == OWNER and
             os.environ.get('RUNNER_NAME') == 'bandido-alcatraz-ci', 'runner auth context mismatch')
+    provenance.update(validate_prerequisites(strict_json(raw), provenance,
+                                            {name: raw_inputs[name] for name in PREREQUISITE_NAMES}))
     provenance['admission_input_hashes'] = {name: sha(data) for name, data in raw_inputs.items()}
     handoff = authentication_handoff(raw, provenance, observed_loader,
         expected_head=args.expected_head, expected_tree=args.expected_tree, admission_sha256=sha(raw),
@@ -441,6 +755,36 @@ def authenticate(args):
     write_exclusive(args.destination, raw)
     write_exclusive(args.provenance, canonical(provenance))
     write_exclusive(args.handoff, handoff)
+    return 0
+
+
+def evidence_references(args):
+    """Produce four numeric read targets only; this cannot grant admission."""
+    observed = validate_interpreter()
+    raw, provenance = extract_pr_admission(*(read_input(path)[1] for path in (args.event, args.pull_request, args.ci)))
+    go = strict_json(raw)
+    require(go['head'] == args.expected_head and go['tree'] == args.expected_tree and
+            go['loader_pin'] == loader_pin(observed), 'evidence discovery head/tree/loader mismatch')
+    reviews, preflight = prerequisite_descriptors(go, provenance)
+    output = Path(args.destination).absolute()
+    require(os.environ.get('AUTH') and output == Path(os.environ['AUTH']) / 'evidence-refs.txt',
+            'fixed durable evidence-reference output required')
+    values = [review['comment_id'] for review in reviews] + [preflight['run_id'], preflight['artifact_id']]
+    write_exclusive(output, ''.join(str(value) + '\n' for value in values).encode('ascii'))
+    return 0
+
+
+def retain_network_input(args):
+    """Bound and retain only enumerated authentication responses, never execute."""
+    validate_interpreter()
+    directory = Path(args.directory).absolute()
+    require(os.environ.get('AUTH') and directory == Path(os.environ['AUTH']) and args.name in NETWORK_INPUT_NAMES,
+            'fixed durable authentication input required')
+    raw = sys.stdin.buffer.read(MAX_INPUT_BYTES + 1)
+    require(len(raw) <= MAX_INPUT_BYTES, 'authenticated network response byte cap')
+    if args.name != 'preflight.zip':
+        strict_json(raw)
+    write_exclusive(directory / args.name, raw)
     return 0
 
 
@@ -455,6 +799,12 @@ def main(argv=None):
     commands = parser.add_subparsers(dest='command', required=True)
     context_command = commands.add_parser('request-context')
     context_command.add_argument('--destination', required=True)
+    references = commands.add_parser('evidence-refs')
+    for name in ('event', 'pull-request', 'ci', 'destination', 'expected-head', 'expected-tree'):
+        references.add_argument('--' + name, required=True)
+    retaining = commands.add_parser('retain-input')
+    retaining.add_argument('--directory', required=True)
+    retaining.add_argument('--name', required=True, choices=NETWORK_INPUT_NAMES)
     command = commands.add_parser('authenticate')
     for name in ('event', 'pull-request', 'ci', 'request-context', 'destination', 'provenance',
                  'workflow-run', 'workflow-attempt', 'expected-head', 'expected-tree', 'handoff'):
@@ -462,6 +812,10 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if args.command == 'request-context':
         return create_request_context(args)
+    if args.command == 'evidence-refs':
+        return evidence_references(args)
+    if args.command == 'retain-input':
+        return retain_network_input(args)
     return authenticate(args)
 
 
