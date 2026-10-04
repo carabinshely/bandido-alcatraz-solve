@@ -54,6 +54,7 @@ jobs:
         shell: bash --noprofile --norc -e -o pipefail {0}
         run: |
           # WORKER37_P00_BEGIN
+          set +xv
           set -euo pipefail
           umask 077
           for worker37_name in ${!LD@} ${!PYTHON@}; do
@@ -81,6 +82,8 @@ jobs:
           # WORKER37_P00_END
 
       - name: P01 bounded exact checkout
+        # One action invocation. Its pinned vendor fetch retries, if used, share
+        # this five-minute platform bound and are not metadata-client requests.
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         timeout-minutes: 5
         with:
@@ -98,20 +101,21 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # WORKER37_P02_BEGIN
+          set +xv
           set -euo pipefail
           umask 077
           for worker37_name in ${!LD@} ${!PYTHON@}; do
             unset "$worker37_name"
           done
           export LC_ALL=C
-          export -n GH_TOKEN
+          export -n GH_TOKEN worker37_api_token
           worker37_api_token=${GH_TOKEN-}
           unset GH_TOKEN
           if ! type -P timeout >/dev/null; then
             printf 'P02 execution_blocked missing_timeout\n'
             exit 1
           fi
-          GH_TOKEN="$worker37_api_token" command timeout --signal=KILL 600s /bin/bash --noprofile --norc "$GITHUB_WORKSPACE/scripts/worker37-bootstrap.sh"
+          GH_TOKEN="$worker37_api_token" command timeout --signal=KILL 600s /bin/bash --noprofile --norc "$GITHUB_WORKSPACE/scripts/worker37-bootstrap.sh" 2>/dev/null
           # WORKER37_P02_END
 
       - name: P09 one bounded evidence upload

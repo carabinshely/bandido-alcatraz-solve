@@ -1,5 +1,6 @@
 #!/bin/bash
 # One preparation-only launcher. Invoke only through the frozen P02 workflow.
+set +xv
 set -euo pipefail
 umask 077
 for worker37_name in ${!LD@} ${!PYTHON@}; do
@@ -7,9 +8,12 @@ for worker37_name in ${!LD@} ${!PYTHON@}; do
 done
 export LC_ALL=C
 # Keep the existing credential out of ordinary helper-command environments.
-export -n GH_TOKEN
+export -n GH_TOKEN worker37_api_token
 worker37_api_token=${GH_TOKEN-}
 unset GH_TOKEN
+# Unexpected redirection/helper errors must not disclose host paths. Deliberate
+# fixed diagnostics use stdout; Python's own bounded stderr has private custody.
+exec 2>/dev/null
 
 phase=P02
 attempt_directory=
@@ -124,7 +128,7 @@ command sync -- "$allocation_directory" 2>/dev/null || block evidence_incomplete
 # Called once on an ordinary return, within the original outer deadline. A hard
 # kill can prevent this trap; an absent record therefore remains absent.
 finish() {
-  local original_exit=$1 terminal_status=$1 name path bytes before after digest
+  local original_exit=$1 terminal_status=$1 name path bytes before after digest payload_digest payload_before payload_after
   local ordinary_bytes=0 terminal_bytes=0 payload_paths= inventory_lines=
   trap - EXIT
   set +e
@@ -170,13 +174,17 @@ finish() {
   (( terminal_bytes += bytes ))
   (( terminal_bytes <= 1048576 && ordinary_bytes + terminal_bytes <= 31457280 )) || { printf 'P09 resource_incomplete payload_budget\n'; return 1; }
   sync_file_and_parent "$attempt_directory/shell-payload.txt" || { printf 'P09 evidence_incomplete payload_inventory_sync\n'; return 1; }
+  payload_before=$(stat_identity "$attempt_directory/shell-payload.txt") || return 1
+  payload_digest=$(sha256_file "$attempt_directory/shell-payload.txt") || return 1
+  payload_after=$(stat_identity "$attempt_directory/shell-payload.txt") || return 1
+  [[ $payload_before == "$payload_after" ]] || { printf 'P09 integrity_invalid payload_inventory_changed\n'; return 1; }
   payload_paths+="$attempt_directory/shell-payload.txt"$'\n'
   if [[ -n ${GITHUB_OUTPUT-} ]]; then
     # The runner consumes these control records; mask before the upload action
     # can display its resolved input. Private paths are never ordinary log data.
     printf '::add-mask::%s\n' "$RUNNER_TOOL_CACHE"
     printf '::add-mask::%s\n' "$attempt_directory"
-    printf 'payload_paths<<WORKER37_PAYLOAD_PATHS\n%sWORKER37_PAYLOAD_PATHS\npayload_ready=true\n' "$payload_paths" >> "$GITHUB_OUTPUT" || return 1
+    printf 'payload_paths<<WORKER37_PAYLOAD_PATHS\n%sWORKER37_PAYLOAD_PATHS\npayload_inventory_sha256=%s\npayload_ready=true\n' "$payload_paths" "$payload_digest" >> "$GITHUB_OUTPUT" || return 1
   fi
   printf 'P09 bounded_payload_confirmed provider_wrapper_unverified\n'
   return "$terminal_status"
@@ -188,6 +196,41 @@ command cat -- "$allocation_directory/reservation.txt" > "$attempt_directory/res
 sync_file_and_parent "$attempt_directory/reservation.txt" || block evidence_incomplete reservation_copy_sync
 printf 'schema=worker37-shell-prefix-v1\nphase=P03\nallocation_id=%s\nrun_id=%s\nrun_attempt=1\nreservation_file_and_directory_fsync=confirmed\nattempt_parent_fsync=confirmed\ndescriptor_binding=not_yet_validated\n' "$allocation_id" "$GITHUB_RUN_ID" > "$attempt_directory/shell-prefix.txt" || block evidence_incomplete prefix_write
 sync_file_and_parent "$attempt_directory/shell-prefix.txt" || block evidence_incomplete prefix_sync
+
+# Preserve the provider event before a cache/runtime failure can end this
+# attempt. This is a bounded raw snapshot, not descriptor interpretation.
+canonical_existing "${GITHUB_EVENT_PATH-}"
+[[ -f $GITHUB_EVENT_PATH ]] || block execution_blocked event_missing
+event_before=$(stat_identity "$GITHUB_EVENT_PATH") || block evidence_incomplete event_stat
+event_bytes=$(command stat -c '%s' -- "$GITHUB_EVENT_PATH" 2>/dev/null) || block evidence_incomplete event_stat
+[[ $event_bytes =~ ^[0-9]{1,8}$ ]] || block resource_incomplete event_size
+(( event_bytes <= 2097152 )) || block resource_incomplete event_size
+event_source_digest=$(sha256_file "$GITHUB_EVENT_PATH") || block evidence_incomplete event_hash
+event_snapshot=$attempt_directory/event.json
+# The bound applies only to this copy subshell. It cannot change the Python
+# leaf's inherited limits. A growing source can leave at most a 2MiB prefix.
+if ! (
+  trap - EXIT
+  set +o posix
+  event_copy_limit=$(ulimit -S -f)
+  [[ $event_copy_limit == unlimited || ( $event_copy_limit =~ ^[0-9]+$ && $event_copy_limit -ge 2048 ) ]] || exit 1
+  ulimit -S -f 2048 || exit 1
+  command cat -- "$GITHUB_EVENT_PATH"
+) > "$event_snapshot" 2>/dev/null; then
+  block evidence_incomplete event_copy_incomplete
+fi
+event_after=$(stat_identity "$GITHUB_EVENT_PATH") || block evidence_incomplete event_stat
+event_copy_bytes=$(command stat -c '%s' -- "$event_snapshot" 2>/dev/null) || block evidence_incomplete event_snapshot_stat
+[[ $event_before == "$event_after" && $event_copy_bytes == "$event_bytes" ]] || block integrity_invalid event_changed
+event_snapshot_before=$(stat_identity "$event_snapshot") || block evidence_incomplete event_snapshot_stat
+event_snapshot_digest=$(sha256_file "$event_snapshot") || block evidence_incomplete event_snapshot_hash
+event_snapshot_after=$(stat_identity "$event_snapshot") || block evidence_incomplete event_snapshot_stat
+[[ $event_snapshot_before == "$event_snapshot_after" && $event_snapshot_digest == "$event_source_digest" ]] || block integrity_invalid event_snapshot_readback
+sync_file_and_parent "$event_snapshot" || block evidence_incomplete event_snapshot_sync
+printf 'event_size_bytes=%s\nevent_sha256=%s\nevent_stat=%s\nevent_file_and_directory_fsync=confirmed\nevent_descriptor_interpretation=not_yet_performed\n' "$event_copy_bytes" "$event_snapshot_digest" "$event_snapshot_after" >> "$attempt_directory/shell-prefix.txt" || block evidence_incomplete event_provenance_write
+sync_file_and_parent "$attempt_directory/shell-prefix.txt" || block evidence_incomplete event_provenance_sync
+export WORKER37_EVENT_SHA256=$event_snapshot_digest WORKER37_EVENT_STAT=$event_snapshot_after
+export WORKER37_EVENT_FSYNC_CONFIRMED=1
 
 phase=P04
 executable=$RUNNER_TOOL_CACHE/Python/3.11.16/x64/bin/python3.11
@@ -212,8 +255,6 @@ checkout_tree=$(command git -C "$GITHUB_WORKSPACE" rev-parse --verify 'HEAD^{tre
 module=$GITHUB_WORKSPACE/scripts/worker37_bootstrap.py
 canonical_existing "$module"
 [[ -f $module ]] || block execution_blocked module_missing
-canonical_existing "${GITHUB_EVENT_PATH-}"
-[[ -f $GITHUB_EVENT_PATH ]] || block execution_blocked event_missing
 
 export WORKER37_EXECUTABLE=$executable WORKER37_LIBRARY=$library
 export WORKER37_EXECUTABLE_STAT=$executable_after WORKER37_LIBRARY_STAT=$library_after
@@ -226,7 +267,7 @@ export WORKER37_ALLOCATION_ID=$allocation_id
 phase=P05
 printf 'P05 metadata_started\n'
 set +e
-GH_TOKEN="$worker37_api_token" LD_LIBRARY_PATH="${library%/*}" PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 command timeout --foreground --signal=KILL 120s "$executable" -B -s "$module" --event "$GITHUB_EVENT_PATH" --output "$attempt_directory" --source "$GITHUB_WORKSPACE" > "$attempt_directory/metadata.stdout" 2> "$attempt_directory/metadata.stderr"
+GH_TOKEN="$worker37_api_token" LD_LIBRARY_PATH="${library%/*}" PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 command timeout --foreground --signal=KILL 120s "$executable" -B -s "$module" --event "$event_snapshot" --output "$attempt_directory" --source "$GITHUB_WORKSPACE" > "$attempt_directory/metadata.stdout" 2> "$attempt_directory/metadata.stderr"
 metadata_exit=$?
 set -e
 unset worker37_api_token
@@ -235,5 +276,7 @@ if (( metadata_exit == 137 )); then
   terminal_error=metadata_killed_cause_uncertain
 elif (( metadata_exit != 0 )); then
   terminal_error=metadata_nonzero
+elif [[ ! -f $attempt_directory/result.json || ! -f $attempt_directory/inventory.json || ! -f $attempt_directory/terminal.json ]]; then
+  block evidence_incomplete metadata_terminal_missing
 fi
 exit "$metadata_exit"
