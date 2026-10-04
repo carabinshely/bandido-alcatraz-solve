@@ -1,4 +1,4 @@
-"""Exactly sixty frozen, metadata-only Worker37 engineering cases.
+"""Seventy-five frozen, metadata-only Worker37 engineering cases.
 
 The declared case IDs are the entire suite. There is no discovery, fuzzing,
 parameterization, scientific import, measurement fixture, game, or live HTTP.
@@ -15,6 +15,7 @@ import builtins
 import copy
 from contextlib import ExitStack, redirect_stdout, redirect_stderr
 import hashlib
+import http.client
 import importlib.abc
 import importlib.util
 import io
@@ -140,6 +141,31 @@ class LiteralResponse:
         self.close()
 
 
+class LiteralIncompleteResponse(LiteralResponse):
+    """Actual IncompleteRead carries observed decoded bytes after a fixed prefix."""
+    def __init__(self,prefix,partial,status=200,headers=None):
+        super().__init__(prefix+partial,status,
+                         headers if headers is not None else {'Transfer-Encoding':'chunked'})
+        self.prefix=prefix
+        self.partial=partial
+        self.incomplete_raised=False
+
+    def read(self,amount=-1):
+        if amount < 0:
+            raise AssertionError('unbounded incomplete-response read')
+        if self.offset < len(self.prefix):
+            raw=self.prefix[self.offset:self.offset+amount]
+            self.offset+=len(raw)
+            return raw
+        if self.incomplete_raised:
+            raise AssertionError('read retried after actual IncompleteRead')
+        if len(self.partial)>amount:
+            raise AssertionError('literal partial exceeds the requested decoded-byte allowance')
+        self.incomplete_raised=True
+        self.offset+=len(self.partial)
+        raise http.client.IncompleteRead(self.partial,expected=1)
+
+
 class LiteralScenario:
     """One baseline copy with the single mutation in its named test method."""
     def __init__(self):
@@ -155,6 +181,15 @@ class LiteralScenario:
         self.mapped_inode = 11
         self.restoration_failure = False
         self.readback_mismatch = False
+        self.readback_after_requests = 7
+        self.readback_memory_failure = False
+        self.restoration_limit_failure = False
+        self.source_cap_failure = False
+        self.source_identity_failure = False
+        self.descriptor_close_operation = None
+        self.injected_close_failures = 0
+        self.event_hash_override = None
+        self.extra_numeric_literal = None
         self.short_write = False
         self.directory_fsync_failure = False
         self.tls_failure = False
@@ -221,6 +256,9 @@ class LiteralScenario:
                     'workflow_run':{'id':105, 'head_sha':'3'*40}}
         responses = [LiteralResponse(canonical(item)) for item in
                      (pr, ci, exhaustive, adversarial, prior, artifact)]
+        if self.extra_numeric_literal is not None:
+            pr_raw=canonical(pr)
+            responses[0]=LiteralResponse(pr_raw[:-2]+b',"literal_number":'+self.extra_numeric_literal+b'}\n')
         responses.append(LiteralResponse(self.zip_bytes))
         if self.restoration_failure:
             responses[0].close_unconfirmed = True
@@ -269,7 +307,7 @@ def run_python(s):
             'WORKER37_ALLOCATION_ID':'worker37-bootstrap-readiness-01',
             'WORKER37_PR_NUMBER':'101', 'WORKER37_RUN_ID':'107', 'WORKER37_HEAD':'1'*40,
             'WORKER37_TREE':'2'*40, 'WORKER37_BRANCH':s.descriptor['branch'],
-            'WORKER37_EVENT_SHA256':sha(event_raw),
+            'WORKER37_EVENT_SHA256':s.event_hash_override or sha(event_raw),
             'WORKER37_EVENT_STAT':f'{event_stat.st_dev}:{event_stat.st_ino}:{event_stat.st_size}:{int(event_stat.st_mtime)}',
             'WORKER37_EVENT_FSYNC_CONFIRMED':'1',
             'WORKER37_JOB':'bootstrap', 'RUNNER_TOOL_CACHE':str(cache),
@@ -300,6 +338,8 @@ def run_python(s):
         original_build_opener = urllib.request.build_opener
         original_sha256 = hashlib.sha256
         fd_paths = {}
+        fd_roles = {}
+        source_fstat_count = 0
         runtime_offsets = {}
         runtime_data = {executable:EXECUTABLE_BYTES,library:LIBRARY_BYTES}
         runtime_fds = {-10010:executable,-10011:library}
@@ -324,6 +364,12 @@ def run_python(s):
             fd = original_open(path,flags,mode,dir_fd=dir_fd)
             absolute = str(Path(fd_paths[dir_fd])/name) if dir_fd is not None else name
             fd_paths[fd] = absolute
+            if absolute == str(source/'scripts/worker37_bootstrap.py'):
+                fd_roles[fd] = 'source_read'
+            elif name == 'event.json' and dir_fd is not None:
+                fd_roles[fd] = 'event_snapshot'
+            elif name == 'pull-request.json' and flags & os.O_WRONLY:
+                fd_roles[fd] = 'api_write'
             return fd
 
         def os_read(fd, amount):
@@ -334,8 +380,12 @@ def run_python(s):
                 part = data[offset:offset+amount]
                 runtime_offsets[fd] += len(part)
                 return part
+            if (s.readback_memory_failure and not changed_readback and len(s.requests)==7
+                    and fd_paths.get(fd)==str(output/'event.json')):
+                changed_readback=True
+                raise MemoryError('INVENTED first P09 read memory failure')
             raw = original_read(fd,amount)
-            if (s.readback_mismatch and not changed_readback and len(s.requests)==7
+            if (s.readback_mismatch and not changed_readback and len(s.requests)==s.readback_after_requests
                     and fd_paths.get(fd)==str(output/'event.json') and raw):
                 changed_readback=True
                 return bytes([raw[0]^1])+raw[1:]
@@ -352,16 +402,31 @@ def run_python(s):
         def os_close(fd):
             if fd in runtime_fds:
                 return
+            role=fd_roles.pop(fd,None)
             fd_paths.pop(fd,None)
-            return original_close(fd)
+            result=original_close(fd)
+            if role==s.descriptor_close_operation and role is not None and not s.injected_close_failures:
+                s.injected_close_failures+=1
+                raise OSError('INVENTED descriptor close failure after safe fixture close')
+            return result
 
         def os_stat(path, *args, **kwargs):
             return runtime_info.get(os.fsdecode(path)) or original_stat(path,*args,**kwargs)
 
         def os_fstat(fd):
+            nonlocal source_fstat_count
             if fd in runtime_fds:
                 return runtime_info[runtime_fds[fd]]
-            return original_fstat(fd)
+            value=original_fstat(fd)
+            if fd_roles.get(fd)=='source_read':
+                source_fstat_count+=1
+                if s.source_cap_failure or (s.source_identity_failure and source_fstat_count==2):
+                    return types.SimpleNamespace(st_mode=value.st_mode,st_dev=value.st_dev,
+                        st_ino=value.st_ino+(1 if s.source_identity_failure else 0),
+                        st_size=2097153 if s.source_cap_failure else value.st_size,
+                        st_mtime=value.st_mtime,st_mtime_ns=value.st_mtime_ns,
+                        st_uid=value.st_uid,st_gid=value.st_gid)
+            return value
 
         def os_fsync(fd):
             nonlocal failed_dirsync
@@ -392,6 +457,8 @@ def run_python(s):
 
         def getrlimit(kind):
             s.observed_getrlimit.append(kind)
+            if s.restoration_limit_failure and s.requests and kind==resource.RLIMIT_AS:
+                return (MEMORY_BYTES-1,MEMORY_BYTES)
             return actual_limit_pairs[kind]
 
         def setrlimit(kind,value):
@@ -417,7 +484,11 @@ def run_python(s):
             record['body']=response.body
             read=response.read
             def counted_read(amount):
-                raw=read(amount)
+                try:
+                    raw=read(amount)
+                except http.client.IncompleteRead as error:
+                    record['received']+=len(error.partial)
+                    raise
                 record['received']+=len(raw)
                 return raw
             response.read=counted_read
@@ -1043,6 +1114,7 @@ class Worker37LiteralCases(unittest.TestCase):
         run_python(s)
         self.assertOutcome(s, 'integrity_invalid', 'P09', 7)
         self.assertIn('readback', s.result['error_code'])
+        self.assertPrimary(s,'integrity_invalid','readback_digest','P09')
 
     def test_T060_source_graph_and_terminal_stop(self):
         workflow = WORKFLOW_PATH.read_text()
@@ -1071,6 +1143,201 @@ class Worker37LiteralCases(unittest.TestCase):
         self.assertNotIn(' jq ', launcher+workflow)
         self.assertIn('measurement_admitted', module)
         self.assertIn('scientific_classification', module)
+
+    def test_T061_overflow_primary_survives_readback_failure(self):
+        s = LiteralScenario()
+        s.response_replacements[0] = LiteralResponse(b'X'*2097153,200,{'Transfer-Encoding':'chunked'})
+        s.readback_mismatch = True
+        s.readback_after_requests = 1
+        run_python(s)
+        self.assertOutcome(s,'resource_incomplete','P07',1)
+        self.assertPrimary(s,'resource_incomplete','input_body_overflow','P07')
+        self.assertSecondary(s,'integrity_invalid','readback_digest','P09')
+        self.assertEqual(s.result['response_body_bytes'],2097153)
+        self.assertEqual(s.retained['pull-request.json'],b'X'*2097152)
+
+    def test_T062_integrity_primary_survives_restoration_failure(self):
+        s = LiteralScenario()
+        raw = b'{"id":1,"id":2}'
+        s.response_replacements[0] = LiteralResponse(raw)
+        s.restoration_limit_failure = True
+        run_python(s)
+        self.assertOutcome(s,'integrity_invalid','P07',1)
+        self.assertPrimary(s,'integrity_invalid','duplicate_json_key','P07')
+        self.assertSecondary(s,'evidence_incomplete','restoration_mismatch','P09')
+        self.assertEqual(s.retained['pull-request.json'],raw)
+        self.assertFalse(s.result['restoration']['confirmed'])
+
+    def test_T063_first_p09_memory_failure_has_primary(self):
+        s = LiteralScenario()
+        s.readback_memory_failure = True
+        run_python(s)
+        self.assertOutcome(s,'resource_incomplete','P09',7)
+        self.assertPrimary(s,'resource_incomplete','terminal_memory_exhausted','P09')
+
+    def test_T064_source_cap_primary_survives_descriptor_close(self):
+        s = LiteralScenario()
+        s.source_cap_failure = True
+        s.descriptor_close_operation = 'source_read'
+        run_python(s)
+        self.assertOutcome(s,'resource_incomplete','P06',0)
+        self.assertPrimary(s,'resource_incomplete','local_file_cap','P06')
+        self.assertSecondary(s,'evidence_incomplete','descriptor_close_failed','P06','bounded_read')
+        self.assertEqual(s.injected_close_failures,1)
+
+    def test_T065_source_identity_primary_survives_descriptor_close(self):
+        s = LiteralScenario()
+        s.source_identity_failure = True
+        s.descriptor_close_operation = 'source_read'
+        run_python(s)
+        self.assertOutcome(s,'integrity_invalid','P06',0)
+        self.assertPrimary(s,'integrity_invalid','local_file_changed','P06')
+        self.assertSecondary(s,'evidence_incomplete','descriptor_close_failed','P06','bounded_read')
+        self.assertEqual(s.injected_close_failures,1)
+
+    def test_T066_event_integrity_primary_survives_descriptor_close(self):
+        s = LiteralScenario()
+        s.event_hash_override = '0'*64
+        s.descriptor_close_operation = 'event_snapshot'
+        run_python(s)
+        self.assertOutcome(s,'integrity_invalid','P05',0)
+        self.assertPrimary(s,'integrity_invalid','event_snapshot_agreement','P05')
+        self.assertSecondary(s,'evidence_incomplete','descriptor_close_failed','P05','event_snapshot')
+        self.assertEqual(s.injected_close_failures,1)
+
+    def test_T067_persistence_primary_survives_descriptor_close(self):
+        s = LiteralScenario()
+        s.short_write = True
+        s.descriptor_close_operation = 'api_write'
+        run_python(s)
+        self.assertOutcome(s,'evidence_incomplete','P07',1)
+        self.assertPrimary(s,'evidence_incomplete','persistence_failed','P07')
+        self.assertSecondary(s,'evidence_incomplete','descriptor_close_failed','P07','evidence_write')
+        self.assertEqual(s.injected_close_failures,1)
+        self.assertEqual(s.retained['pull-request.json'],s.requests[0]['body'][:3])
+        self.assertFalse(s.result['inputs']['pull-request.json']['file_fsync_confirmed'])
+        self.assertFalse(s.result['inputs']['pull-request.json']['directory_fsync_confirmed'])
+
+    def test_T068_incomplete_read_partial_application_retained(self):
+        s = LiteralScenario()
+        s.response_replacements[0] = LiteralIncompleteResponse(b'{"x"',b':1}')
+        run_python(s)
+        self.assertOutcome(s,'evidence_incomplete','P07',1)
+        self.assertPrimary(s,'evidence_incomplete','response_incomplete_read','P07')
+        self.assertEqual(s.retained['pull-request.json'],b'{"x":1}')
+        self.assertEqual(s.result['response_body_bytes'],7)
+        self.assertEqual(s.requests[0]['received'],7)
+        self.assertIncomplete(s.result['requests'][0],7,7)
+
+    def test_T069_incomplete_redirect_partial_omitted(self):
+        s = LiteralScenario()
+        url = 'https://worker37fixture.blob.core.windows.net/a?signature=REPAIR01_SECRET'
+        raw = ('INVENTED repair01 redirect '+url+' token '+TOKEN).encode()
+        s.response_replacements[6] = LiteralIncompleteResponse(b'',raw,302,{'Location':url,'Transfer-Encoding':'chunked'})
+        run_python(s)
+        self.assertOutcome(s,'evidence_incomplete','P07',7)
+        self.assertPrimary(s,'evidence_incomplete','response_incomplete_read','P07')
+        self.assertIncomplete(s.result['requests'][6],len(raw),0)
+        self.assertOmitted(s,raw,'redirect_body_may_contain_signed_url',302)
+        self.assertEqual(s.result['response_body_bytes'],sum(r['received'] for r in s.requests))
+        combined = s.output+b''.join(s.retained.values())
+        self.assertNotIn(b'REPAIR01_SECRET',combined)
+        self.assertNotIn(TOKEN.encode(),combined)
+        self.assertNotIn('preflight.zip',s.retained)
+
+    def test_T070_incomplete_storage_error_partial_omitted(self):
+        s = LiteralScenario()
+        url = 'https://worker37fixture.blob.core.windows.net/a?signature=REPAIR01_SECRET'
+        raw = ('INVENTED repair01 storage error '+url+' token '+TOKEN).encode()
+        s.response_replacements[6] = LiteralResponse(b'',302,{'Location':url})
+        s.response_replacements[7] = LiteralIncompleteResponse(b'',raw,403,{'Transfer-Encoding':'chunked'})
+        run_python(s)
+        self.assertOutcome(s,'evidence_incomplete','P07',8)
+        self.assertPrimary(s,'evidence_incomplete','response_incomplete_read','P07')
+        self.assertUnauthenticatedStorage(s)
+        self.assertIncomplete(s.result['requests'][7],len(raw),0)
+        self.assertOmitted(s,raw,'storage_error_body_may_contain_signed_url',403)
+        self.assertEqual(s.result['response_body_bytes'],sum(r['received'] for r in s.requests))
+        combined = s.output+b''.join(s.retained.values())
+        self.assertNotIn(b'REPAIR01_SECRET',combined)
+        self.assertNotIn(TOKEN.encode(),combined)
+        self.assertNotIn('preflight.zip',s.retained)
+
+    def test_T071_incomplete_partial_detection_byte_overflow(self):
+        s = LiteralScenario()
+        s.response_replacements[0] = LiteralIncompleteResponse(b'X'*2097152,b'X')
+        run_python(s)
+        self.assertOutcome(s,'resource_incomplete','P07',1)
+        self.assertPrimary(s,'resource_incomplete','input_body_overflow','P07')
+        self.assertEqual(s.result['response_body_bytes'],2097153)
+        self.assertEqual(s.requests[0]['received'],2097153)
+        self.assertEqual(s.retained['pull-request.json'],b'X'*2097152)
+        self.assertIncomplete(s.result['requests'][0],2097153,2097152)
+        self.assertTrue(s.result['requests'][0]['truncated'])
+
+    def test_T072_positive_float_overflow_rejected(self):
+        s = LiteralScenario()
+        s.extra_numeric_literal = b'1e999'
+        run_python(s)
+        self.assertOutcome(s,'integrity_invalid','P07',1)
+        self.assertPrimary(s,'integrity_invalid','nonfinite_json','P07')
+        self.assertEqual(s.retained['pull-request.json'],s.requests[0]['body'])
+        self.assertIn(b'"literal_number":1e999',s.retained['pull-request.json'])
+
+    def test_T073_negative_float_overflow_rejected(self):
+        s = LiteralScenario()
+        s.extra_numeric_literal = b'-1e999'
+        run_python(s)
+        self.assertOutcome(s,'integrity_invalid','P07',1)
+        self.assertPrimary(s,'integrity_invalid','nonfinite_json','P07')
+        self.assertEqual(s.retained['pull-request.json'],s.requests[0]['body'])
+        self.assertIn(b'"literal_number":-1e999',s.retained['pull-request.json'])
+
+    def test_T074_finite_float_boundary_accepted(self):
+        s = LiteralScenario()
+        s.extra_numeric_literal = b'1e308'
+        run_python(s)
+        self.assertOutcome(s,'bootstrap_ready','P09',7)
+        self.assertEqual(s.retained['pull-request.json'],s.requests[0]['body'])
+        self.assertIn(b'"literal_number":1e308',s.retained['pull-request.json'])
+
+    def test_T075_descriptor_close_only_becomes_primary(self):
+        s = LiteralScenario()
+        s.descriptor_close_operation = 'source_read'
+        run_python(s)
+        self.assertOutcome(s,'evidence_incomplete','P06',0)
+        self.assertPrimary(s,'evidence_incomplete','descriptor_close_failed','P06')
+        self.assertEqual(s.injected_close_failures,1)
+        self.assertFalse(any(item.get('code')=='descriptor_close_failed'
+                             for item in s.result['secondary_failures']))
+
+    def assertPrimary(self,s,classification,code,phase):
+        self.assertEqual(s.result['primary_failure'],{
+            'classification':classification,'code':code,'phase':phase})
+        self.assertEqual(s.result['classification'],classification)
+        self.assertEqual(s.result['error_code'],code)
+        self.assertEqual(s.result['failed_phase'],phase)
+        self.assertEqual(s.exit_code,{'resource_incomplete':3,'integrity_invalid':4,'evidence_incomplete':5}[classification])
+        lines=s.output.decode().splitlines()
+        self.assertIn('WORKER37_PRIMARY_CLASSIFICATION='+classification,lines)
+        self.assertIn('WORKER37_PRIMARY_ERROR='+code,lines)
+        self.assertIn('WORKER37_PRIMARY_PHASE='+phase,lines)
+        self.assertIn('WORKER37_METADATA_EXIT='+str(s.exit_code),lines)
+
+    def assertSecondary(self,s,classification,code,phase,operation=None):
+        matching=[item for item in s.result['secondary_failures']
+                  if item.get('classification')==classification and item.get('code')==code
+                  and item.get('phase')==phase]
+        self.assertEqual(len(matching),1,s.result['secondary_failures'])
+        if operation is not None:
+            self.assertEqual(matching[0]['operation'],operation)
+
+    def assertIncomplete(self,record,received,retained):
+        self.assertEqual(record['received_bytes'],received)
+        self.assertEqual(record['retained_bytes'],retained)
+        self.assertTrue(record['incomplete_read'])
+        self.assertTrue(record['unknown_remainder'])
+        self.assertFalse(record['complete'])
 
     def assertOutcome(self, s, classification, phase, requests):
         self.assertIsNotNone(s.result, s.output.decode(errors='replace'))
@@ -1209,6 +1476,21 @@ def frozen_suite():
         Worker37LiteralCases('test_T058_directory_fsync_failure'),
         Worker37LiteralCases('test_T059_readback_digest_mismatch'),
         Worker37LiteralCases('test_T060_source_graph_and_terminal_stop'),
+        Worker37LiteralCases('test_T061_overflow_primary_survives_readback_failure'),
+        Worker37LiteralCases('test_T062_integrity_primary_survives_restoration_failure'),
+        Worker37LiteralCases('test_T063_first_p09_memory_failure_has_primary'),
+        Worker37LiteralCases('test_T064_source_cap_primary_survives_descriptor_close'),
+        Worker37LiteralCases('test_T065_source_identity_primary_survives_descriptor_close'),
+        Worker37LiteralCases('test_T066_event_integrity_primary_survives_descriptor_close'),
+        Worker37LiteralCases('test_T067_persistence_primary_survives_descriptor_close'),
+        Worker37LiteralCases('test_T068_incomplete_read_partial_application_retained'),
+        Worker37LiteralCases('test_T069_incomplete_redirect_partial_omitted'),
+        Worker37LiteralCases('test_T070_incomplete_storage_error_partial_omitted'),
+        Worker37LiteralCases('test_T071_incomplete_partial_detection_byte_overflow'),
+        Worker37LiteralCases('test_T072_positive_float_overflow_rejected'),
+        Worker37LiteralCases('test_T073_negative_float_overflow_rejected'),
+        Worker37LiteralCases('test_T074_finite_float_boundary_accepted'),
+        Worker37LiteralCases('test_T075_descriptor_close_only_becomes_primary'),
     ))
 
 
