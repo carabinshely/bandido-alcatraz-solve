@@ -1,0 +1,53 @@
+{
+  "schema": "worker36-recovery-r1-driver-tests-v1",
+  "status": "prospectively-fixed-before-execution",
+  "scope": "Rebuild only the established explicit loader binding, original preservation deadline, bounded failure persistence, supervisor callback and confirmed restoration repairs as a new candidate. Published D01-D54 remain the starting suite; no old unpublished receipt is recreated.",
+  "new_fixed_methods": [
+    "R1D01 actual loader pin matches external freeze before source restoration; one matching and one differing literal identity",
+    "R1D02 paired CLOCK_BOOTTIME-before-MONOTONIC cutoff publication, exact three output keys, conservative floor rounding and same boot ID",
+    "R1D03 absent, nonabsolute, symlink and partial/failed GitHub-output publication never fabricate a complete handoff or retry",
+    "R1D04 missing/malformed/expired incoming preservation handoff blocks optional bulk work and never starts a fresh600 interval",
+    "R1D05 valid incoming handoff clamps to the smaller independently recovered final/staged closing anchor; no deadline reset after terminal status change",
+    "R1D06 first measurement failure1900 arms cutoff2500 before terminalization; terminalization ending2601 cannot grant3201",
+    "R1D07 first supervisor callback observation1900 owns cutoff2500 before helper persistence and driver handoff; actual run_child uses literal mocked Popen/proc/clock/alarm only",
+    "R1D08 one-shot expiry during reconciliation stops bulk terminalization with one reserved marker only; prior integrity remains primary",
+    "R1D09 expiry during ordinary receipt publication stops bulk retry; retain cached last-available count evidence and original deadline",
+    "R1D10 timer arming fails before or after mocked installation; no retry, no new interval and only bounded marker recovery",
+    "R1D11 failure callback metadata allocation fails after arm or timestamp is unavailable; original or unknown first boundary remains nonrenewable",
+    "R1D12 coordinator restoration matrix: disable/handler failures before operation, after-operation MemoryError with confirmed success, silent mismatch and unavailable getters; both operations and confirmations attempted independently",
+    "R1D13 offline restoration has the same matrix and only sidecar work after disable; in-memory prior integrity survives later confirmed-restoration MemoryError",
+    "R1D14 handler installation mutates then raises; restoration ownership starts before installation and confirmed state is checked",
+    "R1D15 incoming preserve deadline is already expired or expires during verification; no second reconciliation, hash inventory, package or fresh timer",
+    "R1D16 fixed known partial-spawn resource failure and unknown ownership failure stop a two-cell invented schedule before cell02"
+  ],
+  "existing_case_maintenance": [
+    "D11 current receipt becomes focused-recovery-r1-test-receipt.json and checked-source map contains actual new loader helper and all R1 finite plans",
+    "Literal runtime/GO fixtures gain explicit invented loader identities and mock only the identity observer; production raw pins remain unchanged",
+    "D44 checks the reserved restoration sidecar after confirmed after-operation MemoryError rather than expecting an unguarded receipt rewrite after timer disable",
+    "D45-D54 explicitly provide a fabricated original handoff; expired/unavailable deadlines assert no bulk retry and retained raw prefix/sidecar, with observed deadline rounded conservatively to milliseconds; no implementation default600 is allowed",
+    "Existing terminalization/reconciliation integrity/resource/failure-order assertions remain; expectations are changed only where the established no-bulk-after-expiry boundary requires sidecars instead of later receipt writes"
+  ],
+  "new_actual_process_starts": 0,
+  "historical_imports": 0,
+  "constructor_executions": 0,
+  "measurement_fixture_constructions": 0,
+  "candidate_evaluator_calls": 0,
+  "reference_evaluator_calls": 0,
+  "games": 0,
+  "execution": "Coordinator alone runs the explicit eight-module literal suite after all owners freeze bytes. Use actual512MiB RLIMIT_AS; preserve every fresh attempt and source map. No broad policy/game discovery, research, GitHub Actions, admission or old-review reuse.",
+  "preexecution_static_amendment": [
+    "R1D09: retained integrity plus two observed calls discovered inside terminalize must survive expiry during receipt write; one reconciliation only.",
+    "R1D05/R1D10: external deadline1000, earlier anchor500, now400; failed shorter timer arm leaves bound unconfirmed and permits only reserved marker, no bulk retry.",
+    "R1D06: first failure100 fixes deadline700; delay before actual arming to699 yields at most1 second, never600 from a stale sample.",
+    "R1D09 second fixed variant: receipt read returns retained integrity and advances to cutoff before next check; shared current receipt must preserve that known integrity without reread.",
+    "R1D15 fixed second-retain expiry preserves the previously observed secondary cause and the new later cause; shared state is updated before persistence.",
+    "R1D09 fixed write-integrity exception coincident with cutoff: retain typed write failure in shared state before checking expiry, so later deadline exhaustion cannot replace known integrity.",
+    "R1D04 missing/invalid external cutoff is an infrastructure/custody blocker, not proof of corrupted scientific evidence; an observed expired numeric cutoff remains typed resource exhaustion."
+  ],
+  "attempt_01_followup": {
+    "preserved_artifacts": "evidence/driver-slice/attempt-01.json, attempt-01.log, attempt-01-source/",
+    "result": "70 methods; two failed fixed subcases; no scientific execution",
+    "production_fix": "D50 exposed premature zero-entry prerequisite normalization before first reconciliation. Retain typed raw causes in memory, then use the same reducer at terminalize/sidecar with actual available counts. D50 assertions remain unchanged.",
+    "test_timeline_correction": "R1D11 metadata variant now explicitly delays supervisor return to2601 after the first1900 failure/2500 cutoff. A return at1900 still has confirmed remaining time and may legitimately reconcile; the regression must exercise elapsed original time to require no bulk recovery or renewed cutoff."
+  }
+}

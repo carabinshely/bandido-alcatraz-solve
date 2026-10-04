@@ -1,6 +1,8 @@
 """One branch-safe, externally admitted Worker36 allocation; no default GO."""
 from __future__ import annotations
 import argparse
+import math
+import stat
 import os
 from pathlib import Path
 import re
@@ -12,12 +14,12 @@ import time
 from .common import (Budget, IntegrityError, PREREGISTRATION, PROTOCOL_SHA256, REPOSITORY,
                      RESOURCES, RUNTIME, SCHEDULE, ResourceExceeded, canonical, clean_environment,
                      digest, error_record, file_info, fsync_directory, require, runtime_check, sha,
-                     strict_json, update_receipt, write_failure_receipt)
+                     strict_json, update_receipt, write_failure_receipt, loader_identity, loader_pin)
 from .sources import git, read_manifest, restore, verify_files
 
 ROOT = Path(__file__).resolve().parents[2]
 EXPERIMENT = ROOT / 'experiments/synthetic-profile-overhead'
-TEST_RECEIPT = EXPERIMENT / 'focused-sixth-repair-test-receipt.json'
+TEST_RECEIPT = EXPERIMENT / 'focused-recovery-r1-test-receipt.json'
 EXIT_CODES = {'integrity_invalid': 65, 'execution_incomplete': 74,
               'resource_incomplete': 75, 'execution_blocked': 78}
 SUPERVISION_LIMITS = {'wall_seconds': 720, 'cpu_seconds': 720, 'address_space_bytes': 512 * 1024 ** 2,
@@ -27,7 +29,7 @@ SUPERVISION_LIMITS = {'wall_seconds': 720, 'cpu_seconds': 720, 'address_space_by
 def required_diagnostic_paths(repo):
     repo = Path(repo)
     return {p.relative_to(repo).as_posix() for p in (repo / 'scripts/worker36').glob('*.py')} | {
-        'scripts/run_worker36_synthetic.py', '.github/workflows/worker36-synthetic-profile.yml',
+        'scripts/run_worker36_synthetic.py', 'scripts/worker36-loader.sh', '.github/workflows/worker36-synthetic-profile.yml',
         '.github/workflows/worker36-runner-preflight.yml',
         'experiments/synthetic-profile-overhead/PROTOCOL.md',
         'experiments/synthetic-profile-overhead/source-manifest.json',
@@ -46,7 +48,10 @@ def checked_source_paths(repo):
         'evidence-design/driver-fourth-repair-test-plan.json', 'evidence-design/cell-fourth-repair-test-plan.json',
         'evidence-design/supervisor-fourth-repair-test-plan.json', 'evidence-design/ast-fifth-repair-test-plan.json',
         'evidence-design/supervisor-fifth-repair-test-plan.json', 'evidence-design/driver-fifth-repair-test-plan.json',
-        'evidence-design/supervisor-sixth-repair-test-plan.json', 'evidence-design/driver-sixth-repair-test-plan.json'}
+        'evidence-design/supervisor-sixth-repair-test-plan.json', 'evidence-design/driver-sixth-repair-test-plan.json',
+        'evidence-design/recovery-r1-loader-test-plan.json', 'evidence-design/recovery-r1-supervisor-test-plan.json',
+        'evidence-design/recovery-r1-preflight-shell-test-plan.json', 'evidence-design/recovery-r1-verifier-test-plan.json',
+        'evidence-design/recovery-r1-loader-integration-test-plan.json', 'evidence-design/recovery-r1-driver-test-plan.json'}
 
 
 def verify_test_receipt(repo, expected_hash):
@@ -80,6 +85,7 @@ def read_admission(path, expected_sha256, repo, provenance_path=None, provenance
             go['protocol_sha256'] == PROTOCOL_SHA256 and go['maximum_evaluator_calls'] == 40 and
             go['games'] == 0 and go['schedule'] == list(SCHEDULE), 'admission allocation mismatch')
     require(go['runtime'] == RUNTIME and go['resources'] == RESOURCES, 'frozen resource/runtime mismatch')
+    require(go['loader_pin'] == loader_pin(go['loader_pin']), 'exact external loader pin required')
     require(go['runner'] == 'bandido-alcatraz-ci' and go['branch'] == 'research/worker36-synthetic-profile-overhead',
             'admission destination mismatch')
     require(os.environ.get('GITHUB_EVENT_NAME') == 'pull_request' and os.environ.get('GITHUB_RUN_ATTEMPT') == '1' and
@@ -391,11 +397,19 @@ def reduce_failure(primary, counts, *, current=None, additional=()):
     return candidates[winner], [x for i, x in enumerate(candidates) if i != winner][:12]
 
 
-def terminalize(root, primary, *, counts=None, secondary=()):
+def terminalize(root, primary, *, counts=None, secondary=(), deadline=None, failure_state=None):
     """Reduce surviving evidence first; persistence errors cannot erase it."""
+    preservation_check(deadline)
+    failure_state = {} if failure_state is None else failure_state
+    failure_state.update(primary=primary, counts=counts)
     root = Path(root); counts = counts if counts is not None else reconcile_prefix(root)
+    failure_state['counts'] = counts
+    preservation_check(deadline)
     current, state = _prefix_read(root, root / 'receipt.json', counts['corrupt_evidence'], counts['unavailable_evidence'])
+    failure_state['current'] = current
+    preservation_check(deadline)
     primary, other = reduce_failure(primary, counts, current=current, additional=secondary)
+    failure_state.update(primary=primary, counts=counts, secondary=other)
     require(primary is not None, 'terminal failure cause required')
     prior = {'prior_status': current.get('prior_status', current.get('status')),
              'prior_phase': current.get('prior_phase', current.get('phase'))} if isinstance(current, dict) else {}
@@ -405,15 +419,20 @@ def terminalize(root, primary, *, counts=None, secondary=()):
         update = {**current, **counts, **prior, 'status': primary['status'], 'phase': primary['phase'], 'failure': primary,
                   'secondary_errors': other, 'error_type': primary['error_type'], 'error': primary['error'],
                   'custody': 'pending', 'classification': None}
+        preservation_check(deadline)
         Budget(root).write(root / 'receipt.json', update, replace=True)
+        preservation_check(deadline)
         return update
     except Exception as write_error:
         primary, other = reduce_failure(primary, counts, current=current,
             additional=[*other, error_record(write_error, 'terminal_receipt_persistence')])
+        failure_state.update(primary=primary, counts=counts, secondary=other)
+        preservation_check(deadline)
         record = {'schema': 'worker36-terminal-failure-v1', **counts, **prior, **primary, 'failure': primary,
                   'secondary_errors': other[:12],
                   'custody': 'pending', 'classification': None, 'original_receipt_bytes_preserved': True}
         try:
+            preservation_check(deadline)
             write_failure_receipt(root, record, name='failure-receipt-parent-' + str(time.monotonic_ns()) + '.json')
         except Exception as sidecar_error:
             primary, other = reduce_failure(primary, counts, additional=[*other, error_record(sidecar_error, 'terminal_sidecar_persistence')])
@@ -439,6 +458,115 @@ def durable_location(root, provenance):
         require(not root.resolve().is_relative_to(excluded.resolve()), 'attempt must be outside checkout/temp')
 
 
+class PreservationExpired(BaseException):
+    """One-shot preservation expiry must bypass ordinary receipt retry handlers."""
+    def __init__(self):
+        super().__init__('original preservation deadline exhausted')
+        self.worker36_failure = error_record(ResourceExceeded(str(self)), 'preservation_deadline')
+
+
+def preservation_check(deadline):
+    if deadline is not None and time.monotonic() >= deadline:
+        raise PreservationExpired()
+
+
+def arm_preservation_until(deadline):
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise PreservationExpired()
+    signal.setitimer(signal.ITIMER_REAL, remaining)
+
+
+def incoming_preservation_deadline(value):
+    if type(value) is not str or re.fullmatch('[1-9][0-9]{0,17}', value) is None:
+        raise OSError('original preservation monotonic cutoff in milliseconds unavailable or invalid')
+    deadline = int(value) / 1000
+    now = time.monotonic()
+    if not math.isfinite(deadline) or deadline > now + 600:
+        raise OSError('preservation handoff cannot establish the original600-second bound')
+    preservation_check(deadline)
+    return deadline
+
+
+def publish_preservation_handoff(deadline):
+    """Pair clock origins conservatively, then append one fixed output record."""
+    boot = time.clock_gettime(time.CLOCK_BOOTTIME)
+    monotonic = time.monotonic()
+    require(type(deadline) in (int, float) and math.isfinite(deadline) and
+            0 < deadline - monotonic <= 600, 'live original preservation cutoff required')
+    mono_ms = math.floor(deadline * 1000)
+    boot_ms = math.floor((boot + deadline - monotonic) * 1000)
+    boot_id = Path('/proc/sys/kernel/random/boot_id').read_text(encoding='ascii').strip()
+    require(re.fullmatch('[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}', boot_id) is not None,
+            'verified boot identity required for preservation handoff')
+    raw_path = os.environ.get('GITHUB_OUTPUT')
+    require(type(raw_path) is str and Path(raw_path).is_absolute(), 'GitHub step output path required')
+    path = Path(raw_path)
+    require(path.is_file() and not path.is_symlink() and path.parent.resolve() == path.parent,
+            'existing non-symlink GitHub output file required')
+    values = {'preservation_deadline_monotonic_ms': str(mono_ms),
+              'preservation_deadline_boottime_ms': str(boot_ms), 'preservation_boot_id': boot_id}
+    raw = ''.join(key + '=' + value + '\n' for key, value in values.items()).encode('ascii')
+    preservation_check(deadline)
+    fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_NOFOLLOW)
+    try:
+        require(stat.S_ISREG(os.fstat(fd).st_mode), 'regular GitHub output descriptor required')
+        require(os.write(fd, raw) == len(raw), 'complete preservation handoff append required')
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+    preservation_check(deadline)
+    return values
+
+
+def restore_timer_state(old_handler, phase):
+    """Attempt both restorations and both observations independently."""
+    errors = []; timer_disabled = handler_restored = False
+    for operation in (lambda: signal.setitimer(signal.ITIMER_REAL, 0),
+                      lambda: signal.signal(signal.SIGALRM, old_handler)):
+        try:
+            operation()
+        except BaseException as exc:
+            errors.append(getattr(exc, 'worker36_failure', None) or error_record(exc, phase))
+    try:
+        timer_disabled = signal.getitimer(signal.ITIMER_REAL) == (0.0, 0.0)
+    except BaseException as exc:
+        errors.append(getattr(exc, 'worker36_failure', None) or error_record(exc, phase))
+    try:
+        handler_restored = signal.getsignal(signal.SIGALRM) == old_handler
+    except BaseException as exc:
+        errors.append(getattr(exc, 'worker36_failure', None) or error_record(exc, phase))
+    confirmed = timer_disabled and handler_restored
+    if not confirmed:
+        errors.append(error_record(IntegrityError('timer/handler restoration failed or unconfirmed'), phase))
+    return [{**item, 'timer_disabled': timer_disabled, 'handler_restored': handler_restored,
+             'restoration_confirmed': confirmed} for item in errors]
+
+
+def failure_sidecar(root, primary, *, counts=None, secondary=(), deadline=None, current=None):
+    """Reserved bounded marker only: never read, hash or reconcile raw evidence."""
+    available = counts is not None
+    saved = dict(counts or {})
+    primary, other = reduce_failure(primary, saved, current=current, additional=secondary)
+    require(primary is not None, 'failure marker requires a terminal cause')
+    record = {'schema': 'worker36-terminal-failure-v1', **saved, **primary, 'failure': primary,
+              'secondary_errors': other[:12], 'custody': 'pending', 'classification': None,
+              'original_receipt_bytes_preserved': True,
+              'count_evidence': 'last_available_reconciliation' if available else 'unavailable',
+              'preservation_deadline_monotonic': deadline}
+    try:
+        write_failure_receipt(root, record, name='failure-receipt-parent-' + str(time.monotonic_ns()) + '.json')
+    except BaseException as exc:
+        later = getattr(exc, 'worker36_failure', None) or error_record(exc, 'terminal_sidecar_persistence')
+        primary, other = reduce_failure(primary, saved, additional=[*other, later])
+        record.update(**primary, failure=primary, secondary_errors=other[:12], terminal_durability='unconfirmed')
+        try:
+            print(canonical(record).decode(), file=sys.stderr, end='')
+        except BaseException:
+            pass
+    return record
+
+
 def measure(attempt, admission, admission_sha256, admission_provenance, admission_provenance_sha256):
     from .admission import INPUT_NAMES
     from .supervision import PhaseBudget, run_child
@@ -454,6 +582,81 @@ def measure(attempt, admission, admission_sha256, admission_provenance, admissio
         'current_cell': None, 'completed_prefix': [], 'custody': 'pending', 'classification': None,
         'supervisor_pid': os.getpid()}
     phase_name = 'admission'; old_handler = None; primary_failure = None; pending_supervisor_failures = []
+    timer_restoration_required = measurement_timer_owned = False
+    preservation_deadline = None
+    preservation_timer_attempted = preservation_timer_confirmed = False
+    handoff_attempted = False
+    last_counts = {'actual_starts': 0, 'actual_starts_upper_bound': 0, 'pre_call_markers': 0,
+                   'actual_returns': 0, 'confirmed_captures': 0, 'capture_gaps': [],
+                   'corrupt_evidence': [], 'unavailable_evidence': [], 'retained_failures': []}
+
+    def begin_preservation(first_failure_monotonic=None):
+        nonlocal preservation_deadline, preservation_timer_attempted, preservation_timer_confirmed
+        if preservation_timer_confirmed:
+            preservation_check(preservation_deadline)
+            return preservation_deadline
+        if preservation_timer_attempted:
+            raise OSError('original preservation timer installation is unconfirmed; no retry')
+        preservation_timer_attempted = True
+        now = time.monotonic()
+        start = now if first_failure_monotonic is None else first_failure_monotonic
+        require(type(start) in (int, float) and math.isfinite(start) and 0 < start <= now,
+                'first preservation boundary must be an observed past monotonic instant')
+        preservation_deadline = start + 600
+        preservation_check(preservation_deadline)
+        arm_preservation_until(preservation_deadline)
+        preservation_timer_confirmed = True
+        return preservation_deadline
+
+    def supervisor_failure(observed):
+        nonlocal pending_supervisor_failures, preservation_timer_attempted
+        try:
+            require(type(observed) is dict and 'first_failure_monotonic' in observed,
+                    'supervisor original first-failure timestamp required')
+            deadline = begin_preservation(observed['first_failure_monotonic'])
+            pending_supervisor_failures.extend(_retained_failures(observed, 'first_supervisor_failure'))
+            return deadline
+        except BaseException as exc:
+            preservation_timer_attempted = True
+            try:
+                exc.worker36_preservation_deadline = preservation_deadline
+            except BaseException:
+                pass
+            raise
+
+    def publish_once():
+        nonlocal handoff_attempted
+        if handoff_attempted:
+            return
+        handoff_attempted = True
+        require(preservation_timer_confirmed and preservation_deadline is not None,
+                'confirmed original preservation interval required for handoff')
+        publish_preservation_handoff(preservation_deadline)
+
+    def terminal_failure(primary, *, counts=None, secondary=()):
+        nonlocal primary_failure, last_counts
+        if counts is not None:
+            last_counts = counts
+        primary_failure, other = reduce_failure(primary, last_counts, additional=secondary)
+        discovered = {'primary': primary_failure, 'counts': last_counts, 'secondary': other}
+        try:
+            if measurement_timer_owned:
+                begin_preservation()
+                publish_once()
+            elif timer_restoration_required:
+                raise OSError('measurement timer installation unconfirmed; bounded marker only')
+            result = terminalize(root, primary_failure, counts=counts,
+                                 secondary=other, deadline=preservation_deadline, failure_state=discovered)
+            last_counts = {key: result[key] for key in last_counts if key in result}
+        except BaseException as exc:
+            primary_failure = discovered.get('primary') or primary_failure
+            last_counts = discovered.get('counts') or last_counts
+            other = discovered.get('secondary', other)
+            later = getattr(exc, 'worker36_failure', None) or error_record(exc, 'failure_preservation')
+            result = failure_sidecar(root, primary_failure, counts=last_counts,
+                                     secondary=[*other, later], deadline=preservation_deadline, current=discovered.get('current'))
+        primary_failure = result['failure']
+        return result
     try:
         budget.write(root / 'receipt.json', receipt)
         go, provenance = read_admission(admission, admission_sha256, ROOT, admission_provenance, admission_provenance_sha256)
@@ -473,6 +676,7 @@ def measure(attempt, admission, admission_sha256, admission_provenance, admissio
         phase_name = 'source_runtime_preflight'
         require(shutil.disk_usage(root).free >= 1024 ** 3, '1GiB free attempt storage required')
         runtime = runtime_check()
+        require(loader_pin(runtime['loader']) == go['loader_pin'], 'actual coordinator loader differs from external freeze')
         inherited = {n: list(resource.getrlimit(getattr(resource, n))) for n in dir(resource) if n.startswith('RLIMIT_')}
         require(inherited == go['inherited_limits'], 'unexpected inherited resource limits')
         runtime['inherited_limits'] = inherited
@@ -486,11 +690,15 @@ def measure(attempt, admission, admission_sha256, admission_provenance, admissio
             'restored_source_inventory': manifest['files'], 'diagnostic_files_sha256': go['diagnostic_files_sha256']})
         phase_name = 'measurement'; phase = PhaseBudget(wall_seconds=1800, cpu_seconds=1800)
         old_handler = signal.getsignal(signal.SIGALRM)
+        timer_restoration_required = True
         def expired(signum, frame):
+            if preservation_deadline is not None:
+                raise PreservationExpired()
             raise ResourceExceeded('kernel ' + phase_name + ' wall deadline')
         signal.signal(signal.SIGALRM, expired); signal.setitimer(signal.ITIMER_REAL, 1800)
+        measurement_timer_owned = True
         completed = []; total = dict.fromkeys(('legal_enumerations', 'previews', 'exit_geometry_checks'), 0)
-        env = clean_environment()
+        env = clean_environment(loader=runtime['loader'])
         for key in ('GH_TOKEN', 'GITHUB_TOKEN', 'ACTIONS_RUNTIME_TOKEN'):
             env.pop(key, None)
         last_result = None
@@ -507,26 +715,32 @@ def measure(attempt, admission, admission_sha256, admission_provenance, admissio
                        '_cell', '--attempt', str(root), '--cell', str(identity['cell'])]
             result = run_child(command, env, ROOT, root / f"supervisor-cell-{identity['cell']:02d}.log",
                 folder / 'active-call.json', phase, **SUPERVISION_LIMITS, output_budget_check=budget.check_raw_log,
-                output_budget_exceptions=(ResourceExceeded,),
+                output_budget_exceptions=(ResourceExceeded,), on_terminal_failure=supervisor_failure,
                 expected_inherited_limits={**go['inherited_limits'], 'RLIMIT_AS': [512 * 1024 ** 2] * 2})
             # Recover the child's typed failure or exit BEFORE any ordinary
             # parent evidence publication. A later cap/I/O error is secondary.
-            pending_supervisor_failures = _retained_failures(result, 'current_supervisor_result')
-            counts = reconcile_prefix(root)
+            if result.get('preservation_transition_attempted') is True and not preservation_timer_attempted:
+                preservation_timer_attempted = True
+            pending_supervisor_failures.extend(_retained_failures(result, 'current_supervisor_result'))
+            if pending_supervisor_failures:
+                begin_preservation()
+            counts = reconcile_prefix(root); last_counts = counts
             primary_failure, secondary = reduce_failure(None, counts, additional=pending_supervisor_failures)
             result['limits'] = dict(SUPERVISION_LIMITS)
             if phase.exhausted(phase.snapshot()):
                 result.update(status='resource_incomplete', reason='measurement_phase_ceiling')
                 primary_failure, secondary = reduce_failure(primary_failure, counts,
                     additional=_retained_failures(result, 'current_supervisor_result'))
+            if primary_failure is not None:
+                begin_preservation()
             budget.write(root / f"supervisor-cell-{identity['cell']:02d}.json", result)
             last_result = result
             if primary_failure is not None:
-                terminalize(root, primary_failure, counts=counts, secondary=secondary)
+                terminal_failure(primary_failure, counts=counts, secondary=secondary)
                 return 1
             child, _ = _prefix_read(root, folder / 'cell-receipt.json', counts['corrupt_evidence'], counts['unavailable_evidence'])
             if child is None or child.get('status') != 'complete':
-                terminalize(root, {'status': 'execution_incomplete', 'category': 'supervision', 'phase': phase_name,
+                terminal_failure({'status': 'execution_incomplete', 'category': 'supervision', 'phase': phase_name,
                     'error_type': 'ChildIncomplete', 'error': result.get('reason') or 'missing complete child receipt'}, counts=counts)
                 return 1
             require(child['actual_starts'] == child['actual_starts_upper_bound'] == child['actual_returns'] == child['confirmed_captures'] == 2,
@@ -539,10 +753,10 @@ def measure(attempt, admission, admission_sha256, admission_provenance, admissio
                         raise ResourceExceeded('sum across P cells: ' + key)
             completed.append(identity['cell'])
             update_receipt(root, completed_prefix=completed, resource_totals={'supervision': result, 'P_operations': total, 'phase': phase.snapshot()}, **counts)
-        counts = reconcile_prefix(root)
+        counts = reconcile_prefix(root); last_counts = counts
         primary_failure, secondary = reduce_failure(None, counts)
         if primary_failure is not None:
-            terminalize(root, primary_failure, counts=counts, secondary=secondary)
+            terminal_failure(primary_failure, counts=counts, secondary=secondary)
             return 1
         final_before = phase.snapshot()
         if phase.exhausted(final_before):
@@ -556,12 +770,9 @@ def measure(attempt, admission, admission_sha256, admission_provenance, admissio
         if phase.exhausted(closed):
             raise ResourceExceeded('measurement phase exhausted during computational receipt publication')
         preservation_started = phase.wall_started + closed['wall_seconds']
-        preservation_deadline = preservation_started + 600
         phase_name = 'closing_proof_preservation'
-        remaining = preservation_deadline - time.monotonic()
-        if remaining <= 0:
-            raise ResourceExceeded('closing proof preservation deadline exhausted')
-        signal.setitimer(signal.ITIMER_REAL, remaining)
+        begin_preservation(preservation_started)
+        publish_once()
         budget.write(root / 'measurement-phase-close.json', {
             'schema': 'worker36-measurement-phase-close-v1', 'phase': closed,
             'computational_receipt': {'path': 'receipt.json', **file_info(root / 'receipt.json')},
@@ -573,17 +784,17 @@ def measure(attempt, admission, admission_sha256, admission_provenance, admissio
         return 0
     except BaseException as caught:
         later = getattr(caught, 'worker36_failure', None) or error_record(caught, phase_name)
-        terminalize(root, primary_failure or later,
+        terminal_failure(primary_failure or later,
             secondary=[*pending_supervisor_failures, *getattr(caught, 'worker36_secondary_errors', []),
                        *([later] if primary_failure else [])])
         return 1
     finally:
-        if old_handler is not None:
-            try:
-                signal.setitimer(signal.ITIMER_REAL, 0); signal.signal(signal.SIGALRM, old_handler)
-            except BaseException as restoration_error:
-                terminalize(root, error_record(restoration_error, 'coordinator_timer_restoration'),
-                            secondary=pending_supervisor_failures)
+        if timer_restoration_required:
+            restoration = restore_timer_state(old_handler, 'coordinator_timer_restoration')
+            if restoration:
+                terminal = failure_sidecar(root, primary_failure or restoration[0], counts=last_counts,
+                    secondary=[*pending_supervisor_failures, *restoration], deadline=preservation_deadline)
+                primary_failure = terminal['failure']
                 return 1
 
 
@@ -666,33 +877,68 @@ def recover_closing_anchor(root):
 
 
 def _preserve(attempt, destination, report, recovery_report, *, admission, admission_sha256,
-             admission_provenance, admission_provenance_sha256, expected_head, expected_tree, expected_workflow_run):
+             admission_provenance, admission_provenance_sha256, expected_head, expected_tree,
+             expected_workflow_run, deadline_monotonic, failure_state):
     from .verify import verify_attempt, closing_phase
     from .transport import package_attempt
-    install_memory_cap(); root = Path(attempt).resolve(); deadline = time.monotonic() + 600
-    recovery_initial = {'schema': 'worker36-durable-preservation-v1', 'status': 'in_progress',
-        'raw_attempt': str(root), 'transport_directory': str(Path(destination).absolute()),
-        'retained_until': 'parent-verified-canonical-custody', 'no_cleanup': True,
-        'custody': 'pending', 'classification': None, 'deadline_monotonic': None,
-        'deadline_state': 'original_anchor_not_yet_recovered'}
-    write_report(recovery_report, recovery_initial)
-    failed = False; gate = None
-    try:
-        # Recover the original immutable deadline before status or mutable
-        # receipt binding checks. Later terminalization never grants a new600.
+    install_memory_cap(); root = Path(attempt).resolve(); deadline = deadline_monotonic
+    gate = None; bound_confirmed = False; recovery_started = False; counts = None; preservation_stopped = False
+
+    def retain(caught, phase):
+        nonlocal gate, counts, preservation_stopped
+        preservation_stopped = preservation_stopped or isinstance(caught, PreservationExpired)
+        later = getattr(caught, 'worker36_failure', None) or error_record(caught, phase)
+        # Capture typed causes now; normalize an initial prerequisite only when
+        # terminalize/sidecar knows what entry evidence is actually available.
+        secondary = [*failure_state.get('secondary', []), *getattr(caught, 'worker36_secondary_errors', []),
+                     *([later] if gate else [])]
+        gate = gate or later
+        failure_state.update(primary=gate, counts=counts, secondary=secondary, deadline=deadline)
         try:
-            anchor = recover_closing_anchor(root)
-        except Exception:
-            # Existing but unreadable/invalid closing evidence cannot authorize
-            # a replacement preservation budget when its anchor is unknown.
-            deadline = time.monotonic()
-            raise
+            if preservation_stopped:
+                raise PreservationExpired()
+            if not bound_confirmed:
+                raise OSError('original preservation bound unavailable; marker only')
+            preservation_check(deadline)
+            counts = reconcile_prefix(root)
+            failure_state['counts'] = counts
+            terminal = terminalize(root, gate, counts=counts, secondary=secondary, deadline=deadline, failure_state=failure_state)
+        except BaseException as persistence_error:
+            gate = failure_state.get('primary') or gate
+            counts = failure_state.get('counts') or counts
+            secondary = failure_state.get('secondary', secondary)
+            preservation_stopped = preservation_stopped or isinstance(persistence_error, PreservationExpired)
+            extra = getattr(persistence_error, 'worker36_failure', None) or error_record(persistence_error, 'offline_failure_persistence')
+            terminal = failure_sidecar(root, gate, counts=counts,
+                secondary=[*secondary, extra], deadline=deadline, current=failure_state.get('current'))
+        gate = terminal['failure']
+        failure_state.update(primary=gate, counts=counts, secondary=terminal.get('secondary_errors', secondary))
+        return terminal
+
+    try:
+        preservation_check(deadline)
+        # Recover immutable final/staged timing before mutable receipt binding,
+        # loader/admission hashing or optional preservation-report publication.
+        anchor = recover_closing_anchor(root)
         if anchor is not None:
             deadline = min(deadline, anchor['preservation_deadline_monotonic'])
-            remaining = deadline - time.monotonic()
-            if remaining <= 0:
-                raise ResourceExceeded('shared preservation deadline exhausted before offline verification')
-            signal.setitimer(signal.ITIMER_REAL, remaining)
+        failure_state['deadline'] = deadline
+        preservation_check(deadline)
+        arm_preservation_until(deadline)
+        bound_confirmed = True
+        preservation_check(deadline)
+        go, _ = read_admission(admission, admission_sha256, ROOT,
+                               admission_provenance, admission_provenance_sha256)
+        require(loader_pin(loader_identity()) == go['loader_pin'],
+                'actual offline loader differs from external freeze')
+        preservation_check(deadline)
+        recovery_initial = {'schema': 'worker36-durable-preservation-v1', 'status': 'in_progress',
+            'raw_attempt': str(root), 'transport_directory': str(Path(destination).absolute()),
+            'retained_until': 'parent-verified-canonical-custody', 'no_cleanup': True,
+            'custody': 'pending', 'classification': None, 'deadline_monotonic': deadline,
+            'deadline_state': 'original_handoff_reconciled_with_anchor'}
+        write_report(recovery_report, recovery_initial); recovery_started = True
+        preservation_check(deadline)
         try:
             if shutil.disk_usage(root).free < 1024 ** 3:
                 raise OSError('1GiB free preservation storage required')
@@ -708,66 +954,83 @@ def _preserve(attempt, destination, report, recovery_report, *, admission, admis
                 'prior_status': current.get('status'), 'prior_phase': current.get('phase')}
             raise blocked
         closing_phase(root, current)
+        preservation_check(deadline)
         verification = verify_attempt(root, trusted_admission_path=admission, trusted_admission_sha256=admission_sha256,
             expected_head=expected_head, expected_tree=expected_tree, trusted_provenance_path=admission_provenance,
             trusted_provenance_sha256=admission_provenance_sha256, expected_workflow_run=expected_workflow_run)
+        preservation_check(deadline)
         write_report(report, verification)
+        preservation_check(deadline)
     except BaseException as caught:
-        failed = True; gate = getattr(caught, 'worker36_failure', None) or error_record(caught, 'offline_verification')
-        terminal = terminalize(root, gate, secondary=getattr(caught, 'worker36_secondary_errors', []))
-        gate = terminal['failure']
+        retain(caught, 'offline_verification')
+        if preservation_stopped or not bound_confirmed or time.monotonic() >= deadline:
+            return 1
         record = {'schema': 'worker36-offline-gate-v1', 'complete': False, 'failure': gate,
                   'custody': 'pending', 'classification': None}
         try:
+            preservation_check(deadline)
             Budget(root).write(root / 'verification-gate-failure.json', record)
-        except Exception as failure:
-            terminalize(root, gate, secondary=[error_record(failure, 'verification_failure_persistence')])
-        try:
+            preservation_check(deadline)
             write_report(report, record)
-        except Exception as failure:
-            terminalize(root, gate, secondary=[error_record(failure, 'external_verification_report')])
-    # Independent preservation always follows; an offline gate failure is never
-    # discarded into a successful step even if packaging succeeds.
+            preservation_check(deadline)
+        except BaseException as failure:
+            retain(failure, 'verification_failure_persistence')
+            if preservation_stopped or time.monotonic() >= deadline:
+                return 1
+    # The same original remaining interval bounds the separate packaging gate.
+    preservation_check(deadline)
     packaged = package_attempt(root, Path(destination), deadline_monotonic=deadline)
-    if packaged['status'] != 'packaged':
-        failed = True
-    recovery = {'schema': 'worker36-durable-preservation-v1', 'status': 'failed' if failed else 'preserved_locally', 'raw_attempt': str(root),
-                'transport_directory': str(Path(destination).absolute()), 'retained_until': 'parent-verified-canonical-custody',
-                'no_cleanup': True, 'verification_failed': gate is not None, 'transport': packaged, 'deadline_monotonic': deadline,
-                'classification': None, 'custody': 'pending' if not failed else 'blocked'}
-    if failed and time.monotonic() < deadline:
+    preservation_check(deadline)
+    failed = gate is not None or packaged['status'] != 'packaged'
+    if packaged['status'] != 'packaged' and gate is None:
+        gate = error_record(OSError('bounded transport packaging failed'), 'offline_preservation')
+        failure_state['primary'] = gate
+    recovery = {'schema': 'worker36-durable-preservation-v1', 'status': 'failed' if failed else 'preserved_locally',
+        'raw_attempt': str(root), 'transport_directory': str(Path(destination).absolute()),
+        'retained_until': 'parent-verified-canonical-custody', 'no_cleanup': True,
+        'verification_failed': gate is not None, 'transport': packaged, 'deadline_monotonic': deadline,
+        'classification': None, 'custody': 'blocked' if failed else 'pending'}
+    if failed:
+        preservation_check(deadline)
         try:
             recovery['retained_inventory'] = recovery_inventory(root, destination)
         except Exception as failure:
             recovery['inventory_error'] = {'error_type': type(failure).__name__, 'error': str(failure)[:1024]}
-    elif failed:
-        recovery['retained_inventory'] = {'inventory_complete': False,
-            'reason': 'original preservation deadline unavailable or exhausted; raw paths retained without rescanning'}
-    write_report(recovery_report, recovery, replace=True)
+        preservation_check(deadline)
+    write_report(recovery_report, recovery, replace=recovery_started)
+    preservation_check(deadline)
     return int(failed)
 
 
-def preserve(*args, **kwargs):
+def preserve(*args, preservation_deadline_monotonic_ms=None, **kwargs):
     root = Path(args[0] if args else kwargs['attempt'])
-    old_handler = None; timer_owned = False; result = 1
+    old_handler = None; timer_owned = False; result = 1; deadline = None
+    state = {'primary': None, 'counts': None, 'deadline': None}
     def expired(signum, frame):
-        raise ResourceExceeded('local verification/preservation600-second deadline')
+        raise PreservationExpired()
     try:
+        deadline = incoming_preservation_deadline(preservation_deadline_monotonic_ms)
+        state['deadline'] = deadline
         old_handler = signal.getsignal(signal.SIGALRM)
-        signal.signal(signal.SIGALRM, expired); timer_owned = True
-        signal.setitimer(signal.ITIMER_REAL, 600)
-        result = _preserve(*args, **kwargs)
+        timer_owned = True
+        signal.signal(signal.SIGALRM, expired)
+        preservation_check(deadline)
+        arm_preservation_until(deadline)
+        result = _preserve(*args, **kwargs, deadline_monotonic=deadline, failure_state=state)
     except BaseException as caught:
-        terminalize(root, getattr(caught, 'worker36_failure', None) or error_record(caught, 'preservation_boundary'),
-                    secondary=getattr(caught, 'worker36_secondary_errors', []))
+        later = getattr(caught, 'worker36_failure', None) or error_record(caught, 'preservation_boundary')
+        terminal = failure_sidecar(root, state['primary'] or later, counts=state['counts'],
+            secondary=[*state.get('secondary', []), *getattr(caught, 'worker36_secondary_errors', []),
+                       *([later] if state['primary'] else [])],
+            deadline=state['deadline'], current=state.get('current'))
+        state['primary'] = terminal['failure']
     finally:
         if timer_owned:
-            try:
-                signal.setitimer(signal.ITIMER_REAL, 0)
-                signal.signal(signal.SIGALRM, old_handler)
-            except BaseException as caught:
-                terminalize(root, error_record(caught, 'preservation_timer_restoration'))
-                result = 1
+            restoration = restore_timer_state(old_handler, 'preservation_timer_restoration')
+            if restoration:
+                terminal = failure_sidecar(root, state['primary'] or restoration[0], counts=state['counts'],
+                    secondary=[*state.get('secondary', []), *restoration], deadline=state['deadline'], current=state.get('current'))
+                state['primary'] = terminal['failure']; result = 1
     return result
 
 
@@ -780,7 +1043,8 @@ def main(argv=None):
     child = commands.add_parser('_cell'); child.add_argument('--attempt', required=True); child.add_argument('--cell', type=int, required=True)
     preserving = commands.add_parser('preserve')
     for name in ('attempt', 'destination', 'report', 'recovery-report', 'admission', 'admission-sha256',
-                 'admission-provenance', 'admission-provenance-sha256', 'expected-head', 'expected-tree', 'expected-workflow-run'):
+                 'admission-provenance', 'admission-provenance-sha256', 'expected-head', 'expected-tree', 'expected-workflow-run',
+                 'preservation-deadline-monotonic-ms'):
         preserving.add_argument('--' + name, required=True)
     args = parser.parse_args(argv)
     if args.command == 'plan':
@@ -801,4 +1065,5 @@ def main(argv=None):
             return EXIT_CODES[failure['status']]
     return preserve(args.attempt, args.destination, args.report, args.recovery_report,
         admission=args.admission, admission_sha256=args.admission_sha256, admission_provenance=args.admission_provenance, admission_provenance_sha256=args.admission_provenance_sha256,
-        expected_head=args.expected_head, expected_tree=args.expected_tree, expected_workflow_run=args.expected_workflow_run)
+        expected_head=args.expected_head, expected_tree=args.expected_tree, expected_workflow_run=args.expected_workflow_run,
+        preservation_deadline_monotonic_ms=args.preservation_deadline_monotonic_ms)
