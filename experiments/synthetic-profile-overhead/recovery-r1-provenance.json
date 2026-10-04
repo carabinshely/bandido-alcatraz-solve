@@ -1,0 +1,129 @@
+{
+  "available_durable_receipts": [
+    {
+      "git_blob": "0e4d92cd6a926e67989f02ce6082822029e6f850",
+      "path": "experiments/synthetic-profile-overhead/focused-fifth-repair-test-receipt.json",
+      "sha256": "d46fb35bdbd64a119394ea18c8053d6654c1b38c880240067fba319035fbb652",
+      "size_bytes": 19928
+    },
+    {
+      "git_blob": "3e744c5be197cd6c2180a6e79cf0f5c4f92a0c3f",
+      "path": "experiments/synthetic-profile-overhead/focused-fourth-repair-test-receipt.json",
+      "sha256": "efbc6b0b3c99554782da6525e0e7ea05d09f5f33b12f42ca5328ec3ac39e3c24",
+      "size_bytes": 15958
+    },
+    {
+      "git_blob": "49a707b31d26326056d0d4ad1ffc71aa52d81585",
+      "path": "experiments/synthetic-profile-overhead/focused-repair-test-receipt.json",
+      "sha256": "d023758ad4a05520f7c98d97aecf660a9469b4eb86518744e346c1aff5be1a36",
+      "size_bytes": 6028
+    },
+    {
+      "git_blob": "a84b650fc29be6091309e7f273b84e84943f52f5",
+      "path": "experiments/synthetic-profile-overhead/focused-second-repair-test-receipt.json",
+      "sha256": "94ae67529c186ffe362870bc56a5d5994f1bcb2df1781680d925c644be1bd259",
+      "size_bytes": 12565
+    },
+    {
+      "git_blob": "daeebb2ec39dc2c584e042f23cc04df9e83fbd3d",
+      "path": "experiments/synthetic-profile-overhead/focused-sixth-repair-test-receipt.json",
+      "sha256": "0e27c422d9fcfe61d215249e1ddc59620d444fd2c12d09bffa3c9141e4969265",
+      "size_bytes": 18587
+    },
+    {
+      "git_blob": "11a8c9ad116d91718a7d15fd79e327a13d43f4a0",
+      "path": "experiments/synthetic-profile-overhead/focused-test-receipt.json",
+      "sha256": "a559061c8cf578bbbcd4831821f34eaa13500176b27484db1b78f064813d8373",
+      "size_bytes": 3747
+    },
+    {
+      "git_blob": "becaf1472fcb1de333fb1d28269611ab145aa6a8",
+      "path": "experiments/synthetic-profile-overhead/focused-third-repair-test-receipt.json",
+      "sha256": "5fbed5df39e401ccb85e52b467208a01c5c6347b41528892199e9cd78fa03dc5",
+      "size_bytes": 14704
+    }
+  ],
+  "candidate_id": "worker36-recovery-r1-2026-10-04",
+  "durable_base": {
+    "head": "386a3d182bf3e5e6229fc7b4826185fa2ad39e6f",
+    "tree": "5c11aaf475a09abd9ee4e267f3b06c49964de366",
+    "verified_bytes": 742070,
+    "verified_files": 52
+  },
+  "failed_actual_runner_preflight": {
+    "artifact_id": 11282881036,
+    "base_head": "386a3d182bf3e5e6229fc7b4826185fa2ad39e6f",
+    "byte_readback_in_this_recovery": false,
+    "canonical_drive_id": "19ZOfbFyPCHHxDDR7vsVkGHfZOH1ByRPQ",
+    "failure": "Pinned executable hash passed; sanitized startup could not locate libpython3.11.so.1.0 and exited127 before Python startup.",
+    "job_id": 111272480303,
+    "reported_bytes": 962,
+    "reported_sha256": "e22943f49ac8d46bf567fb5aa477448253b64e372040cfba825c5174c7efef4d",
+    "run_id": 37146850862,
+    "source": "Parent-authenticated custody reported in the preceding preparation; no raw artifact bytes are recreated here."
+  },
+  "preparation_boundaries": {
+    "candidate_evaluator_calls": 0,
+    "constructor_executions": 0,
+    "games": 0,
+    "go": false,
+    "historical_imports": 0,
+    "measurement_fixture_constructions": 0,
+    "new_candidate_requires_fresh_reviews_and_runner_preflight": true,
+    "reference_evaluator_calls": 0
+  },
+  "protocol_sha256": "8eec0f7e7418fba0e58ab5aee09226cab30555338b4e21f5761509648bfaaa6b",
+  "record_url": "https://github.com/carabinshely/bandido-alcatraz-solve/pull/40#issuecomment-5977349019",
+  "schema": "worker36-recovery-r1-provenance-v1",
+  "status": "new_preparation_candidate_not_admitted",
+  "surviving_final_changed_file_claims": [
+    {
+      "path": "evidence-design/supervisor-accounting-flags-test-plan.json",
+      "sha256": "ff7c72e99ef62ca7cfe771a9dbf7ed4783302937b409cbdc3a81601345fd9799",
+      "size_bytes": 3155
+    },
+    {
+      "path": "experiments/synthetic-profile-overhead/IMPLEMENTATION.md",
+      "sha256": "38b30d8bb334b2b724dfdcdf7dd6997d3964ff99ca75c93098d27335e3c04efa",
+      "size_bytes": 54520
+    },
+    {
+      "path": "experiments/synthetic-profile-overhead/focused-accounting-flags-test-receipt.json",
+      "sha256": "df98267b02127d4f56b24f1ef3eb50c4a1f00f8b7e9a8fbab52ebe1278e69381",
+      "size_bytes": 21423
+    },
+    {
+      "path": "scripts/worker36/driver.py",
+      "sha256": "7658e3c2b1e168e79ce11a799ca362ef97b97508d32a23cff315ddfc43038518",
+      "size_bytes": 65297
+    },
+    {
+      "path": "scripts/worker36/supervision.py",
+      "sha256": "922b056bde2fbd857097a2242bb728b0fb10a46765496f5430211318ac1bdee7",
+      "size_bytes": 74306
+    },
+    {
+      "path": "tests/test_worker36_driver_integration.py",
+      "sha256": "1a8bde45260e22d1e7b8831aa6c24ac730521f346f7e26e65b67129afc129eb2",
+      "size_bytes": 92234
+    },
+    {
+      "path": "tests/test_worker36_supervision.py",
+      "sha256": "8683f1a23073a8fff36c0f27d0f80f0314f256a3c9329ebe7f4576bc6fef5616",
+      "size_bytes": 79708
+    }
+  ],
+  "unavailable_history_note": "Only receipts actually present in the published base are preserved as receipt files. Later receipt hashes or reported results are provenance claims, never fabricated replacement receipts.",
+  "unavailable_unpublished_snapshot": {
+    "byte_complete_bundle_available": false,
+    "full_handoff_available": false,
+    "handoff_sha256": "abc58a3fd7b65607846ea0621c4d182cfdcf846f82621cc76fb227b43c238c94",
+    "prior_clean_reviews_reusable": false,
+    "raw_test_logs_and_unpublished_receipts_available": false,
+    "reported_bytes": 1122960,
+    "reported_file_count": 73,
+    "reported_receipt_sha256": "df98267b02127d4f56b24f1ef3eb50c4a1f00f8b7e9a8fbab52ebe1278e69381",
+    "reported_tests": 251,
+    "source_of_claims": "Surviving conversation/tool-output summaries and the linked canonical loss record; unavailable bytes have not been freshly verified."
+  }
+}
