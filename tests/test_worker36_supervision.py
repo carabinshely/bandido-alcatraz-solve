@@ -6,7 +6,7 @@ Every spawned program below is an invented stub, never an evaluator or fixture.
 from __future__ import annotations
 
 import importlib.util
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 import json
 import os
 from pathlib import Path
@@ -15,6 +15,7 @@ import signal
 import sys
 import tempfile
 import time
+from types import SimpleNamespace
 import unittest
 from unittest import mock
 
@@ -27,6 +28,7 @@ SPEC.loader.exec_module(supervision)
 
 STUB_PROCESS_STARTS = 0
 STUB_SUPERVISOR_INVOCATIONS = 0
+STUB_MOCKED_PROCESS_STARTS = 0
 
 STUB_PRELUDE = '''
 import json, os, resource, signal, sys, time
@@ -42,6 +44,238 @@ def mark(value):
 def activate(scope="candidate"):
     mark({"active": True, "scope": scope, "cpu_started": time.process_time(), "wall_started": time.monotonic()})
 '''
+
+
+class LiteralBoundaryResourceError(RuntimeError):
+    pass
+
+
+class LiteralPreservationExpired(BaseException):
+    def __init__(self, cutoff):
+        super().__init__("invented preservation cutoff exhausted")
+        self.worker36_preservation_deadline = cutoff
+        self.worker36_failure = {"status": "resource_incomplete", "category": "resource",
+            "phase": "preservation_boundary", "error_type": type(self).__name__, "error": str(self)}
+
+
+class LiteralSupervisorBoundaryHarness:
+    """Actual run_child with literal process/clock/alarm mocks; no OS child."""
+    def __init__(self, root, scenario):
+        self.root, self.scenario = Path(root), scenario
+        self.root.mkdir(parents=True, exist_ok=True)
+        self.now = 1000.0
+        self.events, self.observed, self.cleanup_deadlines, self.log_fds = [], [], [], []
+        self.post_cleanup_fsyncs = self.setter_count = self.subreaper_value = 0
+        self.call_fault = False
+        self.error_factory = LiteralBoundaryResourceError
+        self.child = SimpleNamespace(pid=987654321, returncode=None, stdout=None)
+
+    def __enter__(self):
+        self.stack = ExitStack()
+        self.stack.__enter__()
+        read_fd, write_fd = os.pipe()
+        os.write(write_fd, b"literal diagnostic prefix\n")
+        os.close(write_fd)
+        self.child.stdout = os.fdopen(read_fd, "rb", buffering=0)
+        self.stack.callback(lambda: self.child.stdout.close() if not self.child.stdout.closed else None)
+        harness = self
+        class Selector:
+            def __init__(self): self.registered = False
+            def register(self, fileobj, flags): self.registered = True
+            def unregister(self, fileobj): self.registered = False
+            def select(self, timeout=0):
+                return [(SimpleNamespace(fd=harness.child.stdout.fileno(), fileobj=harness.child.stdout), 1)] if self.registered else []
+            def close(self): harness.events.append(("selector_close", harness.now))
+        def inventory(ticks):
+            self.events.append(("proc_scan", self.now))
+            pid = os.getpid()
+            return {pid: supervision._Process(pid, 0, pid, pid, "S", 1, 0.0, 0.0)}
+        def initialize(child, *args, **kwargs):
+            global STUB_MOCKED_PROCESS_STARTS
+            STUB_MOCKED_PROCESS_STARTS += 1
+            self.events.append(("mock_spawn", self.now))
+        def poll(child):
+            if self.scenario == "arm_unconfirmed_exit65": child.returncode = 65
+            elif self.scenario in ("success", "first_fsync_failure"): child.returncode = 0
+        def call_state(*args, **kwargs):
+            if self.scenario in ("resource_late_fsync", "cleanup_expiry") and not self.call_fault:
+                self.call_fault, self.now = True, 1900.0
+                self.events.append(("first_resource_failure", self.now))
+                raise self.error_factory("invented first measurement resource failure")
+            return None
+        def cleanup(child, ticks, tracked, resource_exceptions=(), deadline=None, on_failure=None):
+            self.cleanup_deadlines.append(deadline)
+            self.events.append(("cleanup", self.now, deadline))
+            if self.scenario == "cleanup_expiry" and len(self.cleanup_deadlines) == 1:
+                self.now = 2601.0
+                raise LiteralPreservationExpired(2500.0)
+            if child.returncode is None:
+                child.returncode = -signal.SIGKILL if self.scenario == "cleanup_expiry" else -signal.SIGTERM
+            return {"complete": True, "sigkill_used": self.scenario == "cleanup_expiry",
+                    "remaining_pids": [], "errors": [], "failure_details": []}
+        def subreaper(get, value=0):
+            if get: return self.subreaper_value
+            self.setter_count += 1
+            self.subreaper_value = value
+            self.events.append(("subreaper_set", self.now, value))
+            return value
+        real_open = os.open
+        def tracked_open(path, *args, **kwargs):
+            fd = real_open(path, *args, **kwargs)
+            if Path(path) == self.root / "literal-supervisor.log": self.log_fds.append(fd)
+            return fd
+        def fsync(fd):
+            if self.cleanup_deadlines:
+                self.post_cleanup_fsyncs += 1
+                self.events.append(("post_cleanup_fsync", self.now))
+                if self.scenario == "resource_late_fsync": self.now = 2601.0
+                elif self.scenario == "first_fsync_failure":
+                    if self.post_cleanup_fsyncs == 1:
+                        self.now = 1900.0
+                        raise OSError("invented first log-fsync failure")
+                    self.now = 2601.0
+                    raise LiteralPreservationExpired(2500.0)
+        def usage(who):
+            self.events.append(("usage", self.now, who))
+            return 0.0
+        def budget(path, incoming): self.events.append(("budget", self.now, incoming))
+        patches = [mock.patch.object(supervision.time, "monotonic", side_effect=lambda: self.now),
+            mock.patch.object(supervision, "_scan_processes", side_effect=inventory),
+            mock.patch.object(supervision, "_inherited_limits", return_value={}),
+            mock.patch.object(supervision, "_subreaper", side_effect=subreaper),
+            mock.patch.object(supervision, "_usage", side_effect=usage),
+            mock.patch.object(supervision, "_poll", side_effect=poll),
+            mock.patch.object(supervision, "_call_state", side_effect=call_state),
+            mock.patch.object(supervision, "_cleanup", side_effect=cleanup),
+            mock.patch.object(supervision, "_allocate_popen", return_value=self.child),
+            mock.patch.object(supervision, "_initialize_popen", side_effect=initialize),
+            mock.patch.object(supervision.selectors, "DefaultSelector", Selector),
+            mock.patch.object(supervision.os, "fsync", side_effect=fsync),
+            mock.patch.object(supervision.os, "open", side_effect=tracked_open),
+            mock.patch.object(supervision.os, "killpg", side_effect=lambda *args: self.events.append(("killpg", self.now, args))),
+            mock.patch.object(signal, "setitimer", side_effect=lambda *args: self.events.append(("alarm", self.now, args)))]
+        for patch in patches: self.stack.enter_context(patch)
+        self.phase = supervision.PhaseBudget(wall_seconds=1800, cpu_seconds=1800)
+        self.kwargs = dict(command=["literal-never-executed"], env={}, cwd=self.root,
+            output_log=self.root / "literal-supervisor.log", call_state=self.root / "literal-call-state.json",
+            phase=self.phase, wall_seconds=720, cpu_seconds=720, call_wall_seconds=360, call_cpu_seconds=360,
+            address_space_bytes=supervision.FROZEN_ADDRESS_SPACE, output_budget_check=budget,
+            output_budget_exceptions=(LiteralBoundaryResourceError,))
+        return self
+
+    def callback(self, observed):
+        self.observed.append(dict(observed))
+        self.events.append(("transition", self.now, dict(observed)))
+        cutoff = observed["first_failure_monotonic"] + 600
+        signal.setitimer(signal.ITIMER_REAL, cutoff - self.now)
+        if self.scenario == "arm_unconfirmed_exit65":
+            error = OSError("invented alarm installation unconfirmed")
+            error.worker36_preservation_deadline = cutoff
+            raise error
+        return cutoff
+
+    def run(self, on_terminal_failure=None):
+        global STUB_SUPERVISOR_INVOCATIONS
+        STUB_SUPERVISOR_INVOCATIONS += 1
+        return supervision.run_child(**self.kwargs,
+            on_terminal_failure=self.callback if on_terminal_failure is None else on_terminal_failure)
+
+    def __exit__(self, *args): return self.stack.__exit__(*args)
+
+
+class LiteralPartialSpawnHarness(LiteralSupervisorBoundaryHarness):
+    ROOT_PID, ADOPTED_PID, DESCENDANT_PID = 987654310, 987654311, 987654309
+    OLD_PRODUCER_PID, UNRELATED_PID = 987654320, 987654321
+
+    def __enter__(self):
+        real_cleanup, real_poll = supervision._cleanup, supervision._poll
+        super().__enter__()
+        self.child.pid = None
+        self.live, self.terminated = {}, {}
+        self.signals, self.waited = [], []
+        self.initialized = self.expiry_injected = False
+        parent = os.getpid()
+        parent_proc = supervision._Process(parent, 0, parent, parent, "S", 1, 0.0, 0.0)
+        old_producer = supervision._Process(self.OLD_PRODUCER_PID, 77, 77, 77, "S", 2, 0.0, 0.0)
+        unrelated = supervision._Process(self.UNRELATED_PID, 77, 77, 77, "S", 3, 0.0, 0.0)
+        used = SimpleNamespace(ru_utime=0.0, ru_stime=0.0, ru_maxrss=1)
+        def process(pid, ppid, start):
+            return supervision._Process(pid, ppid, parent, parent, "S", start, 0.0, 0.0)
+        def initialize(child, *args, **kwargs):
+            global STUB_MOCKED_PROCESS_STARTS
+            STUB_MOCKED_PROCESS_STARTS += 1
+            self.initialized, self.now = True, 1900.0
+            self.events.append(("partial_init", self.now))
+            if self.scenario != "no_fork": self.live[self.ROOT_PID] = process(self.ROOT_PID, parent, 10)
+            if self.scenario == "recover_direct":
+                self.live[self.ADOPTED_PID] = process(self.ADOPTED_PID, parent, 11)
+                self.live[self.DESCENDANT_PID] = process(self.DESCENDANT_PID, self.ROOT_PID, 12)
+            if self.scenario in ("retained_pid", "targeted_available", "targeted_unavailable", "emergency_memory"):
+                child.pid = self.ROOT_PID
+                child.stdout.close()
+                raise MemoryError("invented allocation failure after PID publication")
+            if self.scenario == "no_fork": raise OSError("invented initializer failure before fork")
+            raise LiteralBoundaryResourceError("invented constructor failure before PID publication")
+        def inventory(ticks):
+            self.events.append(("partial_proc_scan", self.now))
+            if self.initialized and self.scenario in ("unavailable", "targeted_available", "targeted_unavailable", "emergency_memory"):
+                raise OSError("invented unavailable post-fork inventory")
+            old = process(old_producer.pid, parent, old_producer.start_ticks) if self.initialized else old_producer
+            values = {parent: parent_proc, old.pid: old}
+            if self.initialized: values[unrelated.pid] = unrelated
+            values.update(self.live)
+            if self.initialized and self.scenario == "expired_recovery": self.now = 2601.0
+            return values
+        def read_process(pid, ticks):
+            self.events.append(("targeted_identity", self.now, pid))
+            if self.scenario == "emergency_memory": raise MemoryError("invented targeted identity allocation failure")
+            if self.scenario == "targeted_unavailable": raise OSError("invented unavailable targeted identity")
+            if pid in self.live: return self.live[pid]
+            raise ProcessLookupError(pid)
+        def kill(pid, sig):
+            self.signals.append((pid, sig))
+            self.events.append(("pid_signal", self.now, pid, sig))
+            if pid not in self.live: raise ProcessLookupError(pid)
+            self.terminated[pid] = sig
+            if pid == self.ROOT_PID and self.DESCENDANT_PID in self.live:
+                old = self.live[self.DESCENDANT_PID]
+                self.live[old.pid] = process(old.pid, parent, old.start_ticks)
+        def wait4(pid, flags):
+            self.waited.append(("wait4", pid))
+            if pid in self.terminated:
+                sig = self.terminated.pop(pid)
+                self.live.pop(pid, None)
+                return pid, sig, used
+            if pid in self.live: return 0, 0, used
+            raise ChildProcessError(pid)
+        def waitpid(pid, flags):
+            self.waited.append(("waitpid", pid))
+            if pid in self.terminated:
+                sig = self.terminated.pop(pid)
+                self.live.pop(pid, None)
+                return pid, sig
+            if pid in self.live: return 0, 0
+            raise ChildProcessError(pid)
+        def cleanup(child, ticks, tracked, resource_exceptions=(), deadline=None, on_failure=None):
+            self.cleanup_deadlines.append(deadline)
+            self.events.append(("partial_cleanup", self.now, deadline))
+            if self.scenario == "emergency_memory" and len(self.cleanup_deadlines) == 1:
+                raise OSError("invented first cleanup interruption")
+            if self.scenario == "expired_recovery" and not self.expiry_injected:
+                self.expiry_injected = True
+                raise LiteralPreservationExpired(2500.0)
+            return real_cleanup(child, ticks, tracked, resource_exceptions, deadline, on_failure)
+        patches = [mock.patch.object(supervision, "_initialize_popen", side_effect=initialize),
+            mock.patch.object(supervision, "_scan_processes", side_effect=inventory),
+            mock.patch.object(supervision, "_read_process", side_effect=read_process),
+            mock.patch.object(supervision, "_poll", side_effect=real_poll),
+            mock.patch.object(supervision, "_cleanup", side_effect=cleanup),
+            mock.patch.object(supervision.os, "kill", side_effect=kill),
+            mock.patch.object(supervision.os, "wait4", side_effect=wait4),
+            mock.patch.object(supervision.os, "waitpid", side_effect=waitpid),
+            mock.patch.object(supervision.time, "sleep", side_effect=lambda seconds: setattr(self, "now", self.now + seconds))]
+        for patch in patches: self.stack.enter_context(patch)
+        return self
 
 
 @unittest.skipUnless(sys.platform == "linux", "Linux-only independent supervision")
@@ -313,7 +547,7 @@ else:
         self.assertFalse(result["spawned"], result)
 
     def test_S16_injected_io_spawn_observation_and_cleanup_failures(self):
-        with mock.patch.object(supervision.subprocess, "Popen", side_effect=OSError("injected spawn failure")):
+        with mock.patch.object(supervision, "_allocate_popen", side_effect=OSError("injected spawn failure")):
             result, _, _ = self.run_stub("pass")
         self.assertEqual(result["status"], "execution_blocked", result)
         self.assertFalse(result["spawned"])
@@ -746,6 +980,322 @@ while True:
                             failure["status"] == "resource_incomplete" and
                             failure["reason"] == "output_log_limit"
                             for failure in result["secondary_failures"]), result)
+
+    def assert_boundary_teardown(self, h, result):
+        self.assertTrue(result["cleanup"]["complete"], result)
+        self.assertTrue(h.child.stdout.closed)
+        self.assertTrue(any(event[0] == "selector_close" for event in h.events))
+        self.assertEqual(len(h.log_fds), 1)
+        with self.assertRaises(OSError): os.fstat(h.log_fds[0])
+        self.assertEqual(h.setter_count, 2)
+        self.assertEqual(h.subreaper_value, 0)
+        self.assertFalse(h.phase._running)
+
+    def assert_no_expired_bulk(self, h):
+        self.assertFalse(any(event[0] in ("usage", "budget", "proc_scan", "post_cleanup_fsync")
+                             and event[1] >= 2500 for event in h.events))
+
+    def test_S32_first_resource_failure_precedes_cleanup_and_late_fsync(self):
+        with LiteralSupervisorBoundaryHarness(self.root / "S32", "resource_late_fsync") as h:
+            result = h.run()
+            self.assert_boundary_teardown(h, result)
+            self.assertEqual(h.cleanup_deadlines, [1905.0])
+            self.assertEqual(h.post_cleanup_fsyncs, 1)
+            transition = next(i for i, e in enumerate(h.events) if e[0] == "transition")
+            cleanup = next(i for i, e in enumerate(h.events) if e[0] == "cleanup")
+            self.assertLess(transition, cleanup)
+            self.assertEqual(len(h.observed), 1)
+            self.assert_no_expired_bulk(h)
+        self.assertEqual(result["primary_outcome"]["status"], "resource_incomplete")
+        self.assertEqual(result["preservation_deadline_monotonic"], 2500.0)
+        self.assertTrue(result["preservation_expired"])
+        self.assertFalse(result["output_durable"])
+        self.assertFalse(result["phase_accounting_complete"])
+
+    def test_S33_expiry_inside_cleanup_keeps_original_deadline(self):
+        with LiteralSupervisorBoundaryHarness(self.root / "S33", "cleanup_expiry") as h:
+            result = h.run()
+            self.assert_boundary_teardown(h, result)
+            self.assertEqual(h.cleanup_deadlines, [1905.0, 1905.0])
+            self.assertEqual(h.post_cleanup_fsyncs, 0)
+            self.assertTrue(any(e[0] == "killpg" for e in h.events))
+            self.assert_no_expired_bulk(h)
+        self.assertEqual(result["preservation_deadline_monotonic"], 2500.0)
+        self.assertTrue(result["preservation_expired"])
+        self.assertFalse(result["child_accounting_complete"])
+        self.assertFalse(result["phase_accounting_complete"])
+
+    def test_S34_observed_exit65_survives_unconfirmed_callback(self):
+        with LiteralSupervisorBoundaryHarness(self.root / "S34", "arm_unconfirmed_exit65") as h:
+            result = h.run()
+            self.assert_boundary_teardown(h, result)
+            self.assertEqual(len(h.observed), 1)
+            self.assertEqual(h.observed[0]["exit_code"], 65)
+            self.assertEqual(h.cleanup_deadlines, [1005.0])
+            self.assertEqual(h.post_cleanup_fsyncs, 0)
+        self.assertEqual(result["exit_code"], 65)
+        self.assertEqual(result["primary_outcome"], {"status": "execution_incomplete", "reason": "child_nonzero_exit"})
+        self.assertEqual(result["preservation_deadline_monotonic"], 1600.0)
+        self.assertTrue(result["preservation_transition_attempted"])
+        self.assertFalse(result["preservation_transition_complete"])
+        self.assertTrue(result["preservation_blocked"])
+        self.assertFalse(result["child_accounting_complete"])
+
+    def test_S35_success_has_clean_boundary_spawn_and_accounting(self):
+        with LiteralSupervisorBoundaryHarness(self.root / "S35", "success") as h:
+            result = h.run()
+            self.assert_boundary_teardown(h, result)
+            self.assertEqual(h.observed, [])
+            self.assertFalse(any(e[0] == "alarm" for e in h.events))
+        self.assertEqual(result["status"], "completed", result)
+        self.assertIsNone(result["preservation_deadline_monotonic"])
+        for field in ("preservation_transition_attempted", "preservation_transition_complete", "preservation_expired", "preservation_blocked", "spawn_ownership_uncertain"):
+            self.assertIs(result[field], False)
+        for field in ("spawn_attempted", "spawn_initialization_complete", "child_accounting_complete", "phase_accounting_complete", "output_durable"):
+            self.assertIs(result[field], True)
+        self.assertEqual(result["spawn_discovery"], "not_required")
+        self.assertEqual(result["spawn_recovered_pids"], [])
+        self.assertNotIn("first_terminal_failure", result)
+        self.assertNotIn("preservation_boundary_failure", result)
+
+    def test_S36_first_fsync_failure_has_only_preexpiry_fallback(self):
+        with LiteralSupervisorBoundaryHarness(self.root / "S36", "first_fsync_failure") as h:
+            result = h.run()
+            self.assert_boundary_teardown(h, result)
+            self.assertEqual(len(h.observed), 1)
+            self.assertEqual(h.observed[0]["first_failure_monotonic"], 1900.0)
+            self.assertEqual(h.post_cleanup_fsyncs, 2)
+            transition = next(i for i, e in enumerate(h.events) if e[0] == "transition")
+            fsyncs = [i for i, e in enumerate(h.events) if e[0] == "post_cleanup_fsync"]
+            self.assertLess(fsyncs[0], transition)
+            self.assertLess(transition, fsyncs[1])
+        self.assertEqual(result["primary_outcome"], {"status": "completed", "reason": "child_exit_zero"})
+        self.assertEqual(result["status"], "resource_incomplete")
+        self.assertEqual(result["preservation_deadline_monotonic"], 2500.0)
+        self.assertTrue(result["preservation_expired"])
+        self.assertFalse(result["output_durable"])
+
+    def test_S37_finally_entry_sentinel_cannot_bypass_teardown(self):
+        with LiteralSupervisorBoundaryHarness(self.root / "S37", "resource_late_fsync") as h:
+            real = supervision._FailureBoundary.start
+            injected = False
+            def faulty(boundary, **kwargs):
+                nonlocal injected
+                if boundary.attempted and kwargs.get("error") is None and not h.cleanup_deadlines and not injected:
+                    injected, h.now = True, 2601.0
+                    raise LiteralPreservationExpired(2500.0)
+                return real(boundary, **kwargs)
+            with mock.patch.object(supervision._FailureBoundary, "start", new=faulty): result = h.run()
+            self.assertTrue(injected)
+            self.assert_boundary_teardown(h, result)
+            self.assertEqual(h.cleanup_deadlines, [1905.0])
+            self.assertEqual(h.post_cleanup_fsyncs, 0)
+            self.assert_no_expired_bulk(h)
+        self.assertTrue(result["preservation_expired"])
+        self.assertTrue(result["preservation_blocked"])
+        self.assertEqual(result["preservation_deadline_monotonic"], 2500.0)
+
+    def test_S38_first_boundary_bookkeeping_never_grants_late_authority(self):
+        for stage, method in (("note", "note_exception"), ("clock", "_first_failure_time"), ("observation", "_observation")):
+            with self.subTest(stage=stage):
+                with LiteralSupervisorBoundaryHarness(self.root / ("S38-" + stage), "resource_late_fsync") as h:
+                    real = getattr(supervision._FailureBoundary, method)
+                    injected, flags = False, []
+                    def faulty(boundary, *args, **kwargs):
+                        nonlocal injected
+                        if not injected:
+                            injected = True
+                            flags.append((boundary.attempted, boundary.confirmed, boundary.blocked,
+                                boundary.result["preservation_transition_attempted"], boundary.result["preservation_transition_complete"], boundary.result["preservation_blocked"]))
+                            if stage == "clock": raise LiteralPreservationExpired(None)
+                            raise MemoryError("invented boundary " + stage + " allocation failure")
+                        return real(boundary, *args, **kwargs)
+                    with mock.patch.object(supervision._FailureBoundary, method, new=faulty): result = h.run()
+                    self.assert_boundary_teardown(h, result)
+                    self.assertEqual(flags, [(True, False, True, True, False, True)])
+                    self.assertEqual(h.observed, [])
+                    self.assertFalse(any(e[0] == "alarm" for e in h.events))
+                    self.assertEqual(h.cleanup_deadlines, [1905.0 if stage == "observation" else 1000.0])
+                    self.assertEqual(h.post_cleanup_fsyncs, 0)
+                self.assertTrue(result["preservation_transition_attempted"])
+                self.assertFalse(result["preservation_transition_complete"])
+                self.assertTrue(result["preservation_blocked"])
+                self.assertIsNone(result["preservation_deadline_monotonic"])
+
+    def test_S39_postcleanup_bookkeeping_cannot_skip_remaining_teardown(self):
+        for stage in ("observed_exit", "permit"):
+            with self.subTest(stage=stage):
+                with LiteralSupervisorBoundaryHarness(self.root / ("S39-" + stage), "resource_late_fsync") as h:
+                    injected = False
+                    if stage == "observed_exit":
+                        real = supervision._retain_child_exit
+                        def faulty(child, result):
+                            nonlocal injected
+                            if h.cleanup_deadlines and not injected:
+                                injected, h.now = True, 2601.0
+                                raise LiteralPreservationExpired(2500.0)
+                            return real(child, result)
+                        patch = mock.patch.object(supervision, "_retain_child_exit", new=faulty)
+                    else:
+                        real = supervision._FailureBoundary.permit
+                        def faulty(boundary):
+                            nonlocal injected
+                            if h.cleanup_deadlines and not injected:
+                                injected, h.now = True, 2601.0
+                                raise LiteralPreservationExpired(2500.0)
+                            return real(boundary)
+                        patch = mock.patch.object(supervision._FailureBoundary, "permit", new=faulty)
+                    with patch: result = h.run()
+                    self.assertTrue(injected)
+                    self.assert_boundary_teardown(h, result)
+                    self.assertEqual(h.cleanup_deadlines, [1905.0])
+                    self.assertEqual(h.post_cleanup_fsyncs, 0)
+                    self.assert_no_expired_bulk(h)
+                self.assertTrue(result["preservation_expired"])
+                self.assertEqual(result["preservation_deadline_monotonic"], 2500.0)
+
+    def assert_partial_spawn_restored(self, h, result):
+        self.assertTrue(result["spawn_attempted"])
+        self.assertFalse(result["spawn_initialization_complete"])
+        self.assertTrue(h.child.stdout.closed)
+        self.assertEqual(h.setter_count, 2)
+        self.assertEqual(h.subreaper_value, 0)
+        self.assertFalse(h.phase._running)
+        with self.assertRaises(OSError): os.fstat(h.log_fds[0])
+        self.assertEqual(result["preservation_deadline_monotonic"], 2500.0)
+        self.assertEqual(len(h.observed), 1)
+        self.assertEqual(sum(e[0] == "alarm" for e in h.events), 1)
+        self.assertFalse(any(e[0] == "killpg" for e in h.events))
+        excluded = {h.OLD_PRODUCER_PID, h.UNRELATED_PID, os.getpid()}
+        self.assertFalse(any(pid in excluded for pid, _ in h.signals))
+        self.assertFalse(any(pid in excluded for _, pid in h.waited))
+
+    def test_S40_partial_initializer_retains_published_pid(self):
+        with LiteralPartialSpawnHarness(self.root / "S40", "retained_pid") as h:
+            result = h.run()
+            self.assert_partial_spawn_restored(h, result)
+            self.assertEqual(h.cleanup_deadlines, [1905.0])
+            self.assertEqual(h.live, {})
+            self.assertEqual(h.signals, [(h.ROOT_PID, signal.SIGTERM)])
+        self.assertTrue(result["spawned"])
+        self.assertEqual(result["pid"], h.ROOT_PID)
+        self.assertFalse(result["spawn_ownership_uncertain"])
+        self.assertEqual(result["spawn_discovery"], "retained_pid")
+        self.assertTrue(result["cleanup"]["complete"], result)
+        self.assertEqual(result["primary_outcome"]["exception_type"], "MemoryError")
+        self.assertEqual(result["signal"], signal.SIGTERM)
+        self.assertTrue(result["output_prefix_gap"])
+        self.assertEqual(result["output_pipe_tail"], "closed_during_initialization")
+        self.assertTrue(result["child_accounting_complete"])
+        self.assertTrue(result["phase_accounting_complete"])
+
+    def test_S41_missing_pid_selects_direct_wait_root_and_stable_identities(self):
+        with LiteralPartialSpawnHarness(self.root / "S41", "recover_direct") as h:
+            result = h.run()
+            self.assert_partial_spawn_restored(h, result)
+            self.assertEqual(h.cleanup_deadlines, [1905.0])
+            self.assertEqual(h.live, {})
+            owned = {h.ROOT_PID, h.ADOPTED_PID, h.DESCENDANT_PID}
+            self.assertEqual({pid for pid, _ in h.signals}, owned)
+            self.assertTrue(all(sig == signal.SIGTERM for _, sig in h.signals))
+            stale = supervision._Process(h.ROOT_PID, os.getpid(), 1, 1, "S", 10, 0.0, 0.0)
+            replacement = supervision._Process(h.ROOT_PID, 77, 1, 1, "S", 99, 0.0, 0.0)
+            prior = list(h.signals)
+            with mock.patch.object(supervision, "_read_process", return_value=replacement):
+                supervision._cleanup_signal(h.child, {stale.pid: stale}, signal.SIGKILL, 100)
+            self.assertEqual(h.signals, prior)
+        self.assertEqual(result["spawn_discovery"], "recovered_direct_child")
+        self.assertEqual(result["pid"], h.ROOT_PID)
+        self.assertLess(h.DESCENDANT_PID, h.ROOT_PID)
+        self.assertEqual(set(result["spawn_recovered_pids"]), owned)
+        self.assertTrue(result["cleanup"]["complete"])
+        self.assertTrue(result["child_accounting_complete"])
+        self.assertTrue(result["phase_accounting_complete"])
+
+    def test_S42_missing_pid_unavailable_inventory_stays_unknown(self):
+        with LiteralPartialSpawnHarness(self.root / "S42", "unavailable") as h:
+            result = h.run()
+            self.assert_partial_spawn_restored(h, result)
+            self.assertEqual(h.signals, [])
+            self.assertEqual(h.waited, [])
+            self.assertEqual(h.cleanup_deadlines, [])
+            self.assertIn(h.ROOT_PID, h.live)
+        self.assertIsNone(result["spawned"])
+        self.assertIsNone(result["pid"])
+        self.assertTrue(result["spawn_ownership_uncertain"])
+        self.assertFalse(result["cleanup"]["complete"])
+        self.assertFalse(result["output_durable"])
+        self.assertTrue(result["output_prefix_gap"])
+        self.assertTrue(any(x["reason"] == "partial_spawn_discovery_failed" for x in result["secondary_failures"]))
+        self.assertTrue(any(x["reason"] == "process_cleanup_unconfirmed" for x in result["secondary_failures"]))
+        self.assertFalse(result["child_accounting_complete"])
+        self.assertFalse(result["phase_accounting_complete"])
+        self.assertEqual(result["child_cpu_seconds"], 0.0)
+        self.assertEqual(result["phase"]["cpu_seconds"], 0.0)
+
+    def test_S43_empty_current_inventory_does_not_infer_never_created(self):
+        with LiteralPartialSpawnHarness(self.root / "S43", "no_fork") as h:
+            result = h.run()
+            self.assert_partial_spawn_restored(h, result)
+            self.assertEqual(h.signals, [])
+            self.assertEqual(h.waited, [])
+            self.assertEqual(h.cleanup_deadlines, [])
+            self.assertEqual(h.live, {})
+        self.assertIsNone(result["spawned"])
+        self.assertFalse(result["spawn_ownership_uncertain"])
+        self.assertEqual(result["spawn_discovery"], "no_owned_child_observed")
+        self.assertTrue(result["cleanup"]["complete"])
+        self.assertIsNone(result["returncode"])
+        self.assertIsNone(result["exit_code"])
+        self.assertIsNone(result["signal"])
+
+    def test_S44_partial_spawn_expiry_keeps_original_cleanup_cutoff(self):
+        with LiteralPartialSpawnHarness(self.root / "S44", "expired_recovery") as h:
+            result = h.run()
+            self.assert_partial_spawn_restored(h, result)
+            self.assertTrue(h.expiry_injected)
+            self.assertEqual(h.cleanup_deadlines, [1905.0, 1905.0])
+            self.assertEqual(h.live, {})
+            self.assertEqual(h.signals, [(h.ROOT_PID, signal.SIGKILL)])
+            self.assertEqual(h.post_cleanup_fsyncs, 0)
+            self.assert_no_expired_bulk(h)
+        self.assertTrue(result["cleanup"]["complete"])
+        self.assertTrue(result["cleanup"]["sigkill_used"])
+        self.assertTrue(result["preservation_expired"])
+        self.assertFalse(result["output_durable"])
+        self.assertFalse(result["phase_accounting_complete"])
+
+    def test_S45_retained_identity_fallback_keeps_typed_causes_and_lower_bounds(self):
+        for variant in ("targeted_available", "targeted_unavailable", "emergency_memory"):
+            with self.subTest(variant=variant):
+                with LiteralPartialSpawnHarness(self.root / ("S45-" + variant), variant) as h:
+                    result = h.run()
+                    self.assert_partial_spawn_restored(h, result)
+                    self.assertEqual(h.cleanup_deadlines, [1905.0, 1905.0] if variant == "emergency_memory" else [1905.0])
+                    transition = next(i for i, e in enumerate(h.events) if e[0] == "transition")
+                    targeted = [i for i, e in enumerate(h.events) if e[0] == "targeted_identity"]
+                    self.assertTrue(targeted)
+                    self.assertGreater(min(targeted), transition)
+                    if variant == "targeted_available":
+                        self.assertEqual(h.live, {})
+                        self.assertEqual(h.signals, [(h.ROOT_PID, signal.SIGKILL)])
+                        self.assertTrue(result["cleanup"]["sigkill_used"])
+                    else:
+                        self.assertIn(h.ROOT_PID, h.live)
+                        self.assertEqual(h.signals, [])
+                        self.assertFalse(result["cleanup"]["sigkill_used"])
+                        self.assertIn(h.ROOT_PID, result["cleanup"]["remaining_pids"])
+                        self.assertIsNone(result["returncode"])
+                if variant == "emergency_memory":
+                    self.assertTrue(any(x["reason"] == "emergency_cleanup_inventory_failed" and x.get("exception_type") == "OSError" for x in result["secondary_failures"]))
+                    self.assertTrue(any(x["reason"] == "emergency_group_kill_failed" and x.get("exception_type") == "MemoryError" and x["status"] == "resource_incomplete" for x in result["secondary_failures"]))
+                self.assertFalse(result["cleanup"]["complete"])
+                self.assertEqual(result["primary_outcome"]["status"], "resource_incomplete")
+                self.assertFalse(result["child_accounting_complete"])
+                self.assertFalse(result["phase_accounting_complete"])
+                self.assertEqual(result["child_cpu_seconds"], 0.0)
+                self.assertEqual(result["phase"]["cpu_seconds"], 0.0)
+
 
 
 if __name__ == "__main__":

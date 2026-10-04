@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import ctypes
 import errno
-from contextlib import nullcontext
+from contextlib import contextmanager, nullcontext
 import json
 import math
 import os
@@ -331,6 +331,9 @@ def _reap_adopted(root_pid: int, owned: dict[int, _Process]) -> None:
 def _exception_status(error: BaseException, resource_exceptions: tuple = (), *, before_spawn: bool = False) -> str:
     if isinstance(error, CallStateIntegrityError):
         return "integrity_invalid"
+    attached = getattr(error, "worker36_failure", None)
+    if isinstance(attached, dict) and attached.get("status") in ("execution_blocked", "execution_incomplete", "resource_incomplete", "integrity_invalid"):
+        return attached["status"]
     if isinstance(error, (MemoryError, RecursionError, OutputBudgetExceeded) + resource_exceptions):
         return "resource_incomplete"
     return "execution_blocked" if before_spawn else "execution_incomplete"
@@ -338,7 +341,7 @@ def _exception_status(error: BaseException, resource_exceptions: tuple = (), *, 
 
 def _retain_child_exit(child: subprocess.Popen, result: dict) -> dict | None:
     """Copy already observed wait evidence before any fallible resource work."""
-    code = child.returncode
+    code = getattr(child, "returncode", None)
     if code is None:
         return None
     result.update(returncode=code, exit_code=code if code >= 0 else None,
@@ -352,16 +355,18 @@ def _retain_child_exit(child: subprocess.Popen, result: dict) -> dict | None:
 
 
 def _cleanup(child: subprocess.Popen, ticks: int, tracked: set[tuple[int, int]],
-             resource_exceptions: tuple = (), deadline: float | None = None) -> dict:
+             resource_exceptions: tuple = (), deadline: float | None = None, on_failure: Callable | None = None) -> dict:
     if deadline is None:
         deadline = time.monotonic() + CLEANUP_SECONDS
-    escalation = time.monotonic() + TERM_GRACE_SECONDS
+    escalation = min(time.monotonic() + TERM_GRACE_SECONDS, deadline)
     used_kill = sent_term = False
     errors: list[str] = []
     last_owned: dict[int, _Process] = {}
     failure_details = []
 
     def remember(error, reason):
+        if on_failure is not None:
+            on_failure(error, reason)
         if len(failure_details) < 16:
             failure_details.append({"phase": "cleanup", "status": _exception_status(error, resource_exceptions),
                                     "reason": reason, "exception_type": type(error).__name__, "message": str(error)})
@@ -369,34 +374,43 @@ def _cleanup(child: subprocess.Popen, ticks: int, tracked: set[tuple[int, int]],
     while True:
         _poll(child)
         try:
-            owned = _owned_processes(_scan_processes(ticks), child.pid, tracked)
+            owned = _cleanup_inventory(child, ticks, tracked)
             last_owned = owned
-        except (Exception, KeyboardInterrupt) as exc:
+        except BaseException as exc:
             remember(exc, "cleanup_inventory_failed")
             errors.append(f"cleanup inventory: {type(exc).__name__}: {exc}")
             owned = last_owned
             try:
-                os.killpg(child.pid, signal.SIGKILL)
-            except ProcessLookupError:
+                if getattr(child, "_worker36_partial_spawn", False):
+                    if not owned:
+                        owned = _retained_partial_identity(child, ticks, tracked)
+                        last_owned = owned
+                    _cleanup_signal(child, owned, signal.SIGKILL, ticks)
+                else:
+                    used_kill = True
+                    os.killpg(child.pid, signal.SIGKILL)
+            except (ProcessLookupError, FileNotFoundError):
                 pass
-            used_kill = True
+            except BaseException as targeted_error:
+                remember(targeted_error, "cleanup_retained_identity_failed")
+                errors.append(f"retained identity: {type(targeted_error).__name__}: {targeted_error}")
         _reap_adopted(child.pid, owned)
         _poll(child)
         if not owned and child.returncode is not None:
-            return {"complete": not errors, "sigkill_used": used_kill, "remaining_pids": [], "errors": errors, "failure_details": failure_details}
+            return {"complete": not errors, "sigkill_used": used_kill or bool(getattr(child, "_worker36_sigkill_attempted", False)), "remaining_pids": [], "errors": errors, "failure_details": failure_details}
         try:
             if time.monotonic() >= escalation:
-                _signal_owned(owned, child.pid, signal.SIGKILL, ticks)
-                used_kill = True
+                _cleanup_signal(child, owned, signal.SIGKILL, ticks)
+                used_kill = used_kill or not getattr(child, "_worker36_partial_spawn", False)
             elif not sent_term:
-                _signal_owned(owned, child.pid, signal.SIGTERM, ticks)
+                _cleanup_signal(child, owned, signal.SIGTERM, ticks)
                 sent_term = True
-        except (Exception, KeyboardInterrupt) as exc:
+        except BaseException as exc:
             remember(exc, "cleanup_signal_failed")
             errors.append(f"cleanup signal: {type(exc).__name__}: {exc}")
         if time.monotonic() >= deadline:
-            return {"complete": False, "sigkill_used": used_kill,
-                    "remaining_pids": sorted(owned), "errors": errors + ["cleanup deadline exceeded"], "failure_details": failure_details}
+            return {"complete": False, "sigkill_used": used_kill or bool(getattr(child, "_worker36_sigkill_attempted", False)),
+                    "remaining_pids": sorted(set(owned) | ({child.pid} if child.returncode is None else set())), "errors": errors + ["cleanup deadline exceeded"], "failure_details": failure_details}
         time.sleep(POLL_SECONDS)
 
 
@@ -436,6 +450,232 @@ def _record_secondary_failure(
         result.update(status=status, reason=reason)
 
 
+
+def _allocate_popen():
+    """Retain the stdlib instance before its fallible, potentially forking init."""
+    child = subprocess.Popen.__new__(subprocess.Popen)
+    child.pid = child.returncode = child.stdin = child.stdout = child.stderr = None
+    return child
+
+
+def _initialize_popen(child, *args, **kwargs):
+    subprocess.Popen.__init__(child, *args, **kwargs)
+
+
+def _partial_spawn_owned(processes, baseline, tracked):
+    """Fresh direct children and their lineage, excluding all baseline identities."""
+    fresh = {pid: proc for pid, proc in processes.items() if proc.identity not in baseline}
+    owned = {pid: proc for pid, proc in fresh.items()
+             if proc.ppid == os.getpid() or proc.identity in tracked}
+    changed = True
+    while changed:
+        changed = False
+        for pid, proc in fresh.items():
+            if pid not in owned and proc.ppid in owned:
+                owned[pid] = proc
+                changed = True
+    tracked.update(proc.identity for proc in owned.values())
+    return owned
+
+
+def _cleanup_inventory(child, ticks, tracked):
+    processes = _scan_processes(ticks)
+    if getattr(child, "_worker36_partial_spawn", False):
+        return _partial_spawn_owned(processes, child._worker36_spawn_baseline, tracked)
+    return _owned_processes(processes, child.pid, tracked)
+
+
+def _cleanup_signal(child, owned, sig, ticks):
+    if not getattr(child, "_worker36_partial_spawn", False):
+        _signal_owned(owned, child.pid, sig, ticks)
+        return
+    # Partial fork may not yet have established a new group/session.
+    for proc in owned.values():
+        try:
+            if _read_process(proc.pid, ticks).identity == proc.identity:
+                if sig == signal.SIGKILL:
+                    child._worker36_sigkill_attempted = True
+                os.kill(proc.pid, sig)
+        except (ProcessLookupError, FileNotFoundError):
+            pass
+
+
+def _retained_partial_identity(child, ticks, tracked):
+    pid = getattr(child, "pid", None)
+    if type(pid) is not int or pid <= 1 or pid == os.getpid():
+        return {}
+    proc = _read_process(pid, ticks)
+    if proc.ppid != os.getpid() or proc.identity in child._worker36_spawn_baseline:
+        return {}
+    tracked.add(proc.identity)
+    return {pid: proc}
+
+
+def _emergency_cleanup_kill(child, ticks, tracked, on_failure=None):
+    if not getattr(child, "_worker36_partial_spawn", False):
+        os.killpg(child.pid, signal.SIGKILL)
+        return
+    try:
+        owned = _cleanup_inventory(child, ticks, tracked)
+    except BaseException as inventory_error:
+        try:
+            if on_failure is not None:
+                on_failure(inventory_error, "emergency_cleanup_inventory_failed")
+        finally:
+            # Mandatory targeting survives failed bookkeeping. Later typed errors
+            # propagate independently of the already retained inventory error.
+            owned = {}
+            for pid, start_ticks in tracked:
+                try:
+                    proc = _read_process(pid, ticks)
+                except (FileNotFoundError, ProcessLookupError):
+                    continue
+                if proc.identity == (pid, start_ticks) and proc.identity not in child._worker36_spawn_baseline:
+                    owned[pid] = proc
+            if not owned:
+                try:
+                    owned = _retained_partial_identity(child, ticks, tracked)
+                except (FileNotFoundError, ProcessLookupError):
+                    pass
+            _cleanup_signal(child, owned, signal.SIGKILL, ticks)
+        raise inventory_error
+    _cleanup_signal(child, owned, signal.SIGKILL, ticks)
+
+
+class _PreservationStopped(BaseException):
+    def __init__(self, *, expired, deadline):
+        message = "original preservation deadline exhausted" if expired else "preservation transition unconfirmed"
+        super().__init__(message)
+        self.worker36_preservation_deadline = deadline
+        self.worker36_failure = {"status": "resource_incomplete" if expired else "execution_incomplete",
+            "category": "resource" if expired else "infrastructure", "phase": "preservation_boundary",
+            "error_type": type(self).__name__, "error": message}
+
+
+class _FailureBoundary:
+    """One driver-owned cutoff; unconfirmed attempts never regain authority."""
+    def __init__(self, result, callback):
+        self.result, self.callback = result, callback
+        self.attempted = self.confirmed = self.expired = self.blocked = False
+        self.deadline = self.first_failure_monotonic = self.cleanup_deadline = None
+        self.resource_exceptions = ()
+
+    def _flags(self):
+        self.result.update(preservation_deadline_monotonic=self.deadline,
+            preservation_transition_attempted=self.attempted,
+            preservation_transition_complete=self.confirmed,
+            preservation_expired=self.expired, preservation_blocked=self.blocked)
+
+    def _adopt_exception(self, error):
+        attached = getattr(error, "worker36_failure", None)
+        supplied = getattr(error, "worker36_preservation_deadline", None)
+        if type(supplied) in (int, float) and math.isfinite(supplied) and supplied > 0:
+            if self.deadline is None:
+                self.deadline = supplied
+            elif supplied != self.deadline:
+                self.blocked = True
+        if isinstance(attached, dict):
+            self.result["preservation_boundary_failure"] = dict(attached)
+            if not isinstance(error, Exception) and attached.get("status") == "resource_incomplete":
+                self.expired = self.blocked = True
+
+    def note_exception(self, error):
+        self._adopt_exception(error)
+        self._flags()
+
+    def fail_closed(self, error, *, phase="preservation_transition", reason="preservation_bookkeeping_failed"):
+        if self.callback is not None:
+            self.attempted = True
+        self.blocked = True
+        try:
+            self._adopt_exception(error)
+        except BaseException:
+            pass
+        try:
+            self._flags()
+        except BaseException:
+            self.result["preservation_transition_attempted"] = self.attempted
+            self.result["preservation_transition_complete"] = self.confirmed
+            self.result["preservation_blocked"] = True
+            self.result["preservation_expired"] = self.expired
+            self.result["preservation_deadline_monotonic"] = self.deadline
+        if self.result.get("reason") is None:
+            self.result.update(status=_exception_status(error, self.resource_exceptions), reason=reason)
+        self.result.setdefault("primary_outcome", {"status": self.result["status"], "reason": self.result["reason"]})
+        try:
+            _record_secondary_failure(self.result, phase=phase,
+                status=_exception_status(error, self.resource_exceptions), reason=reason, error=error)
+        except BaseException:
+            if self.result["status"] not in ("integrity_invalid", "resource_incomplete", "execution_blocked"):
+                self.result.update(status="execution_incomplete", reason=reason)
+
+    def _first_failure_time(self):
+        return time.monotonic()
+
+    def _observation(self, *, phase, status, reason, error):
+        observed = {"status": status, "reason": reason, "phase": phase,
+            "first_failure_monotonic": self.first_failure_monotonic,
+            "returncode": self.result["returncode"], "exit_code": self.result["exit_code"], "signal": self.result["signal"]}
+        if "primary_outcome" in self.result:
+            observed["primary_outcome"] = dict(self.result["primary_outcome"])
+        if error is not None:
+            observed.update(exception_type=type(error).__name__, message=str(error))
+        return observed
+
+    def start(self, *, phase, status, reason, error=None):
+        if self.callback is None:
+            return
+        if self.attempted:
+            if error is not None:
+                try:
+                    self.note_exception(error)
+                except BaseException as exc:
+                    self.fail_closed(exc)
+            return
+        # Publish denial before any fallible clock, note, allocation or callback.
+        self.attempted, self.confirmed, self.blocked = True, False, True
+        try:
+            self._flags()
+            if error is not None:
+                self.note_exception(error)
+            self.first_failure_monotonic = self._first_failure_time()
+            self.cleanup_deadline = self.first_failure_monotonic + CLEANUP_SECONDS
+            observed = self._observation(phase=phase, status=status, reason=reason, error=error)
+            self.result["first_terminal_failure"] = observed
+            cutoff = self.callback(dict(observed))
+            if type(cutoff) not in (int, float) or not math.isfinite(cutoff) or cutoff <= 0:
+                raise SupervisionError("invalid original preservation cutoff")
+            if self.deadline is not None and self.deadline != cutoff:
+                raise SupervisionError("preservation cutoff changed")
+            self.deadline = cutoff
+            self.confirmed = True
+            self.blocked = self.expired
+            self._flags()
+            self.permit()
+        except BaseException as exc:
+            self.fail_closed(exc)
+
+    def permit(self):
+        if self.blocked:
+            return False
+        if self.callback is None or not self.attempted:
+            return True
+        try:
+            if self.deadline is None or not self.confirmed:
+                self.blocked = True
+            elif time.monotonic() >= self.deadline:
+                self.expired = self.blocked = True
+            self._flags()
+            return self.confirmed and not self.expired and not self.blocked
+        except BaseException as exc:
+            self.fail_closed(exc)
+            return False
+
+    def require(self):
+        if not self.permit():
+            raise _PreservationStopped(expired=self.expired, deadline=self.deadline)
+
+
 def run_child(
     command: Sequence[str], env: Mapping[str, str], cwd: Path | str,
     output_log: Path, call_state: Path, phase: PhaseBudget,
@@ -446,6 +686,7 @@ def run_child(
     expected_inherited_limits: Mapping[str, Sequence[int]] | None = None,
     output_budget_check: Callable | None = None,
     output_budget_exceptions: tuple[type[Exception], ...] = (OutputBudgetExceeded,),
+    on_terminal_failure: Callable[[dict], float] | None = None,
 ) -> dict:
     """Run one fresh serial child, retaining a bounded combined output prefix.
 
@@ -468,11 +709,18 @@ def run_child(
     Cleanup output is drained nonblockingly under the original cleanup deadline
     and existing output cap. output_durable describes only the retained prefix;
     output_prefix_gap also flags an unconfirmed pipe tail, not just lost bytes.
+    Production supplies on_terminal_failure to arm the one original preservation
+    cutoff before failure work. Unconfirmed/expired authority permits only bounded
+    mandatory cleanup/restoration. Construction ownership is retained before init;
+    narrow recovery excludes every pre-spawn process identity. Counters remain
+    lower bounds while ownership or cleanup is unconfirmed.
     """
     began = time.monotonic()
     result = {
         "schema": "worker36.supervision.v1", "status": "execution_blocked",
         "reason": None, "spawned": False, "pid": None, "returncode": None,
+        "spawn_attempted": False, "spawn_initialization_complete": False,
+        "spawn_ownership_uncertain": False, "spawn_discovery": "not_attempted", "spawn_recovered_pids": [],
         "exit_code": None, "signal": None, "wall_seconds": 0.0,
         "child_cpu_seconds": 0.0, "child_high_water_rss_kib": None,
         "scientific_returns_inferred": False, "output_log": str(output_log),
@@ -484,6 +732,8 @@ def run_child(
         "poll_seconds": POLL_SECONDS, "errors": [], "secondary_failures": [],
         "child_accounting_complete": False, "phase_accounting_complete": False,
     }
+    boundary = _FailureBoundary(result, on_terminal_failure)
+    boundary._flags()
     child = log_fd = selector = old_subreaper = None
     tracked: set[tuple[int, int]] = set()
     ticks = 0
@@ -495,9 +745,81 @@ def run_child(
     root_cpu_last = 0.0
     output_buffer = bytearray()
 
+    cleanup_deadline = None
+    spawn_baseline = frozenset()
+
+    def valid_child_pid():
+        pid = getattr(child, "pid", None)
+        return pid if type(pid) is int and pid > 1 and pid != os.getpid() else None
+
+    def observe_spawn():
+        pid = valid_child_pid()
+        if pid is not None:
+            result.update(spawned=True, pid=pid)
+            if not result["spawn_initialization_complete"]:
+                result.update(spawn_discovery="retained_pid", spawn_ownership_uncertain=False)
+        return pid
+
+    def record_secondary(*args, **kwargs):
+        try:
+            boundary.start(phase=kwargs["phase"], status=kwargs["status"], reason=kwargs["reason"], error=kwargs.get("error"))
+        except BaseException as exc:
+            boundary.fail_closed(exc)
+        try:
+            _record_secondary_failure(*args, **kwargs)
+        except BaseException as exc:
+            boundary.fail_closed(exc, phase="failure_recording", reason="secondary_recording_failed")
+
+    def cleanup_failure(error, reason):
+        try:
+            boundary.start(phase="cleanup", status=_exception_status(error, declared_resource_types), reason=reason, error=error)
+        except BaseException as exc:
+            boundary.fail_closed(exc)
+
+    def recover_partial_spawn():
+        if result["spawn_initialization_complete"]:
+            return True
+        if not result["spawn_attempted"]:
+            return False
+        result["cleanup"] = {"complete": False, "sigkill_used": False, "remaining_pids": [],
+            "errors": ["partial spawn ownership is unconfirmed"], "failure_details": []}
+        if observe_spawn() is not None:
+            return True
+        result.update(spawn_ownership_uncertain=True, spawn_discovery="unavailable",
+                      output_prefix_gap=True, output_pipe_tail="spawn_ownership_unconfirmed")
+        try:
+            owned = _partial_spawn_owned(_scan_processes(ticks), spawn_baseline, tracked)
+            if not owned:
+                result.update(spawn_ownership_uncertain=False, spawn_discovery="no_owned_child_observed",
+                              output_pipe_tail="no_owned_child_observed")
+                result["cleanup"] = {"complete": True, "sigkill_used": False, "remaining_pids": [], "errors": [], "failure_details": []}
+                return False
+            recovered = sorted(owned)
+            direct = sorted(pid for pid, proc in owned.items() if proc.ppid == os.getpid())
+            if not direct:
+                _cleanup_signal(child, owned, signal.SIGKILL, ticks)
+                raise SupervisionError("partial spawn has no currently waitable direct child")
+            child.pid, child.returncode = direct[0], None
+            result.update(spawned=True, pid=child.pid, spawn_ownership_uncertain=False,
+                          spawn_discovery="recovered_direct_child", spawn_recovered_pids=recovered)
+            return True
+        except BaseException as exc:
+            record_secondary(result, phase="cleanup", status=_exception_status(exc, declared_resource_types),
+                             reason="partial_spawn_discovery_failed", error=exc)
+            record_secondary(result, phase="cleanup", status="execution_incomplete",
+                             reason="process_cleanup_unconfirmed", message="partial spawn ownership is unknown")
+            result["cleanup"]["errors"].append(f"ownership discovery: {type(exc).__name__}: {exc}")
+            return False
+
+    @contextmanager
     def budget_guard(size):
+        boundary.require()
         guard = output_budget_check(output_log, size) if output_budget_check is not None else None
-        return guard if guard is not None else nullcontext()
+        boundary.require()
+        with guard if guard is not None else nullcontext():
+            boundary.require()
+            yield
+            boundary.require()
 
     def check_buffer_budget(size):
         with budget_guard(size):
@@ -507,6 +829,9 @@ def run_child(
         nonlocal pipe_eof
         if pipe_eof:
             return
+        if not boundary.permit():
+            result.update(output_pipe_tail="preservation_stopped", output_prefix_gap=True)
+            return
         if not result["cleanup"]["complete"]:
             result["output_pipe_tail"] = "cleanup_unconfirmed"
             result["output_prefix_gap"] = True
@@ -515,16 +840,17 @@ def run_child(
             if deadline is None or time.monotonic() >= deadline:
                 result["output_pipe_tail"] = "cleanup_deadline_exhausted"
                 result["output_prefix_gap"] = True
-                _record_secondary_failure(result, phase="post_cleanup_output", status="execution_incomplete",
+                record_secondary(result, phase="post_cleanup_output", status="execution_incomplete",
                                           reason="output_tail_cleanup_deadline")
                 return
             # Setup can fail before the running-loop nonblocking configuration.
             os.set_blocking(child.stdout.fileno(), False)
             while True:
+                boundary.require()
                 if time.monotonic() >= deadline:
                     result["output_pipe_tail"] = "cleanup_deadline_exhausted"
                     result["output_prefix_gap"] = True
-                    _record_secondary_failure(result, phase="post_cleanup_output", status="execution_incomplete",
+                    record_secondary(result, phase="post_cleanup_output", status="execution_incomplete",
                                               reason="output_tail_cleanup_deadline")
                     return
                 remaining = output_log_limit_bytes - len(output_buffer)
@@ -535,7 +861,7 @@ def run_child(
                 except BlockingIOError:
                     result["output_pipe_tail"] = "read_unavailable"
                     result["output_prefix_gap"] = True
-                    _record_secondary_failure(result, phase="post_cleanup_output", status="execution_incomplete",
+                    record_secondary(result, phase="post_cleanup_output", status="execution_incomplete",
                                               reason="output_tail_unconfirmed")
                     return
                 if not data:
@@ -548,7 +874,7 @@ def run_child(
                     result["output_overflow"] = True
                     result["output_prefix_gap"] = True
                     result["output_pipe_tail"] = "output_cap_reached"
-                    _record_secondary_failure(result, phase="post_cleanup_output", status="resource_incomplete",
+                    record_secondary(result, phase="post_cleanup_output", status="resource_incomplete",
                                               reason="output_log_limit")
                     return
                 check_buffer_budget(len(output_buffer))
@@ -556,360 +882,485 @@ def run_child(
             result["output_overflow"] = True
             result["output_prefix_gap"] = True
             result["output_pipe_tail"] = "shared_output_budget_limit"
-            _record_secondary_failure(result, phase="post_cleanup_output", status="resource_incomplete",
+            record_secondary(result, phase="post_cleanup_output", status="resource_incomplete",
                                       reason="shared_output_budget_limit", error=exc)
-        except (Exception, KeyboardInterrupt) as exc:
+        except BaseException as exc:
             result["output_prefix_gap"] = True
             result["output_pipe_tail"] = "drain_failed"
-            _record_secondary_failure(result, phase="post_cleanup_output", status=_exception_status(exc, declared_resource_types),
+            record_secondary(result, phase="post_cleanup_output", status=_exception_status(exc, declared_resource_types),
                                       reason="output_tail_drain_failed", error=exc)
 
-    try:
-        wall_seconds = _positive(wall_seconds, "wall_seconds")
-        cpu_seconds = _positive(cpu_seconds, "cpu_seconds")
-        call_wall_seconds = _positive(call_wall_seconds, "call_wall_seconds")
-        call_cpu_seconds = _positive(call_cpu_seconds, "call_cpu_seconds")
-        if type(address_space_bytes) is not int or address_space_bytes != FROZEN_ADDRESS_SPACE:
-            raise SupervisionError("address_space_bytes must be exactly 512 MiB")
-        if type(output_log_limit_bytes) is not int or not 0 < output_log_limit_bytes <= 64 * 1024 * 1024:
-            raise SupervisionError("output log limit must be a positive integer at most 64 MiB")
-        if output_budget_check is not None and not callable(output_budget_check):
-            raise SupervisionError("output_budget_check must be callable")
-        if (not isinstance(output_budget_exceptions, tuple) or
-                any(not isinstance(cls, type) or not issubclass(cls, Exception) for cls in output_budget_exceptions)):
-            raise SupervisionError("output_budget_exceptions must contain exception classes")
-        declared_resource_types = output_budget_exceptions
-        if not isinstance(phase, PhaseBudget) or phase._running:
-            raise SupervisionError("a dedicated, inactive PhaseBudget is required")
-        if not command or isinstance(command, (str, bytes)) or any(not isinstance(x, str) or not x for x in command):
-            raise SupervisionError("command must contain executable and string arguments")
-        if not isinstance(env, Mapping) or any(not isinstance(k, str) or not isinstance(v, str) for k, v in env.items()):
-            raise SupervisionError("an explicit string environment is required")
-        if sys.platform != "linux":
-            raise SupervisionError("independent supervision requires Linux")
-        ticks = os.sysconf("SC_CLK_TCK")
-        if not isinstance(ticks, int) or ticks <= 0:
-            raise SupervisionError("Linux process CPU tick frequency unavailable")
-        if len(list(Path("/proc/self/task").iterdir())) != 1:
-            raise SupervisionError("supervisor must be single-threaded")
-        processes = _scan_processes(ticks)
-        if os.getpid() not in processes:
-            raise SupervisionError("supervisor proc accounting unavailable")
-        if any(proc.ppid == os.getpid() for proc in processes.values()):
-            raise SupervisionError("serial supervisor has pre-existing children")
-        result["inherited_limits"] = _inherited_limits()
-        if expected_inherited_limits is not None:
-            expected = {name: list(pair) for name, pair in expected_inherited_limits.items()}
-            if expected != result["inherited_limits"]:
-                raise SupervisionError("inherited limits differ from exact admission baseline")
-        result["cpu_tick_seconds"] = 1.0 / ticks
-        output_log = Path(output_log).absolute()
-        call_state = Path(call_state).absolute()
-        cwd = Path(cwd).resolve(strict=True)
-        if not cwd.is_dir():
-            raise SupervisionError("cwd is not a directory")
-        for path in (output_log, call_state):
-            if path.exists() or path.is_symlink():
-                raise SupervisionError(f"pre-existing evidence path: {path}")
-            if path.parent.resolve(strict=True) != path.parent:
-                raise SupervisionError("evidence parent path may not contain symlinks")
-        if output_log == call_state:
-            raise SupervisionError("output_log and call_state must be distinct")
-        result["phase"] = phase.snapshot()
-        reason = phase.exhausted(result["phase"])
-        if reason:
-            raise SupervisionError(f"{reason}_before_spawn")
-        old_subreaper = _subreaper(True)
-        _subreaper(False, 1)
-        if _subreaper(True) != 1:
-            raise SupervisionError("Linux child subreaper verification failed")
-        phase._running = True
-        phase_claimed = True
-        log_fd = os.open(output_log, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
-        os.fsync(log_fd)
-        parent_fd = os.open(output_log.parent, os.O_RDONLY | os.O_DIRECTORY)
+    def guarded_stage(phase_name, reason, action):
         try:
-            os.fsync(parent_fd)
-        finally:
-            os.close(parent_fd)
-
-        coordinator_pid = os.getpid()
-
-        def set_limits() -> None:
-            _arm_parent_death_signal(coordinator_pid)
-            if _inherited_limits() != result["inherited_limits"]:
-                raise SupervisionError("inherited limits changed before child setup")
-            resource.setrlimit(resource.RLIMIT_AS, (address_space_bytes, address_space_bytes))
-            kernel_cpu = math.ceil(cpu_seconds)
-            resource.setrlimit(resource.RLIMIT_CPU, (kernel_cpu, kernel_cpu))
-            if resource.getrlimit(resource.RLIMIT_AS) != (address_space_bytes, address_space_bytes):
-                raise SupervisionError("exact child RLIMIT_AS was not installed")
-            if resource.getrlimit(resource.RLIMIT_CPU) != (kernel_cpu, kernel_cpu):
-                raise SupervisionError("child CPU backstop was not installed")
-
-        child_reaped_baseline = _usage(resource.RUSAGE_CHILDREN)
-        began = time.monotonic()
-        child = subprocess.Popen(
-            list(command), cwd=cwd, env=dict(env), stdin=subprocess.DEVNULL,
-            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True,
-            start_new_session=True, preexec_fn=set_limits,
-        )
-        result.update(status="execution_incomplete", spawned=True, pid=child.pid,
-                      parent_death_signal=int(signal.SIGKILL), parent_pid=coordinator_pid)
-        assert child.stdout is not None
-        os.set_blocking(child.stdout.fileno(), False)
-        selector = selectors.DefaultSelector()
-        selector.register(child.stdout, selectors.EVENT_READ)
-        while True:
-            _poll(child)
-            _retain_child_exit(child, result)
-            processes = _scan_processes(ticks)
-            owned = _owned_processes(processes, child.pid, tracked)
-            live_cpu = sum(proc.own_cpu + proc.waited_cpu for proc in owned.values())
-            reaped = max(0.0, _usage(resource.RUSAGE_CHILDREN) - child_reaped_baseline)
-            total_cpu = live_cpu + reaped
-            result["child_cpu_seconds"] = max(result["child_cpu_seconds"], total_cpu)
-            root = owned.get(child.pid)
-            if root is not None:
-                root_cpu_last = max(root_cpu_last, root.own_cpu)
-            elif hasattr(child, "_worker36_usage"):
-                used = child._worker36_usage
-                root_cpu_last = max(root_cpu_last, used.ru_utime + used.ru_stime)
-            result["wall_seconds"] = time.monotonic() - began
-            result["phase"] = phase.snapshot(live_cpu)
-            state = _call_state(call_state, time.monotonic(), root_cpu_last, began, ticks, child.pid)
-            if state is None and state_seen:
-                raise SupervisionError("call_state disappeared after first atomic record")
-            state_seen = state_seen or state is not None
-            if state and state["active"]:
-                stamp = (state["wall_started"], state["cpu_started"])
-                previous = seen_scopes.setdefault(state["scope"], stamp)
-                if previous != stamp:
-                    raise CallStateIntegrityError("active scope start clocks changed")
-                result["active_call_at_stop"] = dict(state)
-            else:
-                result["active_call_at_stop"] = None
+            return action()
+        except BaseException as exc:
             try:
-                if output_buffer:
-                    check_buffer_budget(len(output_buffer))
-            except output_budget_exceptions as exc:
-                result["errors"].append(f"shared output budget: {type(exc).__name__}: {exc}")
-                result.update(status="resource_incomplete", reason="shared_output_budget_limit", output_overflow=True)
-                break
-            reason = phase.exhausted(result["phase"])
-            if reason is None and result["wall_seconds"] >= wall_seconds:
-                reason = "cell_wall_limit"
-            if reason is None and total_cpu >= cpu_seconds:
-                reason = "cell_cpu_limit"
-            if reason is None and state and state["active"]:
-                if time.monotonic() - state["wall_started"] >= call_wall_seconds:
-                    reason = "call_wall_limit"
-                elif total_cpu - state["cpu_started"] >= call_cpu_seconds:
-                    reason = "call_cpu_limit"
-            if reason:
-                result.update(status="resource_incomplete", reason=reason)
-                break
-            # A bounded drain pass prevents flooding from starving limit checks.
-            for key, _ in selector.select(POLL_SECONDS if child.returncode is None else 0):
-                try:
-                    data = os.read(key.fd, 65536)
-                except BlockingIOError:
-                    continue
-                if not data:
-                    selector.unregister(key.fileobj)
-                    pipe_eof = True
-                    result["output_pipe_tail"] = "eof_observed"
-                    continue
-                result["output_bytes_observed"] += len(data)
-                remaining = output_log_limit_bytes - len(output_buffer)
-                output_buffer.extend(data[:remaining])
-                try:
-                    check_buffer_budget(len(output_buffer))
-                except output_budget_exceptions as exc:
-                    result["errors"].append(f"shared output budget: {type(exc).__name__}: {exc}")
-                    result.update(status="resource_incomplete", reason="shared_output_budget_limit", output_overflow=True)
-                    break
-                if len(data) > remaining:
-                    result.update(status="resource_incomplete", reason="output_log_limit", output_overflow=True)
-                    break
-            if result["reason"] in ("output_log_limit", "shared_output_budget_limit"):
-                break
-            if child.returncode is not None:
-                descendants = [proc.pid for proc in owned.values() if proc.pid != child.pid]
-                if descendants:
-                    result.update(status="execution_incomplete", reason="descendants_survived_child")
-                    break
-                if pipe_eof:
-                    if child.returncode == 0:
-                        if state and state["active"]:
-                            result.update(status="execution_incomplete", reason="child_exited_with_active_call")
-                        else:
-                            result.update(status="completed", reason="child_exit_zero")
-                    elif child.returncode == -signal.SIGXCPU:
-                        result.update(status="resource_incomplete", reason="kernel_cpu_limit")
-                    else:
-                        result.update(status="execution_incomplete", reason="child_nonzero_exit" if child.returncode > 0 else "child_signal")
-                    break
-    except (Exception, KeyboardInterrupt) as exc:
-        result["errors"].append(f"{type(exc).__name__}: {exc}")
-        observed_exit = _retain_child_exit(child, result) if child is not None else None
-        failure_status = _exception_status(exc, declared_resource_types, before_spawn=child is None)
-        if result["reason"] is not None or observed_exit is not None:
-            if result["reason"] is None:
-                result.update(observed_exit)
-            result.setdefault("primary_outcome", {"status": result["status"], "reason": result["reason"]})
-            _record_secondary_failure(result, phase="supervision", status=failure_status,
-                                      reason=f"supervision_{type(exc).__name__}", error=exc)
-        else:
-            result.update(status=failure_status, reason=f"supervision_{type(exc).__name__}")
-            result["primary_outcome"] = {"status": failure_status, "reason": result["reason"],
-                                         "exception_type": type(exc).__name__, "message": str(exc)}
-    finally:
+                boundary.fail_closed(exc, phase=phase_name, reason=reason)
+            except BaseException:
+                # Nested finally ownership below reaches all remaining mandatory
+                # stages even if failure bookkeeping itself fails.
+                boundary.attempted = on_terminal_failure is not None or boundary.attempted
+                boundary.blocked = True
+                result["preservation_transition_attempted"] = boundary.attempted
+                result["preservation_transition_complete"] = boundary.confirmed
+                result["preservation_blocked"] = True
+                if result["status"] not in ("integrity_invalid", "resource_incomplete", "execution_blocked"):
+                    result.update(status="execution_incomplete", reason=reason)
+
+    def prepare_teardown():
+        pending = sys.exc_info()[1]
+        if pending is not None:
+            boundary.fail_closed(pending, phase="teardown", reason="failure_bookkeeping_interrupted")
         result.setdefault("primary_outcome", {"status": result["status"], "reason": result["reason"]})
-        if child is not None:
-            _retain_child_exit(child, result)
-            cleanup_deadline = None
+        if result["status"] != "completed" and result["reason"] is not None:
+            boundary.start(phase="supervision", status=result["status"], reason=result["reason"])
+
+    def cleanup_child():
+        nonlocal cleanup_deadline
+        if child is None or not result["spawn_attempted"]:
+            return
+        try:
+            if cleanup_deadline is None:
+                if boundary.cleanup_deadline is not None:
+                    cleanup_deadline = boundary.cleanup_deadline
+                elif boundary.blocked or (boundary.attempted and not boundary.confirmed):
+                    cleanup_deadline = began
+                else:
+                    cleanup_deadline = time.monotonic() + CLEANUP_SECONDS
+        except BaseException as exc:
+            cleanup_deadline = began
+            boundary.fail_closed(exc, phase="cleanup", reason="cleanup_deadline_unavailable")
+        finally:
+            if cleanup_deadline is None:
+                cleanup_deadline = began
             try:
-                cleanup_deadline = time.monotonic() + CLEANUP_SECONDS
-                result["cleanup"] = _cleanup(child, ticks, tracked, declared_resource_types, cleanup_deadline)
-            except (Exception, KeyboardInterrupt) as exc:
-                _record_secondary_failure(result, phase="cleanup", status=_exception_status(exc, declared_resource_types),
-                                          reason="cleanup_exception", error=exc)
-                result["cleanup"] = {"complete": False, "sigkill_used": False,
-                                     "remaining_pids": [child.pid], "errors": [f"{type(exc).__name__}: {exc}"]}
+                if not recover_partial_spawn():
+                    return
+                result["cleanup"] = _cleanup(child, ticks, tracked, declared_resource_types, cleanup_deadline, cleanup_failure)
+            except BaseException as exc:
                 try:
-                    os.killpg(child.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-                except (Exception, KeyboardInterrupt) as kill_error:
-                    result["cleanup"]["errors"].append(
-                        f"emergency group kill: {type(kill_error).__name__}: {kill_error}")
-                    _record_secondary_failure(result, phase="cleanup", status=_exception_status(kill_error, declared_resource_types),
-                                              reason="emergency_group_kill_failed", error=kill_error)
-                # A transient helper failure must not skip reaping or restoration.
-                # Recovery uses the ORIGINAL cleanup deadline, not a fresh budget.
-                if cleanup_deadline is not None:
+                    result["cleanup"] = {"complete": False, "sigkill_used": False,
+                        "remaining_pids": [child.pid] if valid_child_pid() is not None else [],
+                        "errors": [f"{type(exc).__name__}: {exc}"]}
+                    record_secondary(result, phase="cleanup", status=_exception_status(exc, declared_resource_types),
+                                     reason="cleanup_exception", error=exc)
+                finally:
                     try:
-                        result["cleanup"] = _cleanup(child, ticks, tracked, declared_resource_types, cleanup_deadline)
-                    except (Exception, KeyboardInterrupt) as retry_error:
-                        result["cleanup"]["errors"].append(f"cleanup recovery: {type(retry_error).__name__}: {retry_error}")
-                        _record_secondary_failure(result, phase="cleanup", status=_exception_status(retry_error, declared_resource_types),
-                                                  reason="cleanup_recovery_failed", error=retry_error)
-            _retain_child_exit(child, result)
+                        try:
+                            _emergency_cleanup_kill(child, ticks, tracked,
+                                lambda error, reason: record_secondary(result, phase="cleanup",
+                                    status=_exception_status(error, declared_resource_types), reason=reason, error=error))
+                        except ProcessLookupError:
+                            pass
+                        except BaseException as kill_error:
+                            result["cleanup"]["errors"].append(f"emergency owned kill: {type(kill_error).__name__}: {kill_error}")
+                            record_secondary(result, phase="cleanup", status=_exception_status(kill_error, declared_resource_types),
+                                             reason="emergency_group_kill_failed", error=kill_error)
+                    finally:
+                        try:
+                            if valid_child_pid() is not None or recover_partial_spawn():
+                                result["cleanup"] = _cleanup(child, ticks, tracked, declared_resource_types, cleanup_deadline, cleanup_failure)
+                        except BaseException as retry_error:
+                            result["cleanup"]["errors"].append(f"cleanup recovery: {type(retry_error).__name__}: {retry_error}")
+                            record_secondary(result, phase="cleanup", status=_exception_status(retry_error, declared_resource_types),
+                                             reason="cleanup_recovery_failed", error=retry_error)
+
+    def after_child_cleanup():
+        if child is None or valid_child_pid() is None:
+            return
+        _retain_child_exit(child, result)
+        if boundary.permit():
             try:
+                boundary.require()
                 result["wall_seconds"] = time.monotonic() - began
                 if child_reaped_baseline is not None:
                     result["child_cpu_seconds"] = max(result["child_cpu_seconds"], max(0.0, _usage(resource.RUSAGE_CHILDREN) - child_reaped_baseline))
                 if hasattr(child, "_worker36_usage"):
                     result["child_high_water_rss_kib"] = child._worker36_usage.ru_maxrss
-                result["child_accounting_complete"] = True
-            except (Exception, KeyboardInterrupt) as exc:
-                _record_secondary_failure(result, phase="final_accounting", status=_exception_status(exc, declared_resource_types),
-                                          reason="child_accounting_failed", error=exc)
-            for failure in result["cleanup"].get("failure_details", []):
-                _record_secondary_failure(result, **failure)
-            if not result["cleanup"]["complete"]:
-                _record_secondary_failure(
-                    result, phase="cleanup", status="execution_incomplete",
-                    reason="process_cleanup_unconfirmed",
-                    message="; ".join(result["cleanup"]["errors"]))
-            if child.stdout is not None:
-                drain_after_cleanup(cleanup_deadline)
-                try:
-                    child.stdout.close()
-                except (Exception, KeyboardInterrupt) as exc:
-                    result["errors"].append(f"stdout close: {type(exc).__name__}: {exc}")
-                    _record_secondary_failure(result, phase="cleanup", status=_exception_status(exc, declared_resource_types),
-                                              reason="stdout_close_failed", error=exc)
+                boundary.require()
+                result["child_accounting_complete"] = (result["cleanup"].get("complete") is True
+                    and result["spawn_ownership_uncertain"] is False and result["returncode"] is not None)
+            except BaseException as exc:
+                record_secondary(result, phase="final_accounting", status=_exception_status(exc, declared_resource_types),
+                                 reason="child_accounting_failed", error=exc)
+        for failure in result["cleanup"].get("failure_details", []):
+            record_secondary(result, **failure)
+        if not result["cleanup"]["complete"]:
+            record_secondary(result, phase="cleanup", status="execution_incomplete", reason="process_cleanup_unconfirmed",
+                             message="; ".join(result["cleanup"]["errors"]))
+        if child.stdout is not None and not child.stdout.closed:
+            drain_after_cleanup(cleanup_deadline)
+        elif result["spawned"] and not pipe_eof:
+            result.update(output_prefix_gap=True, output_pipe_tail="closed_during_initialization")
+
+    def close_stdout():
+        if child is not None and getattr(child, "stdout", None) is not None:
+            try:
+                child.stdout.close()
+            except BaseException as exc:
+                record_secondary(result, phase="cleanup", status=_exception_status(exc, declared_resource_types),
+                                 reason="stdout_close_failed", error=exc)
+                result["errors"].append(f"stdout close: {type(exc).__name__}: {exc}")
+
+    def close_selector():
         if selector is not None:
             try:
                 selector.close()
-            except (Exception, KeyboardInterrupt) as exc:
+            except BaseException as exc:
+                record_secondary(result, phase="cleanup", status=_exception_status(exc, declared_resource_types),
+                                 reason="selector_close_failed", error=exc)
                 result["errors"].append(f"selector close: {type(exc).__name__}: {exc}")
-                _record_secondary_failure(result, phase="cleanup", status=_exception_status(exc, declared_resource_types),
-                                          reason="selector_close_failed", error=exc)
+
+    def persist_log():
+        if log_fd is None:
+            return
+        try:
+            if result["cleanup"]["complete"] and boundary.permit():
+                boundary.require()
+                fitting = len(output_buffer)
+                try:
+                    check_buffer_budget(fitting)
+                except output_budget_exceptions as exc:
+                    result["output_overflow"] = True
+                    record_secondary(result, phase="log_persistence", status="resource_incomplete",
+                                     reason="shared_output_budget_limit", error=exc)
+                    result["errors"].append(f"final shared output budget: {type(exc).__name__}: {exc}")
+                    low, high = 0, fitting
+                    while low < high:
+                        boundary.require()
+                        middle = (low + high + 1) // 2
+                        try:
+                            check_buffer_budget(middle)
+                        except output_budget_exceptions:
+                            high = middle - 1
+                        else:
+                            low = middle
+                    fitting = low
+                if fitting:
+                    with budget_guard(fitting):
+                        view = memoryview(output_buffer)[:fitting]
+                        while view:
+                            boundary.require()
+                            wrote = os.write(log_fd, view)
+                            if wrote <= 0:
+                                raise OSError("output log write made no progress")
+                            result["output_bytes_preserved"] += wrote
+                            boundary.require()
+                            view = view[wrote:]
+                boundary.require()
+                os.fsync(log_fd)
+                boundary.require()
+                result["output_durable"] = True
+            result["output_prefix_gap"] = (result["output_prefix_gap"] or
+                result["output_bytes_preserved"] < result["output_bytes_observed"] or
+                (result["spawned"] and not pipe_eof))
+        except BaseException as exc:
+            result["output_prefix_gap"] = True
+            record_secondary(result, phase="log_persistence", status=_exception_status(exc, declared_resource_types),
+                             reason="output_log_preservation_failed", error=exc)
+            result["errors"].append(f"log preservation: {type(exc).__name__}: {exc}")
+            if boundary.permit():
+                try:
+                    boundary.require()
+                    os.fsync(log_fd)
+                    boundary.require()
+                except BaseException as fsync_error:
+                    record_secondary(result, phase="log_persistence", status=_exception_status(fsync_error, declared_resource_types),
+                                     reason="output_log_fsync_failed", error=fsync_error)
+
+    def close_log():
         if log_fd is not None:
             try:
-                if result["cleanup"]["complete"]:
-                    fitting = len(output_buffer)
-                    try:
-                        check_buffer_budget(fitting)
-                    except output_budget_exceptions as exc:
-                        result["errors"].append(f"final shared output budget: {type(exc).__name__}: {exc}")
-                        result["output_overflow"] = True
-                        _record_secondary_failure(
-                            result, phase="log_persistence", status="resource_incomplete",
-                            reason="shared_output_budget_limit", error=exc)
-                        # Raw stdout/stderr bytes may have a retained prefix;
-                        # scientific JSON records are never truncated here.
-                        low, high = 0, fitting
-                        while low < high:
-                            middle = (low + high + 1) // 2
-                            try:
-                                check_buffer_budget(middle)
-                            except output_budget_exceptions:
-                                high = middle - 1
-                            else:
-                                low = middle
-                        fitting = low
-                    if fitting:
-                        with budget_guard(fitting):
-                            view = memoryview(output_buffer)[:fitting]
-                            while view:
-                                wrote = os.write(log_fd, view)
-                                if wrote <= 0:
-                                    raise OSError("output log write made no progress")
-                                result["output_bytes_preserved"] += wrote
-                                view = view[wrote:]
-                    os.fsync(log_fd)
-                    result["output_durable"] = True
-                result["output_prefix_gap"] = (result["output_prefix_gap"] or
-                    result["output_bytes_preserved"] < result["output_bytes_observed"] or
-                    (result["spawned"] and not pipe_eof))
-            except (Exception, KeyboardInterrupt) as exc:
-                result["errors"].append(f"log preservation: {type(exc).__name__}: {exc}")
-                result["output_prefix_gap"] = True
-                secondary_status = _exception_status(exc, declared_resource_types)
-                _record_secondary_failure(result, phase="log_persistence", status=secondary_status,
-                                          reason="output_log_preservation_failed", error=exc)
-                try:
-                    os.fsync(log_fd)
-                except (Exception, KeyboardInterrupt) as fsync_error:
-                    _record_secondary_failure(result, phase="log_persistence", status=_exception_status(fsync_error, declared_resource_types),
-                                              reason="output_log_fsync_failed", error=fsync_error)
-            finally:
-                try:
-                    os.close(log_fd)
-                except (Exception, KeyboardInterrupt) as close_error:
-                    _record_secondary_failure(result, phase="log_persistence", status=_exception_status(close_error, declared_resource_types),
-                                              reason="output_log_close_failed", error=close_error)
+                os.close(log_fd)
+            except BaseException as exc:
+                record_secondary(result, phase="log_persistence", status=_exception_status(exc, declared_resource_types),
+                                 reason="output_log_close_failed", error=exc)
+
+    def restore_subreaper():
         if old_subreaper is not None:
             try:
                 _subreaper(False, old_subreaper)
-            except (Exception, KeyboardInterrupt) as exc:
+            except BaseException as exc:
+                record_secondary(result, phase="subreaper_restoration", status=_exception_status(exc, declared_resource_types),
+                                 reason="subreaper_restoration_failed", error=exc)
                 result["errors"].append(f"subreaper restoration: {type(exc).__name__}: {exc}")
-                _record_secondary_failure(result, phase="subreaper_restoration", status=_exception_status(exc, declared_resource_types),
-                                          reason="subreaper_restoration_failed", error=exc)
-        if phase_claimed:
-            phase._running = False
-        if isinstance(phase, PhaseBudget):
+
+    def final_accounting():
+        if isinstance(phase, PhaseBudget) and boundary.permit():
             try:
+                boundary.require()
                 result["phase"] = phase.snapshot()
                 final_limit = phase.exhausted(result["phase"])
-                result["phase_accounting_complete"] = True
+                boundary.require()
+                result["phase_accounting_complete"] = (result["cleanup"].get("complete") is True
+                    and result["spawn_ownership_uncertain"] is False)
                 if result["status"] == "completed" and final_limit:
-                    _record_secondary_failure(result, phase="final_budget", status="resource_incomplete",
-                                              reason=final_limit)
-            except (Exception, KeyboardInterrupt) as exc:
-                _record_secondary_failure(result, phase="final_accounting", status=_exception_status(exc, declared_resource_types),
-                                          reason="phase_accounting_failed", error=exc)
-        if child is not None:
+                    record_secondary(result, phase="final_budget", status="resource_incomplete", reason=final_limit)
+            except BaseException as exc:
+                record_secondary(result, phase="final_accounting", status=_exception_status(exc, declared_resource_types),
+                                 reason="phase_accounting_failed", error=exc)
+        if child is not None and boundary.permit():
             try:
                 result["wall_seconds"] = time.monotonic() - began
                 if result["status"] == "completed" and result["wall_seconds"] >= wall_seconds:
-                    _record_secondary_failure(result, phase="final_budget", status="resource_incomplete",
-                                              reason="cell_wall_limit")
-            except (Exception, KeyboardInterrupt) as exc:
-                _record_secondary_failure(result, phase="final_accounting", status=_exception_status(exc, declared_resource_types),
-                                          reason="wall_accounting_failed", error=exc)
+                    record_secondary(result, phase="final_budget", status="resource_incomplete", reason="cell_wall_limit")
+            except BaseException as exc:
+                record_secondary(result, phase="final_accounting", status=_exception_status(exc, declared_resource_types),
+                                 reason="wall_accounting_failed", error=exc)
+
+    def reset_phase():
+        if phase_claimed:
+            phase._running = False
+
+    try:
+        try:
+            if on_terminal_failure is not None and not callable(on_terminal_failure):
+                raise SupervisionError("on_terminal_failure must be callable")
+            wall_seconds = _positive(wall_seconds, "wall_seconds")
+            cpu_seconds = _positive(cpu_seconds, "cpu_seconds")
+            call_wall_seconds = _positive(call_wall_seconds, "call_wall_seconds")
+            call_cpu_seconds = _positive(call_cpu_seconds, "call_cpu_seconds")
+            if type(address_space_bytes) is not int or address_space_bytes != FROZEN_ADDRESS_SPACE:
+                raise SupervisionError("address_space_bytes must be exactly 512 MiB")
+            if type(output_log_limit_bytes) is not int or not 0 < output_log_limit_bytes <= 64 * 1024 * 1024:
+                raise SupervisionError("output log limit must be a positive integer at most 64 MiB")
+            if output_budget_check is not None and not callable(output_budget_check):
+                raise SupervisionError("output_budget_check must be callable")
+            if (not isinstance(output_budget_exceptions, tuple) or
+                    any(not isinstance(cls, type) or not issubclass(cls, Exception) for cls in output_budget_exceptions)):
+                raise SupervisionError("output_budget_exceptions must contain exception classes")
+            declared_resource_types = output_budget_exceptions
+            boundary.resource_exceptions = declared_resource_types
+            if not isinstance(phase, PhaseBudget) or phase._running:
+                raise SupervisionError("a dedicated, inactive PhaseBudget is required")
+            if not command or isinstance(command, (str, bytes)) or any(not isinstance(x, str) or not x for x in command):
+                raise SupervisionError("command must contain executable and string arguments")
+            if not isinstance(env, Mapping) or any(not isinstance(k, str) or not isinstance(v, str) for k, v in env.items()):
+                raise SupervisionError("an explicit string environment is required")
+            if sys.platform != "linux":
+                raise SupervisionError("independent supervision requires Linux")
+            ticks = os.sysconf("SC_CLK_TCK")
+            if not isinstance(ticks, int) or ticks <= 0:
+                raise SupervisionError("Linux process CPU tick frequency unavailable")
+            if len(list(Path("/proc/self/task").iterdir())) != 1:
+                raise SupervisionError("supervisor must be single-threaded")
+            processes = _scan_processes(ticks)
+            if os.getpid() not in processes:
+                raise SupervisionError("supervisor proc accounting unavailable")
+            if any(proc.ppid == os.getpid() for proc in processes.values()):
+                raise SupervisionError("serial supervisor has pre-existing children")
+            spawn_baseline = frozenset(proc.identity for proc in processes.values())
+            result["inherited_limits"] = _inherited_limits()
+            if expected_inherited_limits is not None:
+                expected = {name: list(pair) for name, pair in expected_inherited_limits.items()}
+                if expected != result["inherited_limits"]:
+                    raise SupervisionError("inherited limits differ from exact admission baseline")
+            result["cpu_tick_seconds"] = 1.0 / ticks
+            output_log = Path(output_log).absolute()
+            call_state = Path(call_state).absolute()
+            cwd = Path(cwd).resolve(strict=True)
+            if not cwd.is_dir():
+                raise SupervisionError("cwd is not a directory")
+            for path in (output_log, call_state):
+                if path.exists() or path.is_symlink():
+                    raise SupervisionError(f"pre-existing evidence path: {path}")
+                if path.parent.resolve(strict=True) != path.parent:
+                    raise SupervisionError("evidence parent path may not contain symlinks")
+            if output_log == call_state:
+                raise SupervisionError("output_log and call_state must be distinct")
+            result["phase"] = phase.snapshot()
+            reason = phase.exhausted(result["phase"])
+            if reason:
+                raise SupervisionError(f"{reason}_before_spawn")
+            old_subreaper = _subreaper(True)
+            _subreaper(False, 1)
+            if _subreaper(True) != 1:
+                raise SupervisionError("Linux child subreaper verification failed")
+            phase._running = True
+            phase_claimed = True
+            log_fd = os.open(output_log, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+            os.fsync(log_fd)
+            parent_fd = os.open(output_log.parent, os.O_RDONLY | os.O_DIRECTORY)
+            try:
+                os.fsync(parent_fd)
+            finally:
+                os.close(parent_fd)
+
+            coordinator_pid = os.getpid()
+
+            def set_limits() -> None:
+                _arm_parent_death_signal(coordinator_pid)
+                if _inherited_limits() != result["inherited_limits"]:
+                    raise SupervisionError("inherited limits changed before child setup")
+                resource.setrlimit(resource.RLIMIT_AS, (address_space_bytes, address_space_bytes))
+                kernel_cpu = math.ceil(cpu_seconds)
+                resource.setrlimit(resource.RLIMIT_CPU, (kernel_cpu, kernel_cpu))
+                if resource.getrlimit(resource.RLIMIT_AS) != (address_space_bytes, address_space_bytes):
+                    raise SupervisionError("exact child RLIMIT_AS was not installed")
+                if resource.getrlimit(resource.RLIMIT_CPU) != (kernel_cpu, kernel_cpu):
+                    raise SupervisionError("child CPU backstop was not installed")
+
+            child_reaped_baseline = _usage(resource.RUSAGE_CHILDREN)
+            began = time.monotonic()
+            child = _allocate_popen()
+            child._worker36_spawn_baseline = spawn_baseline
+            child._worker36_partial_spawn = True
+            result.update(spawn_attempted=True, spawned=None, spawn_ownership_uncertain=True, spawn_discovery="initializing")
+            _initialize_popen(child,
+                list(command), cwd=cwd, env=dict(env), stdin=subprocess.DEVNULL,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, close_fds=True,
+                start_new_session=True, preexec_fn=set_limits,
+            )
+            result.update(spawn_initialization_complete=True, spawn_ownership_uncertain=False, spawn_discovery="not_required")
+            child._worker36_partial_spawn = False
+            result.update(status="execution_incomplete", spawned=True, pid=child.pid,
+                          parent_death_signal=int(signal.SIGKILL), parent_pid=coordinator_pid)
+            assert child.stdout is not None
+            os.set_blocking(child.stdout.fileno(), False)
+            selector = selectors.DefaultSelector()
+            selector.register(child.stdout, selectors.EVENT_READ)
+            while True:
+                _poll(child)
+                observed_exit = _retain_child_exit(child, result)
+                if observed_exit is not None and child.returncode != 0 and result["reason"] is None:
+                    result.update(observed_exit)
+                    result.setdefault("primary_outcome", dict(observed_exit))
+                    boundary.start(phase="child_exit", **observed_exit)
+                boundary.require()
+                processes = _scan_processes(ticks)
+                owned = _owned_processes(processes, child.pid, tracked)
+                live_cpu = sum(proc.own_cpu + proc.waited_cpu for proc in owned.values())
+                reaped = max(0.0, _usage(resource.RUSAGE_CHILDREN) - child_reaped_baseline)
+                total_cpu = live_cpu + reaped
+                result["child_cpu_seconds"] = max(result["child_cpu_seconds"], total_cpu)
+                root = owned.get(child.pid)
+                if root is not None:
+                    root_cpu_last = max(root_cpu_last, root.own_cpu)
+                elif hasattr(child, "_worker36_usage"):
+                    used = child._worker36_usage
+                    root_cpu_last = max(root_cpu_last, used.ru_utime + used.ru_stime)
+                result["wall_seconds"] = time.monotonic() - began
+                result["phase"] = phase.snapshot(live_cpu)
+                boundary.require()
+                state = _call_state(call_state, time.monotonic(), root_cpu_last, began, ticks, child.pid)
+                if state is None and state_seen:
+                    raise SupervisionError("call_state disappeared after first atomic record")
+                state_seen = state_seen or state is not None
+                if state and state["active"]:
+                    stamp = (state["wall_started"], state["cpu_started"])
+                    previous = seen_scopes.setdefault(state["scope"], stamp)
+                    if previous != stamp:
+                        raise CallStateIntegrityError("active scope start clocks changed")
+                    result["active_call_at_stop"] = dict(state)
+                else:
+                    result["active_call_at_stop"] = None
+                try:
+                    if output_buffer:
+                        check_buffer_budget(len(output_buffer))
+                except output_budget_exceptions as exc:
+                    result["errors"].append(f"shared output budget: {type(exc).__name__}: {exc}")
+                    result.update(status="resource_incomplete", reason="shared_output_budget_limit", output_overflow=True)
+                    break
+                reason = phase.exhausted(result["phase"])
+                if reason is None and result["wall_seconds"] >= wall_seconds:
+                    reason = "cell_wall_limit"
+                if reason is None and total_cpu >= cpu_seconds:
+                    reason = "cell_cpu_limit"
+                if reason is None and state and state["active"]:
+                    if time.monotonic() - state["wall_started"] >= call_wall_seconds:
+                        reason = "call_wall_limit"
+                    elif total_cpu - state["cpu_started"] >= call_cpu_seconds:
+                        reason = "call_cpu_limit"
+                if reason:
+                    result.update(status="resource_incomplete", reason=reason)
+                    break
+                # A bounded drain pass prevents flooding from starving limit checks.
+                for key, _ in selector.select(POLL_SECONDS if child.returncode is None else 0):
+                    try:
+                        data = os.read(key.fd, 65536)
+                    except BlockingIOError:
+                        continue
+                    if not data:
+                        selector.unregister(key.fileobj)
+                        pipe_eof = True
+                        result["output_pipe_tail"] = "eof_observed"
+                        continue
+                    result["output_bytes_observed"] += len(data)
+                    remaining = output_log_limit_bytes - len(output_buffer)
+                    output_buffer.extend(data[:remaining])
+                    try:
+                        check_buffer_budget(len(output_buffer))
+                    except output_budget_exceptions as exc:
+                        result["errors"].append(f"shared output budget: {type(exc).__name__}: {exc}")
+                        result.update(status="resource_incomplete", reason="shared_output_budget_limit", output_overflow=True)
+                        break
+                    if len(data) > remaining:
+                        result.update(status="resource_incomplete", reason="output_log_limit", output_overflow=True)
+                        break
+                if result["reason"] in ("output_log_limit", "shared_output_budget_limit"):
+                    break
+                if child.returncode is not None:
+                    descendants = [proc.pid for proc in owned.values() if proc.pid != child.pid]
+                    if descendants:
+                        result.update(status="execution_incomplete", reason="descendants_survived_child")
+                        break
+                    if pipe_eof:
+                        if child.returncode == 0:
+                            if state and state["active"]:
+                                result.update(status="execution_incomplete", reason="child_exited_with_active_call")
+                            else:
+                                result.update(status="completed", reason="child_exit_zero")
+                        elif child.returncode == -signal.SIGXCPU:
+                            result.update(status="resource_incomplete", reason="kernel_cpu_limit")
+                        else:
+                            result.update(status="execution_incomplete", reason="child_nonzero_exit" if child.returncode > 0 else "child_signal")
+                        break
+        except BaseException as exc:
+            observe_spawn()
+            observed_exit = _retain_child_exit(child, result) if child is not None else None
+            failure_status = _exception_status(exc, declared_resource_types, before_spawn=not result["spawn_attempted"])
+            if result["reason"] is not None or observed_exit is not None:
+                if result["reason"] is None:
+                    result.update(observed_exit)
+                result.setdefault("primary_outcome", {"status": result["status"], "reason": result["reason"]})
+                record_secondary(result, phase="supervision", status=failure_status, reason=f"supervision_{type(exc).__name__}", error=exc)
+            else:
+                result.update(status=failure_status, reason=f"supervision_{type(exc).__name__}")
+                result["primary_outcome"] = {"status": failure_status, "reason": result["reason"],
+                    "exception_type": type(exc).__name__, "message": str(exc)}
+                boundary.start(phase="supervision", status=failure_status, reason=result["reason"], error=exc)
+            result["errors"].append(f"{type(exc).__name__}: {exc}")
+        finally:
+            try:
+                guarded_stage("teardown", "teardown_entry_failed", prepare_teardown)
+            finally:
+                try:
+                    guarded_stage("cleanup", "cleanup_stage_failed", cleanup_child)
+                finally:
+                    try:
+                        guarded_stage("final_accounting", "post_cleanup_bookkeeping_failed", after_child_cleanup)
+                    finally:
+                        try:
+                            guarded_stage("cleanup", "stdout_close_stage_failed", close_stdout)
+                        finally:
+                            try:
+                                guarded_stage("cleanup", "selector_close_stage_failed", close_selector)
+                            finally:
+                                try:
+                                    guarded_stage("log_persistence", "log_persistence_stage_failed", persist_log)
+                                finally:
+                                    try:
+                                        guarded_stage("log_persistence", "log_close_stage_failed", close_log)
+                                    finally:
+                                        try:
+                                            guarded_stage("subreaper_restoration", "subreaper_stage_failed", restore_subreaper)
+                                        finally:
+                                            guarded_stage("cleanup", "phase_reset_failed", reset_phase)
+            guarded_stage("final_accounting", "final_accounting_stage_failed", final_accounting)
+    except BaseException as exc:
+        guarded_stage("teardown", "supervisor_teardown_interrupted",
+                      lambda: boundary.fail_closed(exc, phase="teardown", reason="supervisor_teardown_interrupted"))
+    finally:
+        if phase_claimed:
+            phase._running = False
     return result
