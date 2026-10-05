@@ -1,0 +1,800 @@
+{
+  "base": {
+    "CI_job": 111576810151,
+    "CI_run": 37250449266,
+    "final_acceptance_comment": 5986518288,
+    "head": "6ff861bba828e78d8f5b75d8355f2f4a56018898",
+    "tree": "7a97c827c75c135d2fbbb5cd97873d1418e069fb"
+  },
+  "budgets": {
+    "P_decision_trace_bytes": 16777216,
+    "P_per_evaluator_operations": {
+      "exit_geometry_checks": 16384,
+      "legal_enumerations": 32768,
+      "previews": 32768
+    },
+    "P_whole_wrapper_operations": {
+      "exit_geometry_checks": 32768,
+      "legal_enumerations": 65536,
+      "previews": 65536
+    },
+    "TERM_grace_seconds": 0.1,
+    "active_call_record_bytes": 16384,
+    "admission_leaf_CPU_seconds": 90,
+    "admission_leaf_wall_seconds": 90,
+    "all_P_operation_sum_each_category": 1000000,
+    "call_CPU_seconds": 360,
+    "call_wall_seconds": 360,
+    "cap_exhaustion_time_comparison": "New diagnostic evaluator/cell/measurement intervals: greater than or equal fails. Original P meter journal timing retains finite0..360 inclusive historical schema.",
+    "cell_CPU_seconds": 720,
+    "cell_kernel_RLIMIT_CPU": [
+      720,
+      720
+    ],
+    "cell_wall_seconds": 720,
+    "checkout_wall_seconds": 60,
+    "complete_archive_bytes": 67108864,
+    "mandatory_cleanup_seconds": 5.0,
+    "maximum_transport_parts": 3,
+    "measurement_external_backstop_does_not_renew_preservation": true,
+    "measurement_external_kill_after_seconds": 600,
+    "measurement_external_timeout_duration_rule": "Conservatively rounded remaining time to the immutable paired measurement deadline;1800 is a maximum, never a new interval from command launch. Unknown/expired handoff blocks launch.",
+    "measurement_external_timeout_foreground": true,
+    "measurement_external_timeout_signal": "SIGUSR1",
+    "measurement_external_timeout_uses_original_remaining_deadline": true,
+    "measurement_external_timeout_wall_seconds": 1800,
+    "measurement_summed_parent_child_CPU_seconds": 1800,
+    "measurement_wall_seconds": 1800,
+    "new_preservation_budget_on_recovery": false,
+    "ordinary_output_truncation_allowed": false,
+    "original_P_RSS_rule": "Nonnegative integer and same-child monotonic high-water consistency; no new physical RSS cap",
+    "original_P_journal_timing_inclusive_range_seconds": [
+      0,
+      360
+    ],
+    "physical_RSS_limit_inferred_from_RLIMIT_AS": false,
+    "preservation_original_wall_seconds": 600,
+    "process_RLIMIT_AS": [
+      536870912,
+      536870912
+    ],
+    "provider_upload_wall_seconds": 60,
+    "provider_wrapper_strictly_less_than_bytes": 33554432,
+    "raw_ordinary_bytes": 66060288,
+    "raw_total_bytes": 67108864,
+    "required_free_bytes": 1073741824,
+    "returned_roots": 16384,
+    "shared_shell_startup_wall_seconds": 30,
+    "single_JSONL_line_bytes": 8388608,
+    "startup_CPU_semantics": "No independent aggregate shell/helper CPU promise. Helpers are finite and serialized under30wall; record observed CPU. This administrative envelope never changes scientific1800CPU.",
+    "startup_admission_outer_wall_seconds": 120,
+    "startup_timeout_still_running_during_measurement": false,
+    "sum_phase_caps_seconds": 2640,
+    "supervisor_poll_seconds": 0.02,
+    "terminal_total_bytes": 1048576,
+    "transport_part_bytes": 31457280,
+    "unallocated_workflow_margin_seconds": 60,
+    "workflow_wall_seconds": 2700
+  },
+  "custody": {
+    "Git": "compact manifest only",
+    "canonical_Drive_folder": "1sQhQY3aKuHvQfyOTUIQjJGANCKOwKgEd",
+    "compact_transport_manifest_bytes": 1048576,
+    "destructive_cleanup": false,
+    "fresh_stored_bytes_readback": true,
+    "interpretation": "Issue2",
+    "logical_counts_are_not_connector_internal_HTTP_claims": true,
+    "maximum_logical_Drive_manifest_uploads": 1,
+    "maximum_logical_Drive_part_uploads": 3,
+    "maximum_logical_fresh_Drive_readbacks": 4,
+    "maximum_logical_provider_part_downloads": 3,
+    "off_runner_boundary": "Later transport and canonical readback are read-only verification and custody; they cannot renew the original runner600s preservation or authorize any measurement",
+    "provider_and_Drive_operation_authentication": "parent independent connector evidence required, not IDs or strings",
+    "provider_artifacts": "temporary transport only",
+    "raw_and_failed_prefixes_retained": true,
+    "reassembly_and_full_path_size_SHA256_inventory": true
+  },
+  "external_freeze_fields_required": [
+    "new_protocol_raw_sha256",
+    "new_integration_contract_raw_sha256",
+    "new_finite_preparation_plan_raw_sha256",
+    "new_preregistration_URL_and_body_sha256",
+    "new_diagnostic_head",
+    "new_diagnostic_tree",
+    "exact_new_checked_source_map",
+    "per_moved_span_provenance_map",
+    "exact_stub_preparation_receipt_sha256",
+    "two_independent_review_reports_and_owner_comment_raw_bindings",
+    "admission_PR_number_URL_descriptor_raw_sha256",
+    "earlier_successful_exact_current_head_routine_CI_run_ID_and_response_binding"
+  ],
+  "failure": {
+    "MemoryError_or_parser_resource_exhaustion_is_resource": true,
+    "blocked_requires_proven_zero_entries": true,
+    "classification_until_all_gates_pass": null,
+    "corrupted_committed_evidence_is_integrity": true,
+    "custody_enum": [
+      "pending",
+      "verified",
+      "blocked"
+    ],
+    "equal_precedence": "earliest observed retained cause",
+    "expired_transition": "same; cleanup cannot authorize preservation work",
+    "first_terminal_failure_or_normal_close_fixes_preservation_deadline": true,
+    "pre_call_marker_is_not_method_entry": true,
+    "precedence": [
+      "integrity_invalid",
+      "resource_incomplete",
+      "execution_incomplete",
+      "execution_blocked"
+    ],
+    "transition_attempted_set_before_fallible_bookkeeping": true,
+    "unavailable_IO_is_infrastructure": true,
+    "unconfirmed_transition": "mandatory cleanup and bounded terminal marker only; no new deadline, scan, hashing, package, retry or continuation",
+    "unknown_entry_uses_lower_upper_bounds": true
+  },
+  "identity": {
+    "admission_schema": "worker38-one-shot-admission-v1",
+    "allocation_created_by_draft": false,
+    "allocation_directory": "{durable_root}/allocations/worker38-synthetic-profile-01",
+    "allocation_id": "worker38-synthetic-profile-01",
+    "attempt_directory": "{allocation_directory}/run-{GITHUB_RUN_ID}-attempt-1",
+    "attempt_id": "worker38-{GITHUB_RUN_ID}-1",
+    "begin_marker": "WORKER38_SYNTHETIC_ADMISSION_JSON",
+    "branch": "research/worker38-synthetic-profile",
+    "consumer": "worker38-synthetic-profile-v1",
+    "digest_marker": "WORKER38_SYNTHETIC_ADMISSION_SHA256",
+    "durable_root": "{canonical_RUNNER_TOOL_CACHE}/worker38-synthetic-profile",
+    "end_marker": "END_WORKER38_SYNTHETIC_ADMISSION_JSON",
+    "event": "pull_request:edited",
+    "forbidden_old_namespace_access": [
+      "worker36-evidence",
+      "worker36 allocations and claims",
+      "worker37-bootstrap-readiness/allocations"
+    ],
+    "marker": "WORKER38_SYNTHETIC_ADMISSION",
+    "one_shot_consumption": "successful exclusive allocation-directory mkdir; subsequent fsync/reservation/cache/admission failures consume and never remove/reset/rename/reuse it",
+    "owner": "carabinshely",
+    "reservation_schema": "worker38-observed-reservation-v1",
+    "run_attempt": 1,
+    "runner": "bandido-alcatraz-ci",
+    "worker": "Worker38",
+    "workflow": ".github/workflows/worker38-synthetic-profile.yml"
+  },
+  "inputs": {
+    "PR_body_bytes": 65536,
+    "all_inputs_JSON": true,
+    "all_received_response_body_bytes": 14680065,
+    "current_source_CI_event": "pull_request",
+    "current_source_CI_must_precede_measurement_run": true,
+    "current_source_CI_workflow_name": "tests",
+    "current_source_CI_workflow_path": ".github/workflows/test.yml",
+    "descriptor_bytes": 65536,
+    "event_bytes": 2097152,
+    "exact_commit_response_tree_binding": "GET7 sha must equal frozen head and tree.sha must equal frozen tree; no extra tree listing or API request",
+    "list_or_discovery_GETs": 0,
+    "logical_GET_count": 7,
+    "maximum_complete_response_body_bytes": 14680064,
+    "maximum_wire_GET_count": 7,
+    "no_GH_CLI_or_jq": true,
+    "ordered_logical_GETs": [
+      {
+        "authenticated": true,
+        "file": "pull-request.json",
+        "ordinal": 1,
+        "path": "/pulls/{frozen_pr_number}"
+      },
+      {
+        "authenticated": true,
+        "file": "postmerge-ci.json",
+        "ordinal": 2,
+        "path": "/actions/runs/37250449266"
+      },
+      {
+        "authenticated": true,
+        "file": "current-source-ci.json",
+        "ordinal": 3,
+        "path": "/actions/runs/{frozen_prior_current_head_routine_CI_run_id}"
+      },
+      {
+        "authenticated": true,
+        "file": "review-exhaustive.json",
+        "ordinal": 4,
+        "path": "/issues/comments/{frozen_exhaustive_comment_id}"
+      },
+      {
+        "authenticated": true,
+        "file": "review-adversarial.json",
+        "ordinal": 5,
+        "path": "/issues/comments/{frozen_adversarial_comment_id}"
+      },
+      {
+        "authenticated": true,
+        "file": "preregistration.json",
+        "ordinal": 6,
+        "path": "/issues/comments/{frozen_preregistration_comment_id}"
+      },
+      {
+        "authenticated": true,
+        "file": "diagnostic-commit.json",
+        "ordinal": 7,
+        "path": "/git/commits/{frozen_diagnostic_head}"
+      }
+    ],
+    "per_logical_input_bytes": 2097152,
+    "redirect_evidence": "bounded received byte accounting and fixed omission reason; do not persist Location or redirect body; no follow-up GET",
+    "redirects": 0,
+    "response_cap_reason": "7*2097152 complete payload budget plus one read-ahead overflow byte on the first terminal overflow; prefix retained, request sequence stops",
+    "retries": 0,
+    "single_local_metadata_file_bytes": 2097152,
+    "socket_timeout_seconds": 10,
+    "source_map_max_entries": 256,
+    "storage_GET_count": 0,
+    "successful_status": 200
+  },
+  "later_gate_order": [
+    "complete two independent reviews of this protocol+contract+finiteplan",
+    "root preregistration and bounded implementation/preparation authorization",
+    "implement only reviewed source/interface and literal/stub preparation",
+    "complete finite preparation and current exact-source reviews",
+    "bind exact final source/head/tree/runtime/resources/custody and already completed routine CI; validate actual runtime only inside the one shot",
+    "separate explicit one-shot scientific admission",
+    "one admitted attempt",
+    "independent evidence and canonical-custody verification",
+    "fixed finite interpretation and allocation closure"
+  ],
+  "processes": {
+    "SIGUSR1_handler_restore_required": true,
+    "admission_leaf_count_maximum": 1,
+    "cell_extra_descendants_permitted": 0,
+    "cell_startup_inside_measurement": true,
+    "coordinator_completion_receipt_inside_measurement": true,
+    "coordinator_startup_inside_measurement": true,
+    "coordinator_timer_armed_after_initial_runtime_before_scientific_import": true,
+    "direct_child_parent_death_guard": {
+      "mechanism": "PR_SET_PDEATHSIG(SIGKILL), PR_GET_PDEATHSIG readback and expected-parent race checks before scientific imports",
+      "scope": "direct child only; Linux clears flag in forked descendants; no cgroup-wide or immediate uninterruptible-I/O guarantee",
+      "unavailable": "fail before imports",
+      "unexpected_descendants": "no permitted scientific descendants; identity-safe pidfd cleanup remains mandatory and uncertainty blocks success"
+    },
+    "independent_supervision": [
+      "monotonic phase wall timer",
+      "parent plus reaped/live owned descendant CPU",
+      "kernel720cellCPUbackstop",
+      "stable PID/start_ticks ownership and pidfd signaling",
+      "subreaper with restoration",
+      "checked parent-deathSIGKILL",
+      "retained Popen instance before fallible initialization"
+    ],
+    "initial_process_CPU_baseline_excludes_completed_admission": true,
+    "initial_runtime_protected_by_original_external_deadline": true,
+    "measurement_CPU_baseline": "full fresh coordinator process CPU lifetime from0 plus live/reaped owned scientific child CPU; completed administrative admission CPU recorded separately",
+    "measurement_coordinator_count_maximum": 1,
+    "measurement_wall_anchor": "immutable monotonic/boottime/boot-id snapshot in successful admission handoff, before final handoff fsync/exit; original anchor adopted, never replaced with a later time",
+    "pre_cell_source_verification_inside_measurement": true,
+    "preservation_process_count_maximum": 1,
+    "scientific_fresh_children_maximum": 20,
+    "scientific_process_credential_policy": "positive environment allowlist, close_fds, no token/HTTP descriptor, no cached git credentials, fresh exec after admission process exits; no admission modules imported by scientific children",
+    "separate_preflight_children_maximum": 0,
+    "simultaneous_scientific_children_maximum": 1
+  },
+  "prohibited_now": [
+    "implementation",
+    "tests",
+    "project imports",
+    "historical source restoration",
+    "fixture construction",
+    "evaluator calls",
+    "games",
+    "runner or network probes",
+    "git mutation",
+    "PR/workflow action",
+    "external publication"
+  ],
+  "repository": "carabinshely/bandido-alcatraz-solve",
+  "root_scope_choice": {
+    "basis": "root disposition relayed by parent in current drafting conversation",
+    "no_separate_readiness_preflight_allocation": true,
+    "received_UTC": "2026-10-05T01:34:00Z",
+    "same_attempt_startup_failure_consumes_allocation_even_zero_calls": true,
+    "seven_JSON_inputs_as_listed": true
+  },
+  "runtime": {
+    "coordinator_timer_contract": {
+      "acquire": "After successful full initial runtime validation and a fresh original-deadline check, the coordinator acquires its closed timer scope: save original handlers and idle snapshots; install only its fixed SIGALRM and SIGUSR1 handlers; arm one nonperiodic ITIMER_REAL for at most the original remaining time. Arm and confirm before any historical import or scientific child launch. Installation failure establishes the first failure cutoff before recovery.",
+      "deadline_rule": "Every arm/readback/revalidation uses fresh monotonic observations and the same immutable original deadline. Record before/after samples and requested/readback countdown. Conservative rounding may shorten protection; no positive tolerance may authorize work after the original deadline. A readback that cannot confirm remaining protection fails closed. Timer identity is supported by closed control ownership and handler/readback observations, not an OS timer-ID claim.",
+      "initial_gate": "Coordinator calls the genuine shared runtime_start exactly once while all three interval timers, profile and trace hooks are idle and one thread exists. Observe original SIGALRM/SIGUSR1 handlers without mutating them. Reject any occupied timer before ownership; no scientific imports, source staging execution or cells occur during this gate.",
+      "initial_protection": "The external foreground timeout is already active at the conservatively derived original remaining deadline before fresh coordinator Python starts. It covers full initial idle-runtime validation; no measurement anchor moves.",
+      "owned_revalidation": "Do not call an idle-only runtime_start again while the coordinator owns its countdown. Its fixed coordinator runtime check revalidates the same interpreter/library/flags/GC/environment/limits and idle hooks/one thread, requires ITIMER_VIRTUAL and ITIMER_PROF idle, and validates ITIMER_REAL against the private in-memory scope created after the successful idle gate. It requires the exact installed handler objects, same PID, immutable phase deadline, nonperiodic positive countdown consistent with the recorded arm/readback sequence and not exceeding the original remaining authority. Expiry is resource failure; foreign handler/timer mutation or missing ownership is integrity failure. An externally supplied JSON flag, enum, callback or timer allowance cannot manufacture ownership.",
+      "preparation_case": "F03 runs the real initial and owned runtime-validation branches with literal clock/signal/loader observations. The entire gate is not mocked. It covers valid owned state, unrelated preexisting countdown, post-acquisition runtime drift and handler restoration; no real timer or science.",
+      "restoration": "Only after successful initial idle validation and actual scope acquisition is restoration owed. Independently disable the owned timer, restore both prior handlers, and read back idle timers and exact prior handler identities. Failed or unconfirmed restoration is integrity-invalid; an exception after positively confirmed restoration retains its actual type. Preexisting rejected state is never cleared or claimed restored.",
+      "scientific_children": "Each fresh scientific child runs the genuine idle runtime gate before any historical import. It never receives coordinator timer ownership. Admission and Worker37 retain the unchanged idle-only shared runtime_start contract."
+    },
+    "executable_relative_path": "Python/3.11.16/x64/bin/python3.11",
+    "executable_sha256": "a15ccdaf07655a8667a3687b13171486c9a265d92273ba3ad820fbb64d2cfecc",
+    "flags": [
+      "-B",
+      "-s"
+    ],
+    "gc_enabled": true,
+    "gc_threshold": [
+      700,
+      10,
+      10
+    ],
+    "implementation": "CPython",
+    "inherited_initial_limits": {
+      "RLIMIT_AS": [
+        -1,
+        -1
+      ],
+      "RLIMIT_CORE": [
+        0,
+        -1
+      ],
+      "RLIMIT_CPU": [
+        -1,
+        -1
+      ],
+      "RLIMIT_DATA": [
+        -1,
+        -1
+      ],
+      "RLIMIT_FSIZE": [
+        -1,
+        -1
+      ],
+      "RLIMIT_MEMLOCK": [
+        67108864,
+        67108864
+      ],
+      "RLIMIT_MSGQUEUE": [
+        819200,
+        819200
+      ],
+      "RLIMIT_NICE": [
+        0,
+        0
+      ],
+      "RLIMIT_NOFILE": [
+        1048576,
+        1048576
+      ],
+      "RLIMIT_NPROC": [
+        127622,
+        127622
+      ],
+      "RLIMIT_OFILE": [
+        1048576,
+        1048576
+      ],
+      "RLIMIT_RSS": [
+        -1,
+        -1
+      ],
+      "RLIMIT_RTPRIO": [
+        0,
+        0
+      ],
+      "RLIMIT_RTTIME": [
+        -1,
+        -1
+      ],
+      "RLIMIT_SIGPENDING": [
+        127622,
+        127622
+      ],
+      "RLIMIT_STACK": [
+        8388608,
+        -1
+      ]
+    },
+    "library_relative_path": "Python/3.11.16/x64/lib/libpython3.11.so.1.0",
+    "library_sha256": "ba4450817186fbe1e3c477f6aefeee7c353cba3593cc9950382ad9d1f5e62896",
+    "library_size_bytes": 23041360,
+    "loader_environment": "only LD_LIBRARY_PATH equal to canonical pinned library directory",
+    "new_source_runtime_validation": "same one-shot admission and coordinator before scientific imports; each of exactly20 allocated cells validates its own actual runtime before scientific imports; no readiness/calibration allocation",
+    "observed_future_availability_guaranteed": false,
+    "python_environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONHASHSEED": "0"
+    },
+    "version": "3.11.16"
+  },
+  "schema": "worker38-integration-contract-draft-v1",
+  "science": {
+    "P": "exact original full measure_wrapper/AuditPolicy.choose path",
+    "U_flags": {
+      "choice_events_observed": false,
+      "physical_cost": null,
+      "physical_operation_caps_enforced": false,
+      "production_admissible": false
+    },
+    "candidate_calls_maximum": 20,
+    "clock_order": [
+      "wall_before",
+      "CPU_before",
+      "original_evaluator",
+      "wall_after",
+      "CPU_after"
+    ],
+    "direct_U_pairs_maximum": 10,
+    "fixture_identities": 69,
+    "fixture_only_Random_seed": 11,
+    "full_P_wrapper_calls_maximum": 10,
+    "games": 0,
+    "initial_final_RNG_full_canonical_objects_required": true,
+    "materiality": {
+      "all_20_cells_required": true,
+      "denominator": "positive finite sum of candidate and reference method CPU",
+      "four_matched_ratio_maximum": 0.9,
+      "size_aggregate_ratio_maximum": 0.8,
+      "sizes": [
+        40,
+        48
+      ]
+    },
+    "reference_calls_maximum": 20,
+    "reference_requires_confirmed_fsynced_candidate_capture": true,
+    "schedule": [
+      {
+        "cell": 1,
+        "condition": "P",
+        "repetition": 1,
+        "size": 0
+      },
+      {
+        "cell": 2,
+        "condition": "U",
+        "repetition": 1,
+        "size": 0
+      },
+      {
+        "cell": 3,
+        "condition": "P",
+        "repetition": 1,
+        "size": 4
+      },
+      {
+        "cell": 4,
+        "condition": "U",
+        "repetition": 1,
+        "size": 4
+      },
+      {
+        "cell": 5,
+        "condition": "P",
+        "repetition": 1,
+        "size": 8
+      },
+      {
+        "cell": 6,
+        "condition": "U",
+        "repetition": 1,
+        "size": 8
+      },
+      {
+        "cell": 7,
+        "condition": "P",
+        "repetition": 1,
+        "size": 40
+      },
+      {
+        "cell": 8,
+        "condition": "U",
+        "repetition": 1,
+        "size": 40
+      },
+      {
+        "cell": 9,
+        "condition": "P",
+        "repetition": 1,
+        "size": 48
+      },
+      {
+        "cell": 10,
+        "condition": "U",
+        "repetition": 1,
+        "size": 48
+      },
+      {
+        "cell": 11,
+        "condition": "U",
+        "repetition": 2,
+        "size": 48
+      },
+      {
+        "cell": 12,
+        "condition": "P",
+        "repetition": 2,
+        "size": 48
+      },
+      {
+        "cell": 13,
+        "condition": "U",
+        "repetition": 2,
+        "size": 40
+      },
+      {
+        "cell": 14,
+        "condition": "P",
+        "repetition": 2,
+        "size": 40
+      },
+      {
+        "cell": 15,
+        "condition": "U",
+        "repetition": 2,
+        "size": 8
+      },
+      {
+        "cell": 16,
+        "condition": "P",
+        "repetition": 2,
+        "size": 8
+      },
+      {
+        "cell": 17,
+        "condition": "U",
+        "repetition": 2,
+        "size": 4
+      },
+      {
+        "cell": 18,
+        "condition": "P",
+        "repetition": 2,
+        "size": 4
+      },
+      {
+        "cell": 19,
+        "condition": "U",
+        "repetition": 2,
+        "size": 0
+      },
+      {
+        "cell": 20,
+        "condition": "P",
+        "repetition": 2,
+        "size": 0
+      }
+    ],
+    "scientific_objects_full_canonical_objects_required": true,
+    "total_evaluator_calls_maximum": 40
+  },
+  "shared_seam": {
+    "cell_index_integer_range": [
+      1,
+      20
+    ],
+    "consumer_enum": [
+      "worker37-preparation-v1",
+      "worker38-synthetic-profile-v1"
+    ],
+    "coordinator_runtime_use": "Full idle shared runtime_start exactly once under the active original-deadline external backstop; then acquire the fixed coordinator timer scope. Later coordinator-specific owned-state revalidation retains all other facts; no generalized occupied-timer option is exported.",
+    "failure_adapter_rule": "Worker37 preserves its existing Failure semantics; Worker38 maps classification/code/ordered close details into attempt reducer without losing primary cause",
+    "new_review_required_for_all_moved_and_changed_bytes": true,
+    "no_arbitrary_command_or_module_interface": true,
+    "no_separate_preflight_or_readiness_allocation": true,
+    "production_source_paths": [
+      ".github/workflows/worker38-synthetic-profile.yml",
+      "scripts/worker_bootstrap_shared.sh",
+      "scripts/worker_bootstrap_shared.py",
+      "scripts/worker37-bootstrap.sh",
+      "scripts/worker37_bootstrap.py",
+      "scripts/worker38-bootstrap.sh",
+      "scripts/run_worker38_synthetic.py",
+      "scripts/worker38/__init__.py",
+      "scripts/worker38/admission.py",
+      "scripts/worker38/common.py",
+      "scripts/worker38/sources.py",
+      "scripts/worker38/supervision.py",
+      "scripts/worker38/cell.py",
+      "scripts/worker38/driver.py",
+      "scripts/worker38/transport.py",
+      "scripts/worker38/verify.py"
+    ],
+    "python": "scripts/worker_bootstrap_shared.py",
+    "python_export": "runtime_start(observation, consumer)",
+    "read_only_offline_modes": [
+      "verify",
+      "timing-report"
+    ],
+    "runtime_helper_dependency_closure": [
+      "bounded_read",
+      "file_tuple",
+      "shell_stat",
+      "limits_snapshot",
+      "state_snapshot",
+      "sha",
+      "closed RuntimeFailure/require",
+      "primary-preserving descriptor close"
+    ],
+    "shell": "scripts/worker_bootstrap_shared.sh",
+    "shell_exports": [
+      "bootstrap_worker37_prepare",
+      "bootstrap_worker38_prepare"
+    ],
+    "worker37_required_source_map_additions": [
+      "scripts/worker_bootstrap_shared.sh",
+      "scripts/worker_bootstrap_shared.py"
+    ],
+    "worker37_stays_preparation_only": true,
+    "worker38_fixed_flow": [
+      "scripts/worker38/admission.py",
+      "scripts/run_worker38_synthetic.py measure",
+      "scripts/run_worker38_synthetic.py _cell",
+      "scripts/run_worker38_synthetic.py preserve"
+    ]
+  },
+  "staging": {
+    "P_per_evaluator_additional_module": "bandido_alcatraz.simulate",
+    "U_per_evaluator_additional_modules": [],
+    "constructor_metadata": {
+      "ast_canonical_schema": "worker36-constructor-ast-v1",
+      "constructor_calls": "Only Board/CardDefinition/CellSpec/GameState construction, Board.seed/place, state.observation. No evaluator or game entry point.",
+      "external_bindings": {
+        "__builtins__": "pinned CPython builtins",
+        "n": "the fixed schedule size; no other namespace input"
+      },
+      "selected_nodes": [
+        {
+          "ast_sha256": "3ac439bbcf4e83612bb383ccd9e0970288046a94447c358ec01891bed76dfe25",
+          "first_line": 67,
+          "last_line": 67,
+          "raw_span_sha256": "25847d1961710d875484bf1a89b5a41324f21cf6d3f7093e3bd1e59e3a26f79f"
+        },
+        {
+          "ast_sha256": "6c7e297cfbec1e3732afe25b44f0f0cf778534af1f7cd48bfd6fef19398ba8ad",
+          "first_line": 68,
+          "last_line": 68,
+          "raw_span_sha256": "7a2de2bb837c9464558cb8223d6041750634f9a8156d7aaccc2cf850a32b5924"
+        },
+        {
+          "ast_sha256": "bb5f46b8f6866c75e32c64878d36c15e1267f6930cfee755a89f24a84608cc9e",
+          "first_line": 69,
+          "last_line": 69,
+          "raw_span_sha256": "5a664aa3a0636cc18f956a84725cbfef239a64d5796153591f5f701c1140ced3"
+        },
+        {
+          "ast_sha256": "c586d484c43780343556f515356355bc52342c2aac85e2a3c00e99fc2c514510",
+          "first_line": 72,
+          "last_line": 72,
+          "raw_span_sha256": "db09c77efc02c74e7325a0a84e6c7e6c5706c19d1bf106b18e97bd6cdbeee0ec"
+        },
+        {
+          "ast_sha256": "ed5c8abe2112089cec56e1d5ce7ca061c04f758d7aa15881cb2410d734cbc589",
+          "first_line": 74,
+          "last_line": 74,
+          "raw_span_sha256": "4a0888be45a2dd8d66a5a4dbf108f5db8469d9de009fc317687df38c489239ee"
+        },
+        {
+          "ast_sha256": "106a23bf8ecd9255aa70529bc3b2e21c9eda01a50bb24c72c2db069355749843",
+          "first_line": 75,
+          "last_line": 76,
+          "raw_span_sha256": "591b46e222c9cd1834c04428ae7380045a466599d5f8072e69690af8397320e9"
+        },
+        {
+          "ast_sha256": "3503c2395bdfc43e5e1364bf0cea2b1505aa1bdb7d1c25046d20c291b16c4276",
+          "first_line": 88,
+          "last_line": 88,
+          "raw_span_sha256": "f1b79d53ca6865c9b110e33a85c7a2519a00c021e041a7e6847531c8191f8ef7"
+        },
+        {
+          "ast_sha256": "5508cf2b32efba44ee8e31ee8eb275882272e4905de4d81b0cedc4be12b291ae",
+          "first_line": 89,
+          "last_line": 89,
+          "raw_span_sha256": "eeaa5e9d8f815d3fcd2d65cd43a1a6cd45ea62017e3bbc1442d5345b3b7665be"
+        },
+        {
+          "ast_sha256": "bd4b11e9d210c9dea0b0b7dbd30078a4d44ccd40ec6a396307942bef45301ff5",
+          "first_line": 90,
+          "last_line": 90,
+          "raw_span_sha256": "4a9dc59029222e32cfdb47ce290f2a893bdfe476f7703e808d8d733aa85840a2"
+        },
+        {
+          "ast_sha256": "6fbd97513ece7aac8ccb91291dd2aa89c8e058522e7df3ddd5f56449a9ba8331",
+          "first_line": 91,
+          "last_line": 91,
+          "raw_span_sha256": "a484c94b521542fbcce964cd795888cd0448c608fd33d007f8a6af5ab7b8ee9c"
+        },
+        {
+          "ast_sha256": "60c8127052ce8fedb7535ddf549a39feec00309666a85df7ddc058be5d9cb525",
+          "first_line": 92,
+          "last_line": 92,
+          "raw_span_sha256": "fa96389d417689dc272d830989be5477c4e29f44f8873dc47babdf445eeab3d6"
+        },
+        {
+          "ast_sha256": "cdb44ceb87eb09153605bc55db1c87b547a12c07e7ae384f20842cbafa43842d",
+          "first_line": 93,
+          "last_line": 93,
+          "raw_span_sha256": "df58f426171f0428bd12e22c3127c9fcb0a1c330788cb9c106310d22d2a66ffb"
+        },
+        {
+          "ast_sha256": "bf33d3de3b0d3241212b2338b33d42925b76d88e5230721669b0de49482f0919",
+          "first_line": 94,
+          "last_line": 94,
+          "raw_span_sha256": "28fb36b35de0f3f0148a399409319afb6005db5c0b42a4d4dfa98145907b4e38"
+        },
+        {
+          "ast_sha256": "0c393045b0f56de346a998e9d0aa1b15cda856f04b13b62889269181c95ddaaa",
+          "first_line": 95,
+          "last_line": 95,
+          "raw_span_sha256": "5cae7904440309a1677e6290a60dd753f171c40e7f3081b5d7385e7805ffb301"
+        },
+        {
+          "ast_sha256": "e0c7f025dd03c16b32149aa863a77549edb9a77e88226b957a801c77d3125f3c",
+          "first_line": 95,
+          "last_line": 95,
+          "raw_span_sha256": "5cae7904440309a1677e6290a60dd753f171c40e7f3081b5d7385e7805ffb301"
+        },
+        {
+          "ast_sha256": "71801688724ae8009ab4e34d4eadd24b8ba580210536a37decb59161aff052c4",
+          "first_line": 96,
+          "last_line": 96,
+          "raw_span_sha256": "7bd0e5f27b19889b7a04b1961863d91901bb55159eb5a611530e901518133a57"
+        },
+        {
+          "ast_sha256": "9c0e9f2163e2258c6662609a6a22a17898c489eded0ad0e0b006aedb5f8384d7",
+          "first_line": 97,
+          "last_line": 97,
+          "raw_span_sha256": "84c05098eb3fb5301f6741a12260c42883111cfb3f06bcef654de1bcd18fbc73"
+        },
+        {
+          "ast_sha256": "04e6d6a1e5b7e204bdebfd84a53ce6b01d16654fee38fb9a78637da7d8e8bad8",
+          "first_line": 98,
+          "last_line": 99,
+          "raw_span_sha256": "7e37e0695f89cb85ae6f898ede120811f394af371473bf9c8f7c4fe1bb4a1fc6"
+        },
+        {
+          "ast_sha256": "9abab159c9681acce4d675da0a00a95cd9902fe50eadb2db6ca22e291b7c02bc",
+          "first_line": 100,
+          "last_line": 100,
+          "raw_span_sha256": "19f74915d3365ef6743f9b67b73da5266eed33158ccdb645efd0ccbeccf71152"
+        }
+      ],
+      "source": "scripts/benchmark_worker35_synthetic.py",
+      "source_blob": "c552da477744f0f0984204bb3078331ab48cfb54"
+    },
+    "file_count": 21,
+    "git_historical_fetches_during_attempt": 0,
+    "historical_commit": "7ac2f62c9c5c9dcac9ec9b8770382960f985acc2",
+    "initial_scientific_modules": [
+      "bandido_alcatraz",
+      "bandido_alcatraz.board",
+      "bandido_alcatraz.game",
+      "bandido_alcatraz.model",
+      "bandido_alcatraz.moves",
+      "bandido_alcatraz.policies",
+      "bandido_alcatraz.quota_reserve_closure",
+      "bandido_alcatraz.quota_reserve_closure_reference",
+      "bandido_alcatraz.rules",
+      "bandido_alcatraz.setup",
+      "bandido_alcatraz.strategy",
+      "bandido_alcatraz.worker32",
+      "bandido_alcatraz.worker32.evidence",
+      "benchmark_worker35_synthetic",
+      "run_quota_reserve_closure_development",
+      "worker35_resources"
+    ],
+    "manifest_path": "experiments/worker38-synthetic-profile/comparator-source-manifest.json",
+    "manifest_schema": "worker38-comparator-closure-v1",
+    "original_layout": [
+      "scripts",
+      "src"
+    ],
+    "raw_bytes": 238778,
+    "restoration_phase": "bounded admission byte-copy and hash validation only; never compile/import",
+    "restore_root": "{attempt_directory}/restored",
+    "source_HTTP_requests_during_attempt": 0,
+    "staging_root": "experiments/worker38-synthetic-profile/inputs/comparator-7ac2f62c",
+    "staging_rule": "append .blob to each original manifest path; exact manifest-listed files only, regular files, no symlinks; original bytes unchanged",
+    "verify_fields": [
+      "original_repository_path",
+      "git_blob",
+      "size_bytes",
+      "sha256",
+      "module"
+    ]
+  },
+  "status": "metadata_only_review_candidate_no_execution_authority"
+}
