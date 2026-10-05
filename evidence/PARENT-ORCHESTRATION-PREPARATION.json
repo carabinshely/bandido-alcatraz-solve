@@ -1,0 +1,71 @@
+{
+  "adoption_comment_id": 5988411319,
+  "evaluator_calls": 0,
+  "files": [
+    {
+      "bytes": 76,
+      "git_blob_sha": "21295026efad926ccbc652fab0d57b56d5c447ae",
+      "mode": "100644",
+      "path": "scripts/worker38/__init__.py",
+      "sha256": "c87f701cd5a5a2696d888d00210234ec2330d25a4128d105ad3749de83fbf43a"
+    },
+    {
+      "bytes": 37905,
+      "git_blob_sha": "e88a52fa56a53b3a8f43133bba0f44a68dbcc57a",
+      "mode": "100644",
+      "path": "scripts/worker38/common.py",
+      "sha256": "fe0732a0e08d5852c87ed9c18c23469ced28d93d097c3d434ce6171e4acdd927"
+    },
+    {
+      "bytes": 11589,
+      "git_blob_sha": "020ee0a9341ef0ffec6dd6f54c65917b0d1e9fd6",
+      "mode": "100644",
+      "path": "scripts/worker38/sources.py",
+      "sha256": "3ca9112a691c2b15ab1aa43a5f0922f6834abf768f693e301ecb1ac53c981d3b"
+    },
+    {
+      "bytes": 104303,
+      "git_blob_sha": "ec00afbf947336231c78fdbc806a4a75aeb0b12f",
+      "mode": "100644",
+      "path": "scripts/worker38/driver.py",
+      "sha256": "22dc18c2141e6aa82de84e052cde8d87fa2871b0f1ddda5e791d0db538f3d0e6"
+    },
+    {
+      "bytes": 166,
+      "git_blob_sha": "602199839ba0ebde251148340be0722623e791fd",
+      "mode": "100644",
+      "path": "scripts/run_worker38_synthetic.py",
+      "sha256": "a585a751c2550eb26abc9142b0c1f59e7267532bb8dbe4118f33daa5e2320192"
+    },
+    {
+      "bytes": 30668,
+      "git_blob_sha": "9f989dee64012f15f0cf04063fb33d21a1470696",
+      "mode": "100644",
+      "path": "tests/test_worker38_core.py",
+      "sha256": "bf8e7feb7ac25102766e0b5b28a202fb8ccc0e705c160022d2ad1413fdece7f8"
+    }
+  ],
+  "games": 0,
+  "implemented_scope": [
+    "Original comparator raw/span/AST closure unchanged; inert restoration only",
+    "Positive credential-free scientificenvironment and actual sharedidle runtime/ownedtimergates",
+    "Originalmeasurement anchor/supervisor/failurepreservation deadlines and typed reducer",
+    "Adopted17sourcepath+sixrecords bindings",
+    "Closed observedwriterexit proof and package/seal eligibility",
+    "Dedicated zero-entry admissionfailure79 preservation under originalcutoff only",
+    "Read-only verify/timing-report modes with exact512MiB cap/no launch"
+  ],
+  "measurement_fixture_constructions": 0,
+  "metadata_validation": "AST parsing only",
+  "project_imports": 0,
+  "registered_protocol_sha256": "17abf2d644106bb7c10fbec5481deb7da33e17867ee2f08ea065ca591e8499a7",
+  "remaining": [
+    "Admission/helper/transport full integration still in progress",
+    "Fixed397fixture/input/output/command map not complete",
+    "Prospective offlinefixture lineage accounting repair requires staticreview",
+    "No test/runner/PR/admission authority in this snapshot"
+  ],
+  "schema": "worker38-parent-orchestration-preparation-v1",
+  "status": "incomplete and untested preparation snapshot; full integration, output proof and native gate pending",
+  "tests": 0
+}
