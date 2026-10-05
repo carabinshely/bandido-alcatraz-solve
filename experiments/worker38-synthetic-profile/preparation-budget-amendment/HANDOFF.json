@@ -1,0 +1,152 @@
+{
+  "activity": {
+    "fixture_helper_execution": 0,
+    "historical_imports": 0,
+    "project_imports": 0,
+    "runner_or_network_probes": 0,
+    "scientific_calls": 0,
+    "source_edits": 0,
+    "tests": 0
+  },
+  "address_space_per_process_bytes": 536870912,
+  "all397_expected_subtotal_bytes": 29035551,
+  "amendment_sha256": "d02de63c6f614513f822580e7d14c5ca2dab8aff075a251c0cec9e95a8acc559",
+  "arithmetic_sha256": "a58b38d93f2d9bed99270315cb551386c0f894e98a0b0b5cc3cada618c6872b8",
+  "bytes_excluding_handoff": 3577659,
+  "certified_partial_lower_bound_bytes": 13435712,
+  "combined_cap_bytes": 33554432,
+  "created_utc": "2026-10-05T07:15:00Z",
+  "file_count_excluding_handoff": 21,
+  "files_excluding_handoff": [
+    {
+      "path": "AMENDMENT.md",
+      "sha256": "d02de63c6f614513f822580e7d14c5ca2dab8aff075a251c0cec9e95a8acc559",
+      "size_bytes": 11461
+    },
+    {
+      "path": "ARITHMETIC.json",
+      "sha256": "a58b38d93f2d9bed99270315cb551386c0f894e98a0b0b5cc3cada618c6872b8",
+      "size_bytes": 4189
+    },
+    {
+      "path": "SINK-SAFETY-NOTE.json",
+      "sha256": "7e3b576de7e09406bb124fa96d99f2fd86c6f7fb96cc7a688347c9f2d963634f",
+      "size_bytes": 15580
+    },
+    {
+      "path": "prior-evidence/evidence/DRIVER-OUTPUT-BOUND-tightened-v2.json",
+      "sha256": "5f4c3c80e48f3d6efe8d2700c41eda6f8312904def33ed6595251403923a2593",
+      "size_bytes": 332736
+    },
+    {
+      "path": "prior-evidence/evidence-design/F07-NEW64-OUTPUT-BOUND.json",
+      "sha256": "df971be57dde824451d86d72d59fa53bf81d42c15bb8d32a2a0aa63e01ff08b9",
+      "size_bytes": 112689
+    },
+    {
+      "path": "prior-evidence/evidence-design/NATIVE-CONTROL-RECORD-BOUND.json",
+      "sha256": "6ab86df6ec560db1a7ef5ce4efa484e6db992387893fe0be3b63c7cc4d9c9512",
+      "size_bytes": 1309
+    },
+    {
+      "path": "prior-evidence/evidence-design/WORKER37-OUTPUT-ROSTER-TIGHTENED-r1.json",
+      "sha256": "21b0c657cb5468f0ce71b8e71314b190b07bc541866dd11e1ccee96a788db778",
+      "size_bytes": 669619
+    },
+    {
+      "path": "prior-evidence/evidence-design/core-cell-output-roster-fragment.json",
+      "sha256": "5a4bfc610abf819e085d4daed638eac6e8e6547ab93a75698317d8d720b5e888",
+      "size_bytes": 156649
+    },
+    {
+      "path": "prior-evidence/evidence-design/offline-output-roster-fragment.json",
+      "sha256": "09d8bf036c638f458bd4d078ee6d8c0846c2499795badc6e4fd5bc8cae12bea8",
+      "size_bytes": 256657
+    },
+    {
+      "path": "prior-evidence/evidence-design/run-worker38-fixed-preparation.py",
+      "sha256": "160992b183636b358ad920fbdf1cd96df22718684b7f79bd8d152ecf70cae4b1",
+      "size_bytes": 18876
+    },
+    {
+      "path": "prior-evidence/evidence-design/supervision-output-roster-fragment.json",
+      "sha256": "a2cd0b56d201081384b9f24c976859f38d117348cc44b0b44ddea18f737bb33d",
+      "size_bytes": 228089
+    },
+    {
+      "path": "prior-evidence/evidence-design/worker38-output-roster-draft.json",
+      "sha256": "091486a1d6c3c9955e0c3daccb8acb5fd7784b4d99a2103373741c9f35f6fff7",
+      "size_bytes": 882021
+    },
+    {
+      "path": "prior-evidence/experiments/worker38-synthetic-profile/FINITE-PREPARATION-PLAN.json",
+      "sha256": "31ed253dafcfa502bbfa4d7dca9292e93de6e7b48e39a0e33336b6df894b35c9",
+      "size_bytes": 219508
+    },
+    {
+      "path": "prior-evidence/experiments/worker38-synthetic-profile/PROTOCOL.md",
+      "sha256": "17abf2d644106bb7c10fbec5481deb7da33e17867ee2f08ea065ca591e8499a7",
+      "size_bytes": 64134
+    },
+    {
+      "path": "prior-evidence/scripts/worker38/common.py",
+      "sha256": "fe0732a0e08d5852c87ed9c18c23469ced28d93d097c3d434ce6171e4acdd927",
+      "size_bytes": 37905
+    },
+    {
+      "path": "prior-evidence/scripts/worker38/supervision.py",
+      "sha256": "1f6a4434c250b9adf0efb02e25bfb458f0cb378282eaa2d1c6ea6e5e92420f88",
+      "size_bytes": 83208
+    },
+    {
+      "path": "prior-evidence/scripts/worker38/transport.py",
+      "sha256": "fa285ccf140f646acea0fbcc7ba7bd63103966357040b22f83eccd174b47fb82",
+      "size_bytes": 66602
+    },
+    {
+      "path": "prior-evidence/tests/test_worker37_bootstrap.py",
+      "sha256": "cdee2802efde21f143c44db0d0543aa1833767c908d4b37b6ef36d2ff9c0c775",
+      "size_bytes": 111298
+    },
+    {
+      "path": "prior-evidence/tests/test_worker38_bootstrap_integration.py",
+      "sha256": "4078b46533e493537c72e64a96931cd8ec5b0b2cdafd968a52e958ae812aaf58",
+      "size_bytes": 90973
+    },
+    {
+      "path": "prior-evidence/tests/test_worker38_driver_integration.py",
+      "sha256": "43376a4d68711c572cde998e47737246a7b462f60bd778123b3d47dd09f38ff8",
+      "size_bytes": 113406
+    },
+    {
+      "path": "prior-evidence/tests/test_worker38_verify_integration.py",
+      "sha256": "7117d012b7d19b4b3d26662ff35f14e400d6ec4e77087e4b3ff694356ec1d1ca",
+      "size_bytes": 100750
+    }
+  ],
+  "global_reserve_within_prefix_bytes": 65536,
+  "known_limits": [
+    "No full per-selector hard reservation certificate or runnable final map is supplied by this metadata proposal",
+    "Current native runner draft scans after cases and is not yet sufficient to prevent unexpected overflow",
+    "Individual uncertified reservations stop before fixture setup; this can leave an empty or partial executed prefix",
+    "Expected bounds do not include final per-case inventories and all exceptional staging; those must be reserved before case admission",
+    "No fixture lineage or production code changes are authorized by this review candidate"
+  ],
+  "log_cap_bytes": 8388608,
+  "next_gates": [
+    "Both complete independent amendment reviews",
+    "Durable adopted amendment and root disposition",
+    "Bounded native runner/map accounting implementation only after adoption",
+    "Exact source/fixture/command/retention map and independent static review",
+    "Distinct root authority for one finite native batch"
+  ],
+  "prefix_cap_bytes": 25165824,
+  "preregistration": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5987629515",
+  "purpose": "Prospective preparation-only change from guaranteed aggregate fit to certified per-case reservations and honest bounded incomplete prefix",
+  "registered_finite_plan_sha256": "31ed253dafcfa502bbfa4d7dca9292e93de6e7b48e39a0e33336b6df894b35c9",
+  "registered_protocol_sha256": "17abf2d644106bb7c10fbec5481deb7da33e17867ee2f08ea065ca591e8499a7",
+  "schema": "worker38-preparation-budget-amendment-handoff-v1",
+  "sink_safety_note_sha256": "7e3b576de7e09406bb124fa96d99f2fd86c6f7fb96cc7a688347c9f2d963634f",
+  "status": "immutable_review_candidate_not_adopted_no_execution_authority",
+  "wall_seconds": 600
+}

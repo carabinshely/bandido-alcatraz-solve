@@ -1,0 +1,203 @@
+{
+  "activity": "Metadata-only text/JSON reads, source hashes, and static sink review. No source edits, project/test imports, fixture construction, tests, production helpers, child probes, science, or network execution.",
+  "amendment_binding": {
+    "path": "/workspace/shared/worker38-preparation-budget-amendment/AMENDMENT.md",
+    "sha256": "d02de63c6f614513f822580e7d14c5ca2dab8aff075a251c0cec9e95a8acc559",
+    "size_bytes": 11461
+  },
+  "answer": "Existing family proofs enumerate the registered expected output paths and many injected partial failures. They do not collectively certify all exceptional states of every known sink. The expected-path total is useful disclosure, not a hard per-case reservation. The candidate amendment correctly refuses any selector whose complete reservation is unproved before setUp, and can safely yield a shorter executed prefix once the exact map and runner prove the stated invariant.",
+  "family_disposition": [
+    {
+      "current_proof": "Fixed schema expected bounds plus explicit atomic twins and marker versions",
+      "family": "55 core/cell",
+      "hard_reservation_status": "Needs exceptional-error coverage and final witness/inventory accounting; some individual finite cases may already be certifiable after exact-map review."
+    },
+    {
+      "current_proof": "Finite stub bodies, marker/PID outputs, root counts and per-selector source caps",
+      "family": "52 supervision",
+      "hard_reservation_status": "Literal expected quota alone is insufficient; native diagnostic domain and retained log sinks must be closed or hard-cap reservations used."
+    },
+    {
+      "current_proof": "Independent pinned setup inputs; 34 observed custody receipt versions remain output; actual verifier checks retained",
+      "family": "43 verifier",
+      "hard_reservation_status": "Most verifier calls are read-only, so potentially useful low-output cases. Still requires fixed input mutation witnesses, receipt version bounds and capture accounting; no certificate issued here."
+    },
+    {
+      "current_proof": "Expected fixed package/verify/custody outputs and injected failure cases",
+      "family": "27 transport",
+      "hard_reservation_status": "Must cover simultaneous final/partial names and actual failure-sidecar domain, not only expected one-cause outputs."
+    },
+    {
+      "current_proof": "Named roots, sidecars, mocked prefix outputs, fixed fault schemas and several surviving staging twins",
+      "family": "72 driver",
+      "hard_reservation_status": "Expected-path schema proof does not automatically include native exceptional stages or arbitrary new runner evidence; preserve current rows and certify complete case sink sets individually."
+    },
+    {
+      "current_proof": "Original-output retention references, finite literal response/command ledger and explicit observations",
+      "family": "84 Worker37 plus S01 artifacts",
+      "hard_reservation_status": "Needs final runner lifetime/inventory/log accounting and exact static/native sink closure. S01 artifacts remain charged once."
+    },
+    {
+      "current_proof": "All 64 expected rows, 121 mocked GETs, 97 observations; F07 expected output=6,406,556 bytes",
+      "family": "64 new integration",
+      "hard_reservation_status": "G1-G4 apply. The final all-64 report already pins current source 4078b465; the historical 95c9e3a4 comparison is superseded. No further F07 arithmetic attempted."
+    }
+  ],
+  "four_known_gaps": [
+    {
+      "evidence": [
+        "scripts/worker38/common.py:220-253",
+        "scripts/worker38/transport.py:225-230",
+        "scripts/worker38/transport.py:427-452",
+        "scripts/worker38/transport.py:470-489"
+      ],
+      "finding": "Atomic publication may retain an old final plus new .tmp, or a new final plus its linked .tmp. Transport finalization may retain both .partial and final names if fsync/unlink fails. Count logical paths even when names share one inode; report physical storage separately. Core/cell and driver proofs already count many named twins, so no blanket second charge is justified. F07 and other successful-path formulas are not an all-failure-stage proof.",
+      "id": "G1_STAGED_AND_SIMULTANEOUS_PATHS",
+      "minimal_rule": "Each selector reservation must enumerate reachable temporary/partial names, maximum sizes and simultaneous occurrence/version counts, including known publisher failure stages and all required witnesses. Use a reviewed maximum over reachable states or a conservative sum. Refuse before setup when any stage remains unproved; do not substitute a post-case scan."
+    },
+    {
+      "evidence": [
+        "scripts/worker38/common.py:153-173",
+        "scripts/worker38/common.py:256-263",
+        "scripts/worker38/transport.py:233-247",
+        "scripts/worker38/transport.py:250-289",
+        "evidence-design/core-cell-output-roster-fragment.json:expected_output_model",
+        "evidence-design/offline-output-roster-fragment.json:tight_transport_expected_path_profile"
+      ],
+      "finding": "Expected small failure schemas do not cover arbitrary infrastructure errors. Common failure sidecars have a real 65,536-byte prewrite cap; transport failure sidecars have a 1,048,576-byte streaming cap and may leave partial bytes. The transport expected one-cause 1,024-byte envelope is narrower than that hard bound. Main raw production limits reach 64 MiB and therefore cannot by themselves certify a 24 MiB preparation case.",
+      "id": "G2_EXPECTED_ERRORS_VERSUS_HARD_EMITTER_BOUNDS",
+      "minimal_rule": "For every known failure sink, either prove the complete fixed-source schema/error domain including multiplicity and encoded widths, or reserve its existing hard cap times maximum reachable occurrences, including partial/staged states. A reservation larger than available allowance means refusal, not a smaller assumed quota. No new production limit or generic writer patch is needed."
+    },
+    {
+      "evidence": [
+        "evidence-design/supervision-output-roster-fragment.json:native_bound_interpretation",
+        "evidence-design/supervision-output-roster-fragment.json:native_tight_quota_missing_parameters",
+        "scripts/worker38/supervision.py:561-576",
+        "scripts/worker38/supervision.py:1216-1263",
+        "tests/test_worker38_bootstrap_integration.py:1350-1380"
+      ],
+      "finding": "Supervision literal-body output is 19,079 bytes, while its enumerated source-cap file bound is 39,864,744 bytes for the family. The smaller figure excludes unexpected native diagnostics. Secondary result messages are not truncated in record_secondary_failure; large returned results must not enter compact runner records. New64 Bash checks 4,096 stream bytes, 65,536 command-log bytes and 131,072 combined bytes only after process completion and original file creation. Those assertions detect excess; they do not prevent it.",
+      "id": "G3_NATIVE_LOGS_AND_POSTHOC_BASH_ASSERTIONS",
+      "minimal_rule": "Bind exact executable/import/command sources and every direct stdout/stderr or original-file sink. Prove finite literal command bounds or use existing prospective bounds at the named capture/emitter boundary. Keep each sink in its preregistered prefix/log pool and count actual produced copies. Refuse the selector if any direct emitter is unaccounted; time or memory limits and after-the-case assertions are not byte bounds."
+    },
+    {
+      "evidence": [
+        "evidence-design/NATIVE-CONTROL-RECORD-BOUND.json:notes",
+        "evidence-design/worker38-output-roster-draft.json:remaining_final_gate_items",
+        "evidence-design/WORKER37-OUTPUT-ROSTER-TIGHTENED-r1.json:native_adapter_proposal",
+        "tests/test_worker38_bootstrap_integration.py:81-136",
+        "tests/test_worker38_bootstrap_integration.py:138-165",
+        "tests/test_worker37_bootstrap.py:161-205"
+      ],
+      "finding": "Existing hooks expose original roots and partial names, but hook records, mutation-before-restoration witnesses, per-case inventories and global receipts need their own serialized-size and multiplicity proof. Cleanup/finalizer suppression must begin when each registered root is created; a finally callback alone cannot preserve an owner-hard-kill prefix. Compact 320-byte method and 141-byte observation maxima do not cover arbitrary new fields or full hook payloads.",
+      "id": "G4_RETENTION_OBSERVATIONS_AND_TERMINAL_OVERHEAD",
+      "minimal_rule": "Freeze input/output lineage and exact retained witnesses before entry. Charge case-local records to the case reservation, retain original produced roots without duplicate mirrors, and preserve every required failed version. The candidate 65,536-byte global reserve is a fixed allocation: start<=4,096, terminal<=16,384, compact index<=45,056. Its actual schemas/counts still require proof, including partial publication. Keep it unavailable to ordinary case writers and do not silently reuse it."
+    }
+  ],
+  "limitations": "This is a concise sink-gap review of the candidate, not a full new per-selector certificate, native runner implementation review, independent amendment approval, or execution approval. The registered plan still carries its old guaranteed-total-fit clause until adoption. No further derivation or custody redesign was performed.",
+  "minimal_reservation_admission": [
+    "Keep all 397 selectors in the immutable registered order. Stop at the first uncertified or nonfitting selector; do not skip/reorder to chase passing results.",
+    "Before setUp or new fixture/dependency construction, require reviewed prefix and log reservations derived from the complete finite sink set, source hashes and domain bounds. expected_output_upper_bytes and reservation_upper_bytes remain separate.",
+    "Maintain actual_used_prefix + active_prefix_reservation + unused_global_reserve <=25,165,824, with a separate 8,388,608-byte log invariant and 33,554,432 combined cap. Reserving bytes is not producing bytes.",
+    "Known native record/capture writers validate their own request before exclusive writes. For existing production/test sinks, prevention comes from the reviewed finite source proof or existing emitter guard, never a later scan.",
+    "Release unused case reservation only after all writers have stopped, required observations are durable and no-follow reconciliation is complete. If reconciliation is uncertain, keep the reservation committed and stop.",
+    "Unproved first-case reservation means execution_blocked; an unproved later reservation means execution_incomplete. Insufficient allowance means resource_incomplete. Preserve any stronger established failure, all prior output and exact unexecuted suffix; never count unexecuted cases as passes.",
+    "No new wall interval, child, test, production byte cap, fixture redesign, generic interception, cap increase, retry or resume follows from this accounting amendment."
+  ],
+  "practical_utility": "The amendment can permit a useful finite prefix under unchanged caps without pretending that all 397 will run. Expected total 29,035,551 bytes remains disclosed and actual overflow is not proved by the 13,435,712-byte partial lower bound. Read-only/low-output fixed cases are plausible early value, but utility depends on the approved selector order and first uncertified reservation. If that first case is uncertified, an empty executed prefix is the honest outcome. Reviewers should inspect the certified prefix length before authorizing the sole batch.",
+  "report_self_hash_excluded": true,
+  "schema": "worker38-per-case-reservation-safety-audit-v1",
+  "source_bindings": [
+    {
+      "path": "experiments/worker38-synthetic-profile/FINITE-PREPARATION-PLAN.json",
+      "sha256": "31ed253dafcfa502bbfa4d7dca9292e93de6e7b48e39a0e33336b6df894b35c9",
+      "size_bytes": 219508
+    },
+    {
+      "path": "evidence-design/worker38-output-roster-draft.json",
+      "sha256": "091486a1d6c3c9955e0c3daccb8acb5fd7784b4d99a2103373741c9f35f6fff7",
+      "size_bytes": 882021
+    },
+    {
+      "path": "evidence-design/F07-NEW64-OUTPUT-BOUND.json",
+      "sha256": "df971be57dde824451d86d72d59fa53bf81d42c15bb8d32a2a0aa63e01ff08b9",
+      "size_bytes": 112689
+    },
+    {
+      "path": "evidence-design/core-cell-output-roster-fragment.json",
+      "sha256": "5a4bfc610abf819e085d4daed638eac6e8e6547ab93a75698317d8d720b5e888",
+      "size_bytes": 156649
+    },
+    {
+      "path": "evidence-design/supervision-output-roster-fragment.json",
+      "sha256": "a2cd0b56d201081384b9f24c976859f38d117348cc44b0b44ddea18f737bb33d",
+      "size_bytes": 228089
+    },
+    {
+      "path": "evidence-design/offline-output-roster-fragment.json",
+      "sha256": "09d8bf036c638f458bd4d078ee6d8c0846c2499795badc6e4fd5bc8cae12bea8",
+      "size_bytes": 256657
+    },
+    {
+      "path": "evidence-design/WORKER37-OUTPUT-ROSTER-TIGHTENED-r1.json",
+      "sha256": "21b0c657cb5468f0ce71b8e71314b190b07bc541866dd11e1ccee96a788db778",
+      "size_bytes": 669619
+    },
+    {
+      "path": "evidence/DRIVER-OUTPUT-BOUND-tightened-v2.json",
+      "sha256": "5f4c3c80e48f3d6efe8d2700c41eda6f8312904def33ed6595251403923a2593",
+      "size_bytes": 332736
+    },
+    {
+      "path": "evidence-design/NATIVE-CONTROL-RECORD-BOUND.json",
+      "sha256": "6ab86df6ec560db1a7ef5ce4efa484e6db992387893fe0be3b63c7cc4d9c9512",
+      "size_bytes": 1309
+    },
+    {
+      "path": "scripts/worker38/common.py",
+      "sha256": "fe0732a0e08d5852c87ed9c18c23469ced28d93d097c3d434ce6171e4acdd927",
+      "size_bytes": 37905
+    },
+    {
+      "path": "scripts/worker38/transport.py",
+      "sha256": "fa285ccf140f646acea0fbcc7ba7bd63103966357040b22f83eccd174b47fb82",
+      "size_bytes": 66602
+    },
+    {
+      "path": "scripts/worker38/supervision.py",
+      "sha256": "1f6a4434c250b9adf0efb02e25bfb458f0cb378282eaa2d1c6ea6e5e92420f88",
+      "size_bytes": 83208
+    },
+    {
+      "path": "tests/test_worker38_bootstrap_integration.py",
+      "sha256": "4078b46533e493537c72e64a96931cd8ec5b0b2cdafd968a52e958ae812aaf58",
+      "size_bytes": 90973
+    },
+    {
+      "path": "tests/test_worker38_driver_integration.py",
+      "sha256": "43376a4d68711c572cde998e47737246a7b462f60bd778123b3d47dd09f38ff8",
+      "size_bytes": 113406
+    },
+    {
+      "path": "tests/test_worker38_verify_integration.py",
+      "sha256": "7117d012b7d19b4b3d26662ff35f14e400d6ec4e77087e4b3ff694356ec1d1ca",
+      "size_bytes": 100750
+    },
+    {
+      "path": "tests/test_worker37_bootstrap.py",
+      "sha256": "cdee2802efde21f143c44db0d0543aa1833767c908d4b37b6ef36d2ff9c0c775",
+      "size_bytes": 111298
+    }
+  ],
+  "source_drift": {
+    "correction": "The final all-64 report already binds current source SHA4078b465 (90,973 bytes). SHA95c9e3a4 belongs to the earlier task snapshot, not the final report. No current drift is claimed against the final report.",
+    "current_new64": {
+      "path": "tests/test_worker38_bootstrap_integration.py",
+      "sha256": "4078b46533e493537c72e64a96931cd8ec5b0b2cdafd968a52e958ae812aaf58",
+      "size_bytes": 90973
+    },
+    "final_all64_report_sha256": "df971be57dde824451d86d72d59fa53bf81d42c15bb8d32a2a0aa63e01ff08b9",
+    "parent_supplied_exact_delta": "Only two insertions of case.production_output_hook=None before nested DriverIntegration.setUp in F08 and F07 prevent duplicate outer capture. No producer, content or method change. This note records the parent-supplied delta; it does not introduce a new accounting discount."
+  },
+  "status": "CONDITIONAL_AMENDMENT_SUPPORT; NO_SELECTOR_RESERVATION_CERTIFIED_BY_THIS_NOTE; NO_EXECUTION_AUTHORITY"
+}

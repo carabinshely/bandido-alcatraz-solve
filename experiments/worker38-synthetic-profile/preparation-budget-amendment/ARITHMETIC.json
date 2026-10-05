@@ -1,0 +1,116 @@
+{
+  "F07": {
+    "archive_payload_copies": 4,
+    "archive_upper": 1226487,
+    "custody_JSON_upper": 103010,
+    "final_recovery_upper": 50116,
+    "initial_recovery_upper": 1024,
+    "manifest_copies": 3,
+    "manifest_upper": 48068,
+    "produced_files_upper": 6406556,
+    "provider_wrapper_overhead": 244,
+    "raw_produced_upper": 1060098,
+    "seal_plan_upper": 20480,
+    "timing_report_upper": 12288,
+    "two_verification_reports_upper": 109144
+  },
+  "activity": {
+    "fixture_or_project_imports": 0,
+    "runner_or_network_probes": 0,
+    "scientific_calls": 0,
+    "source_edits": 0,
+    "tests": 0
+  },
+  "certified_partial_lower_bound": 13435712,
+  "combined_cap": 33554432,
+  "compact_controls_upper": 279038,
+  "expected_files_upper": 28756513,
+  "expected_subtotal_excess": 3869727,
+  "expected_subtotal_upper": 29035551,
+  "families": [
+    {
+      "compact_controls_upper": 159006,
+      "family": "retained core/cell/supervisor/transport/offline verifier",
+      "files_upper": 4569873,
+      "methods": 177,
+      "observation_units": 726,
+      "subtotal_upper": 4728879
+    },
+    {
+      "compact_controls_upper": 47151,
+      "family": "retained driver",
+      "files_upper": 1796615,
+      "methods": 72,
+      "observation_units": 171,
+      "subtotal_upper": 1843766
+    },
+    {
+      "compact_controls_upper": 38724,
+      "family": "retained Worker37 plus new S01 artifacts only",
+      "files_upper": 7783905,
+      "methods": 84,
+      "observation_units": 84,
+      "subtotal_upper": 7822629
+    },
+    {
+      "compact_controls_upper": 34157,
+      "family": "Worker38 integration excluding S01 artifact overlap",
+      "files_upper": 14606120,
+      "methods": 64,
+      "observation_units": 97,
+      "subtotal_upper": 14640277
+    }
+  ],
+  "lineage_status": "34 observed custody report versions remain produced output; no fixture reclassification or helper change proposed",
+  "logs_cap": 8388608,
+  "lower_bound_components": {
+    "F07_fixed_module_hash_characters_across_original_and_four_archive_payload_copies": 852800,
+    "six_required_2097152byte_prefixes": 12582912
+  },
+  "lower_bound_is_not_actual_observed_size": true,
+  "methods": 397,
+  "observation_units": 1078,
+  "prefix_cap": 25165824,
+  "remaining_charged_terms": [
+    "Per-case input/output inventory and mutation/version witness serialization",
+    "Any additional surviving atomic stages not included by a positive-path family envelope",
+    "Global terminal/index receipt within proposed65536byte reserve",
+    "Per-case non-overflow reservation proof covering every actual known sink and failure path"
+  ],
+  "schema": "worker38-preparation-budget-amendment-arithmetic-v1",
+  "sources": {
+    "evidence-design/F07-NEW64-OUTPUT-BOUND.json": {
+      "sha256": "df971be57dde824451d86d72d59fa53bf81d42c15bb8d32a2a0aa63e01ff08b9",
+      "size_bytes": 112689
+    },
+    "evidence-design/NATIVE-CONTROL-RECORD-BOUND.json": {
+      "sha256": "6ab86df6ec560db1a7ef5ce4efa484e6db992387893fe0be3b63c7cc4d9c9512",
+      "size_bytes": 1309
+    },
+    "evidence-design/WORKER37-OUTPUT-ROSTER-TIGHTENED-r1.json": {
+      "sha256": "21b0c657cb5468f0ce71b8e71314b190b07bc541866dd11e1ccee96a788db778",
+      "size_bytes": 669619
+    },
+    "evidence-design/run-worker38-fixed-preparation.py": {
+      "sha256": "160992b183636b358ad920fbdf1cd96df22718684b7f79bd8d152ecf70cae4b1",
+      "size_bytes": 18876
+    },
+    "evidence-design/worker38-output-roster-draft.json": {
+      "sha256": "091486a1d6c3c9955e0c3daccb8acb5fd7784b4d99a2103373741c9f35f6fff7",
+      "size_bytes": 882021
+    },
+    "evidence/DRIVER-OUTPUT-BOUND-tightened-v2.json": {
+      "sha256": "5f4c3c80e48f3d6efe8d2700c41eda6f8312904def33ed6595251403923a2593",
+      "size_bytes": 332736
+    },
+    "experiments/worker38-synthetic-profile/FINITE-PREPARATION-PLAN.json": {
+      "sha256": "31ed253dafcfa502bbfa4d7dca9292e93de6e7b48e39a0e33336b6df894b35c9",
+      "size_bytes": 219508
+    },
+    "experiments/worker38-synthetic-profile/PROTOCOL.md": {
+      "sha256": "17abf2d644106bb7c10fbec5481deb7da33e17867ee2f08ea065ca591e8499a7",
+      "size_bytes": 64134
+    }
+  },
+  "status": "prospective_metadata_only_not_adopted"
+}
