@@ -1,0 +1,2711 @@
+{
+  "schema": "worker38-cell-supervision-materialization-report-v1",
+  "status": "materialized_only_not_executed_not_reviewed_not_admitted",
+  "registered_protocol": {
+    "path": "experiments/worker38-synthetic-profile/PROTOCOL.md",
+    "size_bytes": 64134,
+    "sha256": "17abf2d644106bb7c10fbec5481deb7da33e17867ee2f08ea065ca591e8499a7",
+    "git_blob": "adddcbd70420d0b74a4531477c0b2ff91f7029f7",
+    "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5987629515",
+    "retained_API_evidence_path": "evidence/preregistration-5987629515-api.json"
+  },
+  "scope": [
+    "scripts/worker38/supervision.py",
+    "scripts/worker38/cell.py",
+    "tests/test_worker38_supervision.py",
+    "tests/test_worker38_cell_integration.py"
+  ],
+  "files": [
+    {
+      "path": "scripts/worker38/supervision.py",
+      "size_bytes": 83208,
+      "sha256": "1f6a4434c250b9adf0efb02e25bfb458f0cb378282eaa2d1c6ea6e5e92420f88",
+      "git_blob": "fd6ba1b94db19dbeddc7a970ac5343b7cb76740d",
+      "static_AST_parse": "accepted",
+      "origin": {
+        "path": "/workspace/shared/worker36-recovery-r1/candidate/scripts/worker36/supervision.py",
+        "size_bytes": 74188,
+        "sha256": "0d66d90cdbe1e7b94b629936c4dbc42cf4d04a2c367cca00afe5cc1eba605ea9",
+        "git_blob": "ce3ec1620349b883b220fb2012dc3056a1600a70"
+      },
+      "definition_map": [
+        {
+          "definition": "SupervisionError",
+          "destination": {
+            "lines": [
+              45,
+              46
+            ],
+            "size_bytes": 110,
+            "sha256": "b37abc6eb0416543c56e9a92c98d227a539cd16fa92ed85fae9addc143f0281a",
+            "git_blob": "093b67377b2235940e27ef877cc2e1ca4d00c173"
+          },
+          "origin": {
+            "definition": "SupervisionError",
+            "lines": [
+              44,
+              45
+            ],
+            "size_bytes": 110,
+            "sha256": "b37abc6eb0416543c56e9a92c98d227a539cd16fa92ed85fae9addc143f0281a",
+            "git_blob": "093b67377b2235940e27ef877cc2e1ca4d00c173"
+          }
+        },
+        {
+          "definition": "CallStateIntegrityError",
+          "destination": {
+            "lines": [
+              49,
+              50
+            ],
+            "size_bytes": 132,
+            "sha256": "ad0c9ea1c2b2ff8a6cccc29b3212a21286ad22a639c8c7deb29fa78a22f9ca4f",
+            "git_blob": "007293815c563e0247d66139ea9221649729b4c6"
+          },
+          "origin": {
+            "definition": "CallStateIntegrityError",
+            "lines": [
+              48,
+              49
+            ],
+            "size_bytes": 132,
+            "sha256": "ad0c9ea1c2b2ff8a6cccc29b3212a21286ad22a639c8c7deb29fa78a22f9ca4f",
+            "git_blob": "007293815c563e0247d66139ea9221649729b4c6"
+          }
+        },
+        {
+          "definition": "AccountingIntegrityError",
+          "destination": {
+            "lines": [
+              53,
+              54
+            ],
+            "size_bytes": 125,
+            "sha256": "57e2a88c554d374454513c2bcf7b0039ac572d5d3a31cf7dca6c79145f5d06ce",
+            "git_blob": "423ec8029e17e51127404e67cfa3ad23b5d29e3b"
+          },
+          "origin": null
+        },
+        {
+          "definition": "OutputBudgetExceeded",
+          "destination": {
+            "lines": [
+              57,
+              58
+            ],
+            "size_bytes": 124,
+            "sha256": "3de933118c917433ae9f828053f16d1c6eb04b0aca2c39c52320eda668bacd6c",
+            "git_blob": "458792b7c229f9fdb4d24eea5b8c4ea67d949737"
+          },
+          "origin": {
+            "definition": "OutputBudgetExceeded",
+            "lines": [
+              52,
+              53
+            ],
+            "size_bytes": 124,
+            "sha256": "3de933118c917433ae9f828053f16d1c6eb04b0aca2c39c52320eda668bacd6c",
+            "git_blob": "458792b7c229f9fdb4d24eea5b8c4ea67d949737"
+          }
+        },
+        {
+          "definition": "_positive",
+          "destination": {
+            "lines": [
+              61,
+              67
+            ],
+            "size_bytes": 359,
+            "sha256": "976722a2bd638c44efb718dcf932b7667c81cffa012048a3f283cabc6e06de32",
+            "git_blob": "25f1f719f160069a926372f748c591169faae0c4"
+          },
+          "origin": {
+            "definition": "_positive",
+            "lines": [
+              56,
+              62
+            ],
+            "size_bytes": 359,
+            "sha256": "976722a2bd638c44efb718dcf932b7667c81cffa012048a3f283cabc6e06de32",
+            "git_blob": "25f1f719f160069a926372f748c591169faae0c4"
+          }
+        },
+        {
+          "definition": "_usage",
+          "destination": {
+            "lines": [
+              70,
+              72
+            ],
+            "size_bytes": 107,
+            "sha256": "56811b6a7b3ac316fee702acb6c34be00e6be1bf23548b7fa98ed3c98732de68",
+            "git_blob": "76017b35147e4cf2fa0116e98be39457c63efb9e"
+          },
+          "origin": {
+            "definition": "_usage",
+            "lines": [
+              65,
+              67
+            ],
+            "size_bytes": 107,
+            "sha256": "56811b6a7b3ac316fee702acb6c34be00e6be1bf23548b7fa98ed3c98732de68",
+            "git_blob": "76017b35147e4cf2fa0116e98be39457c63efb9e"
+          }
+        },
+        {
+          "definition": "_nonnegative",
+          "destination": {
+            "lines": [
+              75,
+              82
+            ],
+            "size_bytes": 320,
+            "sha256": "81e1dc3f0158909b7b3fd77935e35eb66f5eb9da23e04637a2b7dc71bf65b712",
+            "git_blob": "a5e8369a3d85486a4ab28e2dbf30bbc230e877b2"
+          },
+          "origin": null
+        },
+        {
+          "definition": "PhaseBudget",
+          "destination": {
+            "lines": [
+              86,
+              140
+            ],
+            "size_bytes": 2889,
+            "sha256": "8e42288675e63556010cabff45a8cbe9d68fd77e39b56e93bbc5bc47541d5ab0",
+            "git_blob": "d7cb815ae9d6d0ff65be9495f47452225eaa8283"
+          },
+          "origin": {
+            "definition": "PhaseBudget",
+            "lines": [
+              71,
+              103
+            ],
+            "size_bytes": 1784,
+            "sha256": "d63dfab57da63a49485809c04cdbe50a3cf531aeedcd01bf9e44f52c6e9789b7",
+            "git_blob": "e76c59a630dbf66fb38c254c30209148de90c097"
+          }
+        },
+        {
+          "definition": "_Process",
+          "destination": {
+            "lines": [
+              144,
+              156
+            ],
+            "size_bytes": 253,
+            "sha256": "c3e0d37f8af1a2aa4b28ef75214fde7527f2ea4e92fbbb512b80ee8791bfb67f",
+            "git_blob": "6ca2d05f5d7aed77b5775b87ebabe4eb31a0e5df"
+          },
+          "origin": {
+            "definition": "_Process",
+            "lines": [
+              107,
+              119
+            ],
+            "size_bytes": 253,
+            "sha256": "c3e0d37f8af1a2aa4b28ef75214fde7527f2ea4e92fbbb512b80ee8791bfb67f",
+            "git_blob": "6ca2d05f5d7aed77b5775b87ebabe4eb31a0e5df"
+          }
+        },
+        {
+          "definition": "_read_process",
+          "destination": {
+            "lines": [
+              159,
+              171
+            ],
+            "size_bytes": 734,
+            "sha256": "02e449551000d7e941db51146c717d6c72a15b221e3d18b3271cff1fcf277a7e",
+            "git_blob": "8f9201e181f858c70cbedfcfc0bd93a27b6325b1"
+          },
+          "origin": {
+            "definition": "_read_process",
+            "lines": [
+              122,
+              134
+            ],
+            "size_bytes": 734,
+            "sha256": "02e449551000d7e941db51146c717d6c72a15b221e3d18b3271cff1fcf277a7e",
+            "git_blob": "8f9201e181f858c70cbedfcfc0bd93a27b6325b1"
+          }
+        },
+        {
+          "definition": "process_identity",
+          "destination": {
+            "lines": [
+              174,
+              184
+            ],
+            "size_bytes": 612,
+            "sha256": "187035d8002efc5f013a1261f10e02d92cdbe273b34484604343362964487519",
+            "git_blob": "bb729b5f65a4d2748037a3262ec00a6c4f7c65ad"
+          },
+          "origin": null
+        },
+        {
+          "definition": "_scan_processes",
+          "destination": {
+            "lines": [
+              187,
+              204
+            ],
+            "size_bytes": 696,
+            "sha256": "8c825e9729686954459b95d68b0a643a7caaba4c73e8536ec87d3ab07e986333",
+            "git_blob": "e0afe96cfb7ca636127b6b89bfda5080dcff3038"
+          },
+          "origin": {
+            "definition": "_scan_processes",
+            "lines": [
+              137,
+              154
+            ],
+            "size_bytes": 696,
+            "sha256": "8c825e9729686954459b95d68b0a643a7caaba4c73e8536ec87d3ab07e986333",
+            "git_blob": "e0afe96cfb7ca636127b6b89bfda5080dcff3038"
+          }
+        },
+        {
+          "definition": "_subreaper",
+          "destination": {
+            "lines": [
+              207,
+              216
+            ],
+            "size_bytes": 506,
+            "sha256": "2d17a0658ebe03491e23782fe482acb36b9fee5d5a5c8faded91dade73dc4e0e",
+            "git_blob": "1c398cb1dfbb51e1258459ac6ce28c47159d107e"
+          },
+          "origin": {
+            "definition": "_subreaper",
+            "lines": [
+              157,
+              166
+            ],
+            "size_bytes": 506,
+            "sha256": "2d17a0658ebe03491e23782fe482acb36b9fee5d5a5c8faded91dade73dc4e0e",
+            "git_blob": "1c398cb1dfbb51e1258459ac6ce28c47159d107e"
+          }
+        },
+        {
+          "definition": "_arm_parent_death_signal",
+          "destination": {
+            "lines": [
+              219,
+              240
+            ],
+            "size_bytes": 1518,
+            "sha256": "ac7de527def486cf831ee01269fa19af5b1e140478a750025f8500d58f47a4aa",
+            "git_blob": "6a57903a8186eaf1e142a41317f3d73921b49d92"
+          },
+          "origin": {
+            "definition": "_arm_parent_death_signal",
+            "lines": [
+              169,
+              187
+            ],
+            "size_bytes": 1175,
+            "sha256": "0cfb1057b3d58a847b79fb72aa52c9bbe0aec4ee9016c9034092becaad4dfcb9",
+            "git_blob": "65f27176c33ac078e457ac00cc5afed6cab62af7"
+          }
+        },
+        {
+          "definition": "_inherited_limits",
+          "destination": {
+            "lines": [
+              243,
+              258
+            ],
+            "size_bytes": 919,
+            "sha256": "8c3d51795a4c6846165056c7c22678bd773299cfc146b7d2bc929f02e72fd34d",
+            "git_blob": "a85aea27830e01807b135eb9a4b0db5c7a11f3c9"
+          },
+          "origin": {
+            "definition": "_inherited_limits",
+            "lines": [
+              190,
+              205
+            ],
+            "size_bytes": 919,
+            "sha256": "8c3d51795a4c6846165056c7c22678bd773299cfc146b7d2bc929f02e72fd34d",
+            "git_blob": "a85aea27830e01807b135eb9a4b0db5c7a11f3c9"
+          }
+        },
+        {
+          "definition": "inherited_limits_snapshot",
+          "destination": {
+            "lines": [
+              261,
+              263
+            ],
+            "size_bytes": 168,
+            "sha256": "136874f34a6a05c6242262b26905f862c1fb439c6612d23fb42ca282823b0e6c",
+            "git_blob": "348536a0fc9c8408e57c7260a96b16b2c4095065"
+          },
+          "origin": {
+            "definition": "inherited_limits_snapshot",
+            "lines": [
+              208,
+              210
+            ],
+            "size_bytes": 168,
+            "sha256": "136874f34a6a05c6242262b26905f862c1fb439c6612d23fb42ca282823b0e6c",
+            "git_blob": "348536a0fc9c8408e57c7260a96b16b2c4095065"
+          }
+        },
+        {
+          "definition": "_owned_processes",
+          "destination": {
+            "lines": [
+              266,
+              302
+            ],
+            "size_bytes": 1747,
+            "sha256": "f9b25835a9893d42deeb721a5540d6e08d4c1b7d4625a1e30571352771fd8104",
+            "git_blob": "a41b5ff89e079fef20ec1825f3843047102e39e0"
+          },
+          "origin": {
+            "definition": "_owned_processes",
+            "lines": [
+              213,
+              249
+            ],
+            "size_bytes": 1747,
+            "sha256": "f9b25835a9893d42deeb721a5540d6e08d4c1b7d4625a1e30571352771fd8104",
+            "git_blob": "a41b5ff89e079fef20ec1825f3843047102e39e0"
+          }
+        },
+        {
+          "definition": "_require_pidfd_support",
+          "destination": {
+            "lines": [
+              305,
+              313
+            ],
+            "size_bytes": 468,
+            "sha256": "421759c1cf4a8dedcf7c3d2f229563a3e2d828f9cf76a596f084727a1f67a499",
+            "git_blob": "4b75e275e53d2d119f3c3f49184e257a6d67704c"
+          },
+          "origin": {
+            "definition": "_require_pidfd_support",
+            "lines": [
+              252,
+              260
+            ],
+            "size_bytes": 468,
+            "sha256": "421759c1cf4a8dedcf7c3d2f229563a3e2d828f9cf76a596f084727a1f67a499",
+            "git_blob": "4b75e275e53d2d119f3c3f49184e257a6d67704c"
+          }
+        },
+        {
+          "definition": "_remember_root",
+          "destination": {
+            "lines": [
+              316,
+              333
+            ],
+            "size_bytes": 902,
+            "sha256": "50e51301ebc903e7781683a8c9bd2449c258388c6bc4d9c8358aca22c81e9740",
+            "git_blob": "6dbfd3202450e4d585895ea18e9a66d023ea1dae"
+          },
+          "origin": {
+            "definition": "_remember_root",
+            "lines": [
+              263,
+              280
+            ],
+            "size_bytes": 902,
+            "sha256": "5b8503c672adb209a1432901c1ae6461b84c4e23abbebfd1cdb8a502001ec7ac",
+            "git_blob": "238320c577af597b82ce71b870b70edd6592411d"
+          }
+        },
+        {
+          "definition": "_call_state",
+          "destination": {
+            "lines": [
+              336,
+              404
+            ],
+            "size_bytes": 3694,
+            "sha256": "15a061f54f5cba7f3c880cab68bf33c2fb14a1f6f8c7705cfe1f3b5ebe3ea8c0",
+            "git_blob": "fb2a3a7fb7ac2be1ad97c8158e32101982c03282"
+          },
+          "origin": {
+            "definition": "_call_state",
+            "lines": [
+              283,
+              351
+            ],
+            "size_bytes": 3706,
+            "sha256": "3dcfee1f957d8af423bfcd30d5a6fba6d67d69df6e021cba91498857b3d48537",
+            "git_blob": "9650d011e49220946f09998323f299cd999225f1"
+          }
+        },
+        {
+          "definition": "_poll",
+          "destination": {
+            "lines": [
+              407,
+              418
+            ],
+            "size_bytes": 526,
+            "sha256": "4348ad9227b595105297a4a819e500902dc08437394165e34144ef1b1f9be8bb",
+            "git_blob": "2089ae3e0b5e0da709558c23110ea4415d6f7d03"
+          },
+          "origin": {
+            "definition": "_poll",
+            "lines": [
+              354,
+              365
+            ],
+            "size_bytes": 526,
+            "sha256": "1de13723c337cd7270138da1cceae9610ae8d061260cba32a4d258da0191df41",
+            "git_blob": "d7ecee1fbab636c0e0c4f89aa0331a5e11c827c2"
+          }
+        },
+        {
+          "definition": "_signal_owned",
+          "destination": {
+            "lines": [
+              421,
+              443
+            ],
+            "size_bytes": 891,
+            "sha256": "5c86d25f0af682a19b169cc4379ab76c3686049fe4ec2f2bd163d93ad38e95a3",
+            "git_blob": "639bd413bf848e7cce94dcbb1729afdf8ca393f0"
+          },
+          "origin": {
+            "definition": "_signal_owned",
+            "lines": [
+              368,
+              390
+            ],
+            "size_bytes": 891,
+            "sha256": "5c86d25f0af682a19b169cc4379ab76c3686049fe4ec2f2bd163d93ad38e95a3",
+            "git_blob": "639bd413bf848e7cce94dcbb1729afdf8ca393f0"
+          }
+        },
+        {
+          "definition": "_reap_adopted",
+          "destination": {
+            "lines": [
+              446,
+              452
+            ],
+            "size_bytes": 283,
+            "sha256": "a8e31a857780e7bfab0a3b304521bc6f49643391f63eb082a5740fe69aecb63c",
+            "git_blob": "74cc69d456d14ee32a92b67dfc6a0e64c2a19de6"
+          },
+          "origin": {
+            "definition": "_reap_adopted",
+            "lines": [
+              393,
+              399
+            ],
+            "size_bytes": 283,
+            "sha256": "a8e31a857780e7bfab0a3b304521bc6f49643391f63eb082a5740fe69aecb63c",
+            "git_blob": "74cc69d456d14ee32a92b67dfc6a0e64c2a19de6"
+          }
+        },
+        {
+          "definition": "_exception_status",
+          "destination": {
+            "lines": [
+              455,
+              463
+            ],
+            "size_bytes": 688,
+            "sha256": "abacb132bf7ad0dacc8892b3dd7b8510acc41fb923d68de49f44b586cd75bc2c",
+            "git_blob": "be7a8b9fb6bf54f63be9ee3a7a255135d203ffd3"
+          },
+          "origin": {
+            "definition": "_exception_status",
+            "lines": [
+              402,
+              410
+            ],
+            "size_bytes": 660,
+            "sha256": "48c8ef9476f4ac84939d219cbbb2fe7ef670dc976adc0fc3f706573c10858612",
+            "git_blob": "a98c00a81f5f08317767b5c15e7aac762eda81fa"
+          }
+        },
+        {
+          "definition": "_retain_child_exit",
+          "destination": {
+            "lines": [
+              466,
+              478
+            ],
+            "size_bytes": 693,
+            "sha256": "48795ffcdc812eb5b5e93734b1e1484cace94547a1bf4727df3609f31a5257d8",
+            "git_blob": "58acdeff4f6613444defaa80deb30e9b5112b96e"
+          },
+          "origin": {
+            "definition": "_retain_child_exit",
+            "lines": [
+              413,
+              425
+            ],
+            "size_bytes": 693,
+            "sha256": "48795ffcdc812eb5b5e93734b1e1484cace94547a1bf4727df3609f31a5257d8",
+            "git_blob": "58acdeff4f6613444defaa80deb30e9b5112b96e"
+          }
+        },
+        {
+          "definition": "_cleanup",
+          "destination": {
+            "lines": [
+              481,
+              542
+            ],
+            "size_bytes": 3369,
+            "sha256": "5658afb455d76e47609970c9e99f528a61bd1567caa326ec31098722ae6b7b29",
+            "git_blob": "b9c9fd225b49cd6c01e1ca6770b4d9bd99cd277f"
+          },
+          "origin": {
+            "definition": "_cleanup",
+            "lines": [
+              428,
+              489
+            ],
+            "size_bytes": 3369,
+            "sha256": "a33cb30beda60455ed5a533463b67429e51b8175f2f5bd5b5ad66c5dd0e706da",
+            "git_blob": "7e32201244d0ff6955deb91e718aa81cf0d05cb5"
+          }
+        },
+        {
+          "definition": "_record_secondary_failure",
+          "destination": {
+            "lines": [
+              545,
+              578
+            ],
+            "size_bytes": 1909,
+            "sha256": "f2afb1bf5eacffd45b819d6d7d51947f20daba1889a18ed82519518a3cdb80ab",
+            "git_blob": "92dbb9678d07a53b62f876b8a1893891819e3755"
+          },
+          "origin": {
+            "definition": "_record_secondary_failure",
+            "lines": [
+              492,
+              525
+            ],
+            "size_bytes": 1909,
+            "sha256": "b3003256e35c471c823ec30f2a83038ba2d33c1ca8796ee78c10292214a205d6",
+            "git_blob": "45786473956e68b540b23a694241caff721efc07"
+          }
+        },
+        {
+          "definition": "_allocate_popen",
+          "destination": {
+            "lines": [
+              582,
+              586
+            ],
+            "size_bytes": 263,
+            "sha256": "c527ba3722643efbb96a79a1235c559113930a9c47f285116b00dcb1102564d4",
+            "git_blob": "32553e5e3c13e12cb6a26010f2b116f745c035dc"
+          },
+          "origin": {
+            "definition": "_allocate_popen",
+            "lines": [
+              529,
+              533
+            ],
+            "size_bytes": 263,
+            "sha256": "c527ba3722643efbb96a79a1235c559113930a9c47f285116b00dcb1102564d4",
+            "git_blob": "32553e5e3c13e12cb6a26010f2b116f745c035dc"
+          }
+        },
+        {
+          "definition": "_initialize_popen",
+          "destination": {
+            "lines": [
+              589,
+              590
+            ],
+            "size_bytes": 101,
+            "sha256": "f1fc30a68fefc21dab2e355af207b48c9f4cc35bd1c8fdf3952e4715bb892797",
+            "git_blob": "9c883e8a047e01c9ab9497da152fbd91e8e1cad7"
+          },
+          "origin": {
+            "definition": "_initialize_popen",
+            "lines": [
+              536,
+              537
+            ],
+            "size_bytes": 101,
+            "sha256": "f1fc30a68fefc21dab2e355af207b48c9f4cc35bd1c8fdf3952e4715bb892797",
+            "git_blob": "9c883e8a047e01c9ab9497da152fbd91e8e1cad7"
+          }
+        },
+        {
+          "definition": "_partial_spawn_owned",
+          "destination": {
+            "lines": [
+              593,
+              595
+            ],
+            "size_bytes": 210,
+            "sha256": "f4944b45e4a2dd4f1486af4d595622664799722b2a94ec0e0dc3879a917b8e74",
+            "git_blob": "07d1bcb506ed975a844c55823d7c78e39db242cf"
+          },
+          "origin": {
+            "definition": "_partial_spawn_owned",
+            "lines": [
+              540,
+              542
+            ],
+            "size_bytes": 210,
+            "sha256": "f4944b45e4a2dd4f1486af4d595622664799722b2a94ec0e0dc3879a917b8e74",
+            "git_blob": "07d1bcb506ed975a844c55823d7c78e39db242cf"
+          }
+        },
+        {
+          "definition": "_cleanup_inventory",
+          "destination": {
+            "lines": [
+              598,
+              601
+            ],
+            "size_bytes": 229,
+            "sha256": "795951e9deba8af19b333a40132d5dbc019a57cb1c813532e24ac598aa0e98d8",
+            "git_blob": "b2d6440c819f17074be698d30c98112c3c5971b7"
+          },
+          "origin": {
+            "definition": "_cleanup_inventory",
+            "lines": [
+              545,
+              548
+            ],
+            "size_bytes": 229,
+            "sha256": "bff883e986d91e19bd2772a74da4d7ea25867b7780ac6507acba45c5e37d50f0",
+            "git_blob": "9ecad3eef6f0426e9d7f17f8a6dde9f3c67280e2"
+          }
+        },
+        {
+          "definition": "_cleanup_signal",
+          "destination": {
+            "lines": [
+              604,
+              608
+            ],
+            "size_bytes": 214,
+            "sha256": "e5203d9387924349865ced3b23e6d550dae9314516f307285260f9dc32916343",
+            "git_blob": "7a56cd58ccfd416ba41c4a67753d2f0bef283091"
+          },
+          "origin": {
+            "definition": "_cleanup_signal",
+            "lines": [
+              551,
+              555
+            ],
+            "size_bytes": 214,
+            "sha256": "5722855e99cdf6b1f914870c7e956a82311ffddce2e26b7a50b00bba9c6ebcdd",
+            "git_blob": "90d4049b417c456b77b656fb3706b802639593bc"
+          }
+        },
+        {
+          "definition": "_retained_partial_identity",
+          "destination": {
+            "lines": [
+              611,
+              627
+            ],
+            "size_bytes": 714,
+            "sha256": "1e6e21efd31582f3713f6602e546d60e9e51d3a9ab26ded834979f4b865b2a6a",
+            "git_blob": "bc3698edb381b7ed6bbc4b6a7938ffeee2705178"
+          },
+          "origin": {
+            "definition": "_retained_partial_identity",
+            "lines": [
+              558,
+              574
+            ],
+            "size_bytes": 714,
+            "sha256": "cd1f2533ae4d2350ea48bc2cd4adb95051fe18bad5de78937b2b84a92955e19c",
+            "git_blob": "ff877aa17339d3c12a18ce9b4fa3994368bc839d"
+          }
+        },
+        {
+          "definition": "_emergency_cleanup_kill",
+          "destination": {
+            "lines": [
+              630,
+              655
+            ],
+            "size_bytes": 1244,
+            "sha256": "fe7eb483aaeb944a9c1d603850636947d7e14994b3a54ce9844ca4eac63825c3",
+            "git_blob": "8953a5d647f7f49c5e751ff4a947392fa46b4393"
+          },
+          "origin": {
+            "definition": "_emergency_cleanup_kill",
+            "lines": [
+              577,
+              602
+            ],
+            "size_bytes": 1244,
+            "sha256": "54e0658bf55590646fa16c6d28ab723c9fd8c03d23151ff88f0420ae0bb0b83c",
+            "git_blob": "75ca53c9a3ceff060658530f6bd63a96dd264c49"
+          }
+        },
+        {
+          "definition": "_PreservationStopped",
+          "destination": {
+            "lines": [
+              658,
+              665
+            ],
+            "size_bytes": 566,
+            "sha256": "73e546ed00eb6b3d47c84df104842f4dec0f23c77d4a137276c8d94b503696f1",
+            "git_blob": "0a80844ddf3942e3dfbc76a4a5933690d8bc40c0"
+          },
+          "origin": {
+            "definition": "_PreservationStopped",
+            "lines": [
+              605,
+              612
+            ],
+            "size_bytes": 566,
+            "sha256": "33cc2a270670991ff31613b6f4d99ed6763bacc4f2b66fd042d5af15df0fd365",
+            "git_blob": "546db86703626c3bb6545868e726cbe25e559a10"
+          }
+        },
+        {
+          "definition": "_FailureBoundary",
+          "destination": {
+            "lines": [
+              668,
+              791
+            ],
+            "size_bytes": 5996,
+            "sha256": "0a80939312599e2406676ce18c248995c14304aacf5e7b72c144e9f7f1a554e3",
+            "git_blob": "6a25b319aa1558c4dc0f3c6311d546d945399a49"
+          },
+          "origin": {
+            "definition": "_FailureBoundary",
+            "lines": [
+              615,
+              736
+            ],
+            "size_bytes": 5773,
+            "sha256": "59bf8e74071938216dcb8c8f188c193f67d65489f845f5c9aed434196067e491",
+            "git_blob": "b18f9b7a9deec98fce33fd8d46cc3975637691cf"
+          }
+        },
+        {
+          "definition": "run_cell_child",
+          "destination": {
+            "lines": [
+              794,
+              868
+            ],
+            "size_bytes": 4995,
+            "sha256": "217b04aede5da53d07fade0af5209631555225401d173dd20b7d305e2cf0f461",
+            "git_blob": "12f63e190b7e724b9897ef9dd6442a98dcc58521"
+          },
+          "origin": null
+        },
+        {
+          "definition": "_run_child",
+          "destination": {
+            "lines": [
+              871,
+              1588
+            ],
+            "size_bytes": 42239,
+            "sha256": "7e3185505a8be3634dee9635c7cea1fd948fc3e25cd407f3fac87dcc2881ef74",
+            "git_blob": "63b034fc0f14bf027d6f7c3f05d68d669f1986bd"
+          },
+          "origin": {
+            "definition": "run_child",
+            "lines": [
+              739,
+              1440
+            ],
+            "size_bytes": 41008,
+            "sha256": "de8e27ac3c4247d9498a151f81fe102f0fdf827713f09093e6cce82232c56685",
+            "git_blob": "28756441f48626ab66c1fef3f0511752b677e752"
+          }
+        }
+      ]
+    },
+    {
+      "path": "scripts/worker38/cell.py",
+      "size_bytes": 18536,
+      "sha256": "d09b54224b927943c4f3c6390366fdecd0f2e970501a3b903bab6b71ca0d2b5d",
+      "git_blob": "ca4fc7b1ac985a9458c81d40339ac9ef0d9fab03",
+      "static_AST_parse": "accepted",
+      "origin": {
+        "path": "/workspace/shared/worker36-recovery-r1/candidate/scripts/worker36/cell.py",
+        "size_bytes": 16946,
+        "sha256": "dc2f62dca1cb4f7b0d862ce01b2c3733b3843b1983f1dc27ae414ed823422df6",
+        "git_blob": "ee78a24c0ed99baed319fd46453815581ec04abf"
+      },
+      "definition_map": [
+        {
+          "definition": "_admitted_attempt_path",
+          "destination": {
+            "lines": [
+              18,
+              30
+            ],
+            "size_bytes": 814,
+            "sha256": "96eecb5d72c0b80b4346131c9e414f4d128534b1a55a37cba98305b236800551",
+            "git_blob": "549d38afb8a1b279d294c545bcd59c5d6ef8aebd"
+          },
+          "origin": null
+        },
+        {
+          "definition": "equality",
+          "destination": {
+            "lines": [
+              33,
+              35
+            ],
+            "size_bytes": 203,
+            "sha256": "aa32a8062fe8d7bed4fa978dae9a0ce40eccaab5a7119fd0a05989c6306211f1",
+            "git_blob": "a71f39213cdf4cb17826cc2de115eb1ff48c6f16"
+          },
+          "origin": {
+            "definition": "equality",
+            "lines": [
+              17,
+              19
+            ],
+            "size_bytes": 203,
+            "sha256": "aa32a8062fe8d7bed4fa978dae9a0ce40eccaab5a7119fd0a05989c6306211f1",
+            "git_blob": "a71f39213cdf4cb17826cc2de115eb1ff48c6f16"
+          }
+        },
+        {
+          "definition": "check_boundary",
+          "destination": {
+            "lines": [
+              38,
+              45
+            ],
+            "size_bytes": 576,
+            "sha256": "166790376fff7922045456c187358df2b6280e9e8a2fddc8cc9ac6926f4b3feb",
+            "git_blob": "d0724c5bd39a7dd2a3de2c1fe33a314555e79aa1"
+          },
+          "origin": {
+            "definition": "check_boundary",
+            "lines": [
+              22,
+              29
+            ],
+            "size_bytes": 576,
+            "sha256": "166790376fff7922045456c187358df2b6280e9e8a2fddc8cc9ac6926f4b3feb",
+            "git_blob": "d0724c5bd39a7dd2a3de2c1fe33a314555e79aa1"
+          }
+        },
+        {
+          "definition": "run_cell",
+          "destination": {
+            "lines": [
+              48,
+              282
+            ],
+            "size_bytes": 16258,
+            "sha256": "6e86de3f8bfa07f94f03618f6744be7dafcec0bebed460a70a79bf4a6bdcd3e4",
+            "git_blob": "9f2bfae5cfcac681914ef455b738104394dff8cd"
+          },
+          "origin": {
+            "definition": "run_cell",
+            "lines": [
+              32,
+              255
+            ],
+            "size_bytes": 15526,
+            "sha256": "693ca66b2d7d0594480ccc7a3bb4a65ec5b55d6ae4cc39696b2629a836b0ce59",
+            "git_blob": "9a38ee39f02853f87001ceb216e54198dbe28eab"
+          }
+        }
+      ]
+    },
+    {
+      "path": "tests/test_worker38_supervision.py",
+      "size_bytes": 96232,
+      "sha256": "4d78d471619437c622990534337b298faafd931e364e489a3345011da54cf7fd",
+      "git_blob": "e055a553e6b05cde8d01183a79137818e65d1200",
+      "static_AST_parse": "accepted",
+      "origin": {
+        "path": "/workspace/shared/worker36-recovery-r1/candidate/tests/test_worker36_supervision.py",
+        "size_bytes": 91927,
+        "sha256": "b6b951ab29a0b29408475627a0c3cf03b1169b71c5f5064b7bb4be3a51dce1f5",
+        "git_blob": "39c7b35db81a127be62ea6db3b15eba6f4c69944"
+      },
+      "registered_method_count": 52,
+      "exact_selector_set_matches_registered_plan": true
+    },
+    {
+      "path": "tests/test_worker38_cell_integration.py",
+      "size_bytes": 39173,
+      "sha256": "0fc276cef0ee61c17e797a4928dddc7dda90d83a8f1f11ceea6796ec70f4e5ca",
+      "git_blob": "cf8ace11acb037230c4a004d016b294e631d26e5",
+      "static_AST_parse": "accepted",
+      "origin": {
+        "path": "/workspace/shared/worker36-recovery-r1/candidate/tests/test_worker36_cell_integration.py",
+        "size_bytes": 38969,
+        "sha256": "90f62b6be63efa738c00953af04be73e89b8f4263aa3c53b95f497025c67c7ba",
+        "git_blob": "623667d2ddceb49eec29830fccc41021a7dccd95"
+      },
+      "registered_method_count": 22,
+      "exact_selector_set_matches_registered_plan": true
+    }
+  ],
+  "interfaces": {
+    "run_cell_child": "run_cell_child(attempt,index,env,phase,*,expected_inherited_limits,output_budget_check,output_budget_exceptions,on_terminal_failure)",
+    "fixed_command": [
+      "canonical verified WORKER38_EXECUTABLE",
+      "-B",
+      "-s",
+      "resolved scripts/run_worker38_synthetic.py",
+      "_cell",
+      "--attempt",
+      "exact canonical admitted attempt",
+      "--cell",
+      "integer1..20"
+    ],
+    "fixed_limits": {
+      "wall_seconds": 720,
+      "cpu_seconds": 720,
+      "address_space_bytes": 536870912,
+      "call_wall_seconds": 360,
+      "call_cpu_seconds": 360,
+      "output_log_limit_bytes": 66060288
+    },
+    "phase": "PhaseBudget.for_measurement(original_wall_anchor): fixed1800wall/CPU; full fresh coordinator/reaped-child lifetime CPU baseline0; prior admitted wall anchor preserved",
+    "process_identity": "process_identity(pid) -> (pid,start_ticks), live observation only",
+    "receipt_addition": [
+      "supervisor_pid",
+      "supervisor_start_ticks"
+    ],
+    "environment_dependencies": [
+      "WORKER38_EXECUTABLE",
+      "WORKER38_LIBRARY",
+      "RUNNER_TOOL_CACHE",
+      "GITHUB_RUN_ID",
+      "GITHUB_RUN_ATTEMPT"
+    ],
+    "positive_environment_validation": "common.clean_environment(env,loader=observed_loader) must exactly reproduce the supplied explicit map",
+    "private_test_seam": "_run_child retains the generic literal-test parameter surface; production has only run_cell_child and no environment test switch",
+    "native_batch_owner_input": "test_worker38_supervision.NATIVE_BATCH_DEADLINE_MONOTONIC assigned once from original batch deadline before any run_stub; module retains and rejects changes to first observed original cutoff"
+  },
+  "registered_method_counts": {
+    "supervision": 52,
+    "cell_integration": 22,
+    "total": 74,
+    "added_methods": 0
+  },
+  "selectors": [
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S01_zero_exit_records_process_only",
+      "origin_source_span_sha256": "2166330b97ceb93a3817826208cf7653b6dbe5792b83a37d3ca761b761f78f5d",
+      "origin_lines": [
+        364,
+        374
+      ],
+      "current": {
+        "lines": [
+          432,
+          442
+        ],
+        "size_bytes": 675,
+        "sha256": "2166330b97ceb93a3817826208cf7653b6dbe5792b83a37d3ca761b761f78f5d",
+        "git_blob": "1bd230ebd5d1aaa84bd3de257bb7a990468c32a9"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S02_nonzero_and_signal_are_explicit",
+      "origin_source_span_sha256": "8cbd59dd986ad35ef4a3d29d71456f972a502694e34c497d7b6be9688bc1a25d",
+      "origin_lines": [
+        376,
+        386
+      ],
+      "current": {
+        "lines": [
+          444,
+          454
+        ],
+        "size_bytes": 708,
+        "sha256": "8cbd59dd986ad35ef4a3d29d71456f972a502694e34c497d7b6be9688bc1a25d",
+        "git_blob": "e622166d85958438356021652840e41a5eb37d52"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S03_whole_cell_wall_works_without_state",
+      "origin_source_span_sha256": "edb215c6e481eb6d0f7a2cb515a84290a8d7008463ae9bac1f7c14bb8b7177db",
+      "origin_lines": [
+        388,
+        391
+      ],
+      "current": {
+        "lines": [
+          456,
+          459
+        ],
+        "size_bytes": 243,
+        "sha256": "b6011d4edd392b558a60a60a0ed502bb1a98ebf422e83ea14bf2b9c7f2bcdf13",
+        "git_blob": "b6bbd405dd081168bef444e1c6638ba99f8a2288"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S04_active_hang_with_profiles_suppressed",
+      "origin_source_span_sha256": "5bd571b76b37146137519041c9b91f393f9b445dea81968c9362c0ea7478695d",
+      "origin_lines": [
+        393,
+        396
+      ],
+      "current": {
+        "lines": [
+          461,
+          464
+        ],
+        "size_bytes": 324,
+        "sha256": "04e6d00c6a617c2c09a11ae5fbf9f5331df127e13e00923090cc602dbb721ea9",
+        "git_blob": "e18d97d37f7338895d93f36d3431bec71e9ca58e"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S05_live_cpu_not_just_reaped_children",
+      "origin_source_span_sha256": "9d032dc2351a9e0a70ec2f1e4340e5338e6e538cf25ba09a73fed4af9a22cbe2",
+      "origin_lines": [
+        398,
+        402
+      ],
+      "current": {
+        "lines": [
+          466,
+          470
+        ],
+        "size_bytes": 396,
+        "sha256": "743cccd7e9b5ba96fd96c99c20d52929565d1bcab178adefcd5761ed7ca471a0",
+        "git_blob": "84031663897c10273ba8d926a25dc102d4f2ac9b"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S06_whole_cell_cpu_without_state",
+      "origin_source_span_sha256": "9aac376a51cf46855c7f625cb6996752076322b98d497a97de74bf8e6392ec14",
+      "origin_lines": [
+        404,
+        406
+      ],
+      "current": {
+        "lines": [
+          472,
+          474
+        ],
+        "size_bytes": 196,
+        "sha256": "9d79d335aa291aaea20c02718fff6bcf19467ad100966a70fcdcbdd7479bb1eb",
+        "git_blob": "b8897430c1cb7361b2284506c2d2ae0183feffa9"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S07_phase_wall_blocks_or_terminates",
+      "origin_source_span_sha256": "684ac95f72a4579f8b9be49b2f3bec54efad34bb24473e1d35ee3bb8ce6d8055",
+      "origin_lines": [
+        408,
+        417
+      ],
+      "current": {
+        "lines": [
+          476,
+          485
+        ],
+        "size_bytes": 621,
+        "sha256": "d04487b56fc567c3d30fbfb40ab4f734d588ee034083820f55f07af7399a504e",
+        "git_blob": "1b5e54421362f4cb02d317c2e6d7dcfcc121ca86"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S08_phase_parent_reaped_live_terms",
+      "origin_source_span_sha256": "269e23649f8d19bdee4e8a488ca14f4307200b199dcf5a8426b3011dfffbc94d",
+      "origin_lines": [
+        419,
+        440
+      ],
+      "current": {
+        "lines": [
+          487,
+          508
+        ],
+        "size_bytes": 1345,
+        "sha256": "19539ae5dbf5a50ce433612edc110348458ce19930fe815fe6c85e0ae12523db",
+        "git_blob": "7528463df5efd03031e3aaa0bcd034247003dad0"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S09_term_ignoring_escaped_descendant_is_killed",
+      "origin_source_span_sha256": "8e8de760cca325bd126461a75e5b02b0bfd54185ca322903e6b02b2e8335dcb3",
+      "origin_lines": [
+        442,
+        457
+      ],
+      "current": {
+        "lines": [
+          510,
+          526
+        ],
+        "size_bytes": 663,
+        "sha256": "ce7714579d97b91a6a608f1b7ed14e3be63f8b9dd2f1af8c212f7228cb1c3ba4",
+        "git_blob": "a1bd38282efca9386245b863f0ba3aa456fe109d"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S10_child_exit_leaving_descendant_is_incomplete",
+      "origin_source_span_sha256": "d99e7de87cc251ef32fb6ecd325a5f7c83af626f554ec7cd2ca98686098b705f",
+      "origin_lines": [
+        459,
+        474
+      ],
+      "current": {
+        "lines": [
+          528,
+          544
+        ],
+        "size_bytes": 716,
+        "sha256": "aee48fdd5c7fcc17b977cab462de7f30c9fc0a9cbb88b16fd6ba1b2dfd63d3ca",
+        "git_blob": "09961634accd5883c27b55f374cf1a4fec578786"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S11_exact_address_space_and_inherited_limits",
+      "origin_source_span_sha256": "9d51e2efcd757fe206396e122948b6efaab70507eb82a8b87ad24b70033942db",
+      "origin_lines": [
+        476,
+        502
+      ],
+      "current": {
+        "lines": [
+          546,
+          572
+        ],
+        "size_bytes": 1693,
+        "sha256": "9d51e2efcd757fe206396e122948b6efaab70507eb82a8b87ad24b70033942db",
+        "git_blob": "c8cecda2c7606feab3cf5afc14d9f8802e92aa9c"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S12_proc_or_subreaper_unavailable_blocks_spawn",
+      "origin_source_span_sha256": "cddec21ff3fa605ca589d22d301a3c03a3f3fe096e8a3ad83ea0f44572c16793",
+      "origin_lines": [
+        504,
+        510
+      ],
+      "current": {
+        "lines": [
+          574,
+          580
+        ],
+        "size_bytes": 489,
+        "sha256": "cddec21ff3fa605ca589d22d301a3c03a3f3fe096e8a3ad83ea0f44572c16793",
+        "git_blob": "f2e2cf61c61ef030d8658d77c5c12c5be07ba594"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S13_output_overflow_preserves_bounded_prefix",
+      "origin_source_span_sha256": "153cd3dcb44ab4e4a37f26ba96df861062f1210902aad56d5e8f8932a3104961",
+      "origin_lines": [
+        512,
+        545
+      ],
+      "current": {
+        "lines": [
+          582,
+          615
+        ],
+        "size_bytes": 1713,
+        "sha256": "f5807cf71af4460ad928b318a25bcb74bd76fb6c7efc28ff05fa98fe1640cf8c",
+        "git_blob": "97195ac0cee4f798fc48ea0e62f0c7545cd88965"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S14_malformed_state_variants_fail_closed",
+      "origin_source_span_sha256": "b8055fedeb997d4ac449422181491ae92b43281c3357482f7cd86b94c1c313ff",
+      "origin_lines": [
+        547,
+        563
+      ],
+      "current": {
+        "lines": [
+          617,
+          633
+        ],
+        "size_bytes": 1145,
+        "sha256": "4726fef1d982ff3ec3bc88d9ec537b7707885766a6e9a7c0289bb6b067df2b04",
+        "git_blob": "820903f6b76d510001e2a9501b6e61992eba3a7f"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S15_valid_transition_and_admission_rejections",
+      "origin_source_span_sha256": "38f9ff0f9f7af3c2dee54aa26d558236f2c2c91fec8eb057e00203f42c417e28",
+      "origin_lines": [
+        565,
+        586
+      ],
+      "current": {
+        "lines": [
+          635,
+          656
+        ],
+        "size_bytes": 1466,
+        "sha256": "38f9ff0f9f7af3c2dee54aa26d558236f2c2c91fec8eb057e00203f42c417e28",
+        "git_blob": "422cf7f635d172c1829f4c1a0759b7e8e7af203f"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S16_injected_io_spawn_observation_and_cleanup_failures",
+      "origin_source_span_sha256": "e42121baecbf9f540f8d703a08bd8fc451b3164c7be7700ecc3b495ce588f04c",
+      "origin_lines": [
+        588,
+        634
+      ],
+      "current": {
+        "lines": [
+          658,
+          704
+        ],
+        "size_bytes": 2796,
+        "sha256": "715424bef14d5b7e6265e413b36a00eb831a41fad825af3038b82e70014ea94b",
+        "git_blob": "ebd98fa6949febfd9cec3fb024dae23476cd4b51"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_P2_02_resource_survives_subreaper_restoration_failure",
+      "origin_source_span_sha256": "d2eeb9555b87aa798c2632501e94cc19c2b6c90f3dda68dbf5cab966d38b7399",
+      "origin_lines": [
+        651,
+        662
+      ],
+      "current": {
+        "lines": [
+          721,
+          732
+        ],
+        "size_bytes": 892,
+        "sha256": "dafa794fb9701f13c160b20fc5dd049d652cd7ab08da2455e62b62edc3ad4847",
+        "git_blob": "f64e8d04c75fe6788b9c8f3856c8c63fd91d9009"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_P2_03_resource_survives_deferred_log_failure",
+      "origin_source_span_sha256": "5e94bcafe238794f03f5d92fc9524fa2c2fdb5a165947c0ad529dd9860c4439f",
+      "origin_lines": [
+        664,
+        679
+      ],
+      "current": {
+        "lines": [
+          734,
+          749
+        ],
+        "size_bytes": 1168,
+        "sha256": "6c350dbf761bebbfe9d0a66ffd1819410be97927d1e9f2c4c49bf2893a4fcf8a",
+        "git_blob": "d7b947943fcfb09374c8639c435730f573cebbe7"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_P2_04_zero_exit_with_restoration_failure_is_not_completed",
+      "origin_source_span_sha256": "e7c333c1fc0af3a012a30072af980597fb9cfbef207eb868f832139c64b418d0",
+      "origin_lines": [
+        681,
+        690
+      ],
+      "current": {
+        "lines": [
+          751,
+          760
+        ],
+        "size_bytes": 718,
+        "sha256": "e7c333c1fc0af3a012a30072af980597fb9cfbef207eb868f832139c64b418d0",
+        "git_blob": "238313c23fd68d2c80e3bbf60c4c982b70f2977f"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_P2_05_final_output_budget_keeps_primary_zero_exit",
+      "origin_source_span_sha256": "77121d809e72ee8734f65ccfb49acc47bb521f6e7467c8367117d13b0146d56b",
+      "origin_lines": [
+        692,
+        716
+      ],
+      "current": {
+        "lines": [
+          762,
+          786
+        ],
+        "size_bytes": 1495,
+        "sha256": "77121d809e72ee8734f65ccfb49acc47bb521f6e7467c8367117d13b0146d56b",
+        "git_blob": "1e83816b85625067d27ecc502d86ec21d6746e1e"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_P2_06_secondary_failure_precedence_is_lossless",
+      "origin_source_span_sha256": "3a77b7bf23861978b69edc79dc7b886267103afc2cb234cb33ac6224f5c15ff2",
+      "origin_lines": [
+        718,
+        740
+      ],
+      "current": {
+        "lines": [
+          788,
+          810
+        ],
+        "size_bytes": 1832,
+        "sha256": "3a77b7bf23861978b69edc79dc7b886267103afc2cb234cb33ac6224f5c15ff2",
+        "git_blob": "0927885137e84b2f842a4c75f8dbedc207bcb2a9"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_F4_01_postspawn_memory_is_resource",
+      "origin_source_span_sha256": "9a2a16e994dac6e27c6ffbe947da5f5773dc60fce581027124f8ee4f34053342",
+      "origin_lines": [
+        743,
+        749
+      ],
+      "current": {
+        "lines": [
+          813,
+          819
+        ],
+        "size_bytes": 521,
+        "sha256": "17b69f7641e6c0f1c369cc3391fb35916657359d53da4693e0b48714f38f40e0",
+        "git_blob": "a9d617fe315654873e2d0ba409a2fbb46221712b"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_F4_02_secondary_memory_phases_preserve_exit",
+      "origin_source_span_sha256": "a85c9945c22b00300f5f0c289d77681a1a8f9d4648e0cfb4067708555a10f810",
+      "origin_lines": [
+        751,
+        808
+      ],
+      "current": {
+        "lines": [
+          821,
+          878
+        ],
+        "size_bytes": 3487,
+        "sha256": "a85c9945c22b00300f5f0c289d77681a1a8f9d4648e0cfb4067708555a10f810",
+        "git_blob": "86b7cf649c6b09d29dd54edac30a2fc2aaf4fbe8"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_F4_03_exit65_survives_resource_accounting_faults",
+      "origin_source_span_sha256": "d520595389c68dbf1302325af2a8ab71df1b68999c803010098fe755463a56a6",
+      "origin_lines": [
+        810,
+        866
+      ],
+      "current": {
+        "lines": [
+          880,
+          936
+        ],
+        "size_bytes": 3555,
+        "sha256": "d520595389c68dbf1302325af2a8ab71df1b68999c803010098fe755463a56a6",
+        "git_blob": "62e80d0849419f2fe17be9e3e45c8b03ac654444"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_F4_04_committed_marker_integrity_matrix",
+      "origin_source_span_sha256": "5aaec93284eded54ef08a72a5390bb699edb0692d0f40ae9e0daab47b5f734af",
+      "origin_lines": [
+        868,
+        889
+      ],
+      "current": {
+        "lines": [
+          938,
+          959
+        ],
+        "size_bytes": 1184,
+        "sha256": "5aaec93284eded54ef08a72a5390bb699edb0692d0f40ae9e0daab47b5f734af",
+        "git_blob": "75567132a28ef66ef330c5ec2e4da44927188b08"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_F4_05_unavailable_observations_are_not_corruption",
+      "origin_source_span_sha256": "7677870e72f5cda21e3d71131f645d1e007b74f56283d28a45761437555db075",
+      "origin_lines": [
+        891,
+        909
+      ],
+      "current": {
+        "lines": [
+          961,
+          979
+        ],
+        "size_bytes": 1105,
+        "sha256": "faa5c244917954cfae74944c31992eb769c239c50c8ab56226f44ea0b81b04b2",
+        "git_blob": "6d6dc92f7688cb97533efe9dd86dead7551aefe2"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_F4_06_marker_corruption_dominates_cleanup_memory",
+      "origin_source_span_sha256": "6fce7ccafd28177c836b0e0235e100f2f35e79b9f8b983be44574a4e016fbc67",
+      "origin_lines": [
+        911,
+        931
+      ],
+      "current": {
+        "lines": [
+          981,
+          1001
+        ],
+        "size_bytes": 1181,
+        "sha256": "6fb75f62b047f9a7f187c5f85ea7332254506a122e75f9be510a2a82fed0011b",
+        "git_blob": "c51f859886b32de2e62dfb4e0c2930e0d1061db0"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_F5_01_oversized_integer_clocks_are_integrity_failures",
+      "origin_source_span_sha256": "5ca7e8d527f5ae6c14c2e891ecd2bd9a0b1569faab8b883cabff01b94e76dbfe",
+      "origin_lines": [
+        934,
+        948
+      ],
+      "current": {
+        "lines": [
+          1004,
+          1018
+        ],
+        "size_bytes": 1060,
+        "sha256": "5ca7e8d527f5ae6c14c2e891ecd2bd9a0b1569faab8b883cabff01b94e76dbfe",
+        "git_blob": "5545bbe8b18bd4bb892f4c2ec248883576dadcb4"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_F5_02_constructed_recursion_errors_are_resource_failures",
+      "origin_source_span_sha256": "be9d06bd8a35e514c0887c11e99788c6a5650fda9880ffea6be45dbcabad81b3",
+      "origin_lines": [
+        950,
+        969
+      ],
+      "current": {
+        "lines": [
+          1020,
+          1039
+        ],
+        "size_bytes": 1480,
+        "sha256": "be9d06bd8a35e514c0887c11e99788c6a5650fda9880ffea6be45dbcabad81b3",
+        "git_blob": "57669286ca6faf6849dff89b8f888b62c55209ae"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S30_timeout_handler_diagnostic_is_preserved",
+      "origin_source_span_sha256": "da4edaca224f2f6c998966d4ba01fd78682fdfeb29fb1a65c4e7c25b7e284e3e",
+      "origin_lines": [
+        972,
+        993
+      ],
+      "current": {
+        "lines": [
+          1042,
+          1063
+        ],
+        "size_bytes": 1042,
+        "sha256": "aea3c90f3a104ac5053d2285c4e5182383a4c8d80f17f1da72517a1997f0d6d3",
+        "git_blob": "0a357fd03e34a1144a2c17c0755e6fde134c813a"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S31_timeout_handler_respects_original_output_cap",
+      "origin_source_span_sha256": "8a64aaa2663dab5150223992d9c88923d5931e4c3c8c42c7557e1d3076ecb3d2",
+      "origin_lines": [
+        995,
+        1021
+      ],
+      "current": {
+        "lines": [
+          1065,
+          1091
+        ],
+        "size_bytes": 1401,
+        "sha256": "ef4f815b65f2c64d0b981860a41aae6e669e74797a6dcfe1f033acef615baab5",
+        "git_blob": "be0e22c0cbd93e16ed6fd094c0580aaf7e4881cf"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S32_first_resource_failure_precedes_cleanup_and_late_fsync",
+      "origin_source_span_sha256": "23b2f257a60061dc431363bae9b19f896b9dcfeba3ccac98ad55c4b8405751e2",
+      "origin_lines": [
+        1037,
+        1052
+      ],
+      "current": {
+        "lines": [
+          1107,
+          1122
+        ],
+        "size_bytes": 1013,
+        "sha256": "23b2f257a60061dc431363bae9b19f896b9dcfeba3ccac98ad55c4b8405751e2",
+        "git_blob": "72bd770a8a34c86bd62a552020e06bd8a4d60333"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S33_expiry_inside_cleanup_keeps_original_deadline",
+      "origin_source_span_sha256": "00bca68d7e1cdb3053ab7a39d330d01ef10227cc161165343b67e6bfb6e4862c",
+      "origin_lines": [
+        1054,
+        1066
+      ],
+      "current": {
+        "lines": [
+          1124,
+          1136
+        ],
+        "size_bytes": 835,
+        "sha256": "00bca68d7e1cdb3053ab7a39d330d01ef10227cc161165343b67e6bfb6e4862c",
+        "git_blob": "efb3a3eeed1fd44db991d8099b7d149388771d81"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S34_observed_exit65_survives_unconfirmed_callback",
+      "origin_source_span_sha256": "003fe875130860a4f0b20571f64fe6d6111d3ce3a0f113e56a77cfe776e3b448",
+      "origin_lines": [
+        1068,
+        1082
+      ],
+      "current": {
+        "lines": [
+          1138,
+          1152
+        ],
+        "size_bytes": 976,
+        "sha256": "003fe875130860a4f0b20571f64fe6d6111d3ce3a0f113e56a77cfe776e3b448",
+        "git_blob": "f3ee05c63228da8fb03159a8d1ea99b9c4c67df6"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S35_success_has_clean_boundary_spawn_and_accounting",
+      "origin_source_span_sha256": "78f25b4c62347616d990932e9a7ec15dc25d2083f057ef8ef7125f0393dbf7db",
+      "origin_lines": [
+        1084,
+        1099
+      ],
+      "current": {
+        "lines": [
+          1154,
+          1169
+        ],
+        "size_bytes": 1156,
+        "sha256": "78f25b4c62347616d990932e9a7ec15dc25d2083f057ef8ef7125f0393dbf7db",
+        "git_blob": "b7eeeaf5439366ab00183031a9b99b6c7c53089e"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S36_first_fsync_failure_has_only_preexpiry_fallback",
+      "origin_source_span_sha256": "31024334d529a7f3dcebcf253485e3423ff5e180a02bf95a12917de02c38f084",
+      "origin_lines": [
+        1101,
+        1116
+      ],
+      "current": {
+        "lines": [
+          1171,
+          1186
+        ],
+        "size_bytes": 1066,
+        "sha256": "31024334d529a7f3dcebcf253485e3423ff5e180a02bf95a12917de02c38f084",
+        "git_blob": "9e6f52aa0234426e931571a036ef2557386d0e7c"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S37_finally_entry_sentinel_cannot_bypass_teardown",
+      "origin_source_span_sha256": "893bca21f943a527ec81abfa2894dabab03341ec96db31a1bd6a100bb29832ea",
+      "origin_lines": [
+        1118,
+        1136
+      ],
+      "current": {
+        "lines": [
+          1188,
+          1206
+        ],
+        "size_bytes": 1142,
+        "sha256": "893bca21f943a527ec81abfa2894dabab03341ec96db31a1bd6a100bb29832ea",
+        "git_blob": "c81cfe5505c0dbb88b1a33df0500f92b466d3f8c"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S38_first_boundary_bookkeeping_never_grants_late_authority",
+      "origin_source_span_sha256": "fe3683b0dd27beeeb5130612be1ab67b1a5435123a91cbc9db7383fa10796ae4",
+      "origin_lines": [
+        1138,
+        1163
+      ],
+      "current": {
+        "lines": [
+          1208,
+          1233
+        ],
+        "size_bytes": 2053,
+        "sha256": "fe3683b0dd27beeeb5130612be1ab67b1a5435123a91cbc9db7383fa10796ae4",
+        "git_blob": "154408c0178b26883c0cfe980d9b7b4a5b9b5066"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S39_postcleanup_bookkeeping_cannot_skip_remaining_teardown",
+      "origin_source_span_sha256": "3e212a4094cb9483d3a848aba9615ac1a3f3bff71b4ba84adaa7b3dd9b63c88e",
+      "origin_lines": [
+        1165,
+        1195
+      ],
+      "current": {
+        "lines": [
+          1235,
+          1265
+        ],
+        "size_bytes": 1916,
+        "sha256": "3e212a4094cb9483d3a848aba9615ac1a3f3bff71b4ba84adaa7b3dd9b63c88e",
+        "git_blob": "2304ce3181096c9b48431fb4520589e3932721c1"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S40_partial_initializer_retains_published_pid",
+      "origin_source_span_sha256": "13816cd7081ccf0d7597bdf1aa69fd7df2478f1438ed515551187bc9e8c933f2",
+      "origin_lines": [
+        1213,
+        1230
+      ],
+      "current": {
+        "lines": [
+          1283,
+          1300
+        ],
+        "size_bytes": 1099,
+        "sha256": "13816cd7081ccf0d7597bdf1aa69fd7df2478f1438ed515551187bc9e8c933f2",
+        "git_blob": "9c3bc50e3803318822ee921caadb985f0af7292d"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S41_missing_pid_selects_direct_wait_root_and_stable_identities",
+      "origin_source_span_sha256": "57b991e732b7be1fb0b480197ebb671efc99257adefb17e627cf72f1d579003b",
+      "origin_lines": [
+        1232,
+        1253
+      ],
+      "current": {
+        "lines": [
+          1302,
+          1323
+        ],
+        "size_bytes": 1445,
+        "sha256": "57b991e732b7be1fb0b480197ebb671efc99257adefb17e627cf72f1d579003b",
+        "git_blob": "3a3b7ebe0adf1396b51cc8974f47a48bfcb2b3c8"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S42_missing_pid_unavailable_inventory_stays_unknown",
+      "origin_source_span_sha256": "c5d3769ad3fb99c84d5adae84d7a5f53b668af8fc916be4db044b69bc2330766",
+      "origin_lines": [
+        1255,
+        1274
+      ],
+      "current": {
+        "lines": [
+          1325,
+          1344
+        ],
+        "size_bytes": 1207,
+        "sha256": "c5d3769ad3fb99c84d5adae84d7a5f53b668af8fc916be4db044b69bc2330766",
+        "git_blob": "e757bb520dd6cfd770b38d5211f5dd05d6ef5250"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S43_empty_current_inventory_does_not_infer_never_created",
+      "origin_source_span_sha256": "c6940230248a53ddc6fda11c1ddefca34ebafc4874957815f2a9532069825b6a",
+      "origin_lines": [
+        1276,
+        1290
+      ],
+      "current": {
+        "lines": [
+          1346,
+          1360
+        ],
+        "size_bytes": 802,
+        "sha256": "c6940230248a53ddc6fda11c1ddefca34ebafc4874957815f2a9532069825b6a",
+        "git_blob": "1deeb608ea52d36d99367e0808d900a4e1685444"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S44_partial_spawn_expiry_keeps_original_cleanup_cutoff",
+      "origin_source_span_sha256": "e6832126ce4fc05c3c14ecc627ef170eeb0c674559b72bab70ab5ac4ce4601f8",
+      "origin_lines": [
+        1292,
+        1306
+      ],
+      "current": {
+        "lines": [
+          1362,
+          1376
+        ],
+        "size_bytes": 856,
+        "sha256": "e6832126ce4fc05c3c14ecc627ef170eeb0c674559b72bab70ab5ac4ce4601f8",
+        "git_blob": "98280b94c6d8d7d137cedad346b0be6f498e101e"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S45_retained_identity_fallback_keeps_typed_causes_and_lower_bounds",
+      "origin_source_span_sha256": "895f76f82d4258a4b77ceee5ef06a2a66e2f6ec0dad4c7fe721d3046cbb3dd12",
+      "origin_lines": [
+        1308,
+        1337
+      ],
+      "current": {
+        "lines": [
+          1378,
+          1407
+        ],
+        "size_bytes": 2357,
+        "sha256": "895f76f82d4258a4b77ceee5ef06a2a66e2f6ec0dad4c7fe721d3046cbb3dd12",
+        "git_blob": "8a91acb6e41fd7cd495a85db85853597bcc15dc5"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S46_root_identity_precedes_first_wait_even_for_fast_exit",
+      "origin_source_span_sha256": "78df5331694380d39f04dbe7a436aa72a1afcc3f537474aa567e4b5235d7a8c3",
+      "origin_lines": [
+        1347,
+        1377
+      ],
+      "current": {
+        "lines": [
+          1417,
+          1447
+        ],
+        "size_bytes": 2068,
+        "sha256": "f2036249ad19dfcb634bd7d4ee07c4808f28890bed983ee96767fe02bf8c7700",
+        "git_blob": "875783fe3495d6bff089267bbd2be05de5b64a74"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S47_reused_root_group_and_baseline_do_not_confer_ownership",
+      "origin_source_span_sha256": "ce36b60658bbfb2c413a8c0b0823cbc10fc9648aa126fdf6915028bd6648eee1",
+      "origin_lines": [
+        1379,
+        1404
+      ],
+      "current": {
+        "lines": [
+          1449,
+          1474
+        ],
+        "size_bytes": 1820,
+        "sha256": "ce36b60658bbfb2c413a8c0b0823cbc10fc9648aa126fdf6915028bd6648eee1",
+        "git_blob": "6507daba29d68b9eb676d48a12d7c1fe3134503d"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S48_descendant_requires_current_original_parent_identity",
+      "origin_source_span_sha256": "1664022621a38705a0b4bc86c29a51ca9408e370b75e68b2a24a15ac6efaa452",
+      "origin_lines": [
+        1406,
+        1421
+      ],
+      "current": {
+        "lines": [
+          1476,
+          1491
+        ],
+        "size_bytes": 1288,
+        "sha256": "1664022621a38705a0b4bc86c29a51ca9408e370b75e68b2a24a15ac6efaa452",
+        "git_blob": "837e8e87ba891a6c091cef2cbbc5feafbd83b40b"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S49_pidfd_pins_target_across_fixed_reuse_windows",
+      "origin_source_span_sha256": "d207d104364bb6c5233b4a78120fce120c0dcad1de1f5e45a48e642946c69ecf",
+      "origin_lines": [
+        1423,
+        1449
+      ],
+      "current": {
+        "lines": [
+          1493,
+          1519
+        ],
+        "size_bytes": 2052,
+        "sha256": "d207d104364bb6c5233b4a78120fce120c0dcad1de1f5e45a48e642946c69ecf",
+        "git_blob": "f94e7d8f02d58fc5416fa8ee5f2571b26034d27f"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S50_normal_and_emergency_inventory_failure_keep_retained_targets",
+      "origin_source_span_sha256": "000e1fb43eba691e61238a805556f422db5c0b980c191b59c0dfa996f460516f",
+      "origin_lines": [
+        1451,
+        1498
+      ],
+      "current": {
+        "lines": [
+          1521,
+          1568
+        ],
+        "size_bytes": 3373,
+        "sha256": "b814d79cb466f28f1934554ecd4d0bd018edbf90b33a57a0f700301efb6ca04f",
+        "git_blob": "7c44a6c31c9e330e22fee823c40b1f8e10ca6723"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S51_normal_spawn_missing_root_proof_is_incomplete",
+      "origin_source_span_sha256": "fd1e7ee2059361fbbd83aa86a1567cbd975a7afc30f028f5c5e77ce0c62886f7",
+      "origin_lines": [
+        1500,
+        1531
+      ],
+      "current": {
+        "lines": [
+          1570,
+          1601
+        ],
+        "size_bytes": 2139,
+        "sha256": "fd1e7ee2059361fbbd83aa86a1567cbd975a7afc30f028f5c5e77ce0c62886f7",
+        "git_blob": "158cedfc3634ca6d9a9d697e677b931e5e9609b6"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_supervision.py:SupervisionStubTests.test_S52_pidfd_prerequisite_and_close_fail_closed",
+      "origin_source_span_sha256": "aca1d7ed88f85daededfd5fd230eca4850894a96b708250e804c9f61bbfe96af",
+      "origin_lines": [
+        1533,
+        1554
+      ],
+      "current": {
+        "lines": [
+          1603,
+          1624
+        ],
+        "size_bytes": 1795,
+        "sha256": "aca1d7ed88f85daededfd5fd230eca4850894a96b708250e804c9f61bbfe96af",
+        "git_blob": "473ca52e74db170d42f9f434a709881aa5095f43"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C01_U_direct_cell",
+      "origin_source_span_sha256": "007804a6780edb906322a43c459feb0cd0a0b547b4be0b3d9110a7babd56b07b",
+      "origin_lines": [
+        178,
+        197
+      ],
+      "current": {
+        "lines": [
+          181,
+          200
+        ],
+        "size_bytes": 1260,
+        "sha256": "007804a6780edb906322a43c459feb0cd0a0b547b4be0b3d9110a7babd56b07b",
+        "git_blob": "73fbdda510db9cf03d6dac97cb1ab6c44721505d"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C02_P_original_looking_wrapper",
+      "origin_source_span_sha256": "9d1e0105463d8a8fb50bb57aa104c1e4846ed356208584c95458ae67d11bff38",
+      "origin_lines": [
+        199,
+        208
+      ],
+      "current": {
+        "lines": [
+          202,
+          211
+        ],
+        "size_bytes": 640,
+        "sha256": "9d1e0105463d8a8fb50bb57aa104c1e4846ed356208584c95458ae67d11bff38",
+        "git_blob": "d1f6d827ba06da77e3747e925fd9a8bef081b150"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C03_capture_failure_prevents_reference",
+      "origin_source_span_sha256": "9b27857168e55d90535caca7c490a197e3132a6d583c9765ef30077e22172ded",
+      "origin_lines": [
+        210,
+        224
+      ],
+      "current": {
+        "lines": [
+          213,
+          227
+        ],
+        "size_bytes": 900,
+        "sha256": "9b27857168e55d90535caca7c490a197e3132a6d583c9765ef30077e22172ded",
+        "git_blob": "d5b65f5f5377c5f5bd8547cd4b8600ba1eca98ee"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C04_atomic_first_and_later_marker",
+      "origin_source_span_sha256": "86f0f51693a21ddc4f41b92affa1a60139995e636cd8f14d87078f0662b4864e",
+      "origin_lines": [
+        226,
+        259
+      ],
+      "current": {
+        "lines": [
+          229,
+          262
+        ],
+        "size_bytes": 1929,
+        "sha256": "86f0f51693a21ddc4f41b92affa1a60139995e636cd8f14d87078f0662b4864e",
+        "git_blob": "7bee9626a6e380636218e0d74f213c7d26b3288b"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C05_failed_publication_preserves_prefix",
+      "origin_source_span_sha256": "97b6a3d46e62af4e282b101d281797a2fc545148eb4bb1d0f0614142a8611dae",
+      "origin_lines": [
+        261,
+        285
+      ],
+      "current": {
+        "lines": [
+          264,
+          288
+        ],
+        "size_bytes": 1402,
+        "sha256": "97b6a3d46e62af4e282b101d281797a2fc545148eb4bb1d0f0614142a8611dae",
+        "git_blob": "e646a224e1dd972b3b564912668c4cbf20166832"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C06_nested_directory_fsync",
+      "origin_source_span_sha256": "72bd2c0acb32c1bce2b3e6e0870d6e74f9195d6380187b6665f338eed0e61731",
+      "origin_lines": [
+        287,
+        297
+      ],
+      "current": {
+        "lines": [
+          290,
+          300
+        ],
+        "size_bytes": 550,
+        "sha256": "72bd2c0acb32c1bce2b3e6e0870d6e74f9195d6380187b6665f338eed0e61731",
+        "git_blob": "6f56121e75a8014d7ef0e7ed6c886e0aea067efe"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C07_integrity_survives_receipt_failure",
+      "origin_source_span_sha256": "6b10b1489ac9129631e09b50ff9e2ad8c361b6f61962605568dc8212a29dc5fd",
+      "origin_lines": [
+        329,
+        337
+      ],
+      "current": {
+        "lines": [
+          332,
+          340
+        ],
+        "size_bytes": 599,
+        "sha256": "6b10b1489ac9129631e09b50ff9e2ad8c361b6f61962605568dc8212a29dc5fd",
+        "git_blob": "551242cc75c9d0873ffda5ee3036a145b69a2a7a"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C08_typed_error_categories",
+      "origin_source_span_sha256": "73ba1f12c706c6c9137ff1b0572067ea62337e3363aeee58d26c776cdff97aba",
+      "origin_lines": [
+        339,
+        353
+      ],
+      "current": {
+        "lines": [
+          342,
+          356
+        ],
+        "size_bytes": 1190,
+        "sha256": "73ba1f12c706c6c9137ff1b0572067ea62337e3363aeee58d26c776cdff97aba",
+        "git_blob": "181b81f99d6cffdf722bb661149e094f56031b47"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C09_initial_runtime_import_blocked",
+      "origin_source_span_sha256": "f4f8add2514504e17aac74fbe095fb9fb6d30073d90929db23df313fe7d9a43e",
+      "origin_lines": [
+        355,
+        367
+      ],
+      "current": {
+        "lines": [
+          358,
+          370
+        ],
+        "size_bytes": 875,
+        "sha256": "dfafed07a776758130f655fb18d15868f2ea016ba2c2acd0f0c2538370eece2a",
+        "git_blob": "84e1a8757ef120941aa094f076c2ebcca40de547"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C10_later_source_drift_integrity",
+      "origin_source_span_sha256": "bbafc0c8aa5d6ebf4cd36f5e0b1eaf53bfb6bf31d455ac8b79a292b0ea29652f",
+      "origin_lines": [
+        369,
+        383
+      ],
+      "current": {
+        "lines": [
+          372,
+          386
+        ],
+        "size_bytes": 731,
+        "sha256": "bbafc0c8aa5d6ebf4cd36f5e0b1eaf53bfb6bf31d455ac8b79a292b0ea29652f",
+        "git_blob": "8744d1478d86e10555d8a60616d02f381c681b3f"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C11_marker_failure_no_method_entry",
+      "origin_source_span_sha256": "16b828d000e93e4ee147dc8cfc6dc7740f3780c57c2885a8a38de5a928033fdb",
+      "origin_lines": [
+        385,
+        399
+      ],
+      "current": {
+        "lines": [
+          388,
+          402
+        ],
+        "size_bytes": 916,
+        "sha256": "16b828d000e93e4ee147dc8cfc6dc7740f3780c57c2885a8a38de5a928033fdb",
+        "git_blob": "79196ab726e0bb0d810d476d3931f7e26533df56"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C12_method_exception_proves_entry",
+      "origin_source_span_sha256": "16d4f07252d414fe75671dd76890702dae78ed26e3fb0ca449e952c08bc9a671",
+      "origin_lines": [
+        401,
+        411
+      ],
+      "current": {
+        "lines": [
+          404,
+          414
+        ],
+        "size_bytes": 659,
+        "sha256": "16d4f07252d414fe75671dd76890702dae78ed26e3fb0ca449e952c08bc9a671",
+        "git_blob": "f6c8069802bcc2d38346eb625e056a047d51bc5d"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C13_return_known_after_clock_failure",
+      "origin_source_span_sha256": "d31b10818fae1cc84e459ff0c9631f018e14eaaedb015c51498110a8e4123ebc",
+      "origin_lines": [
+        413,
+        428
+      ],
+      "current": {
+        "lines": [
+          416,
+          431
+        ],
+        "size_bytes": 794,
+        "sha256": "d31b10818fae1cc84e459ff0c9631f018e14eaaedb015c51498110a8e4123ebc",
+        "git_blob": "76e1b5d0bbd6630a139eeac0d10939e5943e32ae"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C14_sidecar_failure_keeps_primary",
+      "origin_source_span_sha256": "e18a6d65bd9398a1cd45cd4184f83366dc542069cff466581aa7b0324208fc64",
+      "origin_lines": [
+        430,
+        436
+      ],
+      "current": {
+        "lines": [
+          433,
+          439
+        ],
+        "size_bytes": 425,
+        "sha256": "e18a6d65bd9398a1cd45cd4184f83366dc542069cff466581aa7b0324208fc64",
+        "git_blob": "5aed06d331f1c6e807f3a94a57ae26446d7087e1"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C15_occupied_countdown_stays_preflight_blocked",
+      "origin_source_span_sha256": "075c9fe4f870ce175151a8af1ca15c1cfe197abf99342df8cdcc40d873d17ab5",
+      "origin_lines": [
+        439,
+        477
+      ],
+      "current": {
+        "lines": [
+          442,
+          480
+        ],
+        "size_bytes": 2579,
+        "sha256": "adc018f831141993b36e017bc12c0c62a0e25bfdcbab162ea067a92b17130035",
+        "git_blob": "73c16a15639fb81b0dff08639eda75f81e140c3b"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C16_receipt_resource_and_io_propagate",
+      "origin_source_span_sha256": "fea5ce5c187e87b398a2e1b84a8e0abe683243af7c5b430a8c5848f410ec30c8",
+      "origin_lines": [
+        480,
+        504
+      ],
+      "current": {
+        "lines": [
+          483,
+          507
+        ],
+        "size_bytes": 1718,
+        "sha256": "fea5ce5c187e87b398a2e1b84a8e0abe683243af7c5b430a8c5848f410ec30c8",
+        "git_blob": "8134433672b7823b0034590c945e14241741ed16"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C17_malformed_bytes_keep_integrity",
+      "origin_source_span_sha256": "c1e71e6814cbf2c3b48b5ef52a9d11ce56642f9bfa2f24e7c2bd58bc2cae90ac",
+      "origin_lines": [
+        506,
+        532
+      ],
+      "current": {
+        "lines": [
+          509,
+          535
+        ],
+        "size_bytes": 1952,
+        "sha256": "9c2c5d8024908dd00fa16c9eca699900cb6ff703f74c54a246aea5a951a9eacb",
+        "git_blob": "0fe64adf68757c4b86a165d955f307e0664c623e"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C18_resource_types_precede_preflight_block",
+      "origin_source_span_sha256": "e305a43d3c7ddb1d46369d9393a4d08eb0ceb57a5da2c11934dd18780cbfeb21",
+      "origin_lines": [
+        534,
+        549
+      ],
+      "current": {
+        "lines": [
+          537,
+          552
+        ],
+        "size_bytes": 1271,
+        "sha256": "e305a43d3c7ddb1d46369d9393a4d08eb0ceb57a5da2c11934dd18780cbfeb21",
+        "git_blob": "e5695d6e4013e1da8fecba763e47c9a00fc3a856"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C19_preflight_memory_then_receipt_io",
+      "origin_source_span_sha256": "5e3159b500de697a3094a33afba0a2d6d3a50802ba28c4725bedda78c0311a92",
+      "origin_lines": [
+        551,
+        574
+      ],
+      "current": {
+        "lines": [
+          554,
+          577
+        ],
+        "size_bytes": 1512,
+        "sha256": "50be9e6d81fe757e67a6efff39334247bfe0578750d7ebc0a94c1cdfa91edb00",
+        "git_blob": "ff7eb93c3b182d9f7d0fbb1124c2974176db917c"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C20_cell_primary_failure_precedence",
+      "origin_source_span_sha256": "9767a3a9b1e3098c3a7d74809229fdebabc61aae2018295a80a610678daed810",
+      "origin_lines": [
+        576,
+        605
+      ],
+      "current": {
+        "lines": [
+          579,
+          608
+        ],
+        "size_bytes": 1966,
+        "sha256": "9767a3a9b1e3098c3a7d74809229fdebabc61aae2018295a80a610678daed810",
+        "git_blob": "a0518b378fc27404f0681de5fb4e0941b9125b1e"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C21_loader_binding_precedes_historical_access",
+      "origin_source_span_sha256": "8598c6b12f593cb33d932e165b73f61e6f7f90f7f20ddb4bee5e080301ab2931",
+      "origin_lines": [
+        608,
+        631
+      ],
+      "current": {
+        "lines": [
+          611,
+          634
+        ],
+        "size_bytes": 1446,
+        "sha256": "1406554d4b7c1e115045015a3a4ec2c6aacaf80b99f32babf64a81b86247baf1",
+        "git_blob": "823b949c713fe871c04285eb900548ba69eee80a"
+      }
+    },
+    {
+      "selector": "tests/test_worker38_cell_integration.py:CellIntegrationTests.test_C22_loader_mismatch_blocks_before_import",
+      "origin_source_span_sha256": "e74dbc8b00f657bacfe140a291174aafc35dece757d3d0cfcd3190732e922208",
+      "origin_lines": [
+        633,
+        663
+      ],
+      "current": {
+        "lines": [
+          636,
+          666
+        ],
+        "size_bytes": 2285,
+        "sha256": "e74dbc8b00f657bacfe140a291174aafc35dece757d3d0cfcd3190732e922208",
+        "git_blob": "c667866115fa4c2ebe94e3de51aeff6ee8afa62a"
+      }
+    }
+  ],
+  "generic_stub_materialization": {
+    "registered_OS_root_launches_per_full_native_batch": 45,
+    "retained_run_stub_source_call_sites": 42,
+    "registered_existing_forked_descendants": 2,
+    "additional_OS_root_or_guardian_or_PID_reuse_probes": 0,
+    "retained_expected_standalone_counters_not_observed_in_Worker38": {
+      "STUB_SUPERVISOR_INVOCATIONS": 79,
+      "STUB_MOCKED_PROCESS_STARTS": 20,
+      "STUB_PROCESS_STARTS": 45
+    },
+    "counter_provenance": "/workspace/shared/worker36-recovery-r1/candidate/evidence-design/normal-ownership-repair-test-plan.json",
+    "prelude": {
+      "size_bytes": 1259,
+      "sha256": "781bfabed49748601583c8f498a44a8867baa083d0275049586f58fec03b9c01",
+      "git_blob": "6c307ec4dafc449d25a3f709db5c731bc65d6de3",
+      "source": "\nimport json, os, resource, signal, sys, time\nfrom pathlib import Path\n_stub_entry = time.monotonic()\n_stub_cutoff = min(_stub_entry + 10.0, float(sys.argv[2]), float(sys.argv[3]) - 1.0)\ndef arm_same_lifetime():\n    signal.signal(signal.SIGALRM, signal.SIG_DFL)\n    signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGALRM})\n    remaining = _stub_cutoff - time.monotonic()\n    if remaining <= 0:\n        os._exit(124)\n    signal.setitimer(signal.ITIMER_REAL, remaining, 0.0)\ndef within_lifetime():\n    if time.monotonic() >= _stub_cutoff:\n        os._exit(124)\n    return True\ndef bounded_sleep(seconds):\n    end = min(time.monotonic() + seconds, _stub_cutoff)\n    while time.monotonic() < end:\n        within_lifetime()\n        time.sleep(min(0.01, max(0.0, end - time.monotonic())))\n    within_lifetime()\narm_same_lifetime()\nstate_path = Path(sys.argv[1])\ndef mark(value):\n    temporary = state_path.with_suffix(\".pending\")\n    with temporary.open(\"w\") as stream:\n        json.dump(value, stream, allow_nan=False)\n        stream.flush()\n        os.fsync(stream.fileno())\n    os.replace(temporary, state_path)\ndef activate(scope=\"candidate\"):\n    mark({\"active\": True, \"scope\": scope, \"cpu_started\": time.process_time(), \"wall_started\": time.monotonic()})\n"
+    },
+    "root_deadline": "min(parent launch observation+10, original native batch deadline\u22121), additionally clipped in literal prelude by entry+10; no launch with<11remaining",
+    "fork_deadline": "first child branch calls arm_same_lifetime using inherited absolute cutoff, before setsid/TERM-ignore/file writes; no new interval",
+    "sleep_busy_wait_rule": "all indefinite stub loops and long waits check same cutoff and os._exit(124) on expiry; SIGALRM remains unblocked/default",
+    "failure_assertions": [
+      "exit124 fails",
+      "SIGALRM exit fails",
+      "unknown root reap fails",
+      "supervisor result after independent cutoff fails",
+      "retained S09 requires SIGKILL evidence and no live descendant"
+    ],
+    "call_sites": [
+      {
+        "method": "test_S01_zero_exit_records_process_only",
+        "lines": [
+          433,
+          433
+        ],
+        "exact_call_source": "self.run_stub(\"print('invented stdout', flush=True)\\nprint('invented stderr', file=sys.stderr, flush=True)\")"
+      },
+      {
+        "method": "test_S02_nonzero_and_signal_are_explicit",
+        "lines": [
+          449,
+          449
+        ],
+        "exact_call_source": "self.run_stub(code)"
+      },
+      {
+        "method": "test_S03_whole_cell_wall_works_without_state",
+        "lines": [
+          457,
+          457
+        ],
+        "exact_call_source": "self.run_stub(\"bounded_sleep(30)\", wall_seconds=0.2)"
+      },
+      {
+        "method": "test_S04_active_hang_with_profiles_suppressed",
+        "lines": [
+          462,
+          462
+        ],
+        "exact_call_source": "self.run_stub(\"activate()\\nsys.setprofile = lambda hook: None\\nbounded_sleep(30)\", call_wall_seconds=0.2)"
+      },
+      {
+        "method": "test_S05_live_cpu_not_just_reaped_children",
+        "lines": [
+          467,
+          467
+        ],
+        "exact_call_source": "self.run_stub(\"activate()\\nsys.setprofile = lambda hook: None\\nwhile within_lifetime(): pass\", call_cpu_seconds=0.15)"
+      },
+      {
+        "method": "test_S06_whole_cell_cpu_without_state",
+        "lines": [
+          473,
+          473
+        ],
+        "exact_call_source": "self.run_stub(\"while within_lifetime(): pass\", cpu_seconds=0.15)"
+      },
+      {
+        "method": "test_S07_phase_wall_blocks_or_terminates",
+        "lines": [
+          479,
+          479
+        ],
+        "exact_call_source": "self.run_stub(\"raise AssertionError('must not spawn')\", phase=phase)"
+      },
+      {
+        "method": "test_S07_phase_wall_blocks_or_terminates",
+        "lines": [
+          484,
+          484
+        ],
+        "exact_call_source": "self.run_stub(\"bounded_sleep(30)\", phase=phase)"
+      },
+      {
+        "method": "test_S08_phase_parent_reaped_live_terms",
+        "lines": [
+          499,
+          499
+        ],
+        "exact_call_source": "self.run_stub(\"pass\", phase=phase)"
+      },
+      {
+        "method": "test_S08_phase_parent_reaped_live_terms",
+        "lines": [
+          502,
+          502
+        ],
+        "exact_call_source": "self.run_stub(\"stop = time.process_time() + 0.08\\nwhile time.process_time() < stop and within_lifetime(): pass\", phase=phase)"
+      },
+      {
+        "method": "test_S08_phase_parent_reaped_live_terms",
+        "lines": [
+          506,
+          506
+        ],
+        "exact_call_source": "self.run_stub(\"while within_lifetime(): pass\", phase=phase)"
+      },
+      {
+        "method": "test_S09_term_ignoring_escaped_descendant_is_killed",
+        "lines": [
+          522,
+          522
+        ],
+        "exact_call_source": "self.run_stub(code, wall_seconds=0.3)"
+      },
+      {
+        "method": "test_S10_child_exit_leaving_descendant_is_incomplete",
+        "lines": [
+          539,
+          539
+        ],
+        "exact_call_source": "self.run_stub(code)"
+      },
+      {
+        "method": "test_S11_exact_address_space_and_inherited_limits",
+        "lines": [
+          547,
+          547
+        ],
+        "exact_call_source": "self.run_stub(\"print(json.dumps({'as': resource.getrlimit(resource.RLIMIT_AS), 'pid': os.getpid(), 'pgid': os.getpgrp(), 'sid': os.getsid(0)}))\")"
+      },
+      {
+        "method": "test_S11_exact_address_space_and_inherited_limits",
+        "lines": [
+          570,
+          570
+        ],
+        "exact_call_source": "self.run_stub(\"pass\", expected_inherited_limits=baseline)"
+      },
+      {
+        "method": "test_S11_exact_address_space_and_inherited_limits",
+        "lines": [
+          559,
+          559
+        ],
+        "exact_call_source": "self.run_stub(\"pass\")"
+      },
+      {
+        "method": "test_S12_proc_or_subreaper_unavailable_blocks_spawn",
+        "lines": [
+          578,
+          578
+        ],
+        "exact_call_source": "self.run_stub(\"pass\")"
+      },
+      {
+        "method": "test_S13_output_overflow_preserves_bounded_prefix",
+        "lines": [
+          583,
+          583
+        ],
+        "exact_call_source": "self.run_stub(\"os.write(1, b'x' * 8192)\\nbounded_sleep(30)\", output_log_limit_bytes=257)"
+      },
+      {
+        "method": "test_S13_output_overflow_preserves_bounded_prefix",
+        "lines": [
+          591,
+          591
+        ],
+        "exact_call_source": "self.run_stub(\"print('bytes', flush=True)\\nbounded_sleep(30)\", output_budget_check=denied)"
+      },
+      {
+        "method": "test_S13_output_overflow_preserves_bounded_prefix",
+        "lines": [
+          611,
+          611
+        ],
+        "exact_call_source": "self.run_stub(\"print('guarded prefix', flush=True)\", output_budget_check=guard)"
+      },
+      {
+        "method": "test_S14_malformed_state_variants_fail_closed",
+        "lines": [
+          629,
+          629
+        ],
+        "exact_call_source": "self.run_stub(code + \"\\nbounded_sleep(30)\")"
+      },
+      {
+        "method": "test_S15_valid_transition_and_admission_rejections",
+        "lines": [
+          636,
+          636
+        ],
+        "exact_call_source": "self.run_stub(\"activate()\\ntime.sleep(0.06)\\nmark({'active': False})\\ntime.sleep(0.06)\")"
+      },
+      {
+        "method": "test_S15_valid_transition_and_admission_rejections",
+        "lines": [
+          642,
+          642
+        ],
+        "exact_call_source": "self.run_stub(\"pass\", before=existing)"
+      },
+      {
+        "method": "test_S15_valid_transition_and_admission_rejections",
+        "lines": [
+          647,
+          647
+        ],
+        "exact_call_source": "self.run_stub(\"pass\", **arguments)"
+      },
+      {
+        "method": "test_S15_valid_transition_and_admission_rejections",
+        "lines": [
+          655,
+          655
+        ],
+        "exact_call_source": "self.run_stub(\"pass\")"
+      },
+      {
+        "method": "test_S16_injected_io_spawn_observation_and_cleanup_failures",
+        "lines": [
+          660,
+          660
+        ],
+        "exact_call_source": "self.run_stub(\"pass\")"
+      },
+      {
+        "method": "test_S16_injected_io_spawn_observation_and_cleanup_failures",
+        "lines": [
+          669,
+          669
+        ],
+        "exact_call_source": "self.run_stub(\"print('prefix', flush=True)\")"
+      },
+      {
+        "method": "test_S16_injected_io_spawn_observation_and_cleanup_failures",
+        "lines": [
+          681,
+          681
+        ],
+        "exact_call_source": "self.run_stub(\"bounded_sleep(30)\")"
+      },
+      {
+        "method": "test_S16_injected_io_spawn_observation_and_cleanup_failures",
+        "lines": [
+          693,
+          693
+        ],
+        "exact_call_source": "self.run_stub(\"bounded_sleep(30)\", wall_seconds=0.1)"
+      },
+      {
+        "method": "test_S16_injected_io_spawn_observation_and_cleanup_failures",
+        "lines": [
+          665,
+          665
+        ],
+        "exact_call_source": "self.run_stub(\"bounded_sleep(30)\")"
+      },
+      {
+        "method": "test_P2_02_resource_survives_subreaper_restoration_failure",
+        "lines": [
+          723,
+          723
+        ],
+        "exact_call_source": "self.run_stub(\"bounded_sleep(30)\", wall_seconds=0.2)"
+      },
+      {
+        "method": "test_P2_03_resource_survives_deferred_log_failure",
+        "lines": [
+          736,
+          736
+        ],
+        "exact_call_source": "self.run_stub(\"print('retained in memory', flush=True)\\nbounded_sleep(30)\", wall_seconds=0.2)"
+      },
+      {
+        "method": "test_P2_04_zero_exit_with_restoration_failure_is_not_completed",
+        "lines": [
+          753,
+          753
+        ],
+        "exact_call_source": "self.run_stub(\"pass\")"
+      },
+      {
+        "method": "test_P2_05_final_output_budget_keeps_primary_zero_exit",
+        "lines": [
+          774,
+          774
+        ],
+        "exact_call_source": "self.run_stub(\"print('invented raw prefix', flush=True)\", output_budget_check=budget_check)"
+      },
+      {
+        "method": "test_F4_01_postspawn_memory_is_resource",
+        "lines": [
+          815,
+          815
+        ],
+        "exact_call_source": "self.run_stub(\"bounded_sleep(30)\")"
+      },
+      {
+        "method": "test_F4_02_secondary_memory_phases_preserve_exit",
+        "lines": [
+          864,
+          864
+        ],
+        "exact_call_source": "self.run_stub(\"print('invented prefix', flush=True)\", phase=phase)"
+      },
+      {
+        "method": "test_F4_03_exit65_survives_resource_accounting_faults",
+        "lines": [
+          923,
+          924
+        ],
+        "exact_call_source": "self.run_stub(\"sys.exit(65)\", phase=phase,\n                                                 output_budget_exceptions=(ResourceExceeded,))"
+      },
+      {
+        "method": "test_F4_05_unavailable_observations_are_not_corruption",
+        "lines": [
+          963,
+          963
+        ],
+        "exact_call_source": "self.run_stub(\"bounded_sleep(30)\")"
+      },
+      {
+        "method": "test_F4_05_unavailable_observations_are_not_corruption",
+        "lines": [
+          976,
+          976
+        ],
+        "exact_call_source": "self.run_stub(\"bounded_sleep(30)\")"
+      },
+      {
+        "method": "test_F4_06_marker_corruption_dominates_cleanup_memory",
+        "lines": [
+          992,
+          992
+        ],
+        "exact_call_source": "self.run_stub(\"mark({'active': 'invalid'})\\nbounded_sleep(30)\")"
+      },
+      {
+        "method": "test_S30_timeout_handler_diagnostic_is_preserved",
+        "lines": [
+          1052,
+          1052
+        ],
+        "exact_call_source": "self.run_stub(code, wall_seconds=0.3)"
+      },
+      {
+        "method": "test_S31_timeout_handler_respects_original_output_cap",
+        "lines": [
+          1076,
+          1076
+        ],
+        "exact_call_source": "self.run_stub(code, wall_seconds=0.3, output_log_limit_bytes=cap)"
+      }
+    ],
+    "fork_literals": [
+      {
+        "method": "test_S09_term_ignoring_escaped_descendant_is_killed",
+        "constant_line": 511,
+        "size_bytes": 274,
+        "sha256": "7b9636c6f4da8fbde8a3d09a0329eb8c3617fbd1b45c34a45eb9dc35ca3f9fcf",
+        "git_blob": "dcba6b59b24021ea6b04558b9f324ae6cb1a6976",
+        "source": "\npid = os.fork()\nif pid == 0:\n    arm_same_lifetime()\n    os.setsid()\n    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n    Path(\"descendant.pid\").write_text(str(os.getpid()))\n    while within_lifetime(): bounded_sleep(1)\nelse:\n    while within_lifetime(): bounded_sleep(1)\n"
+      },
+      {
+        "method": "test_S10_child_exit_leaving_descendant_is_incomplete",
+        "constant_line": 529,
+        "size_bytes": 246,
+        "sha256": "6fb4b9da75e694a25086ed6d7256f1f31eee0b608232c8d8d874b07c70e3dcd7",
+        "git_blob": "91b991857aca90fc8c2d459ab1fbbc7115077a51",
+        "source": "\npid = os.fork()\nif pid == 0:\n    arm_same_lifetime()\n    Path(\"descendant.pid\").write_text(str(os.getpid()))\n    while within_lifetime(): bounded_sleep(1)\nelse:\n    while not Path(\"descendant.pid\").exists(): bounded_sleep(0.005)\n    os._exit(0)\n"
+      }
+    ],
+    "launch_boundary": "remaining>=11 and original root cutoff still future are rechecked inside a local unittest patch immediately before _initialize_popen, not only before supervisor setup",
+    "routine_CI_context": {
+      "authorization": "Parent instruction2026-10-05T03:54:12Z: unchanged bare-pytest routine CI is separately authorized regression work; no auto-skip or implicit native default",
+      "exact_environment": {
+        "GITHUB_ACTIONS": "true",
+        "GITHUB_WORKFLOW": "tests",
+        "RUNNER_NAME": "bandido-alcatraz-ci",
+        "GITHUB_REPOSITORY": "carabinshely/bandido-alcatraz-solve"
+      },
+      "initialization": "Only when native owner deadline absent and exact CI identity matches; first run_stub establishes one module original now+600 deadline",
+      "nonrenewal": "_ROUTINE_CI_ORIGINAL_DEADLINE assigned only while None; selected deadline compared against retained _NATIVE_BATCH_ORIGINAL_DEADLINE on every call; STUB_DEADLINE_CONTEXT cannot change",
+      "root_containment": "Same fixed10-second-or-shorter original cutoff, batch\u22121 clipping,11-second launch margin, fork rearm, self-expiry/reap/cleanup assertions",
+      "production_switch": false,
+      "new_process_or_probe": false,
+      "verification": "static source/AST only; neither routine CI nor native batch has run"
+    }
+  },
+  "deltas_from_namespace_only_port": [
+    "Close public launch surface, derive fixed cell command/cwd/evidence paths, require actual pinned loader and positive environment, exact current receipt and canonical allocation/index",
+    "Add original-anchor full-lifetime PhaseBudget constructor; reject malformed negative/nonfinite phase and final-child accounting rather than clamp to zero",
+    "Validate PID/start_ticks parent before and after PDEATHSIG setup and in the cell before historical access; retain direct-child-only Linux scope",
+    "Restrict active-call scope to candidate/reference and reject restarting a completed scope, preserving unchanged continuous active stamps",
+    "Reject unexpected descendants immediately only in fixed production measurement phases; retained generic ownership tests retain their existing logical intents",
+    "Reject preservation callbacks that extend first-observed-failure+600; preserve earlier attached original boundaries and existing fail-closed transition/cleanup order",
+    "Check final reaped child CPU cap inclusively at exhaustion, retain primary wait status, verify successful subreaper restoration readback, and bound main log overflow observation to remaining+1 per read",
+    "Align helper terminal precedence with integrity>resource>incomplete>blocked while retaining equal-priority first cause and ordered secondary failures",
+    "Observe all three child interval timers at restoration; initial rejected runtime still establishes no restoration obligation",
+    "Adapt existing cell literal fixture receipt with fixed start_ticks and local mock path/identity observations; no new cell test method or stub evaluator call",
+    "Materialize independent absolute generic stub cutoff, literal alarm/loop checks, both inherited fork cutoffs, and failure assertions; add no process/test",
+    "Add explicit separately authorized fixed routine-CI test context only under exact four-field CI identity; initialize its module deadline once and enforce immutable selected context/deadline; native batch still requires owner injection"
+  ],
+  "retained_semantics": [
+    "P full original wrapper/journal/meter path and U separate unmeasured nonproduction flags remain unchanged",
+    "Immediate atomic capture and separate durable confirmation still precede reference entry",
+    "Typed body/resource/integrity failures precede persistence and survive later receipt/sidecar errors",
+    "Live/reaped CPU high-water accounting, observed exit/signal before later accounting, unavailable evidence distinction and uncertainty flags preserved",
+    "Popen ownership retained before fallible initializer; exact baseline/lineage/start_ticks and pidfd-only owned signals preserved",
+    "One5second cleanup ceiling,20ms polling,100ms TERM grace, bounded tail drain, mandatory close/restoration and original preservation deadline preserved"
+  ],
+  "validation_performed": [
+    "Read registered protocol/contract/finite plan and relevant retained source grounding",
+    "AST parse only of four owned source/test files and literal prelude/fork strings",
+    "SHA256/size/Git-blob framing checks of retained source against published grounding and test plan",
+    "Exact74 qualified selector-set comparison with registered plan",
+    "Static42 call-site and2 fork-literal population check; no unbounded while True literal remains"
+  ],
+  "activity": {
+    "project_module_imports": 0,
+    "tests_run": 0,
+    "stub_OS_roots_launched": 0,
+    "historical_module_imports": 0,
+    "measurement_fixture_constructions": 0,
+    "actual_candidate_evaluator_calls": 0,
+    "actual_reference_evaluator_calls": 0,
+    "games": 0,
+    "live_HTTP_or_runner_probes": 0,
+    "external_writes": 0
+  },
+  "remaining_gates": [
+    "Coordinator integration and full397 fixture/source/command/subcase/process/output freeze",
+    "Root and independent static approval of exact map before sole native batch",
+    "Separate whole-source reviews, exact-head routine CI, external one-shot admission and canonical custody gates"
+  ],
+  "review_claim": "No independent review performed by this implementer; no runtime/test/readiness/scientific success claimed",
+  "report_self_hash_excluded": true
+}
