@@ -69,8 +69,56 @@ SOURCE_MODULES = (('src/bandido_alcatraz/__init__.py', 'bandido_alcatraz'), ('sr
 INITIAL_MODULES = ('bandido_alcatraz', 'bandido_alcatraz.board', 'bandido_alcatraz.game', 'bandido_alcatraz.model', 'bandido_alcatraz.moves', 'bandido_alcatraz.policies', 'bandido_alcatraz.quota_reserve_closure', 'bandido_alcatraz.quota_reserve_closure_reference', 'bandido_alcatraz.rules', 'bandido_alcatraz.setup', 'bandido_alcatraz.strategy', 'bandido_alcatraz.worker32', 'bandido_alcatraz.worker32.evidence', 'benchmark_worker35_synthetic', 'run_quota_reserve_closure_development', 'worker35_resources')
 
 
+# Only the separately approved native runner installs this fixed evidence hook.
+# Ordinary CI never copies an overwritten receipt through this boundary.
+PRODUCTION_OUTPUT_HOOK = None
+CURRENT_PRODUCTION_SELECTOR = None
+CUSTODY_VERSION_LABELS = {
+    'test_V14_external_custody_gate': (
+        'V14-custody-before-02', 'V14-custody-before-03', 'V14-custody-before-04',
+        'V14-custody-before-05', 'V14-custody-before-06', 'V14-custody-before-07',
+        'V14-custody-before-08'),
+    'test_V15_exact_readback_provenance_and_files': (
+        'V15-custody-before-02', 'V15-custody-before-03', 'V15-custody-before-04',
+        'V15-custody-before-05', 'V15-custody-before-06', 'V15-custody-before-07',
+        'V15-custody-before-08', 'V15-custody-before-09', 'V15-custody-before-10',
+        'V15-custody-before-11'),
+    'test_PW02_wrapper_coverage_is_mandatory': (
+        'PW02-custody-before-02', 'PW02-custody-before-03', 'PW02-custody-before-04'),
+    'test_PW14_exact_and_semantic_wrapper_binding': ('PW14-custody-before-02',),
+    'test_PW15_legacy_custody_is_not_accepted': ('PW15-custody-before-02',),
+}
+_CUSTODY_VERSION_COUNTS = {}
+
+
+def preserve_existing_observed_custody(path):
+    """Retain one actual observed version before this fixed helper overwrites it."""
+    if PRODUCTION_OUTPUT_HOOK is None:
+        return
+    if path.name != 'externally-authenticated-custody.json' or path.is_symlink():
+        raise AssertionError('unsafe native observed-custody path')
+    if not path.exists():
+        return
+    prefix = 'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.'
+    selector = CURRENT_PRODUCTION_SELECTOR
+    if not isinstance(selector, str) or not selector.startswith(prefix):
+        raise AssertionError('native custody overwrite requires its exact registered selector')
+    method = selector[len(prefix):]
+    labels = CUSTODY_VERSION_LABELS.get(method, ())
+    ordinal = _CUSTODY_VERSION_COUNTS.get(selector, 0)
+    if path.parent.name != 'custody-inputs-1' or ordinal >= len(labels):
+        raise AssertionError('unregistered native observed-custody overwrite')
+    PRODUCTION_OUTPUT_HOOK(selector, [{
+        'event': 'preserve_observed_version', 'path': str(path),
+        'label': labels[ordinal], 'maximum_bytes': 131072}])
+    # A failed synchronous capture must leave the original receipt untouched.
+    _CUSTODY_VERSION_COUNTS[selector] = ordinal + 1
+
+
 def write(path, value, raw=False):
     path.parent.mkdir(parents=True, exist_ok=True)
+    if path.name == 'externally-authenticated-custody.json':
+        preserve_existing_observed_custody(path)
     path.write_bytes(value if raw else c.canonical(value))
 
 

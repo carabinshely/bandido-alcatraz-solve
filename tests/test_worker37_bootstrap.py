@@ -13,7 +13,7 @@ import ast
 import base64
 import builtins
 import copy
-from contextlib import ExitStack, redirect_stdout, redirect_stderr
+from contextlib import ExitStack, contextmanager, redirect_stdout, redirect_stderr
 import hashlib
 import http.client
 import importlib.abc
@@ -30,6 +30,7 @@ import subprocess
 import sys
 import tempfile
 import textwrap
+import time
 import types
 import unittest
 from unittest.mock import patch
@@ -50,6 +51,17 @@ SOURCE_BYTES = b'# invented source metadata only\n'
 EVIDENCE_DIRECTORY = os.environ.get('WORKER37_LITERAL_EVIDENCE_DIRECTORY')
 EVIDENCE_BYTES = 0
 CURRENT_CASE_ID = None
+CURRENT_METHOD_NAME = None
+PRODUCTION_OUTPUT_HOOK = None
+NATIVE_BASH_FILE_CAP = 2097152
+_NATIVE_BASH_GETRLIMIT = resource.getrlimit
+_NATIVE_BASH_SETRLIMIT = resource.setrlimit
+_NATIVE_BASH_WRITE = os.write
+_NATIVE_BASH_CLOSE = os.close
+_NATIVE_BASH_EXIT = os._exit
+_NATIVE_BASH_NOW = time.monotonic
+_NATIVE_BASH_FSIZE_ACK = b'worker37-native-fsize-v1\nsoft=2097152\nhard=2097152\ncore_soft=0\ncore_hard=0\nconfirmed=true\n'
+_NATIVE_PRODUCTION_RECORDS = {}
 REQUEST_PATHS = (
     '/pulls/101', '/actions/runs/102', '/issues/comments/103',
     '/issues/comments/104', '/actions/runs/105', '/actions/artifacts/106',
@@ -71,8 +83,106 @@ def sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
-def retain_case_file(name, raw):
+def _production_selector():
+    if CURRENT_CASE_ID == 'W38-S01':
+        return 'tests/test_worker38_bootstrap_integration.py:Worker38BootstrapIntegration.test_S01_legacy_shared_path'
+    if CURRENT_METHOD_NAME is None:
+        raise AssertionError('native output hook requires the fixed active selector')
+    return 'tests/test_worker37_bootstrap.py:Worker37LiteralCases.' + CURRENT_METHOD_NAME
+
+
+@contextmanager
+def _literal_directory(prefix):
+    """Keep routine CI cleanup; native runner owns persisted-root lifetime."""
+    with tempfile.TemporaryDirectory(prefix=prefix) as temporary:
+        if PRODUCTION_OUTPUT_HOOK is not None:
+            _NATIVE_PRODUCTION_RECORDS[temporary] = {
+                'root': temporary, 'setup_inventory': {}, 'setup_complete': False,
+                'explicit_produced_paths': [], 'explicit_produced_subtrees': [],
+                'all_new_paths_are_output': True,
+                'mutation_lineage': 'Setup interrupted before the production boundary; retain every surviving byte',
+                'partial_staging_policy': 'retain every surviving partial, temporary and staging file'}
+        try:
+            yield temporary
+        finally:
+            if PRODUCTION_OUTPUT_HOOK is not None:
+                record = _NATIVE_PRODUCTION_RECORDS.pop(temporary)
+                produced = []
+                partial = []
+                changed_setup = []
+                for path in sorted(Path(temporary).rglob('*')):
+                    if not path.is_file() or path.is_symlink():
+                        continue
+                    name = path.relative_to(temporary).as_posix()
+                    explicit = name in record['explicit_produced_paths'] or any(
+                        name == prefix or name.startswith(prefix.rstrip('/') + '/')
+                        for prefix in record['explicit_produced_subtrees'])
+                    changed = False
+                    if name in record['setup_inventory'] and not explicit:
+                        current = path.read_bytes()
+                        original = record['setup_inventory'][name]
+                        changed = len(current) != original['size_bytes'] or sha(current) != original['sha256']
+                        if changed:
+                            changed_setup.append(name)
+                    if explicit or name not in record['setup_inventory'] or changed:
+                        produced.append(name)
+                        if any(marker in path.name for marker in ('.tmp', '.partial', '.staging')):
+                            partial.append(name)
+                record['changed_setup_paths'] = changed_setup
+                record['surviving_produced_paths'] = produced
+                record['surviving_partial_staged_paths'] = partial
+                observations = []
+                for directory in record.pop('observation_directories', []):
+                    names = sorted(path.name for path in Path(directory).iterdir()
+                                   if path.is_file() and not path.is_symlink())
+                    observations.append({'root': directory, 'setup_inventory': {},
+                        'setup_inventory_sha256': sha(canonical({})), 'setup_complete': True,
+                        'explicit_produced_paths': names, 'explicit_produced_subtrees': [],
+                        'surviving_produced_paths': names, 'surviving_partial_staged_paths': [],
+                        'all_new_paths_are_output': True,
+                        'mutation_lineage': 'Captured in-memory observations including any interrupted partial write',
+                        'partial_staging_policy': 'retain every surviving partial observation write'})
+                PRODUCTION_OUTPUT_HOOK(_production_selector(), [record, *observations])
+
+
+def _watch_production(root, *, produced_paths=(), produced_subtrees=(), lineage):
+    if PRODUCTION_OUTPUT_HOOK is None:
+        return
+    root = Path(root)
+    setup = {}
+    for path in sorted(root.rglob('*')):
+        if path.is_symlink():
+            target = os.readlink(path)
+            setup[path.relative_to(root).as_posix()] = {
+                'type': 'symlink', 'target': target,
+                'size_bytes': len(os.fsencode(target)), 'sha256': sha(os.fsencode(target))}
+        elif path.is_file():
+            raw = path.read_bytes()
+            setup[path.relative_to(root).as_posix()] = {
+                'size_bytes': len(raw), 'sha256': sha(raw),
+                'mode': stat.S_IMODE(path.stat().st_mode)}
+    _NATIVE_PRODUCTION_RECORDS[str(root)].update(
+        setup_inventory=setup, setup_inventory_sha256=sha(canonical(setup)),
+        setup_complete=True, explicit_produced_paths=list(produced_paths),
+        explicit_produced_subtrees=list(produced_subtrees), mutation_lineage=lineage)
+
+
+def retain_case_file(name, raw, *, existing_path=None):
     global EVIDENCE_BYTES
+    if PRODUCTION_OUTPUT_HOOK is not None and existing_path is not None:
+        path = Path(existing_path)
+        if not path.is_file() or path.is_symlink() or path.read_bytes() != raw:
+            raise AssertionError('native existing evidence must be explicit and byte-identical')
+        # The exact original path is captured with its root, not copied here.
+        roots = [record for root, record in _NATIVE_PRODUCTION_RECORDS.items()
+                 if path.is_relative_to(root)]
+        if len(roots) != 1:
+            raise AssertionError('native existing evidence requires one registered root')
+        record = roots[0]
+        record.setdefault('retained_aliases', {})[name] = {
+            'path': path.relative_to(record['root']).as_posix(),
+            'size_bytes': len(raw), 'sha256': sha(raw)}
+        return
     if not EVIDENCE_DIRECTORY:
         return
     if CURRENT_CASE_ID is None:
@@ -81,18 +191,35 @@ def retain_case_file(name, raw):
         raise AssertionError('fixed 8MiB case evidence reserve exhausted')
     directory = Path(EVIDENCE_DIRECTORY)/CURRENT_CASE_ID
     directory.mkdir(mode=0o700,exist_ok=True)
+    if PRODUCTION_OUTPUT_HOOK is not None:
+        if len(_NATIVE_PRODUCTION_RECORDS) != 1:
+            raise AssertionError('native observation requires one active registered scratch root')
+        record = next(iter(_NATIVE_PRODUCTION_RECORDS.values()))
+        directories = record.setdefault('observation_directories', [])
+        if str(directory) not in directories:
+            directories.append(str(directory))
     with open(directory/name,'xb') as stream:
         stream.write(raw)
         stream.flush()
         os.fsync(stream.fileno())
     EVIDENCE_BYTES += len(raw)
+    if PRODUCTION_OUTPUT_HOOK is not None:
+        names = sorted(path.name for path in directory.iterdir() if path.is_file() and not path.is_symlink())
+        PRODUCTION_OUTPUT_HOOK(_production_selector(), [{
+            'root': str(directory), 'setup_inventory': {},
+            'setup_inventory_sha256': sha(canonical({})), 'setup_complete': True,
+            'explicit_produced_paths': names, 'explicit_produced_subtrees': [],
+            'surviving_produced_paths': names, 'surviving_partial_staged_paths': [],
+            'all_new_paths_are_output': True,
+            'mutation_lineage': 'Only in-memory observations/captured pipes are written once; original production files are referenced from registered scratch roots',
+            'partial_staging_policy': 'retain every surviving partial observation write'}])
 
 
 def retain_python_prefix(s, output, stdout, stderr):
     s.output=(stdout.getvalue()+stderr.getvalue()).encode()
     s.retained={path.name:path.read_bytes() for path in output.iterdir() if path.is_file()}
     for name,raw in s.retained.items():
-        retain_case_file(name,raw)
+        retain_case_file(name,raw,existing_path=output/name)
     retain_case_file('captured-output.txt',s.output)
     request_evidence=[{'ordinal':index+1,'method':r['method'],'received_bytes':r['received'],
                        'authenticated':r['headers'].get('authorization')=='Bearer '+TOKEN}
@@ -294,7 +421,7 @@ def module_proxy(module):
 
 def run_python(s):
     """Run actual main; only HTTP/OS/runtime observations are injected."""
-    with tempfile.TemporaryDirectory(prefix='worker37-literal-python-') as temporary:
+    with _literal_directory('worker37-literal-python-') as temporary:
         root = Path(temporary)
         source = root / 'source'
         (source/'scripts').mkdir(parents=True)
@@ -511,6 +638,11 @@ def run_python(s):
             s.openers.append(opener)
             return opener
 
+        _watch_production(root, produced_paths=(
+            'output/request-context.json', 'output/reservation-admission.json',
+            *('output/' + name for name in RETAINED_NAMES),
+            'output/result.json', 'output/inventory.json', 'output/terminal.json'),
+            lineage='Fixed LiteralScenario setup and exact per-method mutations; production API retained bytes remain outputs even if equal to response fixtures; event.json is setup-created and only adopted/read')
         with ExitStack() as stack:
             stack.enter_context(patch.dict(os.environ,environment,clear=True))
             stack.enter_context(patch.object(socket.socket,'connect',denied_socket))
@@ -586,8 +718,37 @@ def workflow_block(phase):
     return ''.join(line[10:] if line.strip() else line for line in body.splitlines(keepends=True))
 
 
+
+def _native_bash_limit(confirmation_fd):
+    """Install the native-only inherited ceiling before the one existing exec."""
+    try:
+        _NATIVE_BASH_SETRLIMIT(resource.RLIMIT_CORE, (0, 0))
+        if _NATIVE_BASH_GETRLIMIT(resource.RLIMIT_CORE) != (0, 0):
+            raise RuntimeError('native core ceiling readback mismatch')
+        inherited = _NATIVE_BASH_GETRLIMIT(resource.RLIMIT_FSIZE)
+        if any(value != resource.RLIM_INFINITY and value < NATIVE_BASH_FILE_CAP for value in inherited):
+            raise RuntimeError('native file ceiling would weaken an inherited limit')
+        _NATIVE_BASH_SETRLIMIT(resource.RLIMIT_FSIZE,
+                              (NATIVE_BASH_FILE_CAP, NATIVE_BASH_FILE_CAP))
+        if _NATIVE_BASH_GETRLIMIT(resource.RLIMIT_FSIZE) != (NATIVE_BASH_FILE_CAP, NATIVE_BASH_FILE_CAP):
+            raise RuntimeError('native file ceiling readback mismatch')
+        if _NATIVE_BASH_WRITE(confirmation_fd, _NATIVE_BASH_FSIZE_ACK) != len(_NATIVE_BASH_FSIZE_ACK):
+            raise RuntimeError('native file ceiling confirmation incomplete')
+        _NATIVE_BASH_CLOSE(confirmation_fd)
+    except BaseException:
+        try:
+            _NATIVE_BASH_WRITE(confirmation_fd, b'worker37-native-fsize-v1\nconfirmed=false\n')
+        except BaseException:
+            pass
+        try:
+            _NATIVE_BASH_CLOSE(confirmation_fd)
+        except BaseException:
+            pass
+        _NATIVE_BASH_EXIT(125)
+
+
 def run_bash(case_id, *, entry, overrides=None):
-    with tempfile.TemporaryDirectory(prefix='worker37-literal-bash-') as temporary:
+    with _literal_directory('worker37-literal-bash-') as temporary:
         root=Path(temporary)
         commands=root/'commands'
         commands.mkdir()
@@ -665,18 +826,82 @@ def run_bash(case_id, *, entry, overrides=None):
             body=workflow_block(entry)
             argv=['/bin/bash','--noprofile','--norc','-c',body]
             body_hash=sha(body.encode())
+        produced_paths = ['commands.bin', 'library-hashed', 'violations.txt']
+        if PRODUCTION_OUTPUT_HOOK is not None:
+            produced_paths.extend(('native-stdout.txt', 'native-stderr.txt', 'native-fsize-confirmation.txt'))
+        if case_id != 'T013':
+            produced_paths.append(reservation.relative_to(root).as_posix())
+        _watch_production(root, produced_paths=produced_paths,
+            produced_subtrees=(attempt.relative_to(root).as_posix(),),
+            lineage='Pinned exact shell/stub/setup bytes and per-case literal overrides; T013existing reservation is immutable input, every new reservation/copy/log/partial is separately produced output')
+        native_stdout = native_stderr = None
         with patch.object(socket.socket,'connect',denied_socket),patch.object(socket,'getaddrinfo',denied_socket):
-            process=subprocess.Popen(argv,env=environment,cwd=source,stdin=subprocess.DEVNULL,
-                                     stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
-            stdout,stderr=process.communicate()
-        retain_case_file('shell-stdout.txt',stdout.encode())
-        retain_case_file('shell-stderr.txt',stderr.encode())
-        retain_case_file('stub-command-log.bin',log.read_bytes() if log.exists() else b'')
+            if PRODUCTION_OUTPUT_HOOK is None:
+                process=subprocess.Popen(argv,env=environment,cwd=source,stdin=subprocess.DEVNULL,
+                                         stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+                stdout,stderr=process.communicate()
+            else:
+                native_stdout, native_stderr = root/'native-stdout.txt', root/'native-stderr.txt'
+                confirmation = root/'native-fsize-confirmation.txt'
+                state = {'spawn_handle_returned': False, 'file_cap_readback_confirmed': False,
+                         'timed_out': False, 'wait_confirmed': False,
+                         'writer_completion_confirmed': False, 'returncode': None}
+                _NATIVE_PRODUCTION_RECORDS[str(root)]['native_bash_writer_state'] = state
+                _NATIVE_PRODUCTION_RECORDS[str(root)]['native_writer_state'] = 'unconfirmed'
+                process = None
+                deadline = _NATIVE_BASH_NOW() + 5.0
+                try:
+                    with open(native_stdout, 'xb', buffering=0) as output_stream, \
+                         open(native_stderr, 'xb', buffering=0) as error_stream, \
+                         open(confirmation, 'xb', buffering=0) as confirmation_stream:
+                        descriptor = confirmation_stream.fileno()
+                        process = subprocess.Popen(argv, env=environment, cwd=source,
+                            stdin=subprocess.DEVNULL, stdout=output_stream, stderr=error_stream,
+                            close_fds=True, pass_fds=(descriptor,),
+                            preexec_fn=lambda: _native_bash_limit(descriptor))
+                        state['spawn_handle_returned'] = True
+                        remaining = deadline - _NATIVE_BASH_NOW()
+                        if remaining <= 0:
+                            state['timed_out'] = True
+                            raise subprocess.TimeoutExpired(argv, 5.0)
+                        try:
+                            process.wait(timeout=remaining)
+                        except subprocess.TimeoutExpired:
+                            state['timed_out'] = True
+                            process.kill()
+                            # Nonblocking reap only: never create a new cleanup interval.
+                            process.poll()
+                            raise AssertionError('native Bash5-second boundary exhausted; writer completion unconfirmed') from None
+                        state['wait_confirmed'] = True
+                        state['returncode'] = process.returncode
+                        for stream in (output_stream, error_stream, confirmation_stream):
+                            os.fsync(stream.fileno())
+                    ack = confirmation.read_bytes()
+                    state['file_cap_readback_confirmed'] = ack == _NATIVE_BASH_FSIZE_ACK
+                    if not state['file_cap_readback_confirmed']:
+                        raise AssertionError('native Bash file ceiling was not confirmed before exec')
+                    if process.returncode < 0:
+                        raise AssertionError('native Bash signaled exit; descendant writer completion unconfirmed')
+                    state['writer_completion_confirmed'] = True
+                    _NATIVE_PRODUCTION_RECORDS[str(root)]['native_writer_state'] = 'confirmed'
+                    stdout = native_stdout.read_bytes().decode()
+                    stderr = native_stderr.read_bytes().decode()
+                except BaseException:
+                    if process is not None and process.poll() is None:
+                        process.kill()
+                        process.poll()
+                    if process is not None:
+                        state['returncode'] = process.returncode
+                    raise
+        retain_case_file('shell-stdout.txt',stdout.encode(),existing_path=native_stdout)
+        retain_case_file('shell-stderr.txt',stderr.encode(),existing_path=native_stderr)
+        retain_case_file('stub-command-log.bin',log.read_bytes() if log.exists() else b'',
+                         existing_path=log if log.exists() else None)
         if reservation.exists():
-            retain_case_file('allocation-reservation.txt',reservation.read_bytes())
+            retain_case_file('allocation-reservation.txt',reservation.read_bytes(),existing_path=reservation)
         for path in attempt.iterdir():
             if path.is_file():
-                retain_case_file(path.name,path.read_bytes())
+                retain_case_file(path.name,path.read_bytes(),existing_path=path)
         fields=log.read_bytes().split(b'\0')[:-1] if log.exists() else []
         records=[]
         index=0
@@ -706,8 +931,9 @@ FROZEN_STUB = '#!/bin/bash\nset -euo pipefail\ncommand_name=${0##*/}\nloader_env
 
 class Worker37LiteralCases(unittest.TestCase):
     def setUp(self):
-        global CURRENT_CASE_ID
+        global CURRENT_CASE_ID, CURRENT_METHOD_NAME
         CURRENT_CASE_ID=self._testMethodName.split('_',2)[1]
+        CURRENT_METHOD_NAME=self._testMethodName
 
     def test_T001_valid_direct_path(self):
         s = LiteralScenario()
