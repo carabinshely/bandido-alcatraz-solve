@@ -1,0 +1,26 @@
+{
+  "files": [
+    {
+      "bytes": 66602,
+      "new_sha256": "fa285ccf140f646acea0fbcc7ba7bd63103966357040b22f83eccd174b47fb82",
+      "old_sha256": "4f4251b06277de2b617498d243148342c0e5abb363b1ac61bd1cb2f91f48f73b",
+      "path": "scripts/worker38/transport.py"
+    },
+    {
+      "bytes": 44185,
+      "new_sha256": "d89ba63aca51c72972e4ba5a1c67d697fed08bf1c26fee84f6e8531513561dc1",
+      "old_sha256": "257f4c6330d2de6ef6f85c7479d2db3b41ed902341de45532f3b061aac8e80e9",
+      "path": "tests/test_worker38_transport.py"
+    }
+  ],
+  "frozen_offline_fixture_lineage_unchanged": "7117d012b7d19b4b3d26662ff35f14e400d6ec4e77087e4b3ff694356ec1d1ca",
+  "new_methods": 0,
+  "new_subcases": 0,
+  "schema": "worker38-storage-classification-repair-v1",
+  "scientific_calls": 0,
+  "scope": "Insufficient required free storage is an infrastructure prerequisite failure, not malformed evidence. Preserve the exact1GiB threshold and existing two T05 boundary observations.",
+  "selector": "tests/test_worker38_transport.py:OfflineTransportPlan.test_T05_exact_one_gib_storage_floor",
+  "status": "prospective source-only integration correction",
+  "tests_executed": 0,
+  "validation": "AST only; actual typed classification asserted prospectively in existing T05"
+}

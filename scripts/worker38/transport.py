@@ -200,7 +200,7 @@ def _free(path: Path) -> None:
     try:
         usage = os.fstatvfs(fd)
         if usage.f_bavail * usage.f_frsize < REQUIRED_FREE_BYTES:
-            raise TransportError("less than 1 GiB free preservation storage")
+            raise OSError("less than 1 GiB free preservation storage")
     finally:
         os.close(fd)
 
