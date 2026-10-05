@@ -234,8 +234,10 @@ class Worker38BootstrapIntegration(unittest.TestCase):
                     self.assertEqual(a.reconcile(a.canonical(bundle['event']), a.canonical(bundle['context']), result)[0], raw)
             except (a.AdmissionError, OSError, MemoryError) as error:
                 caught = error
+                self.forward_A_failures(caught, report, requests)
                 if report['primary_failure'] is None:
                     a.record_failure(report, error, 'admission')
+                self.forward_A_failures(caught, report, requests)
             finally:
                 evidence.close()
             files = {p.name: p.read_bytes() for p in output.iterdir() if p.is_file()}
@@ -245,8 +247,11 @@ class Worker38BootstrapIntegration(unittest.TestCase):
                 existing_paths={name: output / name for name in files})
         except BaseException as retention_error:
             expected = A_ACCEPTANCE.get(self._testMethodName)
-            intended_rejection = (expected is not None and type(caught) is a.AdmissionError and
-                (caught.code, caught.classification, (report['primary_failure'] or {}).get('phase'), len(requests)) == expected)
+            records = getattr(caught, 'worker38_admission_failure_records', ())
+            if expected is not None:
+                retention_error.worker38_admission_failure_records = records
+            intended_rejection = (type(caught) is a.AdmissionError and
+                getattr(caught, 'worker38_expected_admission_rejection', False) is True)
             if expected is not None and caught is not None and not intended_rejection:
                 try:
                     caught.worker38_prefix_retention_exception = retention_error
@@ -261,38 +266,102 @@ class Worker38BootstrapIntegration(unittest.TestCase):
         self.assertLessEqual(len(requests), 7)
         return types.SimpleNamespace(report=report, requests=requests, files=files, error=caught, evidence=evidence, output_record=output_record)
 
+    def forward_A_failures(self, caught, report, requests):
+        rule = A_ACCEPTANCE.get(self._testMethodName)
+        if rule is None:
+            return ()
+        code, classification, phase, count = rule
+        completed = count if code is None else (count - 1 if phase == 'input_validation' else 0)
+        boundary = (len(requests) == count and report['requested_prefix'] == list(FIXED_INPUTS[:count]) and
+            report['completed_prefix'] == list(FIXED_INPUTS[:completed]) and
+            [item['name'] for item in report['requests']] == list(FIXED_INPUTS[:count]) and
+            [item['semantic_validated'] for item in report['requests']] == [i < completed for i in range(count)] and
+            all(item['close_confirmed'] is True for item in report['requests']))
+        # Mark the exact intended object, including when production reporting
+        # wraps it. Other body/context/close causes remain eligible for reduction.
+        pending, seen = [caught] if caught is not None else [], set()
+        while pending:
+            current = pending.pop()
+            if id(current) in seen:
+                continue
+            a.require(len(seen) < 32, 'native_A_exception_chain_bound')
+            seen.add(id(current))
+            if boundary and code is not None and type(current) is a.AdmissionError and (
+                    current.code, current.classification) == (code, classification):
+                current.worker38_expected_admission_rejection = True
+            for linked in (current.__context__, current.__cause__):
+                if linked is not None:
+                    a.require(isinstance(linked, BaseException), 'native_A_exception_chain_type')
+                    pending.append(linked)
+        primary, secondary = report['primary_failure'], report['secondary_failures']
+        a.require(type(secondary) is list and len(secondary) + (primary is not None) <= 13,
+                  'native_A_failure_record_count')
+        records = []
+        for index, record in enumerate(([primary] if primary is not None else []) + secondary):
+            a.require(type(record) is dict and {'classification', 'code', 'phase'} <= set(record),
+                      'native_A_failure_record_schema')
+            normalized = {'classification': record['classification'], 'code': record['code'],
+                          'phase': record['phase'], 'error_type': record.get('error_type', 'recorded_failure')}
+            if normalized['classification'] == 'evidence_incomplete':
+                normalized['classification'] = 'execution_incomplete'
+            for key, limit in (('classification', 24), ('code', 160), ('phase', 64), ('error_type', 64)):
+                a.require(type(normalized[key]) is str and 0 < len(normalized[key]) <= limit and
+                          normalized[key].isascii(), 'native_A_failure_record_domain')
+            a.require(normalized['classification'] in a.PRIORITY, 'native_A_failure_classification')
+            if 'operation' in record:
+                a.require(type(record['operation']) is str and 0 < len(record['operation']) <= 64 and
+                          record['operation'].isascii(), 'native_A_failure_operation')
+                normalized['operation'] = record['operation']
+            intended_primary = (index == 0 and primary is not None and boundary and code is not None and
+                (normalized['code'], normalized['classification'], normalized['phase'], normalized['error_type']) ==
+                (code, classification, phase, 'AdmissionError'))
+            if not intended_primary:
+                records.append(normalized)
+        result = tuple(records)
+        if caught is not None:
+            caught.worker38_admission_failure_records = result
+        return result
+
     def check_A_acceptance(self, caught, report, requests, expect_failure):
         expected = A_ACCEPTANCE.get(self._testMethodName)
         if expected is None:
             return  # The later fixed H/other intentional faults keep their own intent.
-        code, classification, phase, count = expected
-        self.assertEqual(expect_failure, code is not None)
-        if caught is not None and (type(caught) is not a.AdmissionError or
-                (caught.code, caught.classification) != (code, classification)):
-            raise caught  # Preserve unexpected native/resource exceptions as failures.
-        if report['secondary_failures']:
-            secondary = report['secondary_failures'][0]
-            raise a.AdmissionError(secondary['code'], secondary['classification']) from caught
-        if code is None:
-            self.assertIsNone(caught)
-            self.assertIsNone(report['primary_failure'])
-        else:
-            self.assertIsNotNone(caught, 'intended admission rejection was not reached')
-            self.assertEqual((report['primary_failure']['code'], report['primary_failure']['classification'],
-                report['primary_failure']['phase'], report['primary_failure']['error_type']),
-                (code, classification, phase, 'AdmissionError'))
-            self.assertEqual(report['classification'], classification)
-            self.assertEqual(report['selected_failure'], report['primary_failure'])
-        self.assertEqual(len(requests), count)
-        self.assertTrue(all(request[1] == 'GET' for request in requests))
-        self.assertEqual(report['requested_prefix'], list(FIXED_INPUTS[:count]))
-        self.assertEqual([record['name'] for record in report['requests']], list(FIXED_INPUTS[:count]))
-        completed = count if code is None else (count - 1 if phase == 'input_validation' else 0)
-        self.assertEqual(report['completed_prefix'], list(FIXED_INPUTS[:completed]))
-        self.assertEqual([record['semantic_validated'] for record in report['requests']],
-                         [index < completed for index in range(count)])
-        self.assertTrue(all(record['close_confirmed'] is True for record in report['requests']))
-        self.assertEqual(report['evaluator_starts'], 0)
+        records = self.forward_A_failures(caught, report, requests)
+        try:
+            code, classification, phase, count = expected
+            self.assertEqual(expect_failure, code is not None)
+            if caught is not None and (type(caught) is not a.AdmissionError or
+                    (caught.code, caught.classification) != (code, classification)):
+                raise caught  # Preserve unexpected native/resource exceptions as failures.
+            if report['secondary_failures']:
+                secondary = report['secondary_failures'][0]
+                failure = a.AdmissionError(secondary['code'], secondary['classification'])
+                failure.worker38_admission_failure_records = records
+                raise failure from caught
+            if code is None:
+                self.assertIsNone(caught)
+                self.assertIsNone(report['primary_failure'])
+            else:
+                self.assertIsNotNone(caught, 'intended admission rejection was not reached')
+                self.assertEqual((report['primary_failure']['code'], report['primary_failure']['classification'],
+                    report['primary_failure']['phase'], report['primary_failure']['error_type']),
+                    (code, classification, phase, 'AdmissionError'))
+                self.assertEqual(report['classification'], classification)
+                self.assertEqual(report['selected_failure'], report['primary_failure'])
+            self.assertEqual(len(requests), count)
+            self.assertTrue(all(request[1] == 'GET' for request in requests))
+            self.assertEqual(report['requested_prefix'], list(FIXED_INPUTS[:count]))
+            self.assertEqual([record['name'] for record in report['requests']], list(FIXED_INPUTS[:count]))
+            completed = count if code is None else (count - 1 if phase == 'input_validation' else 0)
+            self.assertEqual(report['completed_prefix'], list(FIXED_INPUTS[:completed]))
+            self.assertEqual([record['semantic_validated'] for record in report['requests']],
+                             [index < completed for index in range(count)])
+            self.assertTrue(all(record['close_confirmed'] is True for record in report['requests']))
+            self.assertEqual(report['evaluator_starts'], 0)
+
+        except BaseException as failure:
+            failure.worker38_admission_failure_records = records
+            raise
 
     def mutate_input(self, name, mutate):
         bundle = copy.deepcopy(self.bundle)
@@ -1500,12 +1569,8 @@ class Worker38BootstrapIntegration(unittest.TestCase):
                         process.wait(timeout=max(0.0, native_deadline - a.time.monotonic()))
                     except BaseException as cleanup_error:
                         wait_error = cleanup_error
-                    try:
-                        for operation, error in (('kill', kill_error), ('wait', wait_error)):
-                            if error is not None:
-                                original_error.add_note('native cleanup ' + operation + ': ' + type(error).__name__[:64])
-                    except BaseException:
-                        pass  # Best-effort notes cannot replace the original failure.
+                    original_error.worker38_native_cleanup_exceptions = tuple(
+                        error for error in (kill_error, wait_error) if error is not None)
                     raise
         if native_paths is not None and a.time.monotonic() >= native_deadline:
             raise subprocess.TimeoutExpired(*native_timeout_args)

@@ -1,0 +1,79 @@
+{
+  "activity": {
+    "fixture_helpers": 0,
+    "games": 0,
+    "live_HTTP": 0,
+    "project_imports": 0,
+    "runtime_probes": 0,
+    "science": 0,
+    "tests": 0
+  },
+  "fixed_interfaces": {
+    "worker38_admission_failure_records": "A-only tuple at most13 typed production records in original report order; known classification, bounded code/phase/error_type and optional bounded original operation. Missing type is honestly recorded_failure. No silent truncation.",
+    "worker38_expected_admission_rejection": "True only on exact intended AdmissionError after the fixed A acceptance boundary is confirmed; runner additionally requires exact class and current A code/classification. Its own classification/parser context is excluded, while attached unexpected report/cleanup causes remain eligible.",
+    "worker38_native_cleanup_exceptions": "Tuple of actual BaseException objects; at most3, in explicit encounter order. Legacy at most3; new Bash at most2. No exception objects/messages are serialized.",
+    "worker38_prefix_retention_exception": "The existing single actual later A-prefix retention cause."
+  },
+  "full_reports": [
+    {
+      "path": "/workspace/shared/worker38-native-prefix-review-exhaustive-9f8159b6/REVIEW.md",
+      "sha256": "fca56abb08070f79556dbc754145baa6403980a173c3f9923d19f30a7db34032"
+    },
+    {
+      "path": "/workspace/shared/worker38-native-prefix33-repair01-review-adversarial-9f8159b6/REPORT.md",
+      "sha256": "0ab3aebda8653c1fdebcb56f5794e12c4725c9a8186306a6f265756671623cf3"
+    }
+  ],
+  "maximum_severity_counts": {
+    "P0": 0,
+    "P1": 0,
+    "P2": 2,
+    "P3": 0
+  },
+  "predecessor_Git_head": "850b31d674908647732d152eca157ffe75a4ecba",
+  "predecessor_canonical_Drive_id": "1mkqr01CSM7CPjvrkPOrM3mcqD2TzQSu1",
+  "predecessor_handoff_sha256": "9f8159b6c9f3978f74efcc61fbf59c022c1b92b97df6e24ded70b135ac673a8f",
+  "reducer": {
+    "context_and_cause_cycle_handling": "Identity set, oldest implicit context/cause first. Explicit later cleanup/retention links are deferred until their owning primary even if rethrow creates a context cycle.",
+    "equal_priority": "Earlier retained order remains primary; stronger actual typed resource/integrity dominates.",
+    "maximum_distinct_exception_objects": 32,
+    "overflow_records_counted": true,
+    "schema_mismatch": "integrity_invalid typed handoff failure; no generic text/attribute classification",
+    "stored_primary": 1,
+    "stored_secondary": 12,
+    "traversal_exhaustion": "Resource-incomplete with exception_graph_incomplete=true, known stronger integrity remains dominant; no retry or continued cases."
+  },
+  "repairs": [
+    "Forward the complete bounded unexpected A production failure record sequence before a weaker escaping exception can bypass stronger secondary classification; keep deliberately expected semantic rejection distinct.",
+    "Feed actual exceptions displaced through stream-context closure and explicit close/kill/wait/root-hook errors into the existing priority reducer, with finite cycle handling and no textual type inference."
+  ],
+  "required_next_gate": "Both complete renewed static reviews and separate exact native-batch authorization; incomplete prefix cannot establish full preparation or scientific readiness.",
+  "review_canonical_Drive_id": "1S7rb9H6jTRG3eHq98INNBm3xoImaR2QN",
+  "schema": "worker38-prefix33-repair02-disposition-v1",
+  "status": "prospective_unadmitted_static_review_candidate",
+  "unchanged": {
+    "Bash_roots_max": 8,
+    "address_space_bytes": 536870912,
+    "certified_prefix": 33,
+    "first_unstartable": "C04",
+    "first_unstartable_ordinal": 34,
+    "generic_child_roots": 0,
+    "global_reserve_inside_prefix": 65536,
+    "log_bytes": 8388608,
+    "method_bodies": 397,
+    "mocked_GETs_max": 50,
+    "native_flags": [
+      "-B",
+      "-P"
+    ],
+    "prefix_bytes": 25165824,
+    "roster": 397,
+    "scientific_flags": [
+      "-B",
+      "-s"
+    ],
+    "unexecuted_suffix": 364,
+    "wall_seconds": 600
+  },
+  "unique_findings": 2
+}

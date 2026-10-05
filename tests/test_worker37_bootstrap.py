@@ -108,6 +108,14 @@ def _native_bash_check_deadline(record):
         raise subprocess.TimeoutExpired('worker37-native-bash original closure deadline', 5.0)
 
 
+def _native_bash_attach_cleanup(primary, cleanup):
+    # Only three fixed cleanup edges exist; the runner reduces their types.
+    causes = getattr(primary, 'worker38_native_cleanup_exceptions', ())
+    if type(causes) is not tuple or len(causes) >= 3:
+        raise AssertionError('native Bash cleanup tuple exceeds its fixed boundary') from primary
+    primary.worker38_native_cleanup_exceptions = causes + (cleanup,)
+
+
 @contextmanager
 def _literal_directory(prefix):
     """Keep routine CI cleanup; native runner owns persisted-root lifetime."""
@@ -133,8 +141,7 @@ def _literal_directory(prefix):
                     try:
                         PRODUCTION_OUTPUT_HOOK(_production_selector(), [record])
                     except BaseException as cleanup_error:
-                        if not isinstance(pending, subprocess.TimeoutExpired):
-                            raise
+                        _native_bash_attach_cleanup(pending, cleanup_error)
                         record['native_bash_writer_state']['cleanup_error_type'] = type(cleanup_error).__name__[:64]
                 else:
                     delivered = False
@@ -200,8 +207,7 @@ def _literal_directory(prefix):
                                 try:
                                     PRODUCTION_OUTPUT_HOOK(_production_selector(), [record])
                                 except BaseException as cleanup_error:
-                                    if not isinstance(error, subprocess.TimeoutExpired):
-                                        raise
+                                    _native_bash_attach_cleanup(error, cleanup_error)
                                     record['native_bash_writer_state']['cleanup_error_type'] = type(cleanup_error).__name__[:64]
                         raise
 
@@ -971,7 +977,9 @@ def run_bash(case_id, *, entry, overrides=None):
                     stderr = native_stderr.read_bytes().decode()
                     check_native_deadline()
                 except BaseException as error:
+                    primary = first_timeout if first_timeout is not None else error
                     if first_timeout is not None and error is not first_timeout:
+                        _native_bash_attach_cleanup(primary, error)
                         state['cleanup_error_type'] = type(error).__name__[:64]
                     try:
                         if process is not None and process.poll() is None:
@@ -979,8 +987,7 @@ def run_bash(case_id, *, entry, overrides=None):
                             # Nonblocking reap only; no new cleanup interval.
                             process.poll()
                     except BaseException as cleanup_error:
-                        if first_timeout is None:
-                            raise
+                        _native_bash_attach_cleanup(primary, cleanup_error)
                         state['cleanup_error_type'] = type(cleanup_error).__name__[:64]
                     if process is not None:
                         state['returncode'] = process.returncode

@@ -435,13 +435,83 @@ class Capture:
         self.failure = None
 
     def fail(self, error, phase, code=None):
-        self.failure = retain_failure(self.failure, error, phase, code)
-        # One closed helper interface: unexpected A-case cause survives a
-        # later prefix-retention error, whose type still participates here.
-        if self.current_row and self.current_row.get('literal_case_id', '').startswith('A'):
-            retention_error = getattr(error, 'worker38_prefix_retention_exception', None)
-            if isinstance(retention_error, BaseException):
-                self.failure = retain_failure(self.failure, retention_error, 'admission_prefix_retention')
+        # Finite known helper handoffs and real exception context only. No
+        # traceback-text classification or arbitrary callback discovery.
+        global FAILURE_SEQUENCE
+        seen = set()
+        is_admission = bool(self.current_row and self.current_row.get('literal_case_id', '').startswith('A'))
+        admission_type = getattr(sys.modules.get('worker38.admission'), 'AdmissionError', None)
+        test_module = sys.modules.get('test_worker38_bootstrap_integration')
+        table = getattr(test_module, 'A_ACCEPTANCE', {})
+        expected = table.get(self.current.rsplit('.', 1)[-1]) if is_admission else None
+
+        def invalid_handoff():
+            self.failure = retain_failure(self.failure,
+                BatchStopped('native typed failure handoff differs', 'integrity_invalid'), 'failure_handoff')
+
+        def visit(caught, location, local_code=None):
+            global FAILURE_SEQUENCE
+            if caught is None or id(caught) in seen:
+                return
+            if not isinstance(caught, BaseException):
+                invalid_handoff(); return
+            if len(seen) >= 32:
+                self.failure = retain_failure(self.failure,
+                    BatchStopped('native exception graph bound exhausted', 'resource_incomplete'), 'failure_handoff')
+                self.failure['exception_graph_incomplete'] = True
+                return
+            seen.add(id(caught))
+            marked = getattr(caught, 'worker38_expected_admission_rejection', False)
+            intended = (is_admission and marked is True and isinstance(admission_type, type) and
+                        type(caught) is admission_type and expected is not None and expected[0] is not None and
+                        (caught.code, caught.classification) == expected[:2])
+            if marked and not intended:
+                invalid_handoff()
+            cleanup = getattr(caught, 'worker38_native_cleanup_exceptions', ())
+            if type(cleanup) is not tuple or len(cleanup) > 3:
+                invalid_handoff(); cleanup = ()
+            retention_error = (getattr(caught, 'worker38_prefix_retention_exception', None)
+                               if is_admission else None)
+            # Re-raising the saved primary while handling cleanup can form a
+            # context cycle. Explicit later causes remain after that primary.
+            later = {id(item) for item in cleanup}
+            if retention_error is not None:
+                later.add(id(retention_error))
+            # A positively identified deliberate rejection and its internal
+            # parser context are expected test behavior. Unexpected attached
+            # report/cleanup causes remain eligible below.
+            if not intended:
+                if id(caught.__context__) not in later:
+                    visit(caught.__context__, 'exception_context')
+                if id(caught.__cause__) not in later:
+                    visit(caught.__cause__, 'exception_cause')
+            if is_admission:
+                records = getattr(caught, 'worker38_admission_failure_records', ())
+                if type(records) is not tuple or len(records) > 13:
+                    invalid_handoff()
+                else:
+                    for record in records:
+                        required = {'classification', 'code', 'phase', 'error_type'}
+                        if (type(record) is not dict or not required <= set(record) <= required | {'operation'} or
+                                type(record['classification']) is not str or record['classification'] not in FAILURE_PRIORITY or
+                                ('operation' in record and (type(record['operation']) is not str or
+                                                            not 1 <= len(record['operation']) <= 64)) or
+                                any(type(record[key]) is not str or not 1 <= len(record[key]) <= limit
+                                    for key, limit in (('code', 160), ('phase', 64), ('error_type', 64)))):
+                            invalid_handoff(); continue
+                        FAILURE_SEQUENCE += 1
+                        self.failure = retain_failure_record(self.failure, {
+                            'status': record['classification'], 'code': record['code'],
+                            'phase': record['phase'], 'error_type': record['error_type'],
+                            'observed_order': FAILURE_SEQUENCE})
+            if not intended:
+                self.failure = retain_failure(self.failure, caught, location, local_code)
+            for secondary in cleanup:
+                visit(secondary, 'native_cleanup')
+            if is_admission:
+                visit(retention_error, 'admission_prefix_retention')
+
+        visit(error, phase, code)
 
     def merge_failure(self, state):
         if state is not None:
