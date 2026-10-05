@@ -19,6 +19,7 @@ import resource
 import signal
 import socket
 import stat
+import subprocess
 import sys
 import tempfile
 import threading
@@ -46,6 +47,7 @@ FSYNC = os.fsync
 OS_WRITE = os.write
 OS_OPEN = os.open
 OS_CLOSE = os.close
+FSTAT = os.fstat
 GET_PROFILE = sys.getprofile
 GET_TRACE = sys.gettrace
 GET_TIMER = signal.getitimer
@@ -61,6 +63,67 @@ class BatchStopped(BaseException):
         super().__init__(reason)
         self.reason = reason
         self.status = status
+
+
+FAILURE_PRIORITY = {'execution_blocked': 0, 'execution_incomplete': 1,
+                    'resource_incomplete': 2, 'integrity_invalid': 3}
+FAILURE_SEQUENCE = 0
+
+
+def typed_failure_status(error):
+    if isinstance(error, BatchStopped):
+        return error.status
+    if isinstance(error, (MemoryError, RecursionError, subprocess.TimeoutExpired)):
+        return 'resource_incomplete'
+    # Only exact classes from the already pinned, lazily loaded modules count.
+    # Arbitrary similarly named exceptions or free-form text do not classify.
+    admission = sys.modules.get('worker38.admission')
+    admission_error = getattr(admission, 'AdmissionError', None)
+    if isinstance(admission_error, type) and isinstance(error, admission_error):
+        status = error.classification
+        return 'execution_incomplete' if status == 'evidence_incomplete' else (
+            status if type(status) is str and status in FAILURE_PRIORITY else 'integrity_invalid')
+    common = sys.modules.get('worker38.common')
+    if common is not None:
+        resource_error = getattr(common, 'ResourceExceeded', None)
+        integrity_error = getattr(common, 'IntegrityError', None)
+        if isinstance(resource_error, type) and isinstance(error, resource_error):
+            return 'resource_incomplete'
+        if isinstance(integrity_error, type) and isinstance(error, integrity_error):
+            return 'integrity_invalid'
+    return 'execution_incomplete'
+
+
+def retain_failure(state, error, phase, code=None):
+    """Fixed bounded typed evidence, strongest cause wins; equal keeps first."""
+    global FAILURE_SEQUENCE
+    FAILURE_SEQUENCE += 1
+    status = typed_failure_status(error)
+    record = {'error_type': type(error).__name__[:64], 'status': status,
+              'code': (code or (error.reason if isinstance(error, BatchStopped) else
+                       'native_unexpected_exception'))[:160], 'phase': phase,
+              'observed_order': FAILURE_SEQUENCE}
+    return retain_failure_record(state, record)
+
+
+def retain_failure_record(state, record):
+    status = record['status']
+    if state is None:
+        return {**record, 'primary_failure': record, 'secondary_failures': [],
+                'additional_failure_records_omitted': 0}
+    old = state['primary_failure']
+    if (FAILURE_PRIORITY[status] > FAILURE_PRIORITY[old['status']] or
+            FAILURE_PRIORITY[status] == FAILURE_PRIORITY[old['status']] and
+            record['observed_order'] < old['observed_order']):
+        state.update(record)
+        state['primary_failure'] = record
+        record = old
+    if len(state['secondary_failures']) < 12:
+        state['secondary_failures'].append(record)
+        state['secondary_failures'].sort(key=lambda item: item['observed_order'])
+    else:
+        state['additional_failure_records_omitted'] += 1
+    return state
 
 
 def canonical(value):
@@ -86,6 +149,49 @@ def runtime_isolation_snapshot():
             GET_HANDLER(signal.SIGALRM), GET_HANDLER(signal.SIGUSR1), GETRLIMIT(resource.RLIMIT_AS))
 
 
+def verify_project_namespace(tree, deadline):
+    policy = {'recursive': True, 'follow_symlinks': False, 'symlinks_allowed': False,
+              'special_nodes_allowed': False, 'non_ascii_names_allowed': False,
+              'candidate_file_suffixes': ['.py', '.pyc', '.so'],
+              'directory_rule': 'name.isidentifier() (includes __pycache__)'}
+    root = Path(tree['root'])
+    if (tree['schema'] != 'worker38-project-import-namespace-v2' or
+            tree['exists'] is not True or tree['root_type'] != 'directory' or
+            tree['policy'] != policy or not root.is_absolute()):
+        raise BatchStopped('native project namespace schema differs', 'execution_blocked')
+    ancestors = []
+    for path in [*reversed(root.parents), root]:
+        if not stat.S_ISDIR(LSTAT(path).st_mode):
+            raise BatchStopped('native project root ancestry differs', 'execution_blocked')
+        ancestors.append([str(path), 'directory', None])
+    entries = []
+    def visit(path, prefix=''):
+        if NOW() >= deadline:
+            raise BatchStopped('native cooperative cutoff expired during namespace check', 'resource_incomplete')
+        for name in sorted(LISTDIR(path)):
+            if not name.isascii():
+                raise BatchStopped('native project entry domain differs', 'execution_blocked')
+            child = path / name
+            info = LSTAT(child)
+            is_dir, is_link = stat.S_ISDIR(info.st_mode), stat.S_ISLNK(info.st_mode)
+            if not (name.endswith(('.py', '.pyc', '.so')) or
+                    name.isidentifier() and (is_dir or is_link)):
+                continue
+            kind = ('symlink' if is_link else 'directory' if is_dir else
+                    'file' if stat.S_ISREG(info.st_mode) else 'special')
+            relative = prefix + name
+            entries.append([relative, kind, READLINK(child) if is_link else None])
+            if kind in ('symlink', 'special'):
+                raise BatchStopped('native project candidate alias or special node', 'execution_blocked')
+            if is_dir and name.isidentifier():
+                visit(child, relative + '/')
+    visit(root)
+    entries.sort(key=lambda row: row[0])
+    if (ancestors != tree['ancestor_entries'] or entries != tree['entries'] or
+            sha(canonical(entries)) != tree['entries_sha256']):
+        raise BatchStopped('native project namespace changed', 'execution_blocked')
+
+
 def verify_native_environment(binding, expected_environment, deadline):
     """Recheck the one frozen native metadata manifest; never launch a probe."""
     path = ROOT / binding['path']
@@ -95,7 +201,8 @@ def verify_native_environment(binding, expected_environment, deadline):
     actual = dict(os.environ)
     for name in ('WORKER38_FIXED_MAP_SHA256', 'WORKER38_NATIVE_DEADLINE_CS'):
         actual.pop(name, None)
-    if actual != expected_environment or not sys.dont_write_bytecode or sys.pycache_prefix is not None:
+    if (actual != expected_environment or not sys.dont_write_bytecode or
+            not sys.flags.safe_path or sys.pycache_prefix is not None):
         raise BatchStopped('native positive environment differs', 'execution_blocked')
     with OPEN(path, 'rb') as stream:
         metadata = json.load(stream)
@@ -160,9 +267,22 @@ def verify_native_environment(binding, expected_environment, deadline):
                         'sha256': pin, 'mtime_ns': mtime,
                         **({'target': target, 'resolved': resolved} if kind == 'symlink' else {})})
     for tree in metadata['site']['global_site_directory_namespaces']:
-        names = sorted(LISTDIR(tree['root'])) if tree['exists'] else []
+        if tree['exists'] is False:
+            try:
+                LSTAT(tree['root'])
+            except FileNotFoundError:
+                continue
+            raise BatchStopped('native absent site directory appeared', 'execution_blocked')
+        if tree['exists'] is not True or not stat.S_ISDIR(LSTAT(tree['root']).st_mode):
+            raise BatchStopped('native site directory binding differs', 'execution_blocked')
+        names = sorted(LISTDIR(tree['root']))
         if names != [row[0] for row in tree['entries']]:
             raise BatchStopped('native site namespace changed', 'execution_blocked')
+    namespaces = metadata['project_import_roots']
+    if [tree['root'] for tree in namespaces] != [str(ROOT / name) for name in ('evidence-design', 'tests', 'scripts')]:
+        raise BatchStopped('native project namespace roots differ', 'execution_blocked')
+    for tree in namespaces:
+        verify_project_namespace(tree, deadline)
     return len(checked)
 
 
@@ -231,21 +351,53 @@ class LogStream(io.TextIOBase):
         self.case_started = 0
         self.case_limit = 0
         self.overflow = False
+        self.write_failure = False
+        self.size_complete = True
+        self.failure = None
     def writable(self):
         return True
     @property
     def buffer(self):
         return self
     def write(self, value):
+        if self.write_failure:
+            raise BatchStopped('native log capture already failed')
         raw = value if isinstance(value, bytes) else value.encode('utf-8', errors='backslashreplace')
         remaining = min(LOG_CAP - self.size, self.case_limit - (self.size - self.case_started))
         if len(raw) > remaining:
             self.overflow = True
+            self.failure = retain_failure(self.failure,
+                BatchStopped('native stdout/stderr allowance exhausted', 'resource_incomplete'), 'log_write')
             if remaining:
-                self.stream.write(raw[:remaining]); self.size += remaining
+                self._write_once(raw[:remaining])
             raise BatchStopped('native stdout/stderr allowance exhausted; prefix retained', 'resource_incomplete')
-        self.stream.write(raw); self.size += len(raw)
+        self._write_once(raw)
         return len(value)
+    def _write_once(self, raw):
+        try:
+            count = self.stream.write(raw)
+        except BaseException as error:
+            self.write_failure = True
+            self.size_complete = False
+            self.failure = retain_failure(self.failure, error, 'log_write')
+            # A failed unbuffered write may leave a prefix. This one bounded
+            # size observation never authorizes another write or loses cause.
+            try:
+                observed = FSTAT(self.stream.fileno()).st_size
+                if self.size <= observed <= self.size + len(raw):
+                    self.size = observed
+                    self.size_complete = True
+            except BaseException as observation_error:
+                self.failure = retain_failure(self.failure, observation_error, 'log_size_observation')
+            raise
+        if type(count) is not int or not 0 <= count <= len(raw):
+            self.write_failure = True
+            self.size_complete = False
+            raise BatchStopped('native log write count is unconfirmed')
+        self.size += count
+        if count != len(raw):
+            self.write_failure = True
+            raise BatchStopped('native log short write; actual prefix retained')
     def flush(self):
         self.stream.flush()
     def durable(self):
@@ -280,10 +432,20 @@ class Capture:
         self.inventory_index = []
         self.started_selectors = []
         self.log = None
+        self.failure = None
+
+    def fail(self, error, phase, code=None):
+        self.failure = retain_failure(self.failure, error, phase, code)
+
+    def merge_failure(self, state):
+        if state is not None:
+            for record in [state['primary_failure'], *state['secondary_failures']]:
+                self.failure = retain_failure_record(self.failure, record)
+            self.failure['additional_failure_records_omitted'] += state['additional_failure_records_omitted']
 
     def check_time(self):
         if NOW() >= self.deadline or BOOT_NS(time.CLOCK_BOOTTIME) >= self.boottime_deadline_ns:
-            raise BatchStopped('original600-second native deadline exhausted', 'resource_incomplete')
+            raise BatchStopped('conservative native cooperative cutoff exhausted', 'resource_incomplete')
 
     def write_record(self, path, value, maximum):
         self.check_time()
@@ -470,8 +632,10 @@ class Capture:
             if absolute in explicit and not matched_output:
                 raise BatchStopped('hook names output absent from frozen sink map', 'integrity_invalid')
             if matched_output:
-                if len(matched_output) != 1 or item['size_bytes'] > matched_output[0]['maximum_bytes']:
-                    raise BatchStopped('produced file contradicts frozen sink size', 'integrity_invalid')
+                if (len(matched_output) != 1 or
+                        item['type'] != matched_output[0]['expected_type'] or
+                        item['size_bytes'] > matched_output[0]['maximum_bytes']):
+                    raise BatchStopped('produced file contradicts frozen sink type or size', 'integrity_invalid')
                 self.output_files[absolute] = {**item, 'absolute_path': absolute, 'selector': self.current}
                 out_rows.append(compact)
                 continue
@@ -516,7 +680,7 @@ class Capture:
         if runtime_isolation_snapshot() != self.case_runtime_before:
             raise BatchStopped('native process state restoration is unconfirmed', 'integrity_invalid')
         self.collect()
-        if self.log.overflow or self.log.size - self.case_log_started > self.active_log_reservation:
+        if self.log.overflow or self.log.write_failure or self.log.size - self.case_log_started > self.active_log_reservation:
             raise BatchStopped('native case log capture is incomplete')
         result = {'selector': self.current, 'status': status,
             'elapsed_seconds': NOW() - self.case_started, 'temporary_roots': self.temp_count,
@@ -540,9 +704,11 @@ class Capture:
 
 
 def main():
-    # The shell samples /proc/uptime before invoking the original timeout.
+    # GNU timeout owns the hard600-second interval from its actual invocation.
+    # The trusted shell samples earlier only for a conservative cooperative
+    # cutoff; this is not a claim that the two start instants are identical.
     # Pair monotonic first and boottime second; floor and subtract1ms so this
-    # conversion can only shorten that original interval, including suspend.
+    # conversion can only shorten the cooperative interval, including suspend.
     raw_deadline = os.environ.get('WORKER38_NATIVE_DEADLINE_CS', '')
     if not raw_deadline.isascii() or not raw_deadline.isdigit() or not 1 <= len(raw_deadline) <= 20:
         raise SystemExit('original shell boottime deadline is required')
@@ -597,8 +763,10 @@ def main():
     capture.write_global('start.json', {'schema': 'worker38-native-batch-start-v1',
         'fixed_map_sha256': expected, 'planned_methods': 397,
         'global_prefix_reserve_bytes': GLOBAL_RESERVE,
-        'original_deadline_monotonic': capture.deadline,
-        'original_deadline_boottime_ns': capture.boottime_deadline_ns,
+        'cooperative_deadline_monotonic': capture.deadline,
+        'cooperative_deadline_boottime_ns': capture.boottime_deadline_ns,
+        'external_hard_timeout_seconds': 600,
+        'clock_boundary': 'GNU timeout owns its invocation interval; earlier cooperative cutoff may only shorten work',
         'native_pid': GETPID(), 'status': 'started_no_completion_claim'})
     try:
         def bounded_os_write(fd, raw):
@@ -659,7 +827,15 @@ def main():
             class_name, method_name = qualified.split('.', 1)
             test = getattr(modules[path], class_name)(method_name)
             class Result(unittest.TextTestResult):
+                def addError(self, test, err):
+                    capture.fail(err[1], 'unittest_setup_body_or_cleanup')
+                    super().addError(test, err)
+                def addFailure(self, test, err):
+                    capture.fail(err[1], 'unittest_assertion')
+                    super().addFailure(test, err)
                 def addSubTest(self, test, subtest, err):
+                    if err is not None:
+                        capture.fail(err[1], 'unittest_subtest')
                     capture.observe('success' if err is None else 'failure', str(subtest))
                     super().addSubTest(test, subtest, err)
             result = unittest.TextTestRunner(stream=log, verbosity=2, resultclass=Result).run(test)
@@ -669,21 +845,14 @@ def main():
             capture.end(status)
         capture.check_time()
     except BaseException as caught:
-        stopped = {'error_type': type(caught).__name__[:64],
-                   'status': caught.status if isinstance(caught, BatchStopped) else
-                       ('resource_incomplete' if isinstance(caught, (MemoryError, RecursionError)) else 'execution_incomplete'),
-                   'code': caught.reason if isinstance(caught, BatchStopped) else 'native_unexpected_exception',
-                   'active_reservation_retained': capture.active_prefix_reservation}
+        capture.fail(caught, 'case_or_schedule')
         # Never repeat a full scan/hash/fsync pass after a failed scan or an
         # exhausted one-shot deadline. Original files already remain owned.
         if capture.current is not None and not capture.collect_attempted and NOW() < capture.deadline:
             try:
                 capture.collect()
             except BaseException as capture_error:
-                stopped['capture_error_type'] = type(capture_error).__name__[:64]
-                if isinstance(capture_error, BatchStopped) and capture_error.status == 'integrity_invalid':
-                    stopped['earlier_status'] = stopped['status']
-                    stopped['status'] = 'integrity_invalid'
+                capture.fail(capture_error, 'failure_reconciliation')
     finally:
         os.write = OS_WRITE
         tempfile.TemporaryDirectory = ORIGINAL_TEMPORARY_DIRECTORY
@@ -691,12 +860,16 @@ def main():
         try:
             log.durable()
         except BaseException as log_error:
-            detail = {'error_type': type(log_error).__name__[:64], 'code': 'native_log_durability_unconfirmed'}
-            if stopped is None:
-                stopped = {**detail, 'status': 'resource_incomplete' if isinstance(log_error,
-                    (MemoryError, RecursionError)) else 'execution_incomplete'}
-            else:
-                stopped['log_failure'] = detail
+            capture.fail(log_error, 'log_finalization', 'native_log_durability_unconfirmed')
+        if log.overflow:
+            capture.fail(BatchStopped('native stdout/stderr allowance exhausted', 'resource_incomplete'),
+                         'log_finalization')
+        if log.write_failure:
+            capture.fail(BatchStopped('native log capture is incomplete'), 'log_finalization')
+        capture.merge_failure(log.failure)
+    stopped = capture.failure
+    if stopped is not None:
+        stopped['active_reservation_retained'] = capture.active_prefix_reservation
     success = stopped is None and len(capture.method_results) == 397 and all(
         row['status'] == 'passed' for row in capture.method_results)
     counters = {path: {key: getattr(module, key) for key in (
@@ -718,7 +891,8 @@ def main():
         'errors': int(stopped is not None), 'stopped': stopped, 'elapsed_seconds': NOW() - started,
         'native_executable': sys.executable, 'native_version': sys.version, 'native_argv': sys.orig_argv,
         'native_pid': GETPID(), 'address_space': list(GETRLIMIT(resource.RLIMIT_AS)),
-        'log_bytes': log.size, 'produced_prefix_bytes_before_receipt': capture.prefix_bytes(),
+        'log_bytes': log.size, 'log_bytes_complete': log.size_complete,
+        'produced_prefix_bytes_before_receipt': capture.prefix_bytes(),
         'settled_prefix_bytes': capture.settled_prefix_bytes,
         'active_prefix_reservation_bytes': capture.active_prefix_reservation,
         'global_reserve_bytes': GLOBAL_RESERVE,

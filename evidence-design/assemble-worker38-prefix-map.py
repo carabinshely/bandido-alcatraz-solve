@@ -130,6 +130,7 @@ support = ['evidence/NEW64-HARD-RESERVATIONS.json','evidence/DRIVER-HARD-RESERVA
     'evidence-design/FIRST33-INDEPENDENT-INPUT-PINS.json','evidence-design/NATIVE-ENVIRONMENT-CLOSURE.json',
     'evidence-design/worker38-selector-materialization-draft.json',
     'evidence-design/assemble-worker38-prefix-map.py',
+    'evidence-design/PREFIX33-REPAIR01-DISPOSITION.json',
     'evidence/budget-amendment-adoption-5990100199.json']
 environment = read('evidence-design/NATIVE-ENVIRONMENT-CLOSURE.json')['planned_owner_environment']
 plan = {'schema':'worker38-fixed-preparation-map-v1','status':'UNADMITTED_EXACT_MAP_FOR_STATIC_REVIEW',
