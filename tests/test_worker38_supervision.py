@@ -388,9 +388,11 @@ class SupervisionStubTests(unittest.TestCase):
         log = cell / "child.log"
         if before:
             before(cell, state, log)
-        env = {k: v for k, v in os.environ.items() if not k.startswith("PYTHON")}
-        env.update(PYTHONHASHSEED="0", PYTHONDONTWRITEBYTECODE="1")
-        arguments = dict(command=[sys.executable, "-B", "-s", str(script), str(state),
+        # Prospective native literal-command refinement: exclude ambient site
+        # startup and credentials. This is never the scientific child command.
+        env = {"PATH": "/usr/bin:/bin", "HOME": str(cell), "TMPDIR": str(cell), "LC_ALL": "C",
+               "PYTHONHASHSEED": "0", "PYTHONDONTWRITEBYTECODE": "1"}
+        arguments = dict(command=[sys.executable, "-B", "-s", "-S", str(script), str(state),
                                   repr(cutoff), repr(batch_deadline)],
                          env=env, cwd=cell, output_log=log, call_state=state,
                          phase=phase or supervision.PhaseBudget(wall_seconds=10, cpu_seconds=10),
