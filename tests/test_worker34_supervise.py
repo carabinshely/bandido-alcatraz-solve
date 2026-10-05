@@ -204,14 +204,254 @@ def test_timeout_terminates_and_reaps_term_ignoring_parser(tmp_path):
     assert_no_survivors(receipt)
 
 
+def check_controlled_serial_budget(tmp_path, *, case_id, a_completion_ms,
+                                   cleanup_ms, expected_parsers, expected_elapsed_ms):
+    """Exercise the real control flow with literal time and administrative data."""
+    from types import SimpleNamespace
+
+    original_modules = {name: getattr(SUP, name) for name in
+                        ('time', 'signal', 'subprocess', 'resource', 'os', 'sys', 'ctypes')}
+    original_containment = SUP.Containment
+    original_mutators = (SUP.signal.signal, SUP.signal.setitimer,
+                         SUP.resource.setrlimit, SUP.sys.setprofile, SUP.sys.settrace)
+    forbidden_calls = []
+
+    def forbidden(*args, **kwargs):
+        forbidden_calls.append('unexpected real process, probe, timer, hook or limit operation')
+        raise AssertionError(forbidden_calls[-1])
+
+    class LiteralClock:
+        def __init__(self):
+            self.milliseconds = 100000
+            self.previous_handler = object()
+            self.handler = self.previous_handler
+            self.deadline = None
+            self.arms = []
+            self.fired = []
+
+        def monotonic(self):
+            return self.milliseconds / 1000
+
+        def getsignal(self, signum):
+            assert signum == original_modules['signal'].SIGALRM
+            return self.handler
+
+        def signal(self, signum, handler):
+            assert signum == original_modules['signal'].SIGALRM
+            old = self.handler
+            self.handler = handler
+            return old
+
+        def setitimer(self, timer, delay, interval=0):
+            assert timer == original_modules['signal'].ITIMER_REAL and interval == 0
+            assert delay >= 0
+            self.deadline = (self.milliseconds + round(delay * 1000)) if delay else None
+            self.arms.append(dict(at_ms=self.milliseconds, delay_seconds=delay,
+                                 deadline_ms=self.deadline,
+                                 handler=getattr(self.handler, '__name__', 'previous')))
+            return (0.0, 0.0)
+
+        def advance_to(self, target_ms):
+            assert target_ms >= self.milliseconds
+            if self.deadline is not None and self.deadline <= target_ms:
+                self.milliseconds = self.deadline
+                self.deadline = None
+                self.fired.append(dict(at_ms=self.milliseconds,
+                                       handler=getattr(self.handler, '__name__', 'previous')))
+                self.handler(original_modules['signal'].SIGALRM, None)
+                raise AssertionError('literal expiry unexpectedly returned')
+            self.milliseconds = target_ms
+
+        def sleep(self, seconds):
+            self.advance_to(self.milliseconds + round(seconds * 1000))
+
+    clock = LiteralClock()
+    frozen = {'synthetic_administration': True, 'case_id': case_id}
+    hashes = dict(a='1' * 64, b='2' * 64, supervisor='3' * 64, protocol='4' * 64)
+    runtime = dict(executable='/invented/worker34/python', version='invented-runtime',
+                   launch_environment={'LITERAL_ADMIN_ONLY': '1'})
+    artifact = tmp_path / 'invented-artifact.json'
+    artifact.write_bytes(b'{"synthetic_administration":true}\n')
+    execution_freeze = tmp_path / 'invented-freeze.json'
+    execution_freeze.write_bytes(b'{"synthetic_administration":true}\n')
+    protocol = tmp_path / 'invented-protocol.txt'
+    protocol.write_bytes(b'INVENTED_ADMINISTRATIVE_PROTOCOL\n')
+    parser_a, parser_b = tmp_path / 'invented-parser-a.txt', tmp_path / 'invented-parser-b.txt'
+    parser_a.write_bytes(b'INVENTED_PARSER_A_METADATA_ONLY\n')
+    parser_b.write_bytes(b'INVENTED_PARSER_B_METADATA_ONLY\n')
+    frozen_dir, accepted = tmp_path / 'invented-frozen', tmp_path / 'invented-accepted'
+    frozen_dir.mkdir()
+    accepted.mkdir()
+    config = SUP.Config(artifact=artifact, frozen=frozen_dir, accepted_evidence=accepted,
+                        output_dir=tmp_path / 'attempt', execution_freeze=execution_freeze,
+                        parser_a=parser_a, parser_b=parser_b, protocol=protocol)
+    copies = dict(a=parser_a, b=parser_b, supervisor=SOURCE, protocol=protocol)
+    launches, containers, cleanup_deadlines = [], [], []
+
+    def complete(proc, returncode):
+        assert proc.returncode is None
+        proc.returncode = returncode
+        containers[0].reaped.append(dict(pid=proc.pid, returncode=returncode,
+                                        maxrss_kib=0, user_seconds=0, system_seconds=0))
+        if returncode == 0:
+            # These are fixed administrative placeholders, never selected states.
+            for name in SUP.SCIENTIFIC_FILES:
+                (proc.output / name).write_bytes(b'{"synthetic_administration":true}\n')
+            receipt = dict(parser_id=proc.parser_id, source_sha256=hashes[proc.parser_id],
+                           interpreter_executable=runtime['executable'],
+                           interpreter_version=runtime['version'], pid=proc.pid,
+                           rlimit_as_soft=2147483648, rlimit_as_hard=2147483648,
+                           status='complete', completed=True, elapsed_seconds=0.65,
+                           maxrss_kib=0, established_integrity_failure=False, errors=[])
+            SUP.write_exclusive(proc.output / 'parser-receipt.json', receipt)
+
+    class LiteralContainment:
+        def __init__(self):
+            containers.append(self)
+            self.current = self.proc = None
+            self.observed = set()
+            self.reaped, self.sent = [], []
+            self.closed = False
+
+        def descendants(self):
+            return {proc.pid for proc in launches if proc.returncode is None}
+
+        def reap(self):
+            if self.proc is None or self.proc.returncode is not None:
+                return
+            if self.proc.killed:
+                complete(self.proc, -9)
+                return
+            target = a_completion_ms if self.proc.parser_id == 'a' else 101101
+            clock.advance_to(target)
+            assert self.proc.parser_id == 'a', 'B must hit the original workload deadline'
+            complete(self.proc, 0)
+
+        def send(self, signum):
+            assert signum in (original_modules['signal'].SIGTERM, original_modules['signal'].SIGKILL)
+            for proc in launches:
+                if proc.returncode is None:
+                    self.sent.append(dict(pid=proc.pid, start_ticks=proc.start_ticks,
+                                          signal=signum, at_ms=clock.milliseconds))
+                    if signum == original_modules['signal'].SIGKILL:
+                        proc.killed = True
+
+        def cleanup(self, grace_deadline):
+            cleanup_deadlines.append(round(grace_deadline * 1000))
+            assert cleanup_deadlines == [103100]
+            assert clock.deadline == 103100
+            clock.advance_to(clock.milliseconds + cleanup_ms)
+            assert clock.milliseconds < 103100
+            self.reap()
+            assert not self.descendants()
+            return True
+
+        def close(self):
+            assert not self.descendants()
+            self.closed = True
+
+    def popen(command, **kwargs):
+        assert len(launches) < 2
+        parser_id = 'a' if not launches else 'b'
+        assert command[:4] == [runtime['executable'], '-I', '-B', str(copies[parser_id])]
+        assert kwargs['start_new_session'] is True and kwargs['close_fds'] is True
+        assert kwargs['env'] == runtime['launch_environment']
+        assert kwargs['cwd'] == config.output_dir
+        out = Path(command[command.index('--output-dir') + 1])
+        out.mkdir(exist_ok=False)
+        proc = SimpleNamespace(pid=1701 + len(launches), start_ticks=2701 + len(launches),
+                               parser_id=parser_id, output=out, returncode=None, killed=False,
+                               launched_at_ms=clock.milliseconds)
+        launches.append(proc)
+        containers[0].observed.add((proc.pid, proc.start_ticks))
+        return proc
+
+    proxies = {name: SimpleNamespace(**vars(module)) for name, module in original_modules.items()}
+    proxies['time'].monotonic, proxies['time'].sleep = clock.monotonic, clock.sleep
+    proxies['signal'].getsignal, proxies['signal'].signal = clock.getsignal, clock.signal
+    proxies['signal'].setitimer = clock.setitimer
+    proxies['signal'].getitimer = forbidden
+    proxies['subprocess'].Popen, proxies['subprocess'].run = popen, forbidden
+    proxies['resource'].getrusage = lambda who: SimpleNamespace(ru_maxrss=0)
+    proxies['resource'].getrlimit = proxies['resource'].setrlimit = forbidden
+    proxies['os']._exit = proxies['os'].fork = proxies['os'].wait4 = forbidden
+    proxies['os'].pidfd_open = proxies['os'].kill = forbidden
+    proxies['signal'].pidfd_send_signal = forbidden
+    proxies['sys'].getprofile = proxies['sys'].gettrace = forbidden
+    proxies['sys'].setprofile = proxies['sys'].settrace = forbidden
+    proxies['ctypes'].CDLL = forbidden
+    verify = mock.Mock(return_value=(frozen, hashes, runtime))
+    preserve = mock.Mock(return_value=copies)
+    limit = mock.Mock(return_value=dict(soft=2147483648, hard=2147483648,
+                                       mechanism='literal_mock_not_process_probe', allocated_test_payload_bytes=0))
+    patches = dict(proxies, Containment=LiteralContainment, verify_freeze=verify,
+                   preserve_sources=preserve, probe_production_limit=limit,
+                   runtime_fingerprint=forbidden, verified_launch_environment=forbidden,
+                   compare_streams=forbidden)
+    with mock.patch.multiple(SUP, **patches):
+        receipt = SUP.run_supervisor(config, _budget_seconds=1.1, _grace_seconds=2.0)
+
+    assert all(getattr(SUP, name) is module for name, module in original_modules.items())
+    assert SUP.Containment is original_containment
+    assert original_mutators == (SUP.signal.signal, SUP.signal.setitimer,
+                                 SUP.resource.setrlimit, SUP.sys.setprofile, SUP.sys.settrace)
+    assert forbidden_calls == []
+    assert clock.deadline is None and clock.handler is clock.previous_handler
+    verify.assert_called_once_with(config)
+    preserve.assert_called_once_with(config, hashes)
+    limit.assert_called_once_with(runtime['launch_environment'])
+    assert len(containers) == 1 and containers[0].closed
+    assert cleanup_deadlines == [103100]
+    assert clock.fired == [dict(at_ms=101100, handler='expired')]
+    workload_arms = [row for row in clock.arms if row['delay_seconds'] and row['handler'] == 'expired']
+    grace_arms = [row for row in clock.arms if row['delay_seconds'] and row['handler'] == 'grace_expired']
+    assert workload_arms == [dict(at_ms=100000, delay_seconds=1.1, deadline_ms=101100, handler='expired')]
+    assert grace_arms and all(row['deadline_ms'] == 103100 for row in grace_arms)
+    assert clock.arms[-1]['deadline_ms'] is None
+    assert receipt['status'] == 'resource_incomplete' and receipt['scientific_outputs_accepted'] is False
+    assert receipt['admitted'] is True and receipt['cleanup_confirmed'] is True
+    assert receipt['causes'] == [dict(status='resource_incomplete', message='whole-workload monotonic deadline reached')]
+    assert [row['parser_id'] for row in receipt['parser_executions']] == list(expected_parsers)
+    assert [proc.parser_id for proc in launches] == (['a', 'b'] if expected_parsers else ['a'])
+    assert [proc.launched_at_ms for proc in launches] == ([100000, 100650] if expected_parsers else [100000])
+    assert len(containers[0].reaped) == len(launches)
+    assert not containers[0].descendants()
+    assert [row['signal'] for row in containers[0].sent] == [15, 9]
+    assert all(row['at_ms'] == 101100 for row in containers[0].sent)
+    assert abs(receipt['elapsed_seconds_before_receipt_close'] * 1000 - expected_elapsed_ms) < 0.000001
+    assert receipt['elapsed_seconds_before_receipt_close'] < 3.1
+    assert json.loads((config.output_dir / 'supervisor-receipt.json').read_text()) == receipt
+    for proc in launches:
+        assert json.loads((proc.output / 'ATTEMPT-INCOMPLETE.json').read_text())['accepted'] is False
+    if not expected_parsers:
+        assert not (config.output_dir / 'parser-b').exists()
+    if cleanup_ms:
+        assert receipt['elapsed_seconds_before_receipt_close'] > 2.0
+    trace = dict(schema='worker34-controlled-budget-test-v1', case_id=case_id,
+                 clock_ms=clock.milliseconds, workload_deadline_ms=101100,
+                 cleanup_deadlines_ms=cleanup_deadlines, timer_arms=clock.arms,
+                 timer_fired=clock.fired, fake_launches=len(launches),
+                 fake_reaped=len(containers[0].reaped), fake_signals=containers[0].sent,
+                 fake_handler_restored=True, fake_timer_cleared=True,
+                 real_dependency_bindings_restored=True, real_mutator_bindings_unchanged=True,
+                 real_process_timer_subreaper_probe_calls=0, actual_run_supervisor_calls=1,
+                 administrative_supervisor_imported=True, scientific_calls=0)
+    SUP.write_exclusive(tmp_path / 'controlled-budget-trace.json', trace)
+
+
 def test_entire_serial_workload_uses_one_budget(tmp_path):
-    config = prepare(tmp_path, ('slow', 'slow'))
-    receipt = execute(config, 1.1)
-    assert receipt['status'] == 'resource_incomplete'
-    assert len(receipt['parser_executions']) == 1
-    assert (Path(config['output_dir']) / 'parser-b').exists()
-    assert receipt['elapsed_seconds_before_receipt_close'] < 2.0
-    assert_no_survivors(receipt)
+    check_controlled_serial_budget(tmp_path, case_id='B01', a_completion_ms=100650,
+                                   cleanup_ms=0, expected_parsers=('a',), expected_elapsed_ms=1100)
+
+
+def test_entire_serial_workload_cleanup_uses_original_grace(tmp_path):
+    check_controlled_serial_budget(tmp_path, case_id='B02', a_completion_ms=100650,
+                                   cleanup_ms=1500, expected_parsers=('a',), expected_elapsed_ms=2600)
+
+
+def test_entire_serial_workload_can_expire_before_first_completion(tmp_path):
+    check_controlled_serial_budget(tmp_path, case_id='B03', a_completion_ms=101101,
+                                   cleanup_ms=0, expected_parsers=(), expected_elapsed_ms=1100)
 
 
 def check_detached_descendants(tmp_path, mode):

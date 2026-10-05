@@ -1,0 +1,685 @@
+{
+  "baseline": {
+    "actor": "carabinshely",
+    "adversarial_comment_id": 104,
+    "all_hosts_mock_only": true,
+    "base_head": "5555555555555555555555555555555555555555",
+    "directory_mode": "0700",
+    "exhaustive_comment_id": 103,
+    "gc_threshold": [
+      700,
+      10,
+      10
+    ],
+    "literal_fixture_bytes_status": "Future exact fixtures/stubs will be materialized and SHA256-frozen under distinct root preparation authority before tests. Synthetic IDs/hashes are never authenticated evidence.",
+    "main_ci_run_id": 102,
+    "memory_bytes": 536870912,
+    "new_head": "1111111111111111111111111111111111111111",
+    "new_tree": "2222222222222222222222222222222222222222",
+    "pr_number": 101,
+    "prior_artifact_id": 106,
+    "prior_head": "3333333333333333333333333333333333333333",
+    "prior_preflight_run_id": 105,
+    "prior_tree": "4444444444444444444444444444444444444444",
+    "repository": "carabinshely/bandido-alcatraz-solve",
+    "run_attempt": 1,
+    "runner": "bandido-alcatraz-ci",
+    "runner_uid": 1000,
+    "stable_allocation_id": "worker37-bootstrap-readiness-01",
+    "storage_redirect_origin": "https://worker37fixture.blob.core.windows.net",
+    "token": "SENTINEL_SECRET_42"
+  },
+  "batches_proposed": 1,
+  "case_count": 60,
+  "case_order": [
+    "T001",
+    "T002",
+    "T003",
+    "T004",
+    "T005",
+    "T006",
+    "T007",
+    "T008",
+    "T009",
+    "T010",
+    "T011",
+    "T012",
+    "T013",
+    "T014",
+    "T015",
+    "T016",
+    "T017",
+    "T018",
+    "T019",
+    "T020",
+    "T021",
+    "T022",
+    "T023",
+    "T024",
+    "T025",
+    "T026",
+    "T027",
+    "T028",
+    "T029",
+    "T030",
+    "T031",
+    "T032",
+    "T033",
+    "T034",
+    "T035",
+    "T036",
+    "T037",
+    "T038",
+    "T039",
+    "T040",
+    "T041",
+    "T042",
+    "T043",
+    "T044",
+    "T045",
+    "T046",
+    "T047",
+    "T048",
+    "T049",
+    "T050",
+    "T051",
+    "T052",
+    "T053",
+    "T054",
+    "T055",
+    "T056",
+    "T057",
+    "T058",
+    "T059",
+    "T060"
+  ],
+  "cases": [
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "Python metadata stage validates seven fixed mocked responses and returns its bounded preparation-only evidence; this alone is not an end-to-end real-runner readiness claim",
+      "id": "T001",
+      "literal_mutation": "baseline; ZIP GET200 directly",
+      "name": "valid_direct_path"
+    },
+    {
+      "entrypoint": "production_launcher",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "Actual production Bash launcher invokes the one inert pinned-Python stub with -B -s under nested foreground timeout and returns its recorded result; neither gh nor jq is consulted; no real HTTP/runtime proof",
+      "id": "T002",
+      "literal_mutation": "baseline command inventory has gh=false,jq=false; all explicitly required commands=true",
+      "name": "gh_jq_absent"
+    },
+    {
+      "entrypoint": "production_workflow_builtin_prefix",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "P00 execution_blocked; zero requests and no path creation",
+      "id": "T003",
+      "literal_mutation": "GITHUB_ACTOR=other-user",
+      "name": "wrong_actor"
+    },
+    {
+      "entrypoint": "production_workflow_builtin_prefix",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "P00 execution_blocked; zero requests",
+      "id": "T004",
+      "literal_mutation": "GITHUB_RUN_ATTEMPT=2",
+      "name": "attempt_two"
+    },
+    {
+      "entrypoint": "production_workflow_builtin_prefix",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "P00 execution_blocked before URL construction",
+      "id": "T005",
+      "literal_mutation": "PR_NUMBER=01; every other input baseline",
+      "name": "invalid_identifiers"
+    },
+    {
+      "entrypoint": "production_workflow_P02_invocation_block_and_production_launcher",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "Actual P02 workflow block removes every inherited LD*/PYTHON* variable and applies umask 077 before outer timeout or another external command. Actual launcher repeats builtin sanitation and umask 077 before its first external command, then establishes only validated trusted loader values. Preserve actual production bodies; no stand-in wrapper or claim that17 cases equal17 OS processes.",
+      "id": "T006",
+      "literal_mutation": "Seed inherited LD*/PYTHON* literal sentinels at the actual fresh P02 workflow shell boundary and at actual launcher entry through inert harness/stub controls; P00 completion is not used as proof of later environment sanitation.",
+      "name": "inherited_loader_environment"
+    },
+    {
+      "entrypoint": "production_workflow_timeout_invocation_guard",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "Actual postcheckout invocation guard blocks before outer timeout/script start when its literal command search cannot find timeout; no subsequent operation",
+      "id": "T007",
+      "literal_mutation": "required command timeout=false",
+      "name": "required_timeout_missing"
+    },
+    {
+      "entrypoint": "production_launcher",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "P03 execution_blocked; no follow-link access",
+      "id": "T008",
+      "literal_mutation": "literal cache metadata says symlink=true",
+      "name": "toolcache_symlink"
+    },
+    {
+      "entrypoint": "production_launcher",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "P03 execution_blocked",
+      "id": "T009",
+      "literal_mutation": "resolved new root=/literal/workspace/bootstrap-readiness-evidence",
+      "name": "durable_inside_workspace"
+    },
+    {
+      "entrypoint": "production_launcher",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "P03 execution_blocked; no chown or chmod",
+      "id": "T010",
+      "literal_mutation": "new root st_uid=1001 while runner uid=1000",
+      "name": "durable_owner_mismatch"
+    },
+    {
+      "entrypoint": "production_launcher",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "P03 execution_blocked; no mode repair",
+      "id": "T011",
+      "literal_mutation": "new root mode=0755 instead of0700",
+      "name": "durable_mode_mismatch"
+    },
+    {
+      "entrypoint": "production_launcher",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "P03 execution_blocked; no deletion, resume, overwrite or requests",
+      "id": "T012",
+      "literal_mutation": "run directory exists=true with zero entries",
+      "name": "existing_output"
+    },
+    {
+      "entrypoint": "production_launcher",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "P03 execution_blocked before network; second dispatch cannot reuse allocation; preserve prior engineering reservation and do not touch old scientific claims",
+      "id": "T013",
+      "literal_mutation": "new preparation reservation for the same frozen admission already exists from a different run ID; exclusive create returns EEXIST",
+      "name": "exclusive_create_race"
+    },
+    {
+      "entrypoint": "production_launcher",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "Actual launcher completes the inert metadata invocation without any access to old Worker36 namespace sentinel; does not claim scientific or real-runner readiness",
+      "id": "T014",
+      "literal_mutation": "All old Worker36 path operations are literal sentinel stubs that fail; new namespace and stable allocation stubs otherwise baseline",
+      "name": "historical_namespace_sentinel"
+    },
+    {
+      "entrypoint": "production_launcher",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "P04 execution_blocked; no Python fallback or network",
+      "id": "T015",
+      "literal_mutation": "observed executable SHA256=64 zeroes",
+      "name": "executable_hash_mismatch"
+    },
+    {
+      "entrypoint": "production_launcher",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "P04 execution_blocked; no new loader path or network",
+      "id": "T016",
+      "literal_mutation": "observed library SHA256=64 zeroes",
+      "name": "library_hash_mismatch"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P05 integrity_invalid; no metadata GET",
+      "id": "T017",
+      "literal_mutation": "mapped inode=12 while validated file inode=11",
+      "name": "mapped_library_mismatch"
+    },
+    {
+      "entrypoint": "production_launcher",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "P04 integrity_invalid; no network",
+      "id": "T018",
+      "literal_mutation": "before file tuple=(1,11,23041360,1); after=(1,12,23041360,1)",
+      "name": "loader_changes_during_hash"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P05 execution_blocked; no flags workaround",
+      "id": "T019",
+      "literal_mutation": "no_user_site=0; other flags baseline",
+      "name": "incorrect_python_flags"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P05 execution_blocked; GC is not changed to pass",
+      "id": "T020",
+      "literal_mutation": "gc_threshold=[700,11,10]",
+      "name": "gc_threshold_mismatch"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P05 execution_blocked; do not raise or weaken limit",
+      "id": "T021",
+      "literal_mutation": "inherited RLIMIT_AS=[268435456,268435456]",
+      "name": "unexpected_inherited_limit"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P05 execution_blocked; no response parsing or network",
+      "id": "T022",
+      "literal_mutation": "mock setrlimit raises OSError",
+      "name": "memory_cap_install_failure"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P05 execution_blocked; do not clear occupied hook",
+      "id": "T023",
+      "literal_mutation": "mock sys.getprofile returns literal occupied sentinel",
+      "name": "occupied_hook"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "Python metadata result is evidence_incomplete with restoration mismatch; no bootstrap_ready result or second process",
+      "id": "T024",
+      "literal_mutation": "Python fixed restoration readback for a touched descriptor/context differs from its literal original state; no timer/watchdog is installed",
+      "name": "restoration_failure"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "requests exactly match ordered retained names and seven path templates; no hidden eighth authenticated GET",
+      "id": "T025",
+      "literal_mutation": "baseline PR101 CI102 reviews103/104 prior run105/artifact106",
+      "name": "exact_seven_request_mapping"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P06 execution_blocked; boolean is not positive int; zero requests",
+      "id": "T026",
+      "literal_mutation": "prior_artifact_id=true",
+      "name": "boolean_reference_id"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P06 execution_blocked; no arbitrary URL accepted",
+      "id": "T027",
+      "literal_mutation": "descriptor adds fetch_url=https://other.example.invalid/steal",
+      "name": "arbitrary_fetch_url"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P06 execution_blocked; no auth refresh, login, token generation or request",
+      "id": "T028",
+      "literal_mutation": "existing ephemeral token absent",
+      "name": "missing_token"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 integrity_invalid immediately after retained first response; one GET attempted; historical artifact does not cover current head",
+      "id": "T029",
+      "literal_mutation": "live new PR head differs from frozen new head by one hex digit",
+      "name": "new_head_mismatch"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 integrity_invalid after retained first response; no base-CI/review GET and no admission output",
+      "id": "T030",
+      "literal_mutation": "live new PR body UTF8 hash differs from frozen/event body hash",
+      "name": "new_body_mismatch"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 integrity_invalid at fixed fourth response; no subsequent historical artifact requests",
+      "id": "T031",
+      "literal_mutation": "adversarial review head equals historical fixture head instead of new head",
+      "name": "new_review_source_mismatch"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 execution_blocked at second response; no oldCI fallback or later GET",
+      "id": "T032",
+      "literal_mutation": "new base CI status=completed, conclusion=failure",
+      "name": "base_ci_not_successful"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 integrity_invalid immediately at GET5 head_sha identity check; exactly5 API GETs attempted, no GET6 artifact metadata or GET7 ZIP request.",
+      "id": "T033",
+      "literal_mutation": "Only the GET5 preflight-run.json API response head_sha is changed from the historical pinned head to the new engineering head. No invented top-level tree SHA field and no GET7 report mutation; historical tree remains bound by the external frozen descriptor/source relation.",
+      "name": "prior_fixture_wrong_source"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 execution_blocked; retain status/body; one attempted GET; no retry",
+      "id": "T034",
+      "literal_mutation": "first GET returns403 and literal bounded body {\"message\":\"denied\"}",
+      "name": "http_403"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 execution_blocked; attempted prefix length3; no retry/backoff",
+      "id": "T035",
+      "literal_mutation": "third GET returns500 and literal bounded body {\"message\":\"failed\"}",
+      "name": "http_500"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 execution_blocked; no disabled verification or alternate store",
+      "id": "T036",
+      "literal_mutation": "mock TLS verification raises certificate error",
+      "name": "tls_verification_failure"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 resource_incomplete if Python still reports before external kill; no fourth request or deadline reset; external timeout covers hung DNS separately",
+      "id": "T037",
+      "literal_mutation": "Mock elapsed whole-Python scope reaches120seconds before fourth GET",
+      "name": "network_deadline_expired"
+    },
+    {
+      "entrypoint": "production_workflow_P02_invocation_block_and_production_launcher",
+      "executed": false,
+      "execution_mode": "actual_bash_with_inert_literal_stubs",
+      "expected": "Observe actual workflow outer600 timeout without --foreground and actual launcher inner120 timeout with --foreground, both --signal=KILL and no kill-after grace. Retain137 ambiguity and no restart. This one Bash case can create multiple OS processes; the plan promises a case count, not an unmeasured process count.",
+      "id": "T038",
+      "literal_mutation": "Execute the actual frozen P02 workflow timeout-invocation block, which calls the actual frozen launcher, with inert timeout and pinned-Python stubs. Stubs record argv and return137; do not replace the workflow outer invocation with a handwritten stand-in and do not generate a real timeout kill.",
+      "name": "nested_timeout_group_contract"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 execution_blocked; no storage request for JSON",
+      "id": "T039",
+      "literal_mutation": "first JSON GET returns302 with Location=https://worker37fixture.blob.core.windows.net/a",
+      "name": "json_redirect_rejected"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "Success: seven authenticated API requests, one credential-free storage GET, exact successful ZIP retained. Redirect raw body file/log/hash absent; fixed status302, observed body-byte count and redirect_body_may_contain_signed_url omission reason present. Redirect body bytes count toward aggregate16MiB; signed URL never logged.",
+      "id": "T040",
+      "literal_mutation": "ZIP GET302 to https://worker37fixture.blob.core.windows.net/a?signature=fixture; its redirect body echoes the same signed URL, then storage GET200 returns the exact valid ZIP.",
+      "name": "zip_redirect_allowed"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 execution_blocked before any request to unexpected suffix host; exact parsed single-label blob.core.windows.net family required",
+      "id": "T041",
+      "literal_mutation": "ZIP GET302 Location=https://worker37fixture.blob.core.windows.net.evil.example/a",
+      "name": "zip_redirect_wrong_host"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 execution_blocked before storage request",
+      "id": "T042",
+      "literal_mutation": "ZIP GET302 to http://worker37fixture.blob.core.windows.net/a",
+      "name": "zip_redirect_http_downgrade"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 execution_blocked; total physical requests8, no ninth",
+      "id": "T043",
+      "literal_mutation": "allowed storage GET returns302 to same hostname/newpath",
+      "name": "zip_second_redirect"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 failure; omit storage-error raw body file/log/hash and raw exception/header text. Record fixed status403, actual observed byte count and storage_error_body_may_contain_signed_url; count bytes toward aggregate16MiB. Neither sentinel appears in stored/logged output; no retry.",
+      "id": "T044",
+      "literal_mutation": "After the valid API ZIP302 Location, storage returns403 with a literal transport-error body/exception echoing signed query signature=SECRET_43 and sentinel token SENTINEL_SECRET_42.",
+      "name": "token_redaction"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "no proxy/netrc/cookie handler used; fixed origin only",
+      "id": "T045",
+      "literal_mutation": "HTTPS_PROXY=https://proxy.example.invalid; fixture netrc credentials and cookie jar present",
+      "name": "ambient_proxy_ignored"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 resource_incomplete at the per-input overflow check; count the2097153 actually observed body bytes within aggregate16MiB, retain at most2097152 with explicit truncated/overflow flag, do not JSON-parse the prefix or request GET2. No contradictory Content-Length8 fixture.",
+      "id": "T046",
+      "literal_mutation": "First PR HTTP200 response uses truthful chunked framing with no Content-Length and supplies exactly2097153 decoded body bytes before valid terminating chunk/EOF.",
+      "name": "oversized_response"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 evidence_incomplete; preserve7 exact bytes, no accepted JSON result",
+      "id": "T047",
+      "literal_mutation": "Content-Length=9; actual bytes={\"x\":1} (7 bytes) then EOF",
+      "name": "truncated_response"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 integrity_invalid immediately after exact first PR application bytes are retained; exactly1 GET attempted, no GET2 or later request. This malformed HTTP200 application input is not covered by the redirect/storage-error body omission exception.",
+      "id": "T048",
+      "literal_mutation": "First PR GET1 HTTP200 application body: raw JSON bytes={\"id\":1,\"id\":2}",
+      "name": "duplicate_json_key"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 integrity_invalid immediately after exact first PR application bytes are retained; exactly1 GET attempted, no GET2 or later request. This malformed HTTP200 application input is not covered by the redirect/storage-error body omission exception.",
+      "id": "T049",
+      "literal_mutation": "First PR GET1 HTTP200 application body: raw JSON bytes={\"value\":NaN}",
+      "name": "nonfinite_json"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 integrity_invalid immediately after exact first PR application bytes are retained; exactly1 GET attempted, no GET2 or later request. This malformed HTTP200 application input is not covered by the redirect/storage-error body omission exception.",
+      "id": "T050",
+      "literal_mutation": "First PR GET1 HTTP200 application body: raw byte sequence hex7b2278223aff7d",
+      "name": "invalid_utf8_json"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 execution_blocked; no transparent decompression outside budget",
+      "id": "T051",
+      "literal_mutation": "Content-Encoding=gzip on metadata response",
+      "name": "unsupported_content_encoding"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P08 integrity_invalid before any member is executed or extracted",
+      "id": "T052",
+      "literal_mutation": "literal valid-shaped ZIP differs from frozen raw ZIP SHA256 by one byte",
+      "name": "archive_hash_mismatch"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P08 integrity_invalid; no extraction",
+      "expected_reached_check": "member name/safe allowlist",
+      "id": "T053",
+      "literal_mutation": "literal ZIP has all ten baseline names plus ../unexpected.py",
+      "name": "archive_extra_member",
+      "synthetic_zip_repin_contract": "Before running this case, materialize the mutated synthetic ZIP and consistently update its exact raw ZIP size/SHA256 in the mock API artifact response and frozen synthetic fixture descriptor. Preserve every unrelated pin. This is finite mock-data construction before fixture freeze, not changing authenticated evidence or execution-source pins."
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P08 integrity_invalid",
+      "expected_reached_check": "duplicate member",
+      "id": "T054",
+      "literal_mutation": "literal ZIP repeats runner-preflight.json",
+      "name": "archive_duplicate_member",
+      "synthetic_zip_repin_contract": "Before running this case, materialize the mutated synthetic ZIP and consistently update its exact raw ZIP size/SHA256 in the mock API artifact response and frozen synthetic fixture descriptor. Preserve every unrelated pin. This is finite mock-data construction before fixture freeze, not changing authenticated evidence or execution-source pins."
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P08 integrity_invalid for ZIP declared/actual expansion beyond2097152-byte cap; never bootstrap_ready; no unbounded read",
+      "expected_reached_check": "declared/actual aggregate expansion cap",
+      "id": "T055",
+      "literal_mutation": "literal ZIP advertises/supplies aggregate expanded size2097153 bytes",
+      "name": "archive_expanded_overflow",
+      "synthetic_zip_repin_contract": "Before running this case, materialize the mutated synthetic ZIP and consistently update its exact raw ZIP size/SHA256 in the mock API artifact response and frozen synthetic fixture descriptor. Preserve every unrelated pin. This is finite mock-data construction before fixture freeze, not changing authenticated evidence or execution-source pins."
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P08 integrity_invalid specifically at component-byte equality; do not fail earlier solely because the outer synthetic ZIP descriptor was stale",
+      "expected_reached_check": "parent-runtime component bytes versus unchanged report.parent",
+      "id": "T056",
+      "literal_mutation": "Synthetic parent-runtime.json differs from canonical unchanged report.parent; outer ZIP size/hash and API artifact digest are consistently re-pinned; runner-preflight.json bytes/report hash remain unchanged",
+      "name": "archive_component_mismatch",
+      "synthetic_zip_repin_contract": "Before running this case, materialize the mutated synthetic ZIP and consistently update its exact raw ZIP size/SHA256 in the mock API artifact response and frozen synthetic fixture descriptor. Preserve every unrelated pin. This is finite mock-data construction before fixture freeze, not changing authenticated evidence or execution-source pins."
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 evidence_incomplete; preserve exactly3 written prefix bytes, file/directory fsync_confirmed=false, only first GET attempted; no later request, overwrite or phase parameterization",
+      "id": "T057",
+      "literal_mutation": "Only P07 persistence of pull-request.json: writer accepts its first3 raw bytes then raises OSError; all other inputs/stages baseline",
+      "name": "persistence_short_write"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P07 evidence_incomplete; input bytes retained but not reported durably confirmed; no second GET",
+      "id": "T058",
+      "literal_mutation": "Only P07 pull-request.json: file write/file fsync succeed, parent-directory fsync raises OSError",
+      "name": "directory_fsync_failure"
+    },
+    {
+      "entrypoint": "frozen_python_metadata_entrypoint",
+      "executed": false,
+      "execution_mode": "python_actual_entrypoint_with_literal_mocks",
+      "expected": "P09 integrity_invalid; no overwrite or replacement attempt",
+      "id": "T059",
+      "literal_mutation": "P09 bounded reread differs from just-written file by one byte",
+      "name": "readback_digest_mismatch"
+    },
+    {
+      "entrypoint": "frozen_workflow_launcher_python_sources",
+      "executed": false,
+      "execution_mode": "static_actual_source_inspection",
+      "expected": "Static evidence: exactly the stated first-marker trigger/checkout/outer+inner timeouts, no scientific entrypoint or old claim/admission output, no Python subprocess/watchdog, no setup-python/gh/jq/arbitrary URL; do not claim executed-shell or kill semantics from this case",
+      "id": "T060",
+      "literal_mutation": "Inspect exact frozen workflow/launcher/Python bytes only; armed static/import mocks never execute Bash",
+      "name": "source_graph_and_terminal_stop"
+    }
+  ],
+  "coverage_counts": {
+    "actual_bash_with_inert_literal_stubs": 17,
+    "python_actual_entrypoint_with_literal_mocks": 42,
+    "static_actual_source_inspection": 1
+  },
+  "evaluator_calls": 0,
+  "execution_authority": false,
+  "fixture_contract": [
+    "One explicit list of60 cases, one pass each; no hidden products/parameterization/fuzz/discovery.",
+    "Python cases invoke the actual frozen metadata entrypoint/helpers via literal data and injected HTTP/filesystem/resource/clock mocks; every socket is denied.",
+    "The enumerated Bash cases execute the actual production shell body with inert command stubs and a fake absolute pinned-executable stub. Stub bytes/argv/log schemas are frozen before testing; do not rewrite production logic or use a production bypass flag.",
+    "Bash cases prove builtin/control-flow/argv behavior only, not real command availability, cache contents, TLS, fsync or deadline enforcement. T060 is static only.",
+    "No historical/Worker36/policy imports, fixture constructors, evaluators, games, real runner process probes or live HTTP occur in native tests.",
+    "T053-T056 consistently re-pin the mutated synthetic outer ZIP length/hash and mock artifact digest before their target deeper check; unrelated/report pins remain fixed as stated.",
+    "T057 is only P07 pull-request.json persistence; do not expand it over multiple phases.",
+    "Any budget detection byte counts within16MiB aggregate response-body bytes; do not describe these counts as wire traffic.",
+    "Mock storage URLs use synthetic worker37fixture.blob.core.windows.net only under disabled live networking; this is not an observed provider account.",
+    "T006 and T038 run the actual fresh P02 workflow shell block and actual launcher, not a stand-in. Repeat sanitation at each fresh shell boundary. Seventeen Bash cases is a case count, not a physical process count.",
+    "Descriptor SHA256 and completed-body SHA256 are bound outside the hashed objects in the final root freeze record; descriptor references only an earlier immutable preregistration identity, never that final record hash.",
+    "T040/T044 cover omitted redirect/storage-error bodies with honest byte accounting; exact HTTP200 application inputs remain retained, including T048-T050 malformed first-PR JSON which rejects at P07 before GET2.",
+    "T033 changes only actual GET5 head_sha; historical tree stays in external source relation. T046 uses truthful chunked framing, no Content-Length8 contradiction."
+  ],
+  "games": 0,
+  "historical_imports": 0,
+  "implicit_parameterization": false,
+  "measurement_fixture_constructions": 0,
+  "native_network_requests": 0,
+  "native_process_contract": "Only listed Bash cases may later execute actual frozen production workflow/launcher bodies with inert literal command/executable stubs. Seventeen is a case count, not an OS-process count; actual workflow/launcher/stubs may create multiple processes. Leaf Python metadata never spawns children. No real runner/runtime/science probe or network.",
+  "native_real_process_probes": 0,
+  "native_real_runner_probes": 0,
+  "passes_per_case_proposed": 1,
+  "randomized_property_fuzz_discovery_tests": false,
+  "schema": "worker37-literal-test-plan-draft-v2",
+  "status": "revised_draft_for_root_review_not_executable",
+  "unresolved_before_test_execution": [
+    "Final exact code/test/stub/literal fixture bytes and SHA256 inventory",
+    "One concrete finite native-batch command and preparation source freeze",
+    "Root distinct preparation allocation; no new routine end-user permission question"
+  ]
+}
