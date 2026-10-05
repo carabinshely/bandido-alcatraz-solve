@@ -110,12 +110,9 @@ jobs:
           /bin/bash --noprofile --norc "$GITHUB_WORKSPACE/scripts/worker38-bootstrap.sh"
           # WORKER38_P02_END
 
-      # P09 remains unactivatable until the registered shared60s egress
-      # envelope and up-to3 separate <32MiB provider wrappers are resolved.
-      # No new job, uploader, cap, or timing authority is introduced here.
-      - name: P09 provider upload pending protocol resolution
-        if: ${{ false }}
-        shell: bash --noprofile --norc -e -o pipefail {0}
-        run: |
-          printf 'P09 execution_blocked provider_deadline_unresolved\n'
-          exit 1
+      # The adopted composite shares one caller minute across all guards and
+      # up-to3 fixed official actions. Its children never renew that allowance.
+      - name: P09 one bounded sealed evidence upload
+        if: ${{ !cancelled() && steps.launcher.outputs.upload_ready == 'true' }}
+        uses: ./.github/actions/worker38-upload
+        timeout-minutes: 1

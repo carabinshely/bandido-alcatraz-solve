@@ -1,0 +1,46 @@
+{
+  "adoption_comment_id": 5988411319,
+  "changes": [
+    "Shared literal path eligibility before Worker38 claim",
+    "One fixed composite and original same-job60second timeout",
+    "Exact bounded sealed file/plan checks before each vendor action",
+    "Dedicated admissionfailure79 and originalcutoff preservation; no newprocess",
+    "Only preservation0/2 may expose upload readiness; otheroutcomes failclosed"
+  ],
+  "full_owner_report_sha256": "82b927eff1ae5c5da54db0ad54200145fc43e1a37a2ee48879fba853bb06403b",
+  "schema": "worker38-startup-upload-amendment-preparation-v1",
+  "scientific_calls": 0,
+  "source_files": [
+    {
+      "bytes": 19191,
+      "git_blob_sha": "4e63f76c0be7a784879ef65bd6e137e1f6c397f9",
+      "mode": "100644",
+      "path": "scripts/worker_bootstrap_shared.sh",
+      "sha256": "031b30c3f7593299b3dd57daaefbf3cef4dec5b23744f9cc96092b1a612fe475"
+    },
+    {
+      "bytes": 28462,
+      "git_blob_sha": "1a055eb47aba0898bc90bf009083c92647379e56",
+      "mode": "100644",
+      "path": "scripts/worker38-bootstrap.sh",
+      "sha256": "6af458ebb0134ec259f2c1b0e3be7985056ee5b3ebefe70a3b615f88f24e86b0"
+    },
+    {
+      "bytes": 5900,
+      "git_blob_sha": "b27f08ae6d02038f541096f010517a50fef4e08b",
+      "mode": "100644",
+      "path": ".github/workflows/worker38-synthetic-profile.yml",
+      "sha256": "93f34f170d7994360e26b938a6f972967f5914affd87a1dfca6c423de9035dde"
+    },
+    {
+      "bytes": 2625,
+      "git_blob_sha": "230326949ac6a176d2fa14c5f4d252062f2727bb",
+      "mode": "100644",
+      "path": ".github/actions/worker38-upload/action.yml",
+      "sha256": "581a64e7ac7cf10202df0a3c6a3a6f1f52d9de4689a07e752c8c3d5c52b77042"
+    }
+  ],
+  "source_imports": 0,
+  "status": "incomplete and untested preparation; integration map and native gate pending",
+  "tests": 0
+}

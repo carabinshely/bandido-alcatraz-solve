@@ -1,0 +1,66 @@
+name: Worker38 fixed sealed evidence upload
+description: Upload at most three fixed immutable parts under the caller's one-minute timeout
+runs:
+  using: composite
+  steps:
+    - name: Validate first sealed selection
+      id: guard1
+      shell: bash --noprofile --norc -e -o pipefail {0}
+      run: |
+        set +xv
+        source "$GITHUB_WORKSPACE/scripts/worker_bootstrap_shared.sh"
+        _bootstrap_worker38_upload_guard 1
+    - name: Upload first part and original manifest
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: worker38-${{ github.run_id }}-1-part-001
+        path: |
+          ${{ steps.guard1.outputs.part_path }}
+          ${{ steps.guard1.outputs.manifest_path }}
+        if-no-files-found: error
+        include-hidden-files: false
+        compression-level: 0
+        overwrite: false
+        retention-days: 30
+    - name: Validate second sealed selection
+      id: guard2
+      env:
+        WORKER38_UPLOAD_EXPECTED_PLAN: ${{ steps.guard1.outputs.plan_identity }}
+      if: ${{ success() && steps.guard1.outputs.part_count != '1' }}
+      shell: bash --noprofile --norc -e -o pipefail {0}
+      run: |
+        set +xv
+        source "$GITHUB_WORKSPACE/scripts/worker_bootstrap_shared.sh"
+        _bootstrap_worker38_upload_guard 2
+    - name: Upload second part
+      if: ${{ success() && steps.guard1.outputs.part_count != '1' }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: worker38-${{ github.run_id }}-1-part-002
+        path: ${{ steps.guard2.outputs.part_path }}
+        if-no-files-found: error
+        include-hidden-files: false
+        compression-level: 0
+        overwrite: false
+        retention-days: 30
+    - name: Validate third sealed selection
+      id: guard3
+      env:
+        WORKER38_UPLOAD_EXPECTED_PLAN: ${{ steps.guard1.outputs.plan_identity }}
+      if: ${{ success() && steps.guard1.outputs.part_count == '3' }}
+      shell: bash --noprofile --norc -e -o pipefail {0}
+      run: |
+        set +xv
+        source "$GITHUB_WORKSPACE/scripts/worker_bootstrap_shared.sh"
+        _bootstrap_worker38_upload_guard 3
+    - name: Upload third part
+      if: ${{ success() && steps.guard1.outputs.part_count == '3' }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: worker38-${{ github.run_id }}-1-part-003
+        path: ${{ steps.guard3.outputs.part_path }}
+        if-no-files-found: error
+        include-hidden-files: false
+        compression-level: 0
+        overwrite: false
+        retention-days: 30

@@ -160,6 +160,7 @@ bootstrap_worker38_prepare() {
   expected_executable_sha256=a15ccdaf07655a8667a3687b13171486c9a265d92273ba3ad820fbb64d2cfecc
   expected_library_sha256=ba4450817186fbe1e3c477f6aefeee7c353cba3593cc9950382ad9d1f5e62896
   _bootstrap_sanitize
+  _bootstrap_worker38_upload_eligibility
   _bootstrap_paths_and_claim
 }
 
@@ -199,4 +200,111 @@ printf -v "${bootstrap_prefix}EVENT_STAT" '%s' "$event_snapshot_after"
 printf -v "${bootstrap_prefix}EVENT_FSYNC_CONFIRMED" '%s' 1
 export "${bootstrap_prefix}EVENT_SHA256" "${bootstrap_prefix}EVENT_STAT" "${bootstrap_prefix}EVENT_FSYNC_CONFIRMED"
 
+}
+
+# Adopted upload amendment: only literal fixed producer paths are eligible.
+_bootstrap_literal_upload_path() {
+  [[ $# == 1 && $1 =~ ^/[A-Za-z0-9._/-]+$ ]] && absolute_plain_path "$1"
+}
+
+_bootstrap_worker38_upload_eligibility() {
+  local fixed_root fixed_name
+  _bootstrap_literal_upload_path "${RUNNER_TOOL_CACHE-}" || block execution_blocked upload_cache_literal
+  [[ ${GITHUB_RUN_ID-} =~ ^[1-9][0-9]{0,17}$ ]] || block execution_blocked upload_run_identifier
+  fixed_root=$RUNNER_TOOL_CACHE/worker38-synthetic-profile/allocations/worker38-synthetic-profile-01/transport-$GITHUB_RUN_ID-attempt-1
+  for fixed_name in upload-plan.txt transport-manifest.json part-001.bin part-002.bin part-003.bin; do
+    _bootstrap_literal_upload_path "$fixed_root/$fixed_name" || block execution_blocked upload_path_literal
+  done
+}
+
+_bootstrap_upload_block() {
+  printf 'P09 execution_blocked %s\n' "$1"
+  exit 1
+}
+
+_bootstrap_upload_components() {
+  local remaining=${1#/} component prefix=
+  _bootstrap_literal_upload_path "$1" || _bootstrap_upload_block upload_path_literal
+  while [[ -n $remaining ]]; do
+    component=${remaining%%/*}
+    if [[ $remaining == */* ]]; then remaining=${remaining#*/}; else remaining=; fi
+    prefix=$prefix/$component
+    [[ ! -L $prefix ]] || _bootstrap_upload_block upload_component_symlink
+    if [[ -n $remaining ]]; then
+      [[ -d $prefix && -x $prefix ]] || _bootstrap_upload_block upload_component_directory
+    fi
+  done
+}
+
+_bootstrap_upload_readonly_file() {
+  _bootstrap_upload_components "$1"
+  [[ -f $1 && ! -L $1 && -s $1 && -r $1 && -O $1 && ! -w $1 ]] || _bootstrap_upload_block upload_payload_unsealed
+}
+
+_bootstrap_worker38_upload_guard() {
+  # Only these three fixed call sites exist in the reviewed local composite.
+  # No path, action, command, timeout or filename is supplied by the caller.
+  [[ $# == 1 && ( $1 == 1 || $1 == 2 || $1 == 3 ) ]] || _bootstrap_upload_block upload_ordinal
+  local ordinal=$1 fixed_root custody_path selected index key raw read_status=0 part_count part_size part_hash
+  local -a lines expected
+  _bootstrap_sanitize
+  set -euo pipefail
+  exec 2>/dev/null
+  [[ ${GITHUB_REPOSITORY-} == carabinshely/bandido-alcatraz-solve && ${RUNNER_NAME-} == bandido-alcatraz-ci && ${GITHUB_RUN_ATTEMPT-} == 1 ]] || _bootstrap_upload_block upload_identity
+  [[ ${GITHUB_RUN_ID-} =~ ^[1-9][0-9]{0,17}$ ]] || _bootstrap_upload_block upload_run_identifier
+  _bootstrap_literal_upload_path "${RUNNER_TOOL_CACHE-}" || _bootstrap_upload_block upload_cache_literal
+  fixed_root=$RUNNER_TOOL_CACHE/worker38-synthetic-profile/allocations/worker38-synthetic-profile-01/transport-$GITHUB_RUN_ID-attempt-1
+  _bootstrap_upload_components "$fixed_root/upload-plan.txt"
+  # Exact0700 private ancestor modes and nlink1 payload proof were retained by
+  # the producer while preservation was live. Builtins recheck ownership and
+  # effective access here; they do not claim a fresh stat/mode/hash observation.
+  for custody_path in "$RUNNER_TOOL_CACHE/worker38-synthetic-profile" "$RUNNER_TOOL_CACHE/worker38-synthetic-profile/allocations" "$RUNNER_TOOL_CACHE/worker38-synthetic-profile/allocations/worker38-synthetic-profile-01"; do
+    [[ -d $custody_path && ! -L $custody_path && -O $custody_path && -r $custody_path && -x $custody_path ]] || _bootstrap_upload_block upload_private_custody
+  done
+  [[ -d $fixed_root && ! -L $fixed_root && -O $fixed_root && -r $fixed_root && -x $fixed_root && ! -w $fixed_root ]] || _bootstrap_upload_block upload_directory_unsealed
+  _bootstrap_upload_readonly_file "$fixed_root/upload-plan.txt"
+  raw=
+  # Empty delimiter makes NUL terminate with success and fail closed. -n stops
+  # at4097bytes in LC_ALL=C, so neither NUL nor a long line bypasses the bound.
+  IFS= read -r -d '' -n 4097 raw < "$fixed_root/upload-plan.txt" || read_status=$?
+  (( read_status == 1 && ${#raw} <= 4096 )) || _bootstrap_upload_block upload_plan_size_or_nul
+  [[ $raw == *$'\n' ]] || _bootstrap_upload_block upload_plan_torn
+  if (( ordinal > 1 )); then
+    [[ -n ${WORKER38_UPLOAD_EXPECTED_PLAN-} && ${raw%$'\n'} == "$WORKER38_UPLOAD_EXPECTED_PLAN" ]] || _bootstrap_upload_block upload_plan_changed
+  fi
+  mapfile -t lines <<< "${raw%$'\n'}"
+  expected=(version allocation_id run_id run_attempt part_count manifest_name manifest_size_bytes manifest_sha256 part_001_name part_001_size_bytes part_001_sha256 part_002_name part_002_size_bytes part_002_sha256 part_003_name part_003_size_bytes part_003_sha256)
+  (( ${#lines[@]} == 17 )) || _bootstrap_upload_block upload_plan_shape
+  for (( index=0; index<17; index++ )); do
+    key=${expected[index]}
+    [[ ${lines[index]} == "$key="* ]] || _bootstrap_upload_block upload_plan_key
+  done
+  [[ ${lines[0]} == version=worker38-upload-plan-v1 && ${lines[1]} == allocation_id=worker38-synthetic-profile-01 && ${lines[2]} == run_id="$GITHUB_RUN_ID" && ${lines[3]} == run_attempt=1 ]] || _bootstrap_upload_block upload_plan_identity
+  [[ ${lines[4]} =~ ^part_count=([123])$ ]] || _bootstrap_upload_block upload_plan_count
+  part_count=${BASH_REMATCH[1]}
+  (( ordinal <= part_count )) || _bootstrap_upload_block upload_unselected_ordinal
+  [[ ${lines[5]} == manifest_name=transport-manifest.json && ${lines[6]} =~ ^manifest_size_bytes=([1-9][0-9]{0,6})$ ]] || _bootstrap_upload_block upload_manifest_shape
+  (( ${lines[6]#*=} <= 1048576 )) || _bootstrap_upload_block upload_manifest_size
+  [[ ${lines[7]} =~ ^manifest_sha256=[0-9a-f]{64}$ ]] || _bootstrap_upload_block upload_manifest_hash
+  for (( index=1; index<=3; index++ )); do
+    printf -v selected 'part-%03d.bin' "$index"
+    [[ ${lines[8+(index-1)*3]} == part_00${index}_name="$selected" ]] || _bootstrap_upload_block upload_part_name
+    part_size=${lines[9+(index-1)*3]#*=}
+    part_hash=${lines[10+(index-1)*3]#*=}
+    if (( index <= part_count )); then
+      [[ $part_size =~ ^[1-9][0-9]{0,7}$ && $part_hash =~ ^[0-9a-f]{64}$ ]] || _bootstrap_upload_block upload_part_shape
+      (( part_size <= 31457280 )) || _bootstrap_upload_block upload_part_size
+    else
+      [[ $part_size == 0 && $part_hash == 0000000000000000000000000000000000000000000000000000000000000000 ]] || _bootstrap_upload_block upload_inactive_part
+      [[ ! -e $fixed_root/$selected && ! -L $fixed_root/$selected ]] || _bootstrap_upload_block upload_unexpected_part
+    fi
+  done
+  printf -v selected 'part-%03d.bin' "$ordinal"
+  _bootstrap_upload_readonly_file "$fixed_root/$selected"
+  if (( ordinal == 1 )); then _bootstrap_upload_readonly_file "$fixed_root/transport-manifest.json"; fi
+  [[ -n ${GITHUB_OUTPUT-} && -f $GITHUB_OUTPUT && ! -L $GITHUB_OUTPUT && -O $GITHUB_OUTPUT && -w $GITHUB_OUTPUT ]] || _bootstrap_upload_block upload_output_unavailable
+  printf 'part_count=%s\npart_path=%s\nmanifest_path=%s\n' "$part_count" "$fixed_root/$selected" "$fixed_root/transport-manifest.json" >> "$GITHUB_OUTPUT" || _bootstrap_upload_block upload_output_write
+  if (( ordinal == 1 )); then
+    printf 'plan_identity<<WORKER38_UPLOAD_PLAN_DATA\n%sWORKER38_UPLOAD_PLAN_DATA\n' "$raw" >> "$GITHUB_OUTPUT" || _bootstrap_upload_block upload_output_write
+  fi
 }

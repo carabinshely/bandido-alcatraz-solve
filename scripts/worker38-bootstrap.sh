@@ -163,11 +163,43 @@ _worker38_startup() {
   admission_exit=$?
   set -e
   unset worker38_api_token GH_TOKEN
+  set -o noclobber
+  printf 'schema=worker38-admission-process-exit-v1\nexit_status=%s\nadmission_process_returned=true\n' "$admission_exit" > "$attempt_directory/admission-process-exit.txt" || block execution_incomplete admission_exit_observation_write
+  sync_file_and_parent "$attempt_directory/admission-process-exit.txt" || block execution_incomplete admission_exit_observation_sync
+  #79 is emitted only after the failed leaf confirms its immutable handoff,
+  # descriptor/resource closes and timer restoration. It never admits science.
+  if (( admission_exit == 79 )); then exit 79; fi
   if (( admission_exit != 0 )); then
     _worker38_clock
     (( worker38_now_ns < WORKER38_ADMISSION_DEADLINE_BOOTTIME_NS )) || block resource_incomplete admission_deadline
     block execution_blocked admission_nonzero
   fi
+}
+
+_worker38_read_admission_exit() {
+  local raw read_status=0
+  local -a lines
+  [[ -f $attempt_directory/admission-process-exit.txt && ! -L $attempt_directory/admission-process-exit.txt ]] || block execution_blocked admission_exit_unconfirmed
+  raw=
+  IFS= read -r -d '' -n 513 raw < "$attempt_directory/admission-process-exit.txt" || read_status=$?
+  (( read_status == 1 && ${#raw} <= 512 )) || block integrity_invalid admission_exit_shape
+  [[ $raw == *$'\n' ]] || block integrity_invalid admission_exit_torn
+  mapfile -t lines <<< "${raw%$'\n'}"
+  (( ${#lines[@]} == 3 )) || block integrity_invalid admission_exit_shape
+  [[ ${lines[0]} == schema=worker38-admission-process-exit-v1 && ${lines[1]} =~ ^exit_status=(0|[1-9][0-9]{0,2})$ && ${lines[2]} == admission_process_returned=true ]] || block integrity_invalid admission_exit_shape
+  admission_exit=${lines[1]#*=}
+  (( admission_exit <= 255 )) || block integrity_invalid admission_exit_status
+}
+
+_worker38_upload_readiness() {
+  # Driver returns0/2 only after seal confirmation AND final timer restoration.
+  # Any other process outcome cannot certify a readable leftover plan.
+  (( preservation_exit == 0 || preservation_exit == 2 )) || return 1
+  [[ -d $transport_directory && ! -L $transport_directory && -O $transport_directory && -r $transport_directory && -x $transport_directory && ! -w $transport_directory ]] || block execution_incomplete upload_seal_unconfirmed
+  [[ -f $transport_directory/upload-plan.txt && ! -L $transport_directory/upload-plan.txt && -O $transport_directory/upload-plan.txt && -r $transport_directory/upload-plan.txt && ! -w $transport_directory/upload-plan.txt ]] || block execution_incomplete upload_seal_unconfirmed
+  [[ -n ${GITHUB_OUTPUT-} ]] || block execution_incomplete upload_output_unavailable
+  printf '::add-mask::%s\n' "$RUNNER_TOOL_CACHE"
+  printf 'upload_ready=true\n' >> "$GITHUB_OUTPUT" || block execution_incomplete upload_output_write
 }
 
 _worker38_read_handoff() {
@@ -275,19 +307,58 @@ _worker38_preserve() {
     _worker38_clock
     preservation_seconds=$(((preservation_boottime_ms*1000000-worker38_now_ns)/1000000000))
     (( preservation_seconds > 0 && preservation_seconds <= 600 )) || block resource_incomplete preservation_original_deadline
-    exec /usr/bin/timeout --foreground --signal=KILL "${preservation_seconds}s" "$WORKER38_EXECUTABLE" -B -s "$WORKER38_SOURCE_DIRECTORY/scripts/run_worker38_synthetic.py" preserve --attempt "$attempt_directory" --destination "$transport_directory" --report "$allocation_directory/verification-$GITHUB_RUN_ID.json" --recovery-report "$allocation_directory/recovery-$GITHUB_RUN_ID.json" --admission "$attempt_directory/admission-inputs/admission.json" --admission-sha256 "$worker38_handoff_admission_sha256" --admission-provenance "$attempt_directory/admission-inputs/provenance.json" --admission-provenance-sha256 "$worker38_handoff_provenance_sha256" --expected-head "$WORKER38_HEAD" --expected-tree "$WORKER38_TREE" --expected-workflow-run "$GITHUB_RUN_ID" --preservation-deadline-monotonic-ms "$preservation_monotonic_ms" < /dev/null > "$allocation_directory/preservation-$GITHUB_RUN_ID.stdout" 2> "$allocation_directory/preservation-$GITHUB_RUN_ID.stderr"
+    exec /usr/bin/timeout --foreground --signal=KILL "${preservation_seconds}s" "$WORKER38_EXECUTABLE" -B -s "$WORKER38_SOURCE_DIRECTORY/scripts/run_worker38_synthetic.py" preserve --attempt "$attempt_directory" --destination "$transport_directory" --report "$allocation_directory/verification-$GITHUB_RUN_ID.json" --recovery-report "$allocation_directory/recovery-$GITHUB_RUN_ID.json" --admission "$attempt_directory/admission-inputs/admission.json" --admission-sha256 "$worker38_handoff_admission_sha256" --admission-provenance "$attempt_directory/admission-inputs/provenance.json" --admission-provenance-sha256 "$worker38_handoff_provenance_sha256" --expected-head "$WORKER38_HEAD" --expected-tree "$WORKER38_TREE" --expected-workflow-run "$GITHUB_RUN_ID" --preservation-deadline-monotonic-ms "$preservation_monotonic_ms" --admission-exit-status "$admission_exit" --coordinator-exit-status "$measurement_exit" < /dev/null > "$allocation_directory/preservation-$GITHUB_RUN_ID.stdout" 2> "$allocation_directory/preservation-$GITHUB_RUN_ID.stderr"
   )
   preservation_exit=$?
   set -e
-  # Preserve's exit can indicate failed verification with successfully sealed
-  # incomplete evidence. The fixed files remain eligible only as transport.
-  if [[ -f $transport_directory/transport-manifest.json && ! -L $transport_directory/transport-manifest.json ]]; then
-    if [[ -n ${GITHUB_OUTPUT-} ]]; then
-      printf '::add-mask::%s\n' "$RUNNER_TOOL_CACHE"
-      printf 'transport_directory=%s\ntransport_ready=true\n' "$transport_directory" >> "$GITHUB_OUTPUT" || block execution_incomplete transport_output
-    fi
-  fi
+  _worker38_upload_readiness || return "$preservation_exit"
   return "$preservation_exit"
+}
+
+_worker38_preserve_startup_failure() {
+  local raw read_status=0 current_boot preservation_monotonic_ms preservation_boottime_ms preservation_boot_id preservation_seconds startup_failure_handoff_sha256
+  local -a lines
+  phase=STARTUP_PRESERVE
+  _worker38_read_runtime
+  _worker38_read_admission_exit
+  (( admission_exit == 79 )) || block execution_blocked startup_failure_exit_unconfirmed
+  [[ -f $attempt_directory/startup-preservation-handoff.txt && ! -L $attempt_directory/startup-preservation-handoff.txt ]] || block execution_blocked startup_failure_handoff_missing
+  raw=
+  IFS= read -r -d '' -n 1025 raw < "$attempt_directory/startup-preservation-handoff.txt" || read_status=$?
+  (( read_status == 1 && ${#raw} <= 1024 )) || block integrity_invalid startup_failure_handoff_shape
+  [[ $raw == *$'\n' ]] || block integrity_invalid startup_failure_handoff_torn
+  mapfile -t lines <<< "${raw%$'\n'}"
+  (( ${#lines[@]} == 5 )) || block integrity_invalid startup_failure_handoff_shape
+  [[ ${lines[0]} == version=worker38-startup-failure-v1 && ${lines[1]} =~ ^startup_failure_handoff_sha256=([0-9a-f]{64})$ ]] || block integrity_invalid startup_failure_handoff_identity
+  startup_failure_handoff_sha256=${lines[1]#*=}
+  [[ ${lines[2]} =~ ^preservation_deadline_monotonic_ms=([1-9][0-9]{0,14})$ ]] || block integrity_invalid startup_failure_monotonic_shape
+  preservation_monotonic_ms=${lines[2]#*=}
+  [[ ${lines[3]} =~ ^preservation_deadline_boottime_ms=([1-9][0-9]{0,14})$ ]] || block integrity_invalid startup_failure_boottime_shape
+  preservation_boottime_ms=${lines[3]#*=}
+  [[ ${lines[4]} =~ ^preservation_boot_id=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$ ]] || block integrity_invalid startup_failure_boot_shape
+  preservation_boot_id=${lines[4]#*=}
+  IFS= read -r current_boot < /proc/sys/kernel/random/boot_id || block execution_blocked startup_failure_boot_unavailable
+  [[ $current_boot == "$preservation_boot_id" ]] || block integrity_invalid startup_failure_boot_changed
+  _worker38_clock
+  preservation_seconds=$(((preservation_boottime_ms*1000000-worker38_now_ns)/1000000000))
+  (( preservation_seconds > 0 && preservation_seconds <= 600 )) || block resource_incomplete startup_failure_original_deadline
+  allocation_directory=${attempt_directory%/*}
+  transport_directory=$allocation_directory/transport-$GITHUB_RUN_ID-attempt-1
+  worker38_handoff_handoff_sha256=$startup_failure_handoff_sha256
+  worker38_handoff_boot_id=$preservation_boot_id
+  set +e
+  (
+    _worker38_science_environment
+    _worker38_clock
+    preservation_seconds=$(((preservation_boottime_ms*1000000-worker38_now_ns)/1000000000))
+    (( preservation_seconds > 0 && preservation_seconds <= 600 )) || block resource_incomplete startup_failure_original_deadline
+    exec /usr/bin/timeout --foreground --signal=KILL "${preservation_seconds}s" "$WORKER38_EXECUTABLE" -B -s "$WORKER38_SOURCE_DIRECTORY/scripts/run_worker38_synthetic.py" preserve --attempt "$attempt_directory" --destination "$transport_directory" --report "$allocation_directory/verification-$GITHUB_RUN_ID.json" --recovery-report "$allocation_directory/recovery-$GITHUB_RUN_ID.json" --startup-failure-handoff-sha256 "$startup_failure_handoff_sha256" --expected-head "$WORKER38_HEAD" --expected-tree "$WORKER38_TREE" --expected-workflow-run "$GITHUB_RUN_ID" --preservation-deadline-monotonic-ms "$preservation_monotonic_ms" --admission-exit-status "$admission_exit" --coordinator-exit-status not_started < /dev/null > "$allocation_directory/preservation-$GITHUB_RUN_ID.stdout" 2> "$allocation_directory/preservation-$GITHUB_RUN_ID.stderr"
+  )
+  preservation_exit=$?
+  set -e
+  _worker38_upload_readiness || return "$preservation_exit"
+  # Sealed zero-entry failure remains failed even if preservation succeeded.
+  return 1
 }
 
 _worker38_main() {
@@ -309,6 +380,10 @@ _worker38_main() {
   startup_exit=$?
   set -e
   unset worker38_api_token GH_TOKEN
+  if (( startup_exit == 79 )); then
+    _worker38_preserve_startup_failure
+    return 1
+  fi
   if (( startup_exit != 0 )); then
     _worker38_clock
     (( worker38_now_ns < WORKER38_STARTUP_DEADLINE_BOOTTIME_NS )) || block resource_incomplete startup_deadline
@@ -317,6 +392,8 @@ _worker38_main() {
   # The120s timeout has returned. Only builtins run before the measurement
   # timeout is installed from the immutable carried deadline.
   _worker38_read_runtime
+  _worker38_read_admission_exit
+  (( admission_exit == 0 )) || block execution_blocked admission_exit_nonzero
   _worker38_read_handoff
   phase=MEASURE
   set +e
