@@ -1,0 +1,917 @@
+{
+  "F07_exact_output_byte_map": {
+    "archive_payload_occurrences": 4,
+    "existing_real_production_files": [
+      {
+        "bytes": "A",
+        "path": "transport-123-attempt-1/attempt.zip"
+      },
+      {
+        "also_used_directly_as": "files[0].upload_input_path",
+        "bytes": "A",
+        "path": "transport-123-attempt-1/part-001.bin"
+      },
+      {
+        "also_used_directly_as": "manifest_file.upload_input_path",
+        "bytes": "M",
+        "path": "transport-123-attempt-1/transport-manifest.json"
+      }
+    ],
+    "manifest_payload_occurrences": 3,
+    "new_custody_output_bytes": "2*A+2*M+244+C",
+    "new_production_custody_files": [
+      {
+        "bytes": "A",
+        "path": "production-custody/fresh-download-part.bin"
+      },
+      {
+        "bytes": "A+M+244",
+        "path": "production-custody/github-provider-wrapper-001.zip"
+      },
+      {
+        "bytes": "M",
+        "path": "production-custody/fresh-transport-manifest.json"
+      },
+      {
+        "bytes": "C",
+        "path": "production-custody/externally-authenticated-custody.json"
+      }
+    ],
+    "new_upload_input_copy_files": 0,
+    "numeric_fit_status": "Exact occurrence/overhead arithmetic established statically. F07 actual A/M/C/K bounds require independent complete-orchestration source accounting. The ordinary offline 2MiB guard and 60-character-root estimate do not by themselves bound F07.",
+    "package_and_custody_payload_output_bytes": "4*A+3*M+244+C",
+    "plus_seal_and_preservation_outputs": "4*A+3*M+244+C+K",
+    "prior_five_copy_package_and_custody_bytes": "5*A+4*M+244+C",
+    "prospective_write_delta": "A+M fewer new bytes because original sealed producer outputs are the actual canonical upload inputs; existing outputs are still charged once per production write, without content deduplication",
+    "provider_wrapper_ZIP_overhead_derivation": "22 end record + 2*76 fixed local/central headers + 2*(12+23) ASCII member-name bytes =244; ZIP_STORED, no extras/comments, two sub-ZIP64 literal members",
+    "variables": {
+      "A": "Actual real package attempt.zip size; fixed F07 has exactly one part-001.bin of the same size",
+      "C": "Whole externally-authenticated-custody.json output size; no field deductions",
+      "K": "All actual seal control and preservation verification/recovery output bytes, including prefixes and repeated writes; separately charged",
+      "M": "Actual original transport-manifest.json byte size"
+    }
+  },
+  "F07_output_rule": "custody_from_production reads real sealed attempt.zip, part-001.bin and exact original transport-manifest.json. Upload descriptors point directly to the existing sealed part and manifest; no upload-input copies are created. A distinct provider wrapper, fresh Drive part readback, fresh Drive manifest readback and observed custody receipt are produced and fully charged, alongside every real preserve/package/seal/result byte.",
+  "activity": {
+    "OS_roots": 0,
+    "fixture_constructor_executions": 0,
+    "network": 0,
+    "project_imports": 0,
+    "scientific_calls": 0,
+    "tests": 0
+  },
+  "helper_spans": {
+    "__init__": {
+      "lines": [
+        97,
+        203
+      ],
+      "sha256": "d5e51773834b9c2dff91cc3b092e6eb1c0dec01096c7ef82091eee8548498923",
+      "size_bytes": 8909
+    },
+    "_custody_artifacts": {
+      "lines": [
+        546,
+        637
+      ],
+      "sha256": "27f92d4678b9b982daa7fbe8eb1cde58abe4bd5450930da3a05ab27c943ca69f",
+      "size_bytes": 7431
+    },
+    "custody": {
+      "lines": [
+        512,
+        522
+      ],
+      "sha256": "521ba5332577700bcbe315d2e5c7cdf8503d9a6c661e4840af4d1c52d9dd0f8a",
+      "size_bytes": 730
+    },
+    "custody_from_production": {
+      "lines": [
+        524,
+        544
+      ],
+      "sha256": "19e8e5d9fe86efe82d1fa4ee8b07b1976e0d875666e22956eb68c721ade89a47",
+      "size_bytes": 1503
+    },
+    "literal_inventory": {
+      "lines": [
+        440,
+        453
+      ],
+      "sha256": "8abd1c862ba6a743138c9e327d8f17d9f73dd3f62c4f0614a6471d2043de45aa",
+      "size_bytes": 818
+    },
+    "prepare_custody_inputs": {
+      "lines": [
+        455,
+        510
+      ],
+      "sha256": "8705be0cc74b8b937d882996c92fc3f698054eeb806feeb67eeb59bebafd3219",
+      "size_bytes": 4336
+    },
+    "refresh": {
+      "lines": [
+        398,
+        420
+      ],
+      "sha256": "560eca4775654a508110c8e2947c48e76dc08bd896cd19ff95ec7d5cabf54854",
+      "size_bytes": 2013
+    },
+    "timing": {
+      "lines": [
+        639,
+        644
+      ],
+      "sha256": "9b1d9b846dfd1253aca3daa407ee68919c8c7e8c71971c6c6b22a01aeee1db9a",
+      "size_bytes": 430
+    },
+    "verify": {
+      "lines": [
+        427,
+        438
+      ],
+      "sha256": "c0aeb65a827e0c1f96da6111ced1a8efdfe316f98450a951f554c8b3e5d1d72d",
+      "size_bytes": 878
+    }
+  },
+  "input_mutation_authority": "Latest prospective parent/root direction explicitly permits fixed V15/PW13 mutations derived exclusively from these prebuilt immutable input bytes to retain input-mutation lineage. Old helper results remain outputs; no retrospective relabeling.",
+  "method_preservation": {
+    "all43_raw_bodies_identical_to_pre_repair": true,
+    "all43_raw_bodies_identical_to_previous_lineage_revision": true,
+    "raw_method_body_hashes": {
+      "VerifyIntegrationTests.test_ER_I02_retained_prerequisites_replayed_offline": "451c95e2621db49a60be79073d1a1b1db7e76799e791873ad574ea4f866256c2",
+      "VerifyIntegrationTests.test_JR01_exact_successful_journal_schema": "888f4501c230969b16c63c16f6806b7365c9614adc681248125c952dda83f166",
+      "VerifyIntegrationTests.test_JR02_identical_reference_science_contradiction": "57bd152348e40328c271c024925d156aa3f61d1bf2c7579588b6ee92865af447",
+      "VerifyIntegrationTests.test_JR03_matching_extra_reference_science_rejected": "d77718875467754dee3072569ab85b15667397b02b820403acc09d63e4221b57",
+      "VerifyIntegrationTests.test_JR04_reference_digest_required_and_bound": "db298a61692ea878ab88c1ce732555f0d6e4dd6a8fe75098d43d291a89533a48",
+      "VerifyIntegrationTests.test_JR05_chosen_bound_to_each_full_sidecar": "c5271ab8d2f97fb5ded78c0b512bfbb6a221e61bcdb62e648ded9bc177ebe14f",
+      "VerifyIntegrationTests.test_JR06_ordinal_scope_and_exact_result_keys": "e30703b09c44b9c314535d3b7b1cf1eddf6f0ae564e0af820c58e3a1b4cf1a26",
+      "VerifyIntegrationTests.test_JR07_full_reference_sidecar_still_required": "4a8eeaec423a595cf62688be34c2180aa721586d56d132edab9789f2cf36591b",
+      "VerifyIntegrationTests.test_MR01_complete_original_metric_fields": "1074c416b2d71e2b9ab563b0732b38d7a7f2242a44e6def6bcd787462d86e7ad",
+      "VerifyIntegrationTests.test_MR02_inclusive_clock_and_uncapped_rss_fields": "a7de42928238a4a1c831e79b5f19363ecbcda58ea09d2eff85244d38caa72f7a",
+      "VerifyIntegrationTests.test_MR03_missing_malformed_and_over_cap_metrics": "bb0b7ad16a0acfbee55dd1d2a00ea5fa8c983eaa8a04216ffd1036e0acb2a778",
+      "VerifyIntegrationTests.test_MR04_metric_identity_fields": "ce0bda01584c66edf74c373922632dda1b3fa04b648294bd9e83ff57e0714796",
+      "VerifyIntegrationTests.test_MR05_identical_invalid_repeated_metrics": "5fd49e16b45854a7578e2adb81f0839f9fd2507e3ed1d2d362fb12da7108e73f",
+      "VerifyIntegrationTests.test_MR06_nonfinite_and_huge_integer_metrics": "98d0b61acdc7396db857ff34335f53a448fcd123595280fd2b6becf082ff64c2",
+      "VerifyIntegrationTests.test_MR07_true_integer_monotonic_high_water": "c00bbce82ac9024acb2f45601445433bec6c2b3f6b6afca251866c5437dab124",
+      "VerifyIntegrationTests.test_MR08_method_rows_and_unmeasured_flags_unchanged": "f5610f03fd4ffe2ba84c1121c89d384b45c9a1004f9a6c2ad4a7497b4e2422d2",
+      "VerifyIntegrationTests.test_PW01_complete_wrapper_final_classification": "cd459b8c475de0dbcdb3a0afd0ad27498eeb0efb968658576d8648b241aa15a8",
+      "VerifyIntegrationTests.test_PW02_wrapper_coverage_is_mandatory": "1e8ed09327cf35b66d780260072a91d032931b6b141f517376b53b7170cb1d6f",
+      "VerifyIntegrationTests.test_PW13_outer_wrapper_is_not_canonical_part": "a0aca1f588d55d4806c5cca4854bedab71b784811d8869bb47afd7d94d3aa063",
+      "VerifyIntegrationTests.test_PW14_exact_and_semantic_wrapper_binding": "ee3ac0f26979e581515664d79403b2da5f6aa5e10f216627831379684e972d64",
+      "VerifyIntegrationTests.test_PW15_legacy_custody_is_not_accepted": "f7446cb954743b5a74db9da55ff4b2fc175d2766423c485f4dee32b25460d7eb",
+      "VerifyIntegrationTests.test_V01_complete_literal_bundle": "c87c267f34c2572ad9e0b03d2857ac65835a0c3f61223cec19ab6b3d43a8ff1b",
+      "VerifyIntegrationTests.test_V02_external_admission_binding": "24aa8079ffc52347e58c316d680e010a97da5c86917feab8cced3ff126c3a074",
+      "VerifyIntegrationTests.test_V03_authenticated_freeze_pins": "9dd2d0cefae1be5384805e727989953a0d665a5a0ca9bf0170bf5da5ba32b93a",
+      "VerifyIntegrationTests.test_V04_parent_source_preflight": "550ed78c84fb39be4483410c05b8bc50159453a3f86b400121ae4aada322f5ec",
+      "VerifyIntegrationTests.test_V05_cell_module_manifest": "224077aa5a9ab5fad1790ac1d08f1dbbf006de9499514a33ee658b3442966330",
+      "VerifyIntegrationTests.test_V06_exact_runtime_policy": "1bdf61ba37b6786aca26762618f1112cd09dca0f2727bf861a0d7f56b45152f0",
+      "VerifyIntegrationTests.test_V07_supervision_and_logs_required_for_every_cell": "2941a4fea66004bf16e43a7cc76e652d79170219994a277e85358561a5a080bd",
+      "VerifyIntegrationTests.test_V08_parent_totals_errors_inventory": "bb02657cd0e6f0e6e930dc54710e4060d1a9dd8e824efbecad6246f52fa75f12",
+      "VerifyIntegrationTests.test_V09_science_rng_capture_boundary": "3f0a871cd6ab0a971c118ad6c6867e797d2f1a44b320ccf2b67ed43edc22925f",
+      "VerifyIntegrationTests.test_V10_required_accounting_and_timing": "6cb45fec7fb6757c6bee3f612cb3785efe4b97fa5bedbf476e762a55eb31c238",
+      "VerifyIntegrationTests.test_V11_joint_threshold_inclusive": "68884227988c189fe80dcca6361ef11eb52537de27461a4d1a14fd46732f87b9",
+      "VerifyIntegrationTests.test_V12_each_joint_threshold_failure": "b490579529825ce8f6cceaea7e013f717b33e88fd14aaee5e8b93019d1ff7f94",
+      "VerifyIntegrationTests.test_V13_revalidate_complete_evidence_binding": "a26832dd6e6b4aa49a9327832c4219e313714df1633b25675ef1b16e1d3a5e60",
+      "VerifyIntegrationTests.test_V14_external_custody_gate": "865fb716d6b281516b2fd9ac854c9db51c7b41b46d6d6ead66f4caa7d23a8f5d",
+      "VerifyIntegrationTests.test_V15_exact_readback_provenance_and_files": "6ecb6af6b57b9afb9ed87345d1a649022edbdbf34c77f19898cc5c9ed1d128cf",
+      "VerifyIntegrationTests.test_V16_closing_phase_proof": "ca7bbfe50ce2cfcf70535d09fc82969c490488cd0f0d4d82b1572dcdd9d85c93",
+      "VerifyIntegrationTests.test_V17_closing_totals_are_reported": "2d8aea482ef1d7a2dfe0e20513b390a72ea91590e119d46ef8e4486781cfa775",
+      "VerifyIntegrationTests.test_V18_matched_clock_error_types": "d1b6b20295e8372233b6350f18b7c1ce5f6b3e4ee5ab6cff414eb337ee0ec605",
+      "VerifyIntegrationTests.test_V19_recovery_loader_runtime_binding": "389d880fe4a9271666b41cb724068b41a4ac24907a542bf4b4ac57a810f15a69",
+      "VerifyIntegrationTests.test_V20_supervisor_preservation_boundary_consistency": "4fbdd6fa58db59d7f8b3cb36a8aaa474d0397799935c718140861e2329197244",
+      "VerifyIntegrationTests.test_V21_supervisor_partial_spawn_consistency": "50ba0d6264d1fbfd032af3c2b71a5b356ba807adec7efa919785a50f46379846",
+      "VerifyIntegrationTests.test_V22_recovery_loader_admission_and_helper_pin": "82530d67de25838563d732929586b815b69e10fa07d607bfb641153d2e3aeead"
+    },
+    "test_methods": 43
+  },
+  "named_revision": "OFFLINE-CUSTODY-INPUT-LINEAGE-REPAIR01",
+  "numeric_output_argument": {
+    "conditional_scope": "This bound covers the changed ordinary offline custody artifact path only. Other70method outputs, driver/supervisor/new64 and F07 actual packaging remain separately charged and must reconcile under original24MiBprefix+8MiBlog overall.",
+    "first_wrapper_fixed_ZIP_overhead_bytes": 244,
+    "first_wrapper_input_upper_bytes": 2162932,
+    "maximum_observed_receipt_bytes": 131072,
+    "observed_receipt_write_count": 34,
+    "ordinary_offline_bulk_production_copies": 0,
+    "receipt_output_upper_bytes": 4456448,
+    "receipt_write_roster": {
+      "PW02_missing_null_empty": 3,
+      "PW14_changed_provider_receipt": 1,
+      "PW15_legacy_schema": 1,
+      "V14_negative_plus_restore": 7,
+      "V15_negative_plus_restore": 10,
+      "initial_across12scenarios": 12
+    }
+  },
+  "observed_JSON_output_rule": "All actual-verifier-bound custody JSON and subsequent negative rewrites are wholly outputs even when most fields originated as input metadata. No selective field-size deduction.",
+  "ordered_dataflow": [
+    "LiteralBundle creates exclusive357-file invented administrative/scientific-input tree; no scientific imports/evaluation",
+    "Closed11 method selector enables12 fixed input scenarios; driver_target forbids this branch",
+    "prepare_custody_inputs snapshots only literal bytes and independently hashes357-path inventory; it neither receives nor calls real verifier",
+    "Exact frozen ZIP_STORED/1980/regular0600 archive and first provider wrapper are constructed before verifier; one unchanged part plus original manifest; five assets have readback size/hash pins in custody_input_versions",
+    "Only after all five input assets exist does actual v.verify_attempt run with unchanged trusted external anchors; complete actual inventory must equal independently frozen inventory",
+    "custody(actual_result) cannot construct bulk artifacts; it copies frozen metadata, binds actual verification_sha256 and writes a wholly produced custody receipt",
+    "timing() invokes the actual final verifier/custody/recheck path; no verifier method or production gate is mocked",
+    "custody_from_production reads real sealed attempt.zip, part-001.bin and exact original transport-manifest.json. Upload descriptors point directly to the existing sealed part and manifest; no upload-input copies are created. A distinct provider wrapper, fresh Drive part readback, fresh Drive manifest readback and observed custody receipt are produced and fully charged, alongside every real preserve/package/seal/result byte."
+  ],
+  "predeclared_input_mutations": [
+    {
+      "lineage": "fixed literals and pre-verifier archive-input bytes only; original upload-part.bin and frozen asset hash retain before-delete identity; no verifier-result byte source",
+      "recipe": [
+        "read original frozen fresh-download-part.bin bytes",
+        "replace with exact ASCII corrupt literal downloaded bytes",
+        "actual timing gate must reject",
+        "restore those same original frozen bytes",
+        "unlink that fixed readback path",
+        "actual timing gate must reject absence"
+      ],
+      "selector": "test_V15_exact_readback_provenance_and_files"
+    },
+    {
+      "lineage": "path/bytes come from frozen input metadata unchanged by actual verification digest; no produced driver/package data",
+      "recipe": [
+        "read original frozen github-provider-wrapper-001.zip bytes",
+        "overwrite upload-part.bin with those exact input wrapper bytes",
+        "overwrite fresh-download-part.bin with same bytes",
+        "actual timing gate must reject wrapper-as-canonical-part"
+      ],
+      "selector": "test_PW13_outer_wrapper_is_not_canonical_part"
+    }
+  ],
+  "preserved_predecessor": {
+    "classification": "Old custody(actual_verification) archive/provider/Drive copies remain historically classified as produced output; no retrospective relabeling.",
+    "path": "/workspace/shared/worker38-implementation/evidence/offline-before-custody-input-repair/tests/test_worker38_verify_integration.py",
+    "sha256": "129e0d79436fb3de40c7b2b9c468d77e0cd3a4b40dde07a12af9a594527bef62",
+    "size_bytes": 89990
+  },
+  "preserved_previous_revision": {
+    "amendment": {
+      "path": "/workspace/shared/worker38-implementation/evidence/OFFLINE-CUSTODY-INPUT-LINEAGE-AMENDMENT.json",
+      "sha256": "4c988991ccfee9ae97a1ebb5eefaec746c48b83d30ad02f02b2e03bb31d320ff",
+      "size_bytes": 36142
+    },
+    "classification": "Five-payload-copy F07 helper and all earlier accounting remain historical; no retrospective relabeling.",
+    "history_directory": "/workspace/shared/worker38-implementation/evidence/offline-before-custody-lineage-repair01",
+    "source": {
+      "path": "/workspace/shared/worker38-implementation/evidence/offline-before-custody-lineage-repair01/tests/test_worker38_verify_integration.py",
+      "sha256": "d8cd86d503ffa551f9d33e44fb9b5e383472c23e7c7a36826e1ca797314b7f19",
+      "size_bytes": 99741
+    }
+  },
+  "prior_independent_audit_notification": {
+    "amendment_sha256": "4c988991ccfee9ae97a1ebb5eefaec746c48b83d30ad02f02b2e03bb31d320ff",
+    "reported_34_receipt_writes_bytes": 3494452,
+    "reported_all43_method_spans_equal": true,
+    "reported_inventory_paths": 357,
+    "reported_max_relative_name_bytes": 64,
+    "reported_ordinary_archive_upper_bytes": 1849095,
+    "reported_ordinary_raw_upper_bytes": 1799577,
+    "reported_ordinary_receipt_bound_bytes": 102778,
+    "reported_relative_name_bytes": 11182,
+    "source_sha256": "d8cd86d503ffa551f9d33e44fb9b5e383472c23e7c7a36826e1ca797314b7f19",
+    "status": "Independent auditor reported these source-only inequalities; second independent review remains required and F07 refinement has a new target."
+  },
+  "prospective_fixture_guards": {
+    "compact_manifest_bytes": 65536,
+    "frozen_archive_bytes": 2097152,
+    "independent_case_base_literal_ASCII_path_bytes": 60,
+    "no_original_resource_cap_changes": true,
+    "raw_literal_tree_bytes": 2097152,
+    "static_feasibility_gate": "Independent accounting review must establish fixed recipes fit before nativeexecution. A failure is not permission to truncate, increase limits, hide bytes or rerun.",
+    "whole_observed_custody_receipt_bytes": 131072
+  },
+  "raw_input_file_count": 357,
+  "raw_input_file_roster": [
+    "admission-inputs/admission.json",
+    "admission-inputs/current-source-ci.json",
+    "admission-inputs/diagnostic-commit.json",
+    "admission-inputs/event.json",
+    "admission-inputs/postmerge-ci.json",
+    "admission-inputs/preregistration.json",
+    "admission-inputs/provenance.json",
+    "admission-inputs/pull-request.json",
+    "admission-inputs/request-context.json",
+    "admission-inputs/review-adversarial.json",
+    "admission-inputs/review-exhaustive.json",
+    "admission-process-exit.txt",
+    "cells/01/active-call.json",
+    "cells/01/call-results/pass-2/11.jsonl",
+    "cells/01/candidate-capture-confirmed.json",
+    "cells/01/candidate-return.json",
+    "cells/01/candidate-start.json",
+    "cells/01/cell-boundaries.json",
+    "cells/01/cell-receipt.json",
+    "cells/01/cell-start.json",
+    "cells/01/decision-traces/pass-2/11.jsonl",
+    "cells/01/reference-capture-confirmed.json",
+    "cells/01/reference-return.json",
+    "cells/01/reference-start.json",
+    "cells/01/resource-metrics.jsonl",
+    "cells/01/source-runtime-preflight.json",
+    "cells/01/whole-wrapper-resources.json",
+    "cells/02/active-call.json",
+    "cells/02/candidate-capture-confirmed.json",
+    "cells/02/candidate-return.json",
+    "cells/02/candidate-start.json",
+    "cells/02/cell-boundaries.json",
+    "cells/02/cell-receipt.json",
+    "cells/02/cell-start.json",
+    "cells/02/reference-capture-confirmed.json",
+    "cells/02/reference-return.json",
+    "cells/02/reference-start.json",
+    "cells/02/source-runtime-preflight.json",
+    "cells/02/unmeasured-accounting.json",
+    "cells/03/active-call.json",
+    "cells/03/call-results/pass-2/11.jsonl",
+    "cells/03/candidate-capture-confirmed.json",
+    "cells/03/candidate-return.json",
+    "cells/03/candidate-start.json",
+    "cells/03/cell-boundaries.json",
+    "cells/03/cell-receipt.json",
+    "cells/03/cell-start.json",
+    "cells/03/decision-traces/pass-2/11.jsonl",
+    "cells/03/reference-capture-confirmed.json",
+    "cells/03/reference-return.json",
+    "cells/03/reference-start.json",
+    "cells/03/resource-metrics.jsonl",
+    "cells/03/source-runtime-preflight.json",
+    "cells/03/whole-wrapper-resources.json",
+    "cells/04/active-call.json",
+    "cells/04/candidate-capture-confirmed.json",
+    "cells/04/candidate-return.json",
+    "cells/04/candidate-start.json",
+    "cells/04/cell-boundaries.json",
+    "cells/04/cell-receipt.json",
+    "cells/04/cell-start.json",
+    "cells/04/reference-capture-confirmed.json",
+    "cells/04/reference-return.json",
+    "cells/04/reference-start.json",
+    "cells/04/source-runtime-preflight.json",
+    "cells/04/unmeasured-accounting.json",
+    "cells/05/active-call.json",
+    "cells/05/call-results/pass-2/11.jsonl",
+    "cells/05/candidate-capture-confirmed.json",
+    "cells/05/candidate-return.json",
+    "cells/05/candidate-start.json",
+    "cells/05/cell-boundaries.json",
+    "cells/05/cell-receipt.json",
+    "cells/05/cell-start.json",
+    "cells/05/decision-traces/pass-2/11.jsonl",
+    "cells/05/reference-capture-confirmed.json",
+    "cells/05/reference-return.json",
+    "cells/05/reference-start.json",
+    "cells/05/resource-metrics.jsonl",
+    "cells/05/source-runtime-preflight.json",
+    "cells/05/whole-wrapper-resources.json",
+    "cells/06/active-call.json",
+    "cells/06/candidate-capture-confirmed.json",
+    "cells/06/candidate-return.json",
+    "cells/06/candidate-start.json",
+    "cells/06/cell-boundaries.json",
+    "cells/06/cell-receipt.json",
+    "cells/06/cell-start.json",
+    "cells/06/reference-capture-confirmed.json",
+    "cells/06/reference-return.json",
+    "cells/06/reference-start.json",
+    "cells/06/source-runtime-preflight.json",
+    "cells/06/unmeasured-accounting.json",
+    "cells/07/active-call.json",
+    "cells/07/call-results/pass-2/11.jsonl",
+    "cells/07/candidate-capture-confirmed.json",
+    "cells/07/candidate-return.json",
+    "cells/07/candidate-start.json",
+    "cells/07/cell-boundaries.json",
+    "cells/07/cell-receipt.json",
+    "cells/07/cell-start.json",
+    "cells/07/decision-traces/pass-2/11.jsonl",
+    "cells/07/reference-capture-confirmed.json",
+    "cells/07/reference-return.json",
+    "cells/07/reference-start.json",
+    "cells/07/resource-metrics.jsonl",
+    "cells/07/source-runtime-preflight.json",
+    "cells/07/whole-wrapper-resources.json",
+    "cells/08/active-call.json",
+    "cells/08/candidate-capture-confirmed.json",
+    "cells/08/candidate-return.json",
+    "cells/08/candidate-start.json",
+    "cells/08/cell-boundaries.json",
+    "cells/08/cell-receipt.json",
+    "cells/08/cell-start.json",
+    "cells/08/reference-capture-confirmed.json",
+    "cells/08/reference-return.json",
+    "cells/08/reference-start.json",
+    "cells/08/source-runtime-preflight.json",
+    "cells/08/unmeasured-accounting.json",
+    "cells/09/active-call.json",
+    "cells/09/call-results/pass-2/11.jsonl",
+    "cells/09/candidate-capture-confirmed.json",
+    "cells/09/candidate-return.json",
+    "cells/09/candidate-start.json",
+    "cells/09/cell-boundaries.json",
+    "cells/09/cell-receipt.json",
+    "cells/09/cell-start.json",
+    "cells/09/decision-traces/pass-2/11.jsonl",
+    "cells/09/reference-capture-confirmed.json",
+    "cells/09/reference-return.json",
+    "cells/09/reference-start.json",
+    "cells/09/resource-metrics.jsonl",
+    "cells/09/source-runtime-preflight.json",
+    "cells/09/whole-wrapper-resources.json",
+    "cells/10/active-call.json",
+    "cells/10/candidate-capture-confirmed.json",
+    "cells/10/candidate-return.json",
+    "cells/10/candidate-start.json",
+    "cells/10/cell-boundaries.json",
+    "cells/10/cell-receipt.json",
+    "cells/10/cell-start.json",
+    "cells/10/reference-capture-confirmed.json",
+    "cells/10/reference-return.json",
+    "cells/10/reference-start.json",
+    "cells/10/source-runtime-preflight.json",
+    "cells/10/unmeasured-accounting.json",
+    "cells/11/active-call.json",
+    "cells/11/candidate-capture-confirmed.json",
+    "cells/11/candidate-return.json",
+    "cells/11/candidate-start.json",
+    "cells/11/cell-boundaries.json",
+    "cells/11/cell-receipt.json",
+    "cells/11/cell-start.json",
+    "cells/11/reference-capture-confirmed.json",
+    "cells/11/reference-return.json",
+    "cells/11/reference-start.json",
+    "cells/11/source-runtime-preflight.json",
+    "cells/11/unmeasured-accounting.json",
+    "cells/12/active-call.json",
+    "cells/12/call-results/pass-2/11.jsonl",
+    "cells/12/candidate-capture-confirmed.json",
+    "cells/12/candidate-return.json",
+    "cells/12/candidate-start.json",
+    "cells/12/cell-boundaries.json",
+    "cells/12/cell-receipt.json",
+    "cells/12/cell-start.json",
+    "cells/12/decision-traces/pass-2/11.jsonl",
+    "cells/12/reference-capture-confirmed.json",
+    "cells/12/reference-return.json",
+    "cells/12/reference-start.json",
+    "cells/12/resource-metrics.jsonl",
+    "cells/12/source-runtime-preflight.json",
+    "cells/12/whole-wrapper-resources.json",
+    "cells/13/active-call.json",
+    "cells/13/candidate-capture-confirmed.json",
+    "cells/13/candidate-return.json",
+    "cells/13/candidate-start.json",
+    "cells/13/cell-boundaries.json",
+    "cells/13/cell-receipt.json",
+    "cells/13/cell-start.json",
+    "cells/13/reference-capture-confirmed.json",
+    "cells/13/reference-return.json",
+    "cells/13/reference-start.json",
+    "cells/13/source-runtime-preflight.json",
+    "cells/13/unmeasured-accounting.json",
+    "cells/14/active-call.json",
+    "cells/14/call-results/pass-2/11.jsonl",
+    "cells/14/candidate-capture-confirmed.json",
+    "cells/14/candidate-return.json",
+    "cells/14/candidate-start.json",
+    "cells/14/cell-boundaries.json",
+    "cells/14/cell-receipt.json",
+    "cells/14/cell-start.json",
+    "cells/14/decision-traces/pass-2/11.jsonl",
+    "cells/14/reference-capture-confirmed.json",
+    "cells/14/reference-return.json",
+    "cells/14/reference-start.json",
+    "cells/14/resource-metrics.jsonl",
+    "cells/14/source-runtime-preflight.json",
+    "cells/14/whole-wrapper-resources.json",
+    "cells/15/active-call.json",
+    "cells/15/candidate-capture-confirmed.json",
+    "cells/15/candidate-return.json",
+    "cells/15/candidate-start.json",
+    "cells/15/cell-boundaries.json",
+    "cells/15/cell-receipt.json",
+    "cells/15/cell-start.json",
+    "cells/15/reference-capture-confirmed.json",
+    "cells/15/reference-return.json",
+    "cells/15/reference-start.json",
+    "cells/15/source-runtime-preflight.json",
+    "cells/15/unmeasured-accounting.json",
+    "cells/16/active-call.json",
+    "cells/16/call-results/pass-2/11.jsonl",
+    "cells/16/candidate-capture-confirmed.json",
+    "cells/16/candidate-return.json",
+    "cells/16/candidate-start.json",
+    "cells/16/cell-boundaries.json",
+    "cells/16/cell-receipt.json",
+    "cells/16/cell-start.json",
+    "cells/16/decision-traces/pass-2/11.jsonl",
+    "cells/16/reference-capture-confirmed.json",
+    "cells/16/reference-return.json",
+    "cells/16/reference-start.json",
+    "cells/16/resource-metrics.jsonl",
+    "cells/16/source-runtime-preflight.json",
+    "cells/16/whole-wrapper-resources.json",
+    "cells/17/active-call.json",
+    "cells/17/candidate-capture-confirmed.json",
+    "cells/17/candidate-return.json",
+    "cells/17/candidate-start.json",
+    "cells/17/cell-boundaries.json",
+    "cells/17/cell-receipt.json",
+    "cells/17/cell-start.json",
+    "cells/17/reference-capture-confirmed.json",
+    "cells/17/reference-return.json",
+    "cells/17/reference-start.json",
+    "cells/17/source-runtime-preflight.json",
+    "cells/17/unmeasured-accounting.json",
+    "cells/18/active-call.json",
+    "cells/18/call-results/pass-2/11.jsonl",
+    "cells/18/candidate-capture-confirmed.json",
+    "cells/18/candidate-return.json",
+    "cells/18/candidate-start.json",
+    "cells/18/cell-boundaries.json",
+    "cells/18/cell-receipt.json",
+    "cells/18/cell-start.json",
+    "cells/18/decision-traces/pass-2/11.jsonl",
+    "cells/18/reference-capture-confirmed.json",
+    "cells/18/reference-return.json",
+    "cells/18/reference-start.json",
+    "cells/18/resource-metrics.jsonl",
+    "cells/18/source-runtime-preflight.json",
+    "cells/18/whole-wrapper-resources.json",
+    "cells/19/active-call.json",
+    "cells/19/candidate-capture-confirmed.json",
+    "cells/19/candidate-return.json",
+    "cells/19/candidate-start.json",
+    "cells/19/cell-boundaries.json",
+    "cells/19/cell-receipt.json",
+    "cells/19/cell-start.json",
+    "cells/19/reference-capture-confirmed.json",
+    "cells/19/reference-return.json",
+    "cells/19/reference-start.json",
+    "cells/19/source-runtime-preflight.json",
+    "cells/19/unmeasured-accounting.json",
+    "cells/20/active-call.json",
+    "cells/20/call-results/pass-2/11.jsonl",
+    "cells/20/candidate-capture-confirmed.json",
+    "cells/20/candidate-return.json",
+    "cells/20/candidate-start.json",
+    "cells/20/cell-boundaries.json",
+    "cells/20/cell-receipt.json",
+    "cells/20/cell-start.json",
+    "cells/20/decision-traces/pass-2/11.jsonl",
+    "cells/20/reference-capture-confirmed.json",
+    "cells/20/reference-return.json",
+    "cells/20/reference-start.json",
+    "cells/20/resource-metrics.jsonl",
+    "cells/20/source-runtime-preflight.json",
+    "cells/20/whole-wrapper-resources.json",
+    "coordinator-restoration.json",
+    "external-admission.json",
+    "measurement-handoff.txt",
+    "measurement-phase-close.json",
+    "receipt.json",
+    "reservation.txt",
+    "restored-inventory.json",
+    "restored/scripts/benchmark_worker35_synthetic.py",
+    "restored/scripts/run_quota_reserve_closure_development.py",
+    "restored/scripts/worker31_geometry.py",
+    "restored/scripts/worker35_resources.py",
+    "restored/src/bandido_alcatraz/__init__.py",
+    "restored/src/bandido_alcatraz/board.py",
+    "restored/src/bandido_alcatraz/deck_data.py",
+    "restored/src/bandido_alcatraz/game.py",
+    "restored/src/bandido_alcatraz/model.py",
+    "restored/src/bandido_alcatraz/moves.py",
+    "restored/src/bandido_alcatraz/photo_geometry.py",
+    "restored/src/bandido_alcatraz/physical_deck.py",
+    "restored/src/bandido_alcatraz/policies.py",
+    "restored/src/bandido_alcatraz/quota_reserve_closure.py",
+    "restored/src/bandido_alcatraz/quota_reserve_closure_reference.py",
+    "restored/src/bandido_alcatraz/rules.py",
+    "restored/src/bandido_alcatraz/setup.py",
+    "restored/src/bandido_alcatraz/simulate.py",
+    "restored/src/bandido_alcatraz/strategy.py",
+    "restored/src/bandido_alcatraz/worker32/__init__.py",
+    "restored/src/bandido_alcatraz/worker32/evidence.py",
+    "runtime.json",
+    "source-manifest.json",
+    "source-runtime-preflight.json",
+    "startup-handoff.json",
+    "startup-receipt.json",
+    "stub-test-receipt.json",
+    "supervisor-cell-01.json",
+    "supervisor-cell-01.log",
+    "supervisor-cell-02.json",
+    "supervisor-cell-02.log",
+    "supervisor-cell-03.json",
+    "supervisor-cell-03.log",
+    "supervisor-cell-04.json",
+    "supervisor-cell-04.log",
+    "supervisor-cell-05.json",
+    "supervisor-cell-05.log",
+    "supervisor-cell-06.json",
+    "supervisor-cell-06.log",
+    "supervisor-cell-07.json",
+    "supervisor-cell-07.log",
+    "supervisor-cell-08.json",
+    "supervisor-cell-08.log",
+    "supervisor-cell-09.json",
+    "supervisor-cell-09.log",
+    "supervisor-cell-10.json",
+    "supervisor-cell-10.log",
+    "supervisor-cell-11.json",
+    "supervisor-cell-11.log",
+    "supervisor-cell-12.json",
+    "supervisor-cell-12.log",
+    "supervisor-cell-13.json",
+    "supervisor-cell-13.log",
+    "supervisor-cell-14.json",
+    "supervisor-cell-14.log",
+    "supervisor-cell-15.json",
+    "supervisor-cell-15.log",
+    "supervisor-cell-16.json",
+    "supervisor-cell-16.log",
+    "supervisor-cell-17.json",
+    "supervisor-cell-17.log",
+    "supervisor-cell-18.json",
+    "supervisor-cell-18.log",
+    "supervisor-cell-19.json",
+    "supervisor-cell-19.log",
+    "supervisor-cell-20.json",
+    "supervisor-cell-20.log",
+    "writer-exit-observation.json"
+  ],
+  "recipe_pins": {
+    "fixed_roster_check": "prepare_custody_inputs requires exact357 relative paths before producing any independent custody input assets.",
+    "input_assets_per_scenario": 5,
+    "input_versions": "exclusive directories, max1 perselector except V12max2; changed scenario creates a new input version; never overwrite an earlier version or deduplicate equal baseline bytes",
+    "raw_inputs": "fixed literal source/helper/contract values and only existing fixed U-time changes; no fixture derived from actual verifier output",
+    "total_input_assets": 60,
+    "zip_format": "ZIP_STORED; ZipInfo date1980-01-01T00:00:00; create_system3; regular0600; ordered names; no observed clock"
+  },
+  "revision_authority": "Prospective root/parent authorization: F07 directly references actual sealed part-001.bin and original transport-manifest.json as canonical upload inputs, retaining distinct provider wrapper and fresh Drive readbacks. All actual production bytes remain charged. No production code, ordinary independent-input semantics, test bodies, native caps or cohort changed.",
+  "scenario_count": 12,
+  "scenarios": [
+    {
+      "input_directory": "<case_base>/custody-inputs-1",
+      "input_files": [
+        "upload-part.bin",
+        "fresh-download-part.bin",
+        "github-provider-wrapper-001.zip",
+        "upload-transport-manifest.json",
+        "fresh-transport-manifest.json"
+      ],
+      "label": "inclusive-joint-edge",
+      "large_U_CPU_by_repetition": [
+        9,
+        7
+      ],
+      "output_receipt": "externally-authenticated-custody.json",
+      "selector": "tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V11_joint_threshold_inclusive",
+      "version": 1
+    },
+    {
+      "input_directory": "<case_base>/custody-inputs-1",
+      "input_files": [
+        "upload-part.bin",
+        "fresh-download-part.bin",
+        "github-provider-wrapper-001.zip",
+        "upload-transport-manifest.json",
+        "fresh-transport-manifest.json"
+      ],
+      "label": "aggregate-failure",
+      "large_U_CPU_by_repetition": [
+        8.01,
+        8.01
+      ],
+      "output_receipt": "externally-authenticated-custody.json",
+      "selector": "tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V12_each_joint_threshold_failure",
+      "version": 1
+    },
+    {
+      "input_directory": "<case_base>/custody-inputs-2",
+      "input_files": [
+        "upload-part.bin",
+        "fresh-download-part.bin",
+        "github-provider-wrapper-001.zip",
+        "upload-transport-manifest.json",
+        "fresh-transport-manifest.json"
+      ],
+      "label": "matched-failure",
+      "large_U_CPU_by_repetition": [
+        9.01,
+        6
+      ],
+      "output_receipt": "externally-authenticated-custody.json",
+      "selector": "tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V12_each_joint_threshold_failure",
+      "version": 2
+    },
+    {
+      "input_directory": "<case_base>/custody-inputs-1",
+      "input_files": [
+        "upload-part.bin",
+        "fresh-download-part.bin",
+        "github-provider-wrapper-001.zip",
+        "upload-transport-manifest.json",
+        "fresh-transport-manifest.json"
+      ],
+      "label": "baseline",
+      "large_U_CPU_by_repetition": [
+        8,
+        8
+      ],
+      "output_receipt": "externally-authenticated-custody.json",
+      "selector": "tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V13_revalidate_complete_evidence_binding",
+      "version": 1
+    },
+    {
+      "input_directory": "<case_base>/custody-inputs-1",
+      "input_files": [
+        "upload-part.bin",
+        "fresh-download-part.bin",
+        "github-provider-wrapper-001.zip",
+        "upload-transport-manifest.json",
+        "fresh-transport-manifest.json"
+      ],
+      "label": "baseline",
+      "large_U_CPU_by_repetition": [
+        8,
+        8
+      ],
+      "output_receipt": "externally-authenticated-custody.json",
+      "selector": "tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V14_external_custody_gate",
+      "version": 1
+    },
+    {
+      "input_directory": "<case_base>/custody-inputs-1",
+      "input_files": [
+        "upload-part.bin",
+        "fresh-download-part.bin",
+        "github-provider-wrapper-001.zip",
+        "upload-transport-manifest.json",
+        "fresh-transport-manifest.json"
+      ],
+      "label": "baseline",
+      "large_U_CPU_by_repetition": [
+        8,
+        8
+      ],
+      "output_receipt": "externally-authenticated-custody.json",
+      "selector": "tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V15_exact_readback_provenance_and_files",
+      "version": 1
+    },
+    {
+      "input_directory": "<case_base>/custody-inputs-1",
+      "input_files": [
+        "upload-part.bin",
+        "fresh-download-part.bin",
+        "github-provider-wrapper-001.zip",
+        "upload-transport-manifest.json",
+        "fresh-transport-manifest.json"
+      ],
+      "label": "baseline",
+      "large_U_CPU_by_repetition": [
+        8,
+        8
+      ],
+      "output_receipt": "externally-authenticated-custody.json",
+      "selector": "tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR08_method_rows_and_unmeasured_flags_unchanged",
+      "version": 1
+    },
+    {
+      "input_directory": "<case_base>/custody-inputs-1",
+      "input_files": [
+        "upload-part.bin",
+        "fresh-download-part.bin",
+        "github-provider-wrapper-001.zip",
+        "upload-transport-manifest.json",
+        "fresh-transport-manifest.json"
+      ],
+      "label": "baseline",
+      "large_U_CPU_by_repetition": [
+        8,
+        8
+      ],
+      "output_receipt": "externally-authenticated-custody.json",
+      "selector": "tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_PW01_complete_wrapper_final_classification",
+      "version": 1
+    },
+    {
+      "input_directory": "<case_base>/custody-inputs-1",
+      "input_files": [
+        "upload-part.bin",
+        "fresh-download-part.bin",
+        "github-provider-wrapper-001.zip",
+        "upload-transport-manifest.json",
+        "fresh-transport-manifest.json"
+      ],
+      "label": "baseline",
+      "large_U_CPU_by_repetition": [
+        8,
+        8
+      ],
+      "output_receipt": "externally-authenticated-custody.json",
+      "selector": "tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_PW02_wrapper_coverage_is_mandatory",
+      "version": 1
+    },
+    {
+      "input_directory": "<case_base>/custody-inputs-1",
+      "input_files": [
+        "upload-part.bin",
+        "fresh-download-part.bin",
+        "github-provider-wrapper-001.zip",
+        "upload-transport-manifest.json",
+        "fresh-transport-manifest.json"
+      ],
+      "label": "baseline",
+      "large_U_CPU_by_repetition": [
+        8,
+        8
+      ],
+      "output_receipt": "externally-authenticated-custody.json",
+      "selector": "tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_PW13_outer_wrapper_is_not_canonical_part",
+      "version": 1
+    },
+    {
+      "input_directory": "<case_base>/custody-inputs-1",
+      "input_files": [
+        "upload-part.bin",
+        "fresh-download-part.bin",
+        "github-provider-wrapper-001.zip",
+        "upload-transport-manifest.json",
+        "fresh-transport-manifest.json"
+      ],
+      "label": "baseline",
+      "large_U_CPU_by_repetition": [
+        8,
+        8
+      ],
+      "output_receipt": "externally-authenticated-custody.json",
+      "selector": "tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_PW14_exact_and_semantic_wrapper_binding",
+      "version": 1
+    },
+    {
+      "input_directory": "<case_base>/custody-inputs-1",
+      "input_files": [
+        "upload-part.bin",
+        "fresh-download-part.bin",
+        "github-provider-wrapper-001.zip",
+        "upload-transport-manifest.json",
+        "fresh-transport-manifest.json"
+      ],
+      "label": "baseline",
+      "large_U_CPU_by_repetition": [
+        8,
+        8
+      ],
+      "output_receipt": "externally-authenticated-custody.json",
+      "selector": "tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_PW15_legacy_custody_is_not_accepted",
+      "version": 1
+    }
+  ],
+  "schema": "worker38-prospective-independent-custody-fixture-repair01-v1",
+  "scope": "Only ordinary offline LiteralBundle helper plus setUp selection; all43 test bodies byte-identical to preserved predecessor. F07 separate production path consumes actual sealed archive/part/original manifest.",
+  "source": {
+    "path": "/workspace/shared/worker38-implementation/tests/test_worker38_verify_integration.py",
+    "sha256": "7117d012b7d19b4b3d26662ff35f14e400d6ec4e77087e4b3ff694356ec1d1ca",
+    "size_bytes": 100750
+  },
+  "static_feasibility_status": "Archive guard revised from provisional1MiB to2MiB before testing after auditor could not establish1MiB fit; no accepted/native/scientific cap changed. Exact literal feasibility and all emitted receipt bounds remain subject to two independent static reviews.",
+  "status": "source_ready_pending_two_independent_static_equivalence_and_accounting_reviews_no_execution",
+  "unchanged_independent_helper_spans": {
+    "__init__": {
+      "identical_to_previous_revision": true,
+      "sha256": "d5e51773834b9c2dff91cc3b092e6eb1c0dec01096c7ef82091eee8548498923",
+      "size_bytes": 8909
+    },
+    "custody": {
+      "identical_to_previous_revision": true,
+      "sha256": "521ba5332577700bcbe315d2e5c7cdf8503d9a6c661e4840af4d1c52d9dd0f8a",
+      "size_bytes": 730
+    },
+    "literal_inventory": {
+      "identical_to_previous_revision": true,
+      "sha256": "8abd1c862ba6a743138c9e327d8f17d9f73dd3f62c4f0614a6471d2043de45aa",
+      "size_bytes": 818
+    },
+    "prepare_custody_inputs": {
+      "identical_to_previous_revision": true,
+      "sha256": "8705be0cc74b8b937d882996c92fc3f698054eeb806feeb67eeb59bebafd3219",
+      "size_bytes": 4336
+    },
+    "refresh": {
+      "identical_to_previous_revision": true,
+      "sha256": "560eca4775654a508110c8e2947c48e76dc08bd896cd19ff95ec7d5cabf54854",
+      "size_bytes": 2013
+    },
+    "timing": {
+      "identical_to_previous_revision": true,
+      "sha256": "9b1d9b846dfd1253aca3daa407ee68919c8c7e8c71971c6c6b22a01aeee1db9a",
+      "size_bytes": 430
+    },
+    "verify": {
+      "identical_to_previous_revision": true,
+      "sha256": "c0aeb65a827e0c1f96da6111ced1a8efdfe316f98450a951f554c8b3e5d1d72d",
+      "size_bytes": 878
+    }
+  }
+}
