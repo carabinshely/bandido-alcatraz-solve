@@ -34,6 +34,28 @@ from worker38_literal_fixtures import (literal_bundle, write_literal_bundle, CRE
 PREFIX_BYTES = 0
 # The fixed native runner owns capture before cleanup; routine CI leaves None.
 PRODUCTION_OUTPUT_HOOK = None
+NATIVE_BATCH_DEADLINE_MONOTONIC = None
+# Closed first33 admission expectations: code, classification, phase, GETs.
+A_ACCEPTANCE = {
+    'test_A01_seven_json_success': (None, None, None, 7),
+    'test_A02_wrong_event_owner': ('owner_identity', 'integrity_invalid', 'admission', 0),
+    'test_A03_current_body_digest_drift': ('current_pr_body_drift', 'integrity_invalid', 'input_validation', 1),
+    'test_A04_current_PR_head_drift': ('pr_head', 'integrity_invalid', 'input_validation', 1),
+    'test_A05_accepted_base_CI_mismatch': ('ci_run_scope', 'integrity_invalid', 'input_validation', 2),
+    'test_A06_routine_CI_wrong_event': ('ci_run_scope', 'integrity_invalid', 'input_validation', 3),
+    'test_A07_routine_CI_circular_run': ('circular_source_ci', 'integrity_invalid', 'admission', 0),
+    'test_A08_routine_CI_wrong_workflow': ('ci_run_scope', 'integrity_invalid', 'input_validation', 3),
+    'test_A09_routine_CI_failed': ('ci_run_scope', 'integrity_invalid', 'input_validation', 3),
+    'test_A10_duplicate_review_identity': ('review_independence', 'integrity_invalid', 'admission', 0),
+    'test_A11_review_author_mismatch': ('owner_identity', 'integrity_invalid', 'input_validation', 4),
+    'test_A12_review_body_hash_mismatch': ('review_body_hash', 'integrity_invalid', 'input_validation', 4),
+    'test_A13_preregistration_wrong_thread': ('comment_identity', 'integrity_invalid', 'input_validation', 6),
+    'test_A14_preregistration_body_mismatch': ('preregistration_body_hash', 'integrity_invalid', 'input_validation', 6),
+    'test_A15_Git_commit_tree_mismatch': ('diagnostic_commit_tree', 'integrity_invalid', 'input_validation', 7),
+    'test_A16_HTTP_redirect_rejected': ('http_redirect', 'execution_blocked', 'network_read', 1),
+    'test_A17_duplicate_JSON_key': ('duplicate_json_key', 'integrity_invalid', 'input_validation', 1),
+    'test_A18_nonfinite_decimal_JSON': ('nonfinite_json', 'integrity_invalid', 'input_validation', 1),
+}
 BASH_OBSERVATIONS = []
 H_SUBCASES = {'H01': 1, 'H02': 2, 'H03': 5, 'H04': 2, 'H05': 1, 'H06': 1, 'H07': 1,
     'H08': 1, 'H09': 1, 'H10': 2, 'H11': 4, 'H12': 2, 'H13': 8, 'H14': 6, 'H15': 6, 'H16': 3}
@@ -193,37 +215,84 @@ class Worker38BootstrapIntegration(unittest.TestCase):
             return response
         caught = None
         try:
-            with ExitStack() as stack:
-                stack.enter_context(patch.object(a.time, 'clock_gettime_ns', return_value=1000000000))
-                stack.enter_context(patch.object(a.time, 'monotonic', return_value=120.0))
-                stack.enter_context(patch.object(a.urllib.request.OpenerDirector, 'open', open_response))
-                stack.enter_context(patch.dict(os.environ, {}, clear=True))
-                if fault is not None:
-                    fault(stack, evidence)
-                go, raw, body = a.descriptor_from_body(bundle['event']['pull_request']['body'])
-                a.validate_event(bundle['event'], go, body, bundle['context'])
-                client = a.Client(evidence, CREDENTIAL, 91000000000, report)
+            try:
+                with ExitStack() as stack:
+                    stack.enter_context(patch.object(a.time, 'clock_gettime_ns', return_value=1000000000))
+                    stack.enter_context(patch.object(a.time, 'monotonic', return_value=120.0))
+                    stack.enter_context(patch.object(a.urllib.request.OpenerDirector, 'open', open_response))
+                    stack.enter_context(patch.dict(os.environ, {}, clear=True))
+                    if fault is not None:
+                        fault(stack, evidence)
+                    go, raw, body = a.descriptor_from_body(bundle['event']['pull_request']['body'])
+                    a.validate_event(bundle['event'], go, body, bundle['context'])
+                    client = a.Client(evidence, CREDENTIAL, 91000000000, report)
+                    try:
+                        result = client.inputs(go, body, bundle['event'], bundle['context'])
+                    finally:
+                        client.token = None
+                    self.assertEqual(tuple(result), FIXED_INPUTS)
+                    self.assertEqual(a.reconcile(a.canonical(bundle['event']), a.canonical(bundle['context']), result)[0], raw)
+            except (a.AdmissionError, OSError, MemoryError) as error:
+                caught = error
+                if report['primary_failure'] is None:
+                    a.record_failure(report, error, 'admission')
+            finally:
+                evidence.close()
+            files = {p.name: p.read_bytes() for p in output.iterdir() if p.is_file()}
+            self.assertEqual(reservation.read_bytes(), reservation_raw)
+            self.assertEqual(sorted(path.name for path in claimed.iterdir()), ['admission-inputs', 'reservation.txt'])
+            self.retain({**files, 'consumed-reservation.txt': reservation_raw}, report,
+                existing_paths={name: output / name for name in files})
+        except BaseException as retention_error:
+            expected = A_ACCEPTANCE.get(self._testMethodName)
+            intended_rejection = (expected is not None and type(caught) is a.AdmissionError and
+                (caught.code, caught.classification, (report['primary_failure'] or {}).get('phase'), len(requests)) == expected)
+            if expected is not None and caught is not None and not intended_rejection:
                 try:
-                    result = client.inputs(go, body, bundle['event'], bundle['context'])
-                finally:
-                    client.token = None
-                self.assertEqual(tuple(result), FIXED_INPUTS)
-                self.assertEqual(a.reconcile(a.canonical(bundle['event']), a.canonical(bundle['context']), result)[0], raw)
-        except (a.AdmissionError, OSError, MemoryError) as error:
-            caught = error
-            if report['primary_failure'] is None:
-                a.record_failure(report, error, 'admission')
-        finally:
-            evidence.close()
-        files = {p.name: p.read_bytes() for p in output.iterdir() if p.is_file()}
-        self.assertEqual(reservation.read_bytes(), reservation_raw)
-        self.assertEqual(sorted(path.name for path in claimed.iterdir()), ['admission-inputs', 'reservation.txt'])
-        self.retain({**files, 'consumed-reservation.txt': reservation_raw}, report,
-            existing_paths={name: output / name for name in files})
+                    caught.worker38_prefix_retention_exception = retention_error
+                    caught.add_note('admission prefix retention also failed: ' + type(retention_error).__name__[:64])
+                except BaseException:
+                    pass  # Secondary reporting cannot erase the first typed cause.
+                raise caught from None
+            raise
+        self.check_A_acceptance(caught, report, requests, expect_failure)
         self.assertEqual(caught is not None, expect_failure)
         self.assertNotIn(CREDENTIAL, a.canonical(report).decode())
         self.assertLessEqual(len(requests), 7)
         return types.SimpleNamespace(report=report, requests=requests, files=files, error=caught, evidence=evidence, output_record=output_record)
+
+    def check_A_acceptance(self, caught, report, requests, expect_failure):
+        expected = A_ACCEPTANCE.get(self._testMethodName)
+        if expected is None:
+            return  # The later fixed H/other intentional faults keep their own intent.
+        code, classification, phase, count = expected
+        self.assertEqual(expect_failure, code is not None)
+        if caught is not None and (type(caught) is not a.AdmissionError or
+                (caught.code, caught.classification) != (code, classification)):
+            raise caught  # Preserve unexpected native/resource exceptions as failures.
+        if report['secondary_failures']:
+            secondary = report['secondary_failures'][0]
+            raise a.AdmissionError(secondary['code'], secondary['classification']) from caught
+        if code is None:
+            self.assertIsNone(caught)
+            self.assertIsNone(report['primary_failure'])
+        else:
+            self.assertIsNotNone(caught, 'intended admission rejection was not reached')
+            self.assertEqual((report['primary_failure']['code'], report['primary_failure']['classification'],
+                report['primary_failure']['phase'], report['primary_failure']['error_type']),
+                (code, classification, phase, 'AdmissionError'))
+            self.assertEqual(report['classification'], classification)
+            self.assertEqual(report['selected_failure'], report['primary_failure'])
+        self.assertEqual(len(requests), count)
+        self.assertTrue(all(request[1] == 'GET' for request in requests))
+        self.assertEqual(report['requested_prefix'], list(FIXED_INPUTS[:count]))
+        self.assertEqual([record['name'] for record in report['requests']], list(FIXED_INPUTS[:count]))
+        completed = count if code is None else (count - 1 if phase == 'input_validation' else 0)
+        self.assertEqual(report['completed_prefix'], list(FIXED_INPUTS[:completed]))
+        self.assertEqual([record['semantic_validated'] for record in report['requests']],
+                         [index < completed for index in range(count)])
+        self.assertTrue(all(record['close_confirmed'] is True for record in report['requests']))
+        self.assertEqual(report['evaluator_starts'], 0)
 
     def mutate_input(self, name, mutate):
         bundle = copy.deepcopy(self.bundle)
@@ -1349,12 +1418,21 @@ class Worker38BootstrapIntegration(unittest.TestCase):
             lineage='Fixed source/command/executable/event/optional reservation inputs; actual shell and inert executable generated files are outputs')
         native_paths = None
         native_deadline = None
+        native_timeout_args = None
         with ExitStack() as native_streams:
             output_args = {'stdout': subprocess.PIPE, 'stderr': subprocess.PIPE}
             if PRODUCTION_OUTPUT_HOOK is not None:
                 # One existing Bash root and its inherited process group. Every
                 # descendant inherits this exact hard per-file ceiling.
                 output_record['native_writer_state'] = 'unconfirmed'
+                now = a.time.monotonic()
+                if type(NATIVE_BATCH_DEADLINE_MONOTONIC) is not float or not a.math.isfinite(NATIVE_BATCH_DEADLINE_MONOTONIC):
+                    raise AssertionError('native Bash requires the original injected batch cutoff')
+                native_deadline = min(now + 5.0, NATIVE_BATCH_DEADLINE_MONOTONIC)
+                native_timeout_args = (['/bin/bash', '--noprofile', '--norc', '-c', body],
+                                       max(0.0, native_deadline - now))
+                if native_deadline - now <= 0.1:
+                    raise subprocess.TimeoutExpired(*native_timeout_args)
                 native_paths = (base / 'native-stdout.txt', base / 'native-stderr.txt')
                 for key, path in zip(('stdout', 'stderr'), native_paths):
                     fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
@@ -1378,7 +1456,6 @@ class Worker38BootstrapIntegration(unittest.TestCase):
                         raise RuntimeError('native Bash file ceiling acknowledgment failed')
                     os.close(ack_fd)
                 output_args.update(preexec_fn=fixed_file_ceiling, pass_fds=(ack_fd,))
-                native_deadline = a.time.monotonic() + 5.0
             process = subprocess.Popen(['/bin/bash', '--noprofile', '--norc', '-c', body], env=environment,
                 cwd=source, stdin=subprocess.DEVNULL, **output_args)
             if native_paths is None:
@@ -1392,36 +1469,46 @@ class Worker38BootstrapIntegration(unittest.TestCase):
                 try:
                     remaining = native_deadline - a.time.monotonic() - 0.1
                     if remaining <= 0:
-                        raise AssertionError('native Bash original case deadline exhausted during launch')
+                        raise subprocess.TimeoutExpired(*native_timeout_args)
                     process.wait(timeout=remaining)
-                    if process.returncode < 0 or a.time.monotonic() >= native_deadline:
-                        raise AssertionError('native Bash writer exit or original deadline unconfirmed')
+                    if a.time.monotonic() >= native_deadline:
+                        raise subprocess.TimeoutExpired(*native_timeout_args)
+                    if process.returncode < 0:
+                        raise AssertionError('native Bash writer exit unconfirmed')
                     os.fsync(ack_stream.fileno())
                     ack_stream.close()
                     if acknowledgment.read_bytes() != ack_raw:
                         raise AssertionError('native Bash file ceiling acknowledgment unavailable')
                     for key in ('stdout', 'stderr'):
                         if a.time.monotonic() >= native_deadline:
-                            raise AssertionError('native Bash original case deadline exhausted during capture')
+                            raise subprocess.TimeoutExpired(*native_timeout_args)
                         os.fsync(output_args[key].fileno())
                     stdout, stderr = (path.read_bytes() for path in native_paths)
                     if a.time.monotonic() >= native_deadline:
-                        raise AssertionError('native Bash original case deadline exhausted during readback')
-                except BaseException:
-                    # Construction/ack/timeout uncertainty is never an empty
-                    # writer set. Keep this reservation and stop the batch.
+                        raise subprocess.TimeoutExpired(*native_timeout_args)
+                except BaseException as original_error:
+                    # Never replace the original timeout/cause during the two
+                    # existing cleanup operations or grant another interval.
+                    kill_error = wait_error = None
                     try:
                         process.kill()
                     except ProcessLookupError:
                         pass
+                    except BaseException as cleanup_error:
+                        kill_error = cleanup_error
                     try:
                         process.wait(timeout=max(0.0, native_deadline - a.time.monotonic()))
-                    except (subprocess.TimeoutExpired, OSError):
-                        pass
+                    except BaseException as cleanup_error:
+                        wait_error = cleanup_error
+                    try:
+                        for operation, error in (('kill', kill_error), ('wait', wait_error)):
+                            if error is not None:
+                                original_error.add_note('native cleanup ' + operation + ': ' + type(error).__name__[:64])
+                    except BaseException:
+                        pass  # Best-effort notes cannot replace the original failure.
                     raise
-        if native_paths is not None:
-            output_record['native_writer_state'] = 'confirmed'
-            output_record['native_process_exit_status'] = process.returncode
+        if native_paths is not None and a.time.monotonic() >= native_deadline:
+            raise subprocess.TimeoutExpired(*native_timeout_args)
         self.assertLessEqual(len(stdout) + len(stderr), 4096)
         self.assertLessEqual(log.stat().st_size if log.exists() else 0, 65536)
         records = log.read_text().splitlines() if log.exists() else []
@@ -1447,6 +1534,11 @@ class Worker38BootstrapIntegration(unittest.TestCase):
         if native_paths is not None:
             existing.update({'shell-stdout.txt': native_paths[0], 'shell-stderr.txt': native_paths[1]})
         self.retain(files, report, existing_paths=existing)
+        if native_paths is not None:
+            if a.time.monotonic() >= native_deadline:
+                raise subprocess.TimeoutExpired(*native_timeout_args)
+            output_record['native_writer_state'] = 'confirmed'
+            output_record['native_process_exit_status'] = process.returncode
         return report
 
 

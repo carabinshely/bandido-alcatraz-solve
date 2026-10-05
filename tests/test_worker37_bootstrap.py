@@ -53,6 +53,7 @@ EVIDENCE_BYTES = 0
 CURRENT_CASE_ID = None
 CURRENT_METHOD_NAME = None
 PRODUCTION_OUTPUT_HOOK = None
+NATIVE_BATCH_DEADLINE_MONOTONIC = None
 NATIVE_BASH_FILE_CAP = 2097152
 _NATIVE_BASH_GETRLIMIT = resource.getrlimit
 _NATIVE_BASH_SETRLIMIT = resource.setrlimit
@@ -91,6 +92,22 @@ def _production_selector():
     return 'tests/test_worker37_bootstrap.py:Worker37LiteralCases.' + CURRENT_METHOD_NAME
 
 
+def _native_bash_check_deadline(record):
+    state = record.get('native_bash_writer_state')
+    if state is None:
+        return
+    deadline = record.get('native_bash_deadline_monotonic')
+    if type(deadline) is not float or not 0 < deadline < float('inf'):
+        state['writer_completion_confirmed'] = False
+        record['native_writer_state'] = 'unconfirmed'
+        raise AssertionError('native Bash original closure deadline is invalid')
+    if _NATIVE_BASH_NOW() >= deadline:
+        state['timed_out'] = True
+        state['writer_completion_confirmed'] = False
+        record['native_writer_state'] = 'unconfirmed'
+        raise subprocess.TimeoutExpired('worker37-native-bash original closure deadline', 5.0)
+
+
 @contextmanager
 def _literal_directory(prefix):
     """Keep routine CI cleanup; native runner owns persisted-root lifetime."""
@@ -107,42 +124,86 @@ def _literal_directory(prefix):
         finally:
             if PRODUCTION_OUTPUT_HOOK is not None:
                 record = _NATIVE_PRODUCTION_RECORDS.pop(temporary)
-                produced = []
-                partial = []
-                changed_setup = []
-                for path in sorted(Path(temporary).rglob('*')):
-                    if not path.is_file() or path.is_symlink():
-                        continue
-                    name = path.relative_to(temporary).as_posix()
-                    explicit = name in record['explicit_produced_paths'] or any(
-                        name == prefix or name.startswith(prefix.rstrip('/') + '/')
-                        for prefix in record['explicit_produced_subtrees'])
-                    changed = False
-                    if name in record['setup_inventory'] and not explicit:
-                        current = path.read_bytes()
-                        original = record['setup_inventory'][name]
-                        changed = len(current) != original['size_bytes'] or sha(current) != original['sha256']
-                        if changed:
-                            changed_setup.append(name)
-                    if explicit or name not in record['setup_inventory'] or changed:
-                        produced.append(name)
-                        if any(marker in path.name for marker in ('.tmp', '.partial', '.staging')):
-                            partial.append(name)
-                record['changed_setup_paths'] = changed_setup
-                record['surviving_produced_paths'] = produced
-                record['surviving_partial_staged_paths'] = partial
-                observations = []
-                for directory in record.pop('observation_directories', []):
-                    names = sorted(path.name for path in Path(directory).iterdir()
-                                   if path.is_file() and not path.is_symlink())
-                    observations.append({'root': directory, 'setup_inventory': {},
-                        'setup_inventory_sha256': sha(canonical({})), 'setup_complete': True,
-                        'explicit_produced_paths': names, 'explicit_produced_subtrees': [],
-                        'surviving_produced_paths': names, 'surviving_partial_staged_paths': [],
-                        'all_new_paths_are_output': True,
-                        'mutation_lineage': 'Captured in-memory observations including any interrupted partial write',
-                        'partial_staging_policy': 'retain every surviving partial observation write'})
-                PRODUCTION_OUTPUT_HOOK(_production_selector(), [record, *observations])
+                native = 'native_bash_writer_state' in record
+                pending = sys.exc_info()[1]
+                if native and pending is not None:
+                    # The original failure wins; the retained root remains owned.
+                    record['native_writer_state'] = 'unconfirmed'
+                    record['native_bash_writer_state']['writer_completion_confirmed'] = False
+                    try:
+                        PRODUCTION_OUTPUT_HOOK(_production_selector(), [record])
+                    except BaseException as cleanup_error:
+                        if not isinstance(pending, subprocess.TimeoutExpired):
+                            raise
+                        record['native_bash_writer_state']['cleanup_error_type'] = type(cleanup_error).__name__[:64]
+                else:
+                    delivered = False
+                    try:
+                        _native_bash_check_deadline(record)
+                        produced = []
+                        partial = []
+                        changed_setup = []
+                        for path in sorted(Path(temporary).rglob('*')):
+                            _native_bash_check_deadline(record)
+                            if not path.is_file() or path.is_symlink():
+                                continue
+                            name = path.relative_to(temporary).as_posix()
+                            explicit = name in record['explicit_produced_paths'] or any(
+                                name == prefix or name.startswith(prefix.rstrip('/') + '/')
+                                for prefix in record['explicit_produced_subtrees'])
+                            changed = False
+                            if name in record['setup_inventory'] and not explicit:
+                                current = path.read_bytes()
+                                _native_bash_check_deadline(record)
+                                original = record['setup_inventory'][name]
+                                changed = len(current) != original['size_bytes'] or sha(current) != original['sha256']
+                                _native_bash_check_deadline(record)
+                                if changed:
+                                    changed_setup.append(name)
+                            if explicit or name not in record['setup_inventory'] or changed:
+                                produced.append(name)
+                                if any(marker in path.name for marker in ('.tmp', '.partial', '.staging')):
+                                    partial.append(name)
+                        record['changed_setup_paths'] = changed_setup
+                        record['surviving_produced_paths'] = produced
+                        record['surviving_partial_staged_paths'] = partial
+                        observations = []
+                        for directory in record.pop('observation_directories', []):
+                            _native_bash_check_deadline(record)
+                            names = sorted(path.name for path in Path(directory).iterdir()
+                                           if path.is_file() and not path.is_symlink())
+                            _native_bash_check_deadline(record)
+                            observations.append({'root': directory, 'setup_inventory': {},
+                                'setup_inventory_sha256': sha(canonical({})), 'setup_complete': True,
+                                'explicit_produced_paths': names, 'explicit_produced_subtrees': [],
+                                'surviving_produced_paths': names, 'surviving_partial_staged_paths': [],
+                                'all_new_paths_are_output': True,
+                                'mutation_lineage': 'Captured in-memory observations including any interrupted partial write',
+                                'partial_staging_policy': 'retain every surviving partial observation write'})
+                        _native_bash_check_deadline(record)
+                        delivered = True
+                        PRODUCTION_OUTPUT_HOOK(_production_selector(), [record, *observations])
+                        _native_bash_check_deadline(record)
+                        if native:
+                            if record['native_bash_writer_state'].get('closure_ready') is not True:
+                                raise AssertionError('native Bash closure was not completed')
+                            # The fixed hook retains this record by reference and
+                            # reconciles it only after the case has fully returned.
+                            record['native_bash_writer_state']['writer_completion_confirmed'] = True
+                            record['native_writer_state'] = 'confirmed'
+                            _native_bash_check_deadline(record)
+                    except BaseException as error:
+                        if native:
+                            record['native_bash_writer_state']['writer_completion_confirmed'] = False
+                            record['native_writer_state'] = 'unconfirmed'
+                            if not delivered:
+                                try:
+                                    PRODUCTION_OUTPUT_HOOK(_production_selector(), [record])
+                                except BaseException as cleanup_error:
+                                    if not isinstance(error, subprocess.TimeoutExpired):
+                                        raise
+                                    record['native_bash_writer_state']['cleanup_error_type'] = type(cleanup_error).__name__[:64]
+                        raise
 
 
 def _watch_production(root, *, produced_paths=(), produced_subtrees=(), lineage):
@@ -834,7 +895,17 @@ def run_bash(case_id, *, entry, overrides=None):
         _watch_production(root, produced_paths=produced_paths,
             produced_subtrees=(attempt.relative_to(root).as_posix(),),
             lineage='Pinned exact shell/stub/setup bytes and per-case literal overrides; T013existing reservation is immutable input, every new reservation/copy/log/partial is separately produced output')
-        native_stdout = native_stderr = None
+        native_stdout = native_stderr = native_record = None
+        first_timeout = None
+        def check_native_deadline():
+            nonlocal first_timeout
+            if native_record is not None:
+                try:
+                    _native_bash_check_deadline(native_record)
+                except subprocess.TimeoutExpired as error:
+                    if first_timeout is None:
+                        first_timeout = error
+                    raise
         with patch.object(socket.socket,'connect',denied_socket),patch.object(socket,'getaddrinfo',denied_socket):
             if PRODUCTION_OUTPUT_HOOK is None:
                 process=subprocess.Popen(argv,env=environment,cwd=source,stdin=subprocess.DEVNULL,
@@ -848,64 +919,96 @@ def run_bash(case_id, *, entry, overrides=None):
                          'writer_completion_confirmed': False, 'returncode': None}
                 _NATIVE_PRODUCTION_RECORDS[str(root)]['native_bash_writer_state'] = state
                 _NATIVE_PRODUCTION_RECORDS[str(root)]['native_writer_state'] = 'unconfirmed'
+                native_record = _NATIVE_PRODUCTION_RECORDS[str(root)]
                 process = None
-                deadline = _NATIVE_BASH_NOW() + 5.0
+                if (type(NATIVE_BATCH_DEADLINE_MONOTONIC) is not float or
+                        not 0 < NATIVE_BATCH_DEADLINE_MONOTONIC < float('inf')):
+                    raise AssertionError('native Bash requires the original batch monotonic deadline')
+                deadline = min(_NATIVE_BASH_NOW() + 5.0, NATIVE_BATCH_DEADLINE_MONOTONIC)
+                native_record['native_bash_deadline_monotonic'] = deadline
                 try:
+                    check_native_deadline()
                     with open(native_stdout, 'xb', buffering=0) as output_stream, \
                          open(native_stderr, 'xb', buffering=0) as error_stream, \
                          open(confirmation, 'xb', buffering=0) as confirmation_stream:
                         descriptor = confirmation_stream.fileno()
+                        check_native_deadline()
                         process = subprocess.Popen(argv, env=environment, cwd=source,
                             stdin=subprocess.DEVNULL, stdout=output_stream, stderr=error_stream,
                             close_fds=True, pass_fds=(descriptor,),
                             preexec_fn=lambda: _native_bash_limit(descriptor))
                         state['spawn_handle_returned'] = True
+                        check_native_deadline()
                         remaining = deadline - _NATIVE_BASH_NOW()
                         if remaining <= 0:
                             state['timed_out'] = True
-                            raise subprocess.TimeoutExpired(argv, 5.0)
+                            first_timeout = subprocess.TimeoutExpired(argv, 5.0)
+                            raise first_timeout
                         try:
                             process.wait(timeout=remaining)
-                        except subprocess.TimeoutExpired:
+                        except subprocess.TimeoutExpired as error:
                             state['timed_out'] = True
-                            process.kill()
-                            # Nonblocking reap only: never create a new cleanup interval.
-                            process.poll()
-                            raise AssertionError('native Bash5-second boundary exhausted; writer completion unconfirmed') from None
+                            if first_timeout is None:
+                                first_timeout = error
+                            raise
+                        check_native_deadline()
                         state['wait_confirmed'] = True
                         state['returncode'] = process.returncode
                         for stream in (output_stream, error_stream, confirmation_stream):
+                            check_native_deadline()
                             os.fsync(stream.fileno())
+                            check_native_deadline()
+                    check_native_deadline()
                     ack = confirmation.read_bytes()
+                    check_native_deadline()
                     state['file_cap_readback_confirmed'] = ack == _NATIVE_BASH_FSIZE_ACK
                     if not state['file_cap_readback_confirmed']:
                         raise AssertionError('native Bash file ceiling was not confirmed before exec')
                     if process.returncode < 0:
                         raise AssertionError('native Bash signaled exit; descendant writer completion unconfirmed')
-                    state['writer_completion_confirmed'] = True
-                    _NATIVE_PRODUCTION_RECORDS[str(root)]['native_writer_state'] = 'confirmed'
                     stdout = native_stdout.read_bytes().decode()
+                    check_native_deadline()
                     stderr = native_stderr.read_bytes().decode()
-                except BaseException:
-                    if process is not None and process.poll() is None:
-                        process.kill()
-                        process.poll()
+                    check_native_deadline()
+                except BaseException as error:
+                    if first_timeout is not None and error is not first_timeout:
+                        state['cleanup_error_type'] = type(error).__name__[:64]
+                    try:
+                        if process is not None and process.poll() is None:
+                            process.kill()
+                            # Nonblocking reap only; no new cleanup interval.
+                            process.poll()
+                    except BaseException as cleanup_error:
+                        if first_timeout is None:
+                            raise
+                        state['cleanup_error_type'] = type(cleanup_error).__name__[:64]
                     if process is not None:
                         state['returncode'] = process.returncode
+                    if first_timeout is not None:
+                        raise first_timeout
                     raise
+        check_native_deadline()
         retain_case_file('shell-stdout.txt',stdout.encode(),existing_path=native_stdout)
+        check_native_deadline()
         retain_case_file('shell-stderr.txt',stderr.encode(),existing_path=native_stderr)
+        check_native_deadline()
         retain_case_file('stub-command-log.bin',log.read_bytes() if log.exists() else b'',
                          existing_path=log if log.exists() else None)
+        check_native_deadline()
         if reservation.exists():
             retain_case_file('allocation-reservation.txt',reservation.read_bytes(),existing_path=reservation)
+            check_native_deadline()
         for path in attempt.iterdir():
+            check_native_deadline()
             if path.is_file():
                 retain_case_file(path.name,path.read_bytes(),existing_path=path)
+                check_native_deadline()
         fields=log.read_bytes().split(b'\0')[:-1] if log.exists() else []
+        check_native_deadline()
         records=[]
         index=0
         while index<len(fields):
+            check_native_deadline()
             pid,parent,command,mask,loader,count=(v.decode() for v in fields[index:index+6])
             number=int(count)
             arguments=[v.decode() for v in fields[index+6:index+6+number]]
@@ -920,12 +1023,18 @@ def run_bash(case_id, *, entry, overrides=None):
             'physical_process_count':'not_fully_measured; recorded PIDs are observations, not a claimed total',
             'returncode':process.returncode}
         BASH_CASE_OBSERVATIONS.append(observation)
+        check_native_deadline()
         retain_case_file('bash-process-observations.json',canonical(observation))
-        return types.SimpleNamespace(returncode=process.returncode,stdout=stdout,stderr=stderr,
+        check_native_deadline()
+        result = types.SimpleNamespace(returncode=process.returncode,stdout=stdout,stderr=stderr,
             records=records,commands=[r['command'] for r in records],
             old_namespace_access=violation.exists(),
             reservation_preserved=(initial_reservation is not None and reservation.read_bytes()==initial_reservation),
             observation=observation)
+        check_native_deadline()
+        if native_record is not None:
+            state['closure_ready'] = True
+        return result
 
 FROZEN_STUB = '#!/bin/bash\nset -euo pipefail\ncommand_name=${0##*/}\nloader_environment=\nfor variable in ${!LD@} ${!PYTHON@}; do\n  loader_environment+="$variable=${!variable};"\ndone\nprintf \'%s\\0\' "$BASHPID" "$PPID" "$command_name" "$(umask)" "$loader_environment" "$#" "$@" >> "$LITERAL_COMMAND_LOG"\nfor argument in "$@"; do\n  case $argument in\n    *worker36-evidence*|*worker36-one-shot-claims*) printf \'old_namespace_access\\n\' >> "$LITERAL_VIOLATION_LOG"; exit 91;;\n  esac\ndone\nlast_argument=${!#}\ncase $command_name in\n  realpath|readlink)\n    if [[ $LITERAL_CASE == T009 && $last_argument == "$RUNNER_TOOL_CACHE/worker37-bootstrap-readiness" ]]; then\n      printf \'%s\\n\' "$GITHUB_WORKSPACE/bootstrap-readiness-evidence"\n    else\n      printf \'%s\\n\' "$last_argument"\n    fi\n    ;;\n  id) printf \'1000\\n\';;\n  stat)\n    if [[ ${1-} == -f ]]; then\n      printf \'1048576:4096\\n\'\n    elif [[ ${2-} == \'%u:%a\' ]]; then\n      if [[ $LITERAL_CASE == T010 && $last_argument == "$RUNNER_TOOL_CACHE/worker37-bootstrap-readiness" ]]; then\n        printf \'1001:700\\n\'\n      elif [[ $LITERAL_CASE == T011 && $last_argument == "$RUNNER_TOOL_CACHE/worker37-bootstrap-readiness" ]]; then\n        printf \'1000:755\\n\'\n      else\n        printf \'1000:700\\n\'\n      fi\n    elif [[ ${2-} == \'%d:%i:%s:%Y\' ]]; then\n      if [[ $last_argument == */libpython3.11.so.1.0 ]]; then\n        if [[ $LITERAL_CASE == T018 && -e $LITERAL_LIBRARY_HASHED ]]; then\n          printf \'1:12:23041360:1\\n\'\n        else\n          printf \'1:11:23041360:1\\n\'\n        fi\n      elif [[ $last_argument == */bin/python3.11 ]]; then\n        printf \'1:10:64:1\\n\'\n      else\n        contents=\n        IFS= read -r -d \'\' contents < "$last_argument" || :\n        printf \'1:20:%s:1\\n\' "${#contents}"\n      fi\n    elif [[ ${2-} == \'%s\' ]]; then\n      contents=\n      IFS= read -r -d \'\' contents < "$last_argument" || :\n      printf \'%s\\n\' "${#contents}"\n    else\n      exit 92\n    fi\n    ;;\n  mkdir)\n    if [[ $LITERAL_CASE == T012 && $last_argument == */run-107-attempt-1 ]]; then exit 1; fi\n    if [[ $LITERAL_CASE == T013 && $last_argument == */allocations/worker37-bootstrap-readiness-01 ]]; then exit 1; fi\n    # Every finite literal directory is prepared by the Python harness. This\n    # stub represents the preregistered exclusive-create result only.\n    [[ -d $last_argument ]]\n    ;;\n  cat)\n    while IFS= read -r line || [[ -n $line ]]; do printf \'%s\\n\' "$line"; done < "$last_argument"\n    ;;\n  sync) :;;\n  sha256sum)\n    if [[ $last_argument == */bin/python3.11 ]]; then\n      if [[ $LITERAL_CASE == T015 ]]; then\n        printf \'%064d  %s\\n\' 0 "$last_argument"\n      else\n        printf \'a15ccdaf07655a8667a3687b13171486c9a265d92273ba3ad820fbb64d2cfecc  %s\\n\' "$last_argument"\n      fi\n    elif [[ $last_argument == */libpython3.11.so.1.0 ]]; then\n      : > "$LITERAL_LIBRARY_HASHED"\n      if [[ $LITERAL_CASE == T016 ]]; then\n        printf \'%064d  %s\\n\' 0 "$last_argument"\n      else\n        printf \'ba4450817186fbe1e3c477f6aefeee7c353cba3593cc9950382ad9d1f5e62896  %s\\n\' "$last_argument"\n      fi\n    else\n      printf \'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa  %s\\n\' "$last_argument"\n    fi\n    ;;\n  git)\n    if [[ $last_argument == \'HEAD^{tree}\' ]]; then printf \'2222222222222222222222222222222222222222\\n\'\n    else printf \'1111111111111111111111111111111111111111\\n\'; fi\n    ;;\n  timeout)\n    outer=false\n    if [[ ${1-} == --signal=KILL && ${2-} == 600s ]]; then outer=true; shift 2\n    elif [[ ${1-} == --foreground && ${2-} == --signal=KILL && ${3-} == 120s ]]; then shift 3\n    else exit 93; fi\n    if [[ $outer == true && $LITERAL_CASE == T006 ]]; then\n      export LD_WORKER37_SENTINEL=invented_launcher_loader PYTHON_WORKER37_SENTINEL=invented_launcher_python\n      umask 022\n    fi\n    exec "$@"\n    ;;\n  python3.11)\n    if [[ $LITERAL_CASE == T038 ]]; then exit 137; fi\n    output=\n    while (( $# )); do\n      if [[ $1 == --output ]]; then shift; output=$1; fi\n      shift\n    done\n    [[ -n $output ]]\n    printf \'{"literal":"invented_inert_result"}\\n\' > "$output/result.json"\n    printf \'{"literal":"invented_inert_inventory"}\\n\' > "$output/inventory.json"\n    printf \'{"literal":"invented_inert_terminal"}\\n\' > "$output/terminal.json"\n    printf \'INVENTED_PINNED_STUB_EXIT=0\\n\'\n    ;;\n  *) exit 94;;\nesac\n'
 

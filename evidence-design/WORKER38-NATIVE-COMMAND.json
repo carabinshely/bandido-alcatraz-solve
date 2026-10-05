@@ -2,18 +2,18 @@
   "activity": "Command written only; never executed. Project/test/helper imports and evaluator/game calls zero.",
   "address_space_bytes": 536870912,
   "arguments": {
-    "cmd": "set -euo pipefail\nfor w38_name in \"${!LD_@}\" \"${!PYTHON@}\" BASH_ENV ENV OPENSSL_CONF OPENSSL_MODULES SSLKEYLOGFILE SSL_CERT_FILE SSL_CERT_DIR; do\n  if [[ -n \"$w38_name\" ]]; then unset \"$w38_name\"; fi\ndone\numask 077\nulimit -c 0\nulimit -v 524288\nIFS=' ' read -r w38_uptime w38_idle < /proc/uptime\n[[ \"$w38_uptime\" =~ ^[0-9]+\\.[0-9][0-9]$ ]]\nw38_seconds=${w38_uptime%.*}\nw38_fraction=${w38_uptime#*.}\n[[ ${#w38_seconds} -le 11 ]]\nw38_deadline_cs=$((10#$w38_seconds * 100 + 10#$w38_fraction + 60000))\nexec /usr/bin/env -i PATH=/usr/bin:/bin HOME=/workspace/shared TMPDIR=/workspace/shared LC_ALL=C LANG=C PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 WORKER38_FIXED_e871be6ed65825d18bef73b8a3f6cd6f936b6e1b88c3d236a3bd31656e32259f256=e871be6ed65825d18bef73b8a3f6cd6f936b6e1b88c3d236a3bd31656e32259f WORKER38_NATIVE_DEADLINE_CS=\"$w38_deadline_cs\" /usr/bin/timeout --signal=KILL 600s /usr/bin/python3 -B evidence-design/run-worker38-fixed-preparation.py\n",
+    "cmd": "set -euo pipefail\nfor w38_name in \"${!LD_@}\" \"${!PYTHON@}\" BASH_ENV ENV OPENSSL_CONF OPENSSL_MODULES SSLKEYLOGFILE SSL_CERT_FILE SSL_CERT_DIR; do\n  if [[ -n \"$w38_name\" ]]; then unset \"$w38_name\"; fi\ndone\numask 077\nulimit -c 0\nulimit -v 524288\nIFS=' ' read -r w38_uptime w38_idle < /proc/uptime\n[[ \"$w38_uptime\" =~ ^[0-9]+\\.[0-9][0-9]$ ]]\nw38_seconds=${w38_uptime%.*}\nw38_fraction=${w38_uptime#*.}\n[[ ${#w38_seconds} -le 11 ]]\nw38_deadline_cs=$((10#$w38_seconds * 100 + 10#$w38_fraction + 60000))\nexec /usr/bin/env -i PATH=/usr/bin:/bin HOME=/workspace/shared TMPDIR=/workspace/shared LC_ALL=C LANG=C PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 WORKER38_FIXED_MAP_SHA256=00ea76fc270b38b02f38cf461aec287aaec8dbd0fbc9a34b736c226d940ae2a1 WORKER38_NATIVE_DEADLINE_CS=\"$w38_deadline_cs\" /usr/bin/timeout --signal=KILL 600s /usr/bin/python3 -B -P evidence-design/run-worker38-fixed-preparation.py\n",
     "login": false,
     "max_output_tokens": 2000,
     "shell": "/bin/bash",
     "workdir": "/workspace/shared/worker38-implementation",
     "yield_time_ms": 1000
   },
-  "clock_rule": "One builtin /proc/uptime sample before timeout. Floor tocentiseconds; originalBOOTcutoff+600s. Python pairsMONO-before/BOOT-after and floorsminus1ms; later BOOTcheck can only tighten. No newinterval.",
+  "clock_rule": "GNU timeout owns the actual hard600-second invocation interval. The earlier builtin BOOTTIME sample plus600s is a conservative cooperative cutoff; Python pairs MONO-before/BOOT-after and floors minus1ms. The two start instants are not claimed identical. Nested native waits use the minimum of their original local cutoff and this cooperative cutoff. Neither is renewed.",
   "expected_exit_if_all_prefix_cases_pass": 1,
   "first_unstartable_ordinal": 34,
-  "fixed_map_sha256": "e871be6ed65825d18bef73b8a3f6cd6f936b6e1b88c3d236a3bd31656e32259f",
-  "fixed_map_size_bytes": 486002,
+  "fixed_map_sha256": "00ea76fc270b38b02f38cf461aec287aaec8dbd0fbc9a34b736c226d940ae2a1",
+  "fixed_map_size_bytes": 486179,
   "full_pass_requires_397_cases_and_outer_exit_zero": true,
   "global_reserve_within_prefix_bytes": 65536,
   "log_bytes": 8388608,
@@ -27,6 +27,11 @@
       2097152
     ]
   },
+  "native_python_flags": [
+    "-B",
+    "-P"
+  ],
+  "native_safe_path_required": true,
   "no_retry_or_resume": true,
   "output_must_be_absent": true,
   "output_path": "/workspace/shared/worker38-native-batch-01",
@@ -35,10 +40,13 @@
     0
   ],
   "planned_prefix_methods": 33,
+  "predecessor_command_sha256": "0294b64f0af403d010fed38eb4bd8563720a94b4fd6a8eb9d81918fdec74d9eb",
   "prefix_bytes": 25165824,
   "remaining_unexecuted_methods": 364,
   "schema": "worker38-native-command-candidate-v1",
+  "startup_trust_limit": "Pinned interpreter/stdlib/site/cache inputs remain trusted initial runtime inputs, with no source/cache semantic-equivalence claim. Native -P prevents script/current-directory prepending; project paths are added only after pinned hash/namespace checks.",
   "status": "UNADMITTED_DO_NOT_EXECUTE",
   "tool": "exec_command",
+  "trusted_launcher_boundary": "The initial managed exec_command Bash is trusted platform outside candidate proof. The tool offers no pre-shell environment argument; no pre-shell allowlist guarantee is claimed. From explicit env-i child onward the frozen positive environment and inherited limits are enforced. No project/test import occurs before the GNU timeout child.",
   "wall_seconds": 600
 }

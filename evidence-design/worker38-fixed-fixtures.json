@@ -11016,8 +11016,8 @@
   "mocked_GETs_prefix_max": 50,
   "native_environment": {
     "path": "evidence-design/NATIVE-ENVIRONMENT-CLOSURE.json",
-    "sha256": "5a159c9d5052a3687dbacb3b64126e17c63dc9fa8e133ab7d267531d9befc564",
-    "size_bytes": 440332
+    "sha256": "bddbe77ebd56f502aa4a4d0968f0aa8863ba6e7d7139ee605fe1b149515703a7",
+    "size_bytes": 454759
   },
   "order_authority": "Root prospectively selected existing saved draft order new64, Worker37, diagnostic module/list order; original cross-group order was unspecified. No outcome-dependent reorder.",
   "partial_prefix_is_not_scientific_readiness": true,
@@ -11036,8 +11036,8 @@
       "size_bytes": 5900
     },
     "evidence-design/run-worker38-fixed-preparation.py": {
-      "sha256": "0e29ff1df34eb4db46f2d04174ec363c513a7005ce6e0f3099050927e796bef5",
-      "size_bytes": 39455
+      "sha256": "cfb7f2ca9273b67b731b81ab07344b3e644ce0f03ab6f99b5ba120a277c2221e",
+      "size_bytes": 48544
     },
     "experiments/worker38-synthetic-profile/FINITE-PREPARATION-PLAN.json": {
       "sha256": "31ed253dafcfa502bbfa4d7dca9292e93de6e7b48e39a0e33336b6df894b35c9",
@@ -11228,12 +11228,12 @@
       "size_bytes": 19191
     },
     "tests/test_worker37_bootstrap.py": {
-      "sha256": "d4bccd587be92fbe617598c83a5b1e318df46a6876643bfb242450e0456aac4f",
-      "size_bytes": 116962
+      "sha256": "68190a0e868947b031cceb26731a29fff28838ec3d8af06834f7956bc5e01dac",
+      "size_bytes": 123066
     },
     "tests/test_worker38_bootstrap_integration.py": {
-      "sha256": "e6e8dab9ec2809d2a398598fb7fe10e03a8f2f363ad794f0cc4eae84e4cebcdd",
-      "size_bytes": 95599
+      "sha256": "299ebd2102546b0f9025d7984d08c2247b2e69533e51794efa3bf93dd62ae5f4",
+      "size_bytes": 102318
     },
     "tests/test_worker38_cell_integration.py": {
       "sha256": "0fc276cef0ee61c17e797a4928dddc7dda90d83a8f1f11ceea6796ec70f4e5ca",
@@ -11275,16 +11275,20 @@
       "size_bytes": 141809
     },
     "evidence-design/NATIVE-ENVIRONMENT-CLOSURE.json": {
-      "sha256": "5a159c9d5052a3687dbacb3b64126e17c63dc9fa8e133ab7d267531d9befc564",
-      "size_bytes": 440332
+      "sha256": "bddbe77ebd56f502aa4a4d0968f0aa8863ba6e7d7139ee605fe1b149515703a7",
+      "size_bytes": 454759
+    },
+    "evidence-design/PREFIX33-REPAIR01-DISPOSITION.json": {
+      "sha256": "4b0eb857eaec7117bbac43e1d50b1e50efe6f91fc57dda14f68e696215e6316e",
+      "size_bytes": 4208
     },
     "evidence-design/WORKER37-HARD-RESERVATIONS.json": {
-      "sha256": "bd764725b70aa8b175e3d7a74caff7f7d4cc58d1ffef1f51617a2c61c1c50665",
-      "size_bytes": 1043592
+      "sha256": "a8faed239caea17d61d2a50fe85b7a519d88d0ddd9cdd12e3e25f6551482a43e",
+      "size_bytes": 1053083
     },
     "evidence-design/assemble-worker38-prefix-map.py": {
-      "sha256": "dc4aca74cbb52e7a9a3ce979b481515efe45b65b3234c1869620273c0dcb78f2",
-      "size_bytes": 10429
+      "sha256": "33244ce0c527220aee162297b919a0a20b356688a69f99440d9bd02a23678bcf",
+      "size_bytes": 10487
     },
     "evidence-design/worker38-reservations-177.json": {
       "sha256": "98aa747dd02123647f2a96aa8acc381460b4f107b15b5adb7660229c17ca894f",
@@ -11299,8 +11303,8 @@
       "size_bytes": 882958
     },
     "evidence/NEW64-HARD-RESERVATIONS.json": {
-      "sha256": "070eb45528ef052516d24f4d9dfe2b073caa451dbfbc881a246857e7c74781f8",
-      "size_bytes": 283357
+      "sha256": "b65cc14a90105a200061400bfc78646c257c1aefa09b3ae7e9962feacc494b5b",
+      "size_bytes": 312696
     },
     "evidence/budget-amendment-adoption-5990100199.json": {
       "sha256": "c2251e89c5a6d4e541bb5a15b0e2f6500b9843bcab4fab0313a68aa94b59cbdb",

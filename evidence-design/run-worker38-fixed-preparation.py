@@ -436,6 +436,12 @@ class Capture:
 
     def fail(self, error, phase, code=None):
         self.failure = retain_failure(self.failure, error, phase, code)
+        # One closed helper interface: unexpected A-case cause survives a
+        # later prefix-retention error, whose type still participates here.
+        if self.current_row and self.current_row.get('literal_case_id', '').startswith('A'):
+            retention_error = getattr(error, 'worker38_prefix_retention_exception', None)
+            if isinstance(retention_error, BaseException):
+                self.failure = retain_failure(self.failure, retention_error, 'admission_prefix_retention')
 
     def merge_failure(self, state):
         if state is not None:
