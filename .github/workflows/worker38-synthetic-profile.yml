@@ -1,0 +1,121 @@
+name: Worker38 synthetic profile
+
+on:
+  pull_request:
+    types: [edited]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: read
+
+concurrency:
+  group: worker38-synthetic-profile-01
+  cancel-in-progress: false
+
+jobs:
+  measure:
+    if: >-
+      github.repository == 'carabinshely/bandido-alcatraz-solve' &&
+      github.actor == 'carabinshely' &&
+      github.triggering_actor == 'carabinshely' &&
+      github.event.sender.login == 'carabinshely' &&
+      github.event.pull_request.user.login == 'carabinshely' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.base.repo.full_name == github.repository &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.base.sha == '6ff861bba828e78d8f5b75d8355f2f4a56018898' &&
+      github.event.pull_request.head.ref == 'research/worker38-synthetic-profile' &&
+      github.event.action == 'edited' &&
+      github.event.changes.body != null &&
+      !contains(github.event.changes.body.from, 'WORKER38_SYNTHETIC_ADMISSION') &&
+      contains(github.event.pull_request.body, 'WORKER38_SYNTHETIC_ADMISSION_JSON') &&
+      github.run_attempt == 1
+    runs-on: [self-hosted, bandido-alcatraz-ci]
+    timeout-minutes: 45
+    env:
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      WORKER38_EVENT_ACTION: ${{ github.event.action }}
+      WORKER38_SENDER: ${{ github.event.sender.login }}
+      WORKER38_PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+      WORKER38_HEAD: ${{ github.event.pull_request.head.sha }}
+      WORKER38_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+      WORKER38_HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+      WORKER38_BASE_REF: ${{ github.event.pull_request.base.ref }}
+      WORKER38_BASE_HEAD: ${{ github.event.pull_request.base.sha }}
+      WORKER38_BASE_REPOSITORY: ${{ github.event.pull_request.base.repo.full_name }}
+      WORKER38_BODY_CHANGED: ${{ github.event.changes.body != null }}
+      WORKER38_PREVIOUS_BODY: ${{ github.event.changes.body.from }}
+      WORKER38_CURRENT_BODY: ${{ github.event.pull_request.body }}
+    steps:
+      - name: P00 builtin identity
+        id: identity
+        shell: bash --noprofile --norc -e -o pipefail {0}
+        run: |
+          # WORKER38_P00_BEGIN
+          set +xv
+          set -euo pipefail
+          umask 077
+          for worker38_name in ${!LD@} ${!PYTHON@}; do
+            unset "$worker38_name"
+          done
+          export LC_ALL=C
+          worker38_block() { printf 'P00 execution_blocked %s\n' "$1"; exit 1; }
+          [[ ${GITHUB_REPOSITORY-} == carabinshely/bandido-alcatraz-solve ]] || worker38_block repository
+          [[ ${GITHUB_ACTOR-} == carabinshely && ${GITHUB_TRIGGERING_ACTOR-} == carabinshely ]] || worker38_block actor
+          [[ ${WORKER38_SENDER-} == carabinshely && ${WORKER38_PR_AUTHOR-} == carabinshely ]] || worker38_block sender
+          [[ ${RUNNER_NAME-} == bandido-alcatraz-ci ]] || worker38_block runner
+          [[ ${GITHUB_SERVER_URL-} == https://github.com && ${GITHUB_API_URL-} == https://api.github.com ]] || worker38_block origin
+          [[ ${GITHUB_EVENT_NAME-} == pull_request && ${WORKER38_EVENT_ACTION-} == edited ]] || worker38_block event
+          [[ ${GITHUB_RUN_ATTEMPT-} == 1 ]] || worker38_block attempt
+          [[ ${GITHUB_RUN_ID-} =~ ^[1-9][0-9]*$ && ${PR_NUMBER-} =~ ^[1-9][0-9]*$ ]] || worker38_block identifier
+          [[ ${WORKER38_HEAD-} =~ ^[0-9a-f]{40}$ ]] || worker38_block head
+          [[ ${WORKER38_HEAD_REPOSITORY-} == "$GITHUB_REPOSITORY" && ${WORKER38_BASE_REPOSITORY-} == "$GITHUB_REPOSITORY" ]] || worker38_block same_repository
+          [[ ${WORKER38_HEAD_REF-} == research/worker38-synthetic-profile && ${WORKER38_BASE_REF-} == main ]] || worker38_block branch
+          [[ ${WORKER38_BASE_HEAD-} == 6ff861bba828e78d8f5b75d8355f2f4a56018898 ]] || worker38_block base
+          [[ ${WORKER38_BODY_CHANGED-} == true ]] || worker38_block body_change
+          [[ ${WORKER38_PREVIOUS_BODY-} != *WORKER38_SYNTHETIC_ADMISSION* ]] || worker38_block repeated_marker
+          [[ ${WORKER38_CURRENT_BODY-} == *WORKER38_SYNTHETIC_ADMISSION_JSON* && ${WORKER38_CURRENT_BODY-} == *END_WORKER38_SYNTHETIC_ADMISSION_JSON* && ${WORKER38_CURRENT_BODY-} == *WORKER38_SYNTHETIC_ADMISSION_SHA256* ]] || worker38_block missing_marker
+          [[ ${#WORKER38_CURRENT_BODY} -le 65536 ]] || worker38_block body_size
+          printf 'P00 completed\n'
+          # WORKER38_P00_END
+
+      - name: P01 bounded exact checkout
+        # The single exact checkout action has a60-second platform bound.
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        timeout-minutes: 1
+        with:
+          repository: carabinshely/bandido-alcatraz-solve
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+          submodules: false
+          lfs: false
+
+      - name: P02 bounded launcher
+        id: launcher
+        shell: bash --noprofile --norc -e -o pipefail {0}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # WORKER38_P02_BEGIN
+          set +xv
+          set -euo pipefail
+          umask 077
+          for worker38_name in ${!LD@} ${!PYTHON@}; do
+            unset "$worker38_name"
+          done
+          export LC_ALL=C
+          /bin/bash --noprofile --norc "$GITHUB_WORKSPACE/scripts/worker38-bootstrap.sh"
+          # WORKER38_P02_END
+
+      # P09 remains unactivatable until the registered shared60s egress
+      # envelope and up-to3 separate <32MiB provider wrappers are resolved.
+      # No new job, uploader, cap, or timing authority is introduced here.
+      - name: P09 provider upload pending protocol resolution
+        if: ${{ false }}
+        shell: bash --noprofile --norc -e -o pipefail {0}
+        run: |
+          printf 'P09 execution_blocked provider_deadline_unresolved\n'
+          exit 1

@@ -3,7 +3,7 @@
 The declared case IDs are the entire suite. There is no discovery, fuzzing,
 parameterization, scientific import, measurement fixture, game, or live HTTP.
 Python cases call production main with narrow environmental observations mocked.
-Shell cases execute unchanged production bodies using fixed inert command stubs.
+Shell cases execute the factored production bodies using fixed inert command stubs.
 These fixtures are invented; their IDs, hashes, reviews and report prove nothing
 about an authenticated runner, a historical result, or timeout kill behavior.
 """
@@ -39,6 +39,8 @@ ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = ROOT / 'scripts/worker37_bootstrap.py'
 LAUNCHER_PATH = ROOT / 'scripts/worker37-bootstrap.sh'
 WORKFLOW_PATH = ROOT / '.github/workflows/worker37-bootstrap-readiness.yml'
+SHARED_SHELL_PATH = ROOT / 'scripts/worker_bootstrap_shared.sh'
+SHARED_PYTHON_PATH = ROOT / 'scripts/worker_bootstrap_shared.py'
 MEMORY_BYTES = 536870912
 TOKEN = 'SENTINEL_SECRET_42'
 REPOSITORY = 'carabinshely/bandido-alcatraz-solve'
@@ -518,6 +520,7 @@ def run_python(s):
             stack.enter_context(patch.object(urllib.request,'build_opener',build_opener))
             sys.meta_path.insert(0,finder)
             stack.callback(sys.meta_path.remove,finder)
+            stack.enter_context(patch.object(sys, 'path', [str(ROOT / 'scripts'), *sys.path]))
             spec=importlib.util.spec_from_file_location('worker37_literal_actual_module',MODULE_PATH)
             module=importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
@@ -555,6 +558,8 @@ def run_python(s):
                 ('gc',gc_proxy),('signal',signal_proxy),('threading',threading_proxy),
                 ('time',time_proxy),('hashlib',hash_proxy),('ssl',ssl_proxy),('open',read_maps)):
                 stack.enter_context(patch.object(module,name,value,create=True))
+                if name in ('os','sys','resource','gc','signal','threading','hashlib','open'):
+                    stack.enter_context(patch.object(module.bootstrap_shared,name,value,create=True))
             try:
                 with redirect_stdout(captured_stdout),redirect_stderr(captured_stderr):
                     s.exit_code=module.main(['--event',str(event),'--output',str(output),'--source',str(source)])
@@ -591,6 +596,8 @@ def run_bash(case_id, *, entry, overrides=None):
         launcher=source/'scripts/worker37-bootstrap.sh'
         launcher.write_bytes(LAUNCHER_PATH.read_bytes())
         (source/'scripts/worker37_bootstrap.py').write_bytes(MODULE_PATH.read_bytes())
+        (source/'scripts/worker_bootstrap_shared.sh').write_bytes(SHARED_SHELL_PATH.read_bytes())
+        (source/'scripts/worker_bootstrap_shared.py').write_bytes(SHARED_PYTHON_PATH.read_bytes())
         temporary_dir=root/'runner-temp'
         temporary_dir.mkdir()
         cache=root/'cache'
@@ -1132,7 +1139,7 @@ class Worker37LiteralCases(unittest.TestCase):
         workflow = WORKFLOW_PATH.read_text()
         launcher = LAUNCHER_PATH.read_text()
         module = MODULE_PATH.read_text()
-        tree = ast.parse(module)
+        tree = ast.parse(module + '\n' + SHARED_PYTHON_PATH.read_text())
         imports = [n for n in ast.walk(tree) if isinstance(n,(ast.Import,ast.ImportFrom))]
         imported = [alias.name for n in imports for alias in n.names]
         self.assertNotIn('subprocess', imported)
@@ -1155,6 +1162,10 @@ class Worker37LiteralCases(unittest.TestCase):
         self.assertNotIn(' jq ', launcher+workflow)
         self.assertIn('measurement_admitted', module)
         self.assertIn('scientific_classification', module)
+        self.assertIn('\"scripts/worker_bootstrap_shared.sh\"', module)
+        self.assertIn('\"scripts/worker_bootstrap_shared.py\"', module)
+        self.assertIn('bootstrap_worker37_prepare', launcher)
+        self.assertIn('bootstrap_shared.runtime_start(observation, \"worker37-preparation-v1\")', module)
 
     def test_T061_overflow_primary_survives_readback_failure(self):
         s = LiteralScenario()

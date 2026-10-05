@@ -1,0 +1,607 @@
+{
+  "accepted_main": "6ff861bba828e78d8f5b75d8355f2f4a56018898",
+  "blockers": [
+    {
+      "detail": "Root held second-job topology. Current single45minute workflow leaves P09 explicitly disabled pending resolution of3 separate <=30MiBpart uploads/<32MiBprovider wrappers within one shared60s allowance; no arbitrary uploader, extra job or raisedcap added.",
+      "id": "provider_egress_shared60s"
+    },
+    {
+      "detail": "Complete397 source/fixture/command map, independent static review and root approval remain required before the sole native batch. No tests run here.",
+      "id": "exact_preparation_map"
+    }
+  ],
+  "execution_activity": {
+    "Drive_mutations": 0,
+    "GitHub_mutations": 0,
+    "evaluator_calls": 0,
+    "fixture_constructors": 0,
+    "games": 0,
+    "live_HTTP_requests": 0,
+    "project_imports": 0,
+    "runner_probes": 0,
+    "tests": 0,
+    "workflows": 0
+  },
+  "external_command_inventory": {
+    "additional_shell_subprocesses": "Fixed bootstrap timeout shell stages and builtin compgen export enumeration only; must be included in later complete command/process map",
+    "builtin_only_handoff_operations": [
+      "read",
+      "mapfile",
+      "printf",
+      "compgen",
+      "export",
+      "unset",
+      "cd",
+      "exec descriptor close",
+      "arithmetic",
+      "test",
+      "proc-fd glob"
+    ],
+    "closed_wrapper_interpreters": [
+      "/bin/bash --noprofile --norc",
+      "pinned RUNNER_TOOL_CACHE/Python/3.11.16/x64/bin/python3.11 -B -s"
+    ],
+    "measurement_preservation_timeout": "/usr/bin/timeout fixed command after positive environment sanitation",
+    "shared_helpers": [
+      "realpath",
+      "readlink",
+      "stat",
+      "id",
+      "mkdir",
+      "cat",
+      "sync",
+      "sha256sum",
+      "git",
+      "timeout"
+    ]
+  },
+  "fd_confirmation_refinement": {
+    "basis": "static inspection of procfs glob lifetime; no runtime result",
+    "change": "After closure, each numeric fd>2 is rejected only when its procfs entry still exists as file or link at the observation. Missing/unreadable/unsearchable proc directory, malformed glob result, empty enumeration and actual surviving nonstdio descriptor fail closed.",
+    "later_case": "C02 actual Bash inherited credential FD9 fixture must verify this boundary only in the gated native batch",
+    "tests_executed": 0
+  },
+  "files": {
+    ".github/workflows/worker38-synthetic-profile.yml": {
+      "sha256": "5c2ab4922b634c740f32d019cd66c326f798cd27160502fd6541b00708331493",
+      "size_bytes": 6006
+    },
+    "scripts/worker37-bootstrap.sh": {
+      "sha256": "65d714ea51a0063aedfc1acf38a9a6730de6a572be471514ab395761d7ecc5de",
+      "size_bytes": 9501
+    },
+    "scripts/worker37_bootstrap.py": {
+      "sha256": "4219f940c1e4365d739e6190c118b7a4dba163960f285dd550d226b524183a09",
+      "size_bytes": 51135
+    },
+    "scripts/worker38-bootstrap.sh": {
+      "sha256": "dae6fc2ccddd1786d87cb9360bb6ae9a12b4a6abb76b1d7a4a1fcc8feb602e9b",
+      "size_bytes": 22306
+    },
+    "scripts/worker_bootstrap_shared.py": {
+      "sha256": "d3b60dda4cd4796cda088d2bdf9f87c39920f2f7fe98bd5d3ba8e1f09b4fb367",
+      "size_bytes": 10519
+    },
+    "scripts/worker_bootstrap_shared.sh": {
+      "sha256": "2442b72736c6584873d947bcb111bea008e5ad47b48e6b744e5bdce02380b46b",
+      "size_bytes": 12054
+    },
+    "tests/test_worker37_bootstrap.py": {
+      "sha256": "52c544ab97790749c4246b5f5eec9af32dfd650cfcf5eafeb12d687a428c7962",
+      "size_bytes": 103117
+    }
+  },
+  "preregistration_comment_id": 5987629515,
+  "protocol_sha256": "17abf2d644106bb7c10fbec5481deb7da33e17867ee2f08ea065ca591e8499a7",
+  "schema": "worker38-startup-implementation-report-v1",
+  "shared_python_changes": [
+    "exact two-consumer prefix selector rejected before runtime mutation",
+    "RuntimeFailure carries fixed classification/code and ordered close details",
+    "proc mapping stream close preserves active body/resource error",
+    "Worker37 adapters retain Failure and record_failure semantics",
+    "Worker37 required source map explicitly includes both newly executable shared files"
+  ],
+  "shared_python_span_provenance": [
+    {
+      "destination_function": "RuntimeFailure",
+      "destination_path": "scripts/worker_bootstrap_shared.py",
+      "destination_span": {
+        "lines": [
+          25,
+          32
+        ],
+        "sha256": "83350844c67ac9c256fdf383b641896496808245f0df42bdc5a9bf219d18043d"
+      },
+      "origin_function": "Failure",
+      "origin_path": "scripts/worker37_bootstrap.py",
+      "origin_source_sha256": "0b9a4d0349d983e383dcd8d005bf0dfbde9b693acd75d6a7a04e689136738d43",
+      "origin_span": {
+        "lines": [
+          96,
+          102
+        ],
+        "sha256": "e4981a0a9993e91a70c64e7957a34eeaa1fb369399dd84084e2d7573143e763d"
+      },
+      "review_inherited": false
+    },
+    {
+      "destination_function": "require",
+      "destination_path": "scripts/worker_bootstrap_shared.py",
+      "destination_span": {
+        "lines": [
+          35,
+          37
+        ],
+        "sha256": "fe257db49ca23393f2ef6fae17f942cad3f47eaa9a0e0f72f5c4f5a886a78d2b"
+      },
+      "origin_function": "require",
+      "origin_path": "scripts/worker37_bootstrap.py",
+      "origin_source_sha256": "0b9a4d0349d983e383dcd8d005bf0dfbde9b693acd75d6a7a04e689136738d43",
+      "origin_span": {
+        "lines": [
+          105,
+          107
+        ],
+        "sha256": "e0c6c890d2ad2968a05f3f851b6543d211ace614aacba33dbcb2bcf87bdd704b"
+      },
+      "review_inherited": false
+    },
+    {
+      "destination_function": "close_descriptor",
+      "destination_path": "scripts/worker_bootstrap_shared.py",
+      "destination_span": {
+        "lines": [
+          40,
+          61
+        ],
+        "sha256": "1e8cd796e2ced9b87164f3b7730561b644d82d22e7611d2536c0d7db6ae2634f"
+      },
+      "origin_function": "close_descriptor",
+      "origin_path": "scripts/worker37_bootstrap.py",
+      "origin_source_sha256": "0b9a4d0349d983e383dcd8d005bf0dfbde9b693acd75d6a7a04e689136738d43",
+      "origin_span": {
+        "lines": [
+          124,
+          143
+        ],
+        "sha256": "bf68f7cbd239175704e420cf389e3eb1cdd289e124bd8353defc3451dff68319"
+      },
+      "review_inherited": false
+    },
+    {
+      "destination_function": "sha",
+      "destination_path": "scripts/worker_bootstrap_shared.py",
+      "destination_span": {
+        "lines": [
+          64,
+          65
+        ],
+        "sha256": "2f1541faf4c4ebe2f74c17d4b666982327a0f1e144708a531c92f08669705d57"
+      },
+      "origin_function": "sha",
+      "origin_path": "scripts/worker37_bootstrap.py",
+      "origin_source_sha256": "0b9a4d0349d983e383dcd8d005bf0dfbde9b693acd75d6a7a04e689136738d43",
+      "origin_span": {
+        "lines": [
+          146,
+          147
+        ],
+        "sha256": "2f1541faf4c4ebe2f74c17d4b666982327a0f1e144708a531c92f08669705d57"
+      },
+      "review_inherited": false
+    },
+    {
+      "destination_function": "bounded_read",
+      "destination_path": "scripts/worker_bootstrap_shared.py",
+      "destination_span": {
+        "lines": [
+          68,
+          89
+        ],
+        "sha256": "ee13a0098e4f36e3b266d602eb5923d02e2ce89f712a2f0466699b51d046afed"
+      },
+      "origin_function": "bounded_read",
+      "origin_path": "scripts/worker37_bootstrap.py",
+      "origin_source_sha256": "0b9a4d0349d983e383dcd8d005bf0dfbde9b693acd75d6a7a04e689136738d43",
+      "origin_span": {
+        "lines": [
+          217,
+          238
+        ],
+        "sha256": "ee13a0098e4f36e3b266d602eb5923d02e2ce89f712a2f0466699b51d046afed"
+      },
+      "review_inherited": false
+    },
+    {
+      "destination_function": "file_tuple",
+      "destination_path": "scripts/worker_bootstrap_shared.py",
+      "destination_span": {
+        "lines": [
+          92,
+          93
+        ],
+        "sha256": "11423268775dcad7363f5c5c7105ea913dfe22a709741ee65ecf269d5c3c3c6c"
+      },
+      "origin_function": "file_tuple",
+      "origin_path": "scripts/worker37_bootstrap.py",
+      "origin_source_sha256": "0b9a4d0349d983e383dcd8d005bf0dfbde9b693acd75d6a7a04e689136738d43",
+      "origin_span": {
+        "lines": [
+          241,
+          242
+        ],
+        "sha256": "11423268775dcad7363f5c5c7105ea913dfe22a709741ee65ecf269d5c3c3c6c"
+      },
+      "review_inherited": false
+    },
+    {
+      "destination_function": "shell_stat",
+      "destination_path": "scripts/worker_bootstrap_shared.py",
+      "destination_span": {
+        "lines": [
+          96,
+          97
+        ],
+        "sha256": "026a29a98071edd74e871722f3d6829c261b456e26f54b30afddaab9a5c1637c"
+      },
+      "origin_function": "shell_stat",
+      "origin_path": "scripts/worker37_bootstrap.py",
+      "origin_source_sha256": "0b9a4d0349d983e383dcd8d005bf0dfbde9b693acd75d6a7a04e689136738d43",
+      "origin_span": {
+        "lines": [
+          245,
+          246
+        ],
+        "sha256": "026a29a98071edd74e871722f3d6829c261b456e26f54b30afddaab9a5c1637c"
+      },
+      "review_inherited": false
+    },
+    {
+      "destination_function": "limits_snapshot",
+      "destination_path": "scripts/worker_bootstrap_shared.py",
+      "destination_span": {
+        "lines": [
+          100,
+          102
+        ],
+        "sha256": "8c6ca2ff7a69f3d9aa8e077a21c73ee1aa9fddcd2dd994e0780036a1dad985fa"
+      },
+      "origin_function": "limits_snapshot",
+      "origin_path": "scripts/worker37_bootstrap.py",
+      "origin_source_sha256": "0b9a4d0349d983e383dcd8d005bf0dfbde9b693acd75d6a7a04e689136738d43",
+      "origin_span": {
+        "lines": [
+          249,
+          251
+        ],
+        "sha256": "8c6ca2ff7a69f3d9aa8e077a21c73ee1aa9fddcd2dd994e0780036a1dad985fa"
+      },
+      "review_inherited": false
+    },
+    {
+      "destination_function": "state_snapshot",
+      "destination_path": "scripts/worker_bootstrap_shared.py",
+      "destination_span": {
+        "lines": [
+          105,
+          115
+        ],
+        "sha256": "c87a43bdb6708b97c29220ad2d755e76a5fcfa655bc27f27fbbecf6a10e64f2b"
+      },
+      "origin_function": "state_snapshot",
+      "origin_path": "scripts/worker37_bootstrap.py",
+      "origin_source_sha256": "0b9a4d0349d983e383dcd8d005bf0dfbde9b693acd75d6a7a04e689136738d43",
+      "origin_span": {
+        "lines": [
+          254,
+          264
+        ],
+        "sha256": "c87a43bdb6708b97c29220ad2d755e76a5fcfa655bc27f27fbbecf6a10e64f2b"
+      },
+      "review_inherited": false
+    },
+    {
+      "destination_function": "runtime_start",
+      "destination_path": "scripts/worker_bootstrap_shared.py",
+      "destination_span": {
+        "lines": [
+          118,
+          230
+        ],
+        "sha256": "db41cad64667840eec7def27113a4e6d3f6b3a29ea8a20ab5993b61e656ba5d0"
+      },
+      "origin_function": "runtime_start",
+      "origin_path": "scripts/worker37_bootstrap.py",
+      "origin_source_sha256": "0b9a4d0349d983e383dcd8d005bf0dfbde9b693acd75d6a7a04e689136738d43",
+      "origin_span": {
+        "lines": [
+          267,
+          357
+        ],
+        "sha256": "682dafb296a82d95c97df51dd140bf94aa1a8f4a278ea35d72f5b57d628b4135"
+      },
+      "review_inherited": false
+    }
+  ],
+  "shared_shell_span_provenance": [
+    {
+      "destination_functions": [
+        "_bootstrap_sanitize"
+      ],
+      "destination_path": "scripts/worker_bootstrap_shared.sh",
+      "destination_spans": {
+        "_bootstrap_sanitize": {
+          "lines": [
+            4,
+            10
+          ],
+          "sha256": "89eb1eaba70ebf56283755d3083a0d64eee692373447474ccfaa0f104250c2f1"
+        }
+      },
+      "origin_lines": [
+        5,
+        13
+      ],
+      "origin_path": "scripts/worker37-bootstrap.sh",
+      "origin_sha256": "8f5f06a96af1cb3c55e8f7db8cf8ca8be813d6d73c2c49052b0ee5df0ae2c7bc",
+      "review_inherited": false
+    },
+    {
+      "destination_functions": [
+        "absolute_plain_path",
+        "canonical_existing",
+        "overlap",
+        "owned_private_directory",
+        "stat_identity",
+        "sha256_file",
+        "sync_file_and_parent",
+        "_bootstrap_paths_and_claim"
+      ],
+      "destination_path": "scripts/worker_bootstrap_shared.sh",
+      "destination_spans": {
+        "_bootstrap_paths_and_claim": {
+          "lines": [
+            53,
+            94
+          ],
+          "sha256": "ce1a35d149b4d8dd1eae7073a2bf7600a0d104e91eea50525488735f1f595032"
+        },
+        "absolute_plain_path": {
+          "lines": [
+            12,
+            14
+          ],
+          "sha256": "215aaa54cdcfe4cc8a5a80da2ec91403d74bb628ba8a6c8b4a843da7ba9053d5"
+        },
+        "canonical_existing": {
+          "lines": [
+            16,
+            25
+          ],
+          "sha256": "8470f0ca826be79b2aed4f422c48204c99c6a9d233667a99437e9a97bb2b0e98"
+        },
+        "overlap": {
+          "lines": [
+            27,
+            27
+          ],
+          "sha256": "cc872cfe0c21e4a6977acc47b7b8024c5a8b6e045748d622eda8a0eadc5b4359"
+        },
+        "owned_private_directory": {
+          "lines": [
+            29,
+            35
+          ],
+          "sha256": "71c04a534aca1bf26632cbf9b21d876d23773b5a2e0743a3f68e7e327470e37d"
+        },
+        "sha256_file": {
+          "lines": [
+            41,
+            46
+          ],
+          "sha256": "7865c813e4b2d695c4a8b5f140c3ebaed95e99ea6100b1a5102276148c9d387d"
+        },
+        "stat_identity": {
+          "lines": [
+            37,
+            39
+          ],
+          "sha256": "4a94cf9a442ab54dbcada7b5b951e856bb8a0219dcdcfbdd42815d625920d2ab"
+        },
+        "sync_file_and_parent": {
+          "lines": [
+            48,
+            50
+          ],
+          "sha256": "e94632d454e3d37fcba0f0febb583d9a3773e7b4264beb749138ce75884c0b23"
+        }
+      },
+      "origin_lines": [
+        51,
+        107
+      ],
+      "origin_path": "scripts/worker37-bootstrap.sh",
+      "origin_sha256": "8f5f06a96af1cb3c55e8f7db8cf8ca8be813d6d73c2c49052b0ee5df0ae2c7bc",
+      "review_inherited": false
+    },
+    {
+      "destination_functions": [
+        "_bootstrap_paths_and_claim"
+      ],
+      "destination_path": "scripts/worker_bootstrap_shared.sh",
+      "destination_spans": {
+        "_bootstrap_paths_and_claim": {
+          "lines": [
+            53,
+            94
+          ],
+          "sha256": "ce1a35d149b4d8dd1eae7073a2bf7600a0d104e91eea50525488735f1f595032"
+        }
+      },
+      "origin_lines": [
+        109,
+        126
+      ],
+      "origin_path": "scripts/worker37-bootstrap.sh",
+      "origin_sha256": "8f5f06a96af1cb3c55e8f7db8cf8ca8be813d6d73c2c49052b0ee5df0ae2c7bc",
+      "review_inherited": false
+    },
+    {
+      "destination_functions": [
+        "_bootstrap_event_snapshot"
+      ],
+      "destination_path": "scripts/worker_bootstrap_shared.sh",
+      "destination_spans": {
+        "_bootstrap_event_snapshot": {
+          "lines": [
+            166,
+            202
+          ],
+          "sha256": "37a169620f629994b6721d28a9f065fab4f6216d0a36b08906ebfa88e3087cf5"
+        }
+      },
+      "origin_lines": [
+        191,
+        232
+      ],
+      "origin_path": "scripts/worker37-bootstrap.sh",
+      "origin_sha256": "8f5f06a96af1cb3c55e8f7db8cf8ca8be813d6d73c2c49052b0ee5df0ae2c7bc",
+      "review_inherited": false
+    },
+    {
+      "destination_functions": [
+        "_bootstrap_runtime"
+      ],
+      "destination_path": "scripts/worker_bootstrap_shared.sh",
+      "destination_spans": {
+        "_bootstrap_runtime": {
+          "lines": [
+            96,
+            134
+          ],
+          "sha256": "c74dba6e28d9e946b722fb75689263383d5e02da3a017f7bcb2f1543aa4528e7"
+        }
+      },
+      "origin_lines": [
+        234,
+        269
+      ],
+      "origin_path": "scripts/worker37-bootstrap.sh",
+      "origin_sha256": "8f5f06a96af1cb3c55e8f7db8cf8ca8be813d6d73c2c49052b0ee5df0ae2c7bc",
+      "review_inherited": false
+    }
+  ],
+  "source_branch_base": "72a40ee79fad39405175b03229234ec067381e89",
+  "static_inspection": {
+    "AST_parsed": [
+      "scripts/worker_bootstrap_shared.py",
+      "scripts/worker37_bootstrap.py",
+      "tests/test_worker37_bootstrap.py"
+    ],
+    "bash_n_parsed": [
+      "scripts/worker_bootstrap_shared.sh",
+      "scripts/worker37-bootstrap.sh",
+      "scripts/worker38-bootstrap.sh"
+    ],
+    "meaning": "syntax/source inspection only; never a test success or runner readiness claim"
+  },
+  "status": "source_materialized_static_only_provider_egress_pending",
+  "worker37_regressions": {
+    "changes": [
+      "literal loader patches actual shared dependency objects alongside Worker37 objects",
+      "literal shell harness copies exact shared files",
+      "T060 source-graph check includes shared Python dependency closure and explicit fixed adapter/source dependencies"
+    ],
+    "method_count": 84,
+    "original_exact_selectors_retained": true,
+    "original_method_intents_preserved": true,
+    "test_methods_executed": 0
+  },
+  "worker38_shell_interfaces": {
+    "admission_argv": [
+      "-B",
+      "-s",
+      "scripts/worker38/admission.py",
+      "--event",
+      "ATTEMPT/event.json",
+      "--output",
+      "ATTEMPT",
+      "--source",
+      "CHECKOUT"
+    ],
+    "coordinator_output": "ATTEMPT/coordinator-output.txt, precreated/fsynced before admission",
+    "fixed_runner_identity": {
+      "GITHUB_ACTIONS": "true",
+      "GITHUB_EVENT_NAME": "pull_request"
+    },
+    "measure_argv": [
+      "measure",
+      "--attempt",
+      "ATTEMPT",
+      "--admission",
+      "ATTEMPT/admission-inputs/admission.json",
+      "--admission-sha256",
+      "HASH",
+      "--admission-provenance",
+      "ATTEMPT/admission-inputs/provenance.json",
+      "--admission-provenance-sha256",
+      "HASH"
+    ],
+    "measurement_handoff": "startup-handoff.json and fourteen fixed key=value lines in measurement-handoff.txt; <=4096bytes builtin parse; original same-boot boottime cutoff",
+    "measurement_handoff_keys": [
+      "version",
+      "handoff_sha256",
+      "boot_id",
+      "measurement_monotonic_ns",
+      "measurement_boottime_ns",
+      "measurement_deadline_boottime_ns",
+      "attempt_path",
+      "source_path",
+      "head",
+      "tree",
+      "admission_sha256",
+      "provenance_sha256",
+      "runtime_sha256",
+      "source_map_sha256"
+    ],
+    "positive_environment_GITHUB_OUTPUT": "Private attempted coordinator-output.txt control path, never inherited runner output path",
+    "preservation": "exact three original cutoff fields, same boot, floored remaining<=600s externalKILL; original monotonic_ms passed unchanged; no renewed budget",
+    "public_argv": "none; unexpected arguments rejected before any external command",
+    "public_python_runtime": "runtime_start(observation, consumer) with exactly worker37-preparation-v1 or worker38-synthetic-profile-v1",
+    "science_environment": "positive exports only, private emptyHOME/TMPDIR, fixed PATH/LC/PYTHON/LD, pinnedruntime/attempt/source/nonsecretidentity; no inherited authentication variables or nonstdioFDs",
+    "science_environment_key_count": 29,
+    "science_environment_keys": [
+      "PATH",
+      "LC_ALL",
+      "HOME",
+      "TMPDIR",
+      "PYTHONHASHSEED",
+      "PYTHONDONTWRITEBYTECODE",
+      "LD_LIBRARY_PATH",
+      "GITHUB_ACTIONS",
+      "GITHUB_EVENT_NAME",
+      "RUNNER_TOOL_CACHE",
+      "RUNNER_NAME",
+      "GITHUB_REPOSITORY",
+      "GITHUB_RUN_ID",
+      "GITHUB_RUN_ATTEMPT",
+      "WORKER38_EXECUTABLE",
+      "WORKER38_LIBRARY",
+      "WORKER38_EXECUTABLE_STAT",
+      "WORKER38_LIBRARY_STAT",
+      "WORKER38_HEAD",
+      "WORKER38_TREE",
+      "WORKER38_RUN_ID",
+      "WORKER38_PR_NUMBER",
+      "WORKER38_BRANCH",
+      "WORKER38_JOB",
+      "WORKER38_ALLOCATION_ID",
+      "WORKER38_ATTEMPT_DIRECTORY",
+      "WORKER38_SOURCE_DIRECTORY",
+      "WORKER38_HANDOFF_SHA256",
+      "GITHUB_OUTPUT"
+    ],
+    "startup": "one120s outer fixed shell; shared shell30s then one admission leaf<=90s clipped to original cutoff; outer returns before measure",
+    "transport_destination": "ALLOCATION/transport-RUN-attempt-1"
+  }
+}
