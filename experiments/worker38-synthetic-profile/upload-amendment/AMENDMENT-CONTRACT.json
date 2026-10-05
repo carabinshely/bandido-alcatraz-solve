@@ -1,0 +1,124 @@
+{
+  "allowed_members": {
+    "first": [
+      "part-001.bin",
+      "transport-manifest.json"
+    ],
+    "second": [
+      "part-002.bin"
+    ],
+    "third": [
+      "part-003.bin"
+    ]
+  },
+  "artifact_names": [
+    "worker38-{GITHUB_RUN_ID}-1-part-001",
+    "worker38-{GITHUB_RUN_ID}-1-part-002",
+    "worker38-{GITHUB_RUN_ID}-1-part-003"
+  ],
+  "caps": {
+    "actual_provider_wrapper_strictly_less_than_bytes": 33554432,
+    "compact_transport_manifest_bytes": 1048576,
+    "complete_archive_bytes": 67108864,
+    "first_wrapper_payload_maximum_bytes": 32505856,
+    "maximum_parts": 3,
+    "part_payload_bytes": 31457280,
+    "preservation_original_seconds": 600,
+    "provider_upload_timeout_seconds": 60,
+    "raw_bytes": 67108864,
+    "workflow_timeout_seconds": 2700
+  },
+  "closed_inputs": {
+    "arbitrary_action_or_command": false,
+    "arbitrary_timeout": false,
+    "arbitrary_upload_path": false,
+    "paths": "Only the fixed canonical transport root derived from RUNNER_TOOL_CACHE/new allocation/current decimal run_id; every component must meet pretransmission_path_policy.literal_alphabet and no-follow ownership/seal checks. Canonicality alone is insufficient.",
+    "plan": "a <=4096-byte fixed scalar upload-plan.txt is emitted/read back within the existing preservation600 deadline, outside the raw archive but counted in bounded preservation output; records part_count1..3 and original manifest bytes/hash. Composite builtin-only validation checks exact fixed identity and literal names; it neither packages nor discovers files. The plan and selected sources must also satisfy the prospective literal/no-follow/read-only seal policy before any vendor action."
+  },
+  "exact_observed_runner_version": "2.337.0",
+  "manifest_binding": "Transport manifest is generated only after the raw archive is sealed and split. It binds exact archive bytes/hash/format, complete ordered part names/sizes/hashes, and raw evidence inventory. It is not a member of the raw archive and contains no own-hash/self-size field. First provider wrapper carries its exact original bytes; canonical Drive manifest upload and independent fresh readback must equal those extracted bytes. Manifest is separate metadata, never appended to or substituted for part-001.bin.",
+  "pretransmission_path_policy": {
+    "composite_before_each_vendor_step": "Inside the one60s composite, before any selected vendor upload, use only bounded fixed builtin checks/read of the <=4096-byte plan: exact derived ASCII path, each component non-symlink, fixed directories still directories/private-owned, plan and selected payloads regular/non-symlink/readable/owned/read-only, exact ordinal/count and fixed literal file names. Reject unavailable/inconsistent observations before that vendor action. Supply only exact file paths as separate controlled lines, never a directory, wildcard, user-provided path, or uploaded plan itself. No hashing, copying, repackaging, source repair or permission resealing occurs after preservation expires.",
+    "early_gate": "Apply literal-cache/path eligibility in the zero-evaluator shared startup before science; reject a canonical but glob-bearing cache root rather than discovering that limitation after evaluation.",
+    "literal_alphabet": "Every full derived upload/plan path must match ASCII ^/[A-Za-z0-9._/-]+$ under LC_ALL=C, with nonempty components and no . or .. component, repeated separator, trailing separator or alias. No whitespace/control byte, backslash, tilde, dollar, wildcard, bracket, brace, parenthesis, plus, exclamation or other glob/control syntax is permitted. Fixed filenames and decimal run_id are the only suffixes.",
+    "ownership_and_TOCTOU_limit": "The reviewed custody model trusts the runner account and frozen source. Unique private namespace, confirmed shutdown of owned writers, read-only seal and no subsequent authorized writer bound the validation-to-read interval. The vendor still opens paths later and follows links internally; there is no claim of OS-atomic fd transfer or protection against arbitrary malicious concurrent same-UID/root mutation. If exclusive custody or unchanged sealed state cannot be established, no upload is attempted. Any observed post-seal change blocks further uploads and successful custody; it does not undo a prior transmission or authorize retry.",
+    "postdownload_checks": "All existing exact member, type, duplicate/traversal, expansion, CRC/hash and independent canonical readback gates remain mandatory. These are additional acceptance checks, never substitutes for pretransmission selection safety.",
+    "sealing_within_preservation": "Within the SAME original600 deadline, before declaring upload_ready, validate canonical fixed transport root and every path component with no-follow metadata checks. Require runner-owned private allocation/transport directories, no writable-by-other-user/group custody parents, exact selected regular single-link files and plan, no symlinks or special files, exact manifest/part byte limits and full source hashes. All owned admission/coordinator/cell/preservation writers must have finished or positively transferred custody; unknown cleanup/writer ownership prevents upload readiness. Persist the existing hash/stat/ownership proof, finish and fsync files, and seal transport payload files/plan read-only0400 and transport directory0500. Ancestors retain existing private custody permissions; no system-directory permissions are changed."
+  },
+  "primary_source_pins": [
+    {
+      "bytes": 71143,
+      "git_blob": "0f9410821c6214aa75533b4de4e2c4acde966719",
+      "path": "primary-sources/ExecutionContext-v2.337.0.cs",
+      "sha256": "d2e079200bf885ec1153a38e65c4eb9186f0348f74a01cc582b208ef992e3f14"
+    },
+    {
+      "bytes": 19002,
+      "git_blob": "4a114fe0b241c1b6e9ebb7bf205b05108e0faea5",
+      "path": "primary-sources/StepsRunner-v2.337.0.cs",
+      "sha256": "7f89529ca548e704db0e6dc97df1a2d291c0db85ad18701d17db59330861ca6c"
+    },
+    {
+      "bytes": 28551,
+      "git_blob": "6db8995d0d424bf5ac0104578e0a5241169cd801",
+      "path": "primary-sources/CompositeActionHandler-v2.337.0.cs",
+      "sha256": "3cff0728f7ede6f6efe816f6b7704acfd69a64e7930b0be3883d16cdf327a81a"
+    },
+    {
+      "bytes": 3159,
+      "git_blob": "2a0ecf19e8d0087dd2e5d1785dcf764811e79fae",
+      "path": "primary-sources/upload-artifact-ea165f8-action.yml",
+      "sha256": "29b21270ff44638a165ea12abb4481796770c629e513217af7b4df1aa3821177"
+    },
+    {
+      "bytes": 5246,
+      "git_blob": "e573f83a39210907de3132ce44ba025a29bc2c80",
+      "path": "primary-sources/upload-artifact-ea165f8-search.ts",
+      "sha256": "4cbd489c239640073ee1bd17b9f941aabcf34cb7f41d68edd2264ee0438174e9"
+    }
+  ],
+  "production_source_paths": [
+    ".github/workflows/worker38-synthetic-profile.yml",
+    "scripts/worker_bootstrap_shared.sh",
+    "scripts/worker_bootstrap_shared.py",
+    "scripts/worker37-bootstrap.sh",
+    "scripts/worker37_bootstrap.py",
+    "scripts/worker38-bootstrap.sh",
+    "scripts/run_worker38_synthetic.py",
+    "scripts/worker38/__init__.py",
+    "scripts/worker38/admission.py",
+    "scripts/worker38/common.py",
+    "scripts/worker38/sources.py",
+    "scripts/worker38/supervision.py",
+    "scripts/worker38/cell.py",
+    "scripts/worker38/driver.py",
+    "scripts/worker38/transport.py",
+    "scripts/worker38/verify.py",
+    ".github/actions/worker38-upload/action.yml"
+  ],
+  "registered_preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5987629515",
+  "registered_protocol_commit": "72a40ee79fad39405175b03229234ec067381e89",
+  "registered_protocol_sha256": "17abf2d644106bb7c10fbec5481deb7da33e17867ee2f08ea065ca591e8499a7",
+  "remaining_gates": "Two full amendment reviews, root adoption/preregistration supplement, bounded implementation, exact source/fixture map, native gate, full source review and CI/freeze/GO as already required.",
+  "reviewed_base_handoff_sha256": "bca37f0835cb4ee6dbd0bd3e2984a93b5f9416c64ab8d00db9528889fe241a14",
+  "schema": "worker38-upload-composite-prospective-amendment-v1",
+  "scope": "One fixed local composite groups the existing provider uploads under one existing same-job60-second timeout. Explicit first wrapper includes original compact transport manifest. No scientific/resource change, new job, cache-internal invocation, custom HTTP uploader or separate readiness allocation.",
+  "status": "proposal only, awaiting both independent reviews and root prospective adoption; no workflow/composite implementation authorized by this file",
+  "timeout_custody": "Single outer composite timeout initializes once; nested children inherit remaining time in observed runner source. No embedded step may use always() to continue upload after timeout/failure. One failed/cancelled/late or absent upload leaves custody incomplete; retain every confirmed artifact ID and raw durable prefix. Platform cancellation is not claimed instantaneous. Parent verifies actual composite start/end and outcome; no success claim for an observed interval>=60s or unknown/cancelled completion, even if an artifact subsequently appears. No repack/retry/replacement or further science follows.",
+  "unchanged_provider_operations": "At most3 logical artifact-wrapper downloads,3 canonical part uploads plus1 compact manifest upload, each fresh canonical readback. No fourth provider artifact needed. Existing source/runtime/science/397-method native limits remain unchanged.",
+  "workflow": {
+    "calling_step_timeout_minutes": 1,
+    "calling_step_uses": "./.github/actions/worker38-upload",
+    "composite_runs_using": "composite",
+    "condition": "fixed local preservation upload-ready proof exists; first admission scope unchanged; a computational failure may preserve sealed incomplete evidence, but cannot claim scientific success",
+    "global_wall": "same existing45-minute job contains checkout/startup/measurement/preservation/composite and internal step delays; no second-job scheduling interval or fresh global anchor. Existing original phase clocks remain authoritative.",
+    "job_count": 1,
+    "job_timeout_minutes": 45,
+    "maximum_embedded_upload_actions": 3,
+    "permissions": "existing permissions only",
+    "retry": "none at logical wrapper/action/attempt level; no overwrite or rearm; vendor-internal behavior does not create a new allowed window",
+    "upload_action": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+    "upload_action_runtime": "node20 (same official action runtime; never a scientific interpreter)"
+  },
+  "wrapper_validation": "Require exact ordinal-specific member set, no duplicate names, traversal, absolute paths, directory/symlink/special entries, encryption or unsupported methods; check declared and actual expanded lengths, every CRC, exact manifest bytes/strict JSON/schema and all part/archive/inventory bindings. Later wrappers may not contain any manifest. Original part bytes/hash are unchanged. Actual downloaded outer ZIP size remains independently checked <32MiB; overhead is not guessed away."
+}

@@ -1,0 +1,11 @@
+{
+  "observed_line": "\ufeff2026-10-05T01:11:36.2678223Z Current runner version: '2.337.0'",
+  "runner_log_bytes": 27568,
+  "runner_log_path": "/workspace/shared/worker37-bootstrap-readiness/evidence/pr-publication/worker37-postmerge-CI-111576810151.log",
+  "runner_log_sha256": "459453acb5dec7eb26b7566e83f13a56546a3bfbe77307fd6d15ce55ce7bde4e",
+  "runner_probes": 0,
+  "scientific_calls": 0,
+  "source_confirmation_only": true,
+  "tests": 0,
+  "workflows_changed": 0
+}

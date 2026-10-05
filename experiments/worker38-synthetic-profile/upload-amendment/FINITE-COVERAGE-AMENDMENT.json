@@ -1,0 +1,116 @@
+{
+  "Bash_cases": 25,
+  "additional_fixed_literal_subcases": [
+    {
+      "expected": "reject exact required first membership",
+      "label": "first_missing_manifest",
+      "mutation": "remove only transport-manifest.json from first wrapper and consistently refresh wrapper outer hash/size",
+      "selector": "tests/test_worker38_transport.py:OfflineTransportPlan.test_PW08_extra_or_duplicate_wrapper_members_reject"
+    },
+    {
+      "expected": "reject duplicate before trusting either manifest",
+      "label": "first_duplicate_manifest",
+      "mutation": "second transport-manifest.json entry in first wrapper with refreshed outer pins",
+      "selector": "tests/test_worker38_transport.py:OfflineTransportPlan.test_PW08_extra_or_duplicate_wrapper_members_reject"
+    },
+    {
+      "expected": "reject later wrapper extra member",
+      "label": "later_extra_manifest",
+      "mutation": "add a manifest to fixed second wrapper with refreshed outer pins",
+      "selector": "tests/test_worker38_transport.py:OfflineTransportPlan.test_PW08_extra_or_duplicate_wrapper_members_reject"
+    },
+    {
+      "expected": "reject part/manifest semantic binding, not merely stale outer hash",
+      "label": "manifest_ordered_part_binding",
+      "mutation": "original compact JSON contains a fixed different part001 SHA, while outer wrapper pins and manifest byte hash are self-consistent",
+      "selector": "tests/test_worker38_transport.py:OfflineTransportPlan.test_PW07_exact_member_name_size_and_payload"
+    },
+    {
+      "expected": "reject archive/evidence binding during full independent verification",
+      "label": "manifest_archive_inventory_binding",
+      "mutation": "compact JSON contains fixed different archive SHA/raw inventory and refreshed outer metadata",
+      "selector": "tests/test_worker38_transport.py:OfflineTransportPlan.test_PW07_exact_member_name_size_and_payload"
+    },
+    {
+      "expected": "reject manifest size; no raised part/archive/raw/wrapper cap",
+      "label": "manifest_over_one_MiB",
+      "mutation": "fixed member length1048577 through bounded literal header/length fixture, with preserved part below30MiB",
+      "selector": "tests/test_worker38_transport.py:OfflineTransportPlan.test_PW06_strict_provider_zip_limit_uses_actual_size"
+    }
+  ],
+  "additional_fixed_subcase_count": 6,
+  "additional_path_safety_subcase_count": 6,
+  "deadline_limit": "Native metadata/mock checks verify one declared shared timeout and no continuation on failure. They do not execute the Actions runner. Exact v2.337.0 source proves remaining-time propagation at code level; actual platform behavior/outcome is observed only during the separately admitted one shot.",
+  "existing_coverage_updates": [
+    {
+      "assertions": "one same45-minute job, one local composite caller timeout1, exact17-source roster, fixed official action SHA, at most3 upload uses, no arbitrary action/path/time input, and no always() successor uploads; static checks do not claim GitHub cancellation execution",
+      "kind": "retain actual inert Bash startup case and add static workflow/composite metadata assertions",
+      "selector": "tests/test_worker38_bootstrap_integration.py:Worker38BootstrapIntegration.test_S02_new_closed_shared_path"
+    },
+    {
+      "assertions": "first wrapper contains exact part001 plus original manifest; a single part still needs exactly one wrapper and exactly one canonical manifest object",
+      "kind": "replace positive fixture with exact first two-member wrapper",
+      "selector": "tests/test_worker38_transport.py:OfflineTransportPlan.test_PW04_one_actual_part_needs_one_actual_wrapper"
+    },
+    {
+      "assertions": "original archive/parts unchanged, extract original manifest from first wrapper, canonical manifest readback equals it, no self reference",
+      "kind": "adapt existing complete roundtrip",
+      "selector": "tests/test_worker38_transport.py:OfflineTransportPlan.test_T01_round_trip_inventory_and_raw_readback"
+    },
+    {
+      "assertions": "same computational evidence, exact first-wrapper manifest and canonical readback; no new evaluation or cell record generation",
+      "kind": "adapt existing full positive offline bundle",
+      "selector": "tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V01_complete_literal_bundle"
+    }
+  ],
+  "gate": "Exact helper/fixture bytes, every subcase and deterministic outputs must be included in the full map before native execution; if new total does not fit existing24MiB prefix+8MiB log cap, stop before testing rather than discard evidence or increase cap.",
+  "method_count": 397,
+  "native_AS_bytes": 536870912,
+  "native_combined_output_bytes": 33554432,
+  "native_wall_seconds": 600,
+  "new_OS_roots": 0,
+  "new_methods": 0,
+  "new_worker38_Bash_cases": 8,
+  "pretransmission_existing_coverage": {
+    "S02_static_assertions": "Existing S02 actual inert Bash startup case additionally inspects the actual shared-startup and composite guard source/configuration: literal ASCII eligibility before science, fixed root derivation, bounded plan read, component no-symlink checks, regular/readable/owned/read-only fixed files, no directory/wildcard input, failure before uses, one caller timeout. This is static configuration/guard coverage, not a vendor upload execution claim.",
+    "T04_selector": "tests/test_worker38_transport.py:OfflineTransportPlan.test_T04_unsafe_sources_and_containment",
+    "execution": "Only fixed Python literal/no-follow filesystem fixtures within existing T04; source and input templates are pinned before the batch. No new Bash invocation, process, network request or method. Existing T04 unsafe-source/containment cases remain.",
+    "fixed_additional_literal_subcases": [
+      {
+        "expected": "reject literal path eligibility before upload readiness",
+        "input": "/literal/cache[1]",
+        "label": "canonical_bracket_cache"
+      },
+      {
+        "expected": "reject literal path eligibility before upload readiness",
+        "input": "/literal/cache?",
+        "label": "canonical_question_cache"
+      },
+      {
+        "expected": "reject literal path eligibility before upload readiness",
+        "input": "/literal/cache*",
+        "label": "canonical_star_cache"
+      },
+      {
+        "expected": "reject control syntax before vendor invocation",
+        "input": "/literal/cache\nother",
+        "label": "newline_path"
+      },
+      {
+        "expected": "actual no-follow seal gate rejects; mocked provider invocation count0; no sibling bytes transmitted",
+        "input": "fixed first part is a symlink to an existing invented sibling file",
+        "label": "redirected_part"
+      },
+      {
+        "expected": "actual component guard rejects before vendor invocation; no traversal or discovery",
+        "input": "fixed transport ancestor is a symlink to an invented sibling directory",
+        "label": "redirected_component"
+      }
+    ]
+  },
+  "retained_fault_coverage": "Existing exact32MiB wrapper boundary, wrong member name/size/hash, extra member, CRC/traversal/symlink/unsafeZIP, wrong provider/run identity, partial local packaging, typed first/secondary failures, actual stored-byte mismatch and missing parts remain in the same methods. Unrelated original subcases are not removed.",
+  "schema": "worker38-upload-amendment-literal-coverage-v1",
+  "status": "prospective only; no tests run",
+  "total_additional_fixed_subcases_across_amendment": 12,
+  "unchanged_H_subcases": 46
+}

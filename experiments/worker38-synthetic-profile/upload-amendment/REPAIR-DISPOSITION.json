@@ -1,0 +1,11 @@
+{
+  "finding": "UP-EX-01 P2 pre-upload literal/no-follow path safety",
+  "prior_handoff_sha256": "3b0defc0d0ffc0aed7f020f832b5fc9f73a3f6b60295291625a3c4f1463202ee",
+  "repair": "Explicit early ASCII path eligibility, same600 seal/hash/type/ownership proof, read-only generated payloads/private directory, builtin pre-transmission guards before each vendor action, honest concurrent same-UID/root limits, six finite path fixtures in existing T04/S02 coverage. Existing archive/member/custody gates remain.",
+  "runner_calls": 0,
+  "schema": "worker38-upload-amendment-repair01-disposition-v1",
+  "scientific_calls": 0,
+  "source_implementation_changes": 0,
+  "status": "metadata only; awaiting both renewed reviews and root adoption",
+  "tests": 0
+}

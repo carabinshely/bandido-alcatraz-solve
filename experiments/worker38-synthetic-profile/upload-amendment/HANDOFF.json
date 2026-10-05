@@ -1,0 +1,120 @@
+{
+  "bytes_excluding_handoff": 328229,
+  "file_count_excluding_handoff": 21,
+  "files": [
+    {
+      "bytes": 11094,
+      "path": "AMENDMENT-CONTRACT.json",
+      "sha256": "b66fc26eba0141b61c21762e97432485bc3f7e896801550ba7b65c31118c86bb"
+    },
+    {
+      "bytes": 8827,
+      "path": "AMENDMENT.md",
+      "sha256": "a7a4041d39e77a9265b9a185015f15e56efab7fe66a7b336dcf619ebec410913"
+    },
+    {
+      "bytes": 7518,
+      "path": "FINITE-COVERAGE-AMENDMENT.json",
+      "sha256": "192f12b30c83237766f808f83eef21c07a295eefece4e6964535d14bf6b5d75b"
+    },
+    {
+      "bytes": 749,
+      "path": "REPAIR-DISPOSITION.json",
+      "sha256": "f291ecfd3b5d10f96bb594f4e6945e0beef1625a2ecfa994368243897c2329a8"
+    },
+    {
+      "bytes": 471,
+      "path": "SOURCE-OBSERVATION.json",
+      "sha256": "c0b2efd71fc498b6beb8dd8f5fc7b90c047a803c1e2003467978191911f5e9d8"
+    },
+    {
+      "bytes": 7437,
+      "path": "history/amendment-3b0defc0/AMENDMENT-CONTRACT.json",
+      "sha256": "0298b30090255706aa114beabee69128d65d820256828bee96cdb4c031156a26"
+    },
+    {
+      "bytes": 5899,
+      "path": "history/amendment-3b0defc0/AMENDMENT.md",
+      "sha256": "9872714eda15e57a7c4bca032d8091a0517468910742bab277e17b22cf27b228"
+    },
+    {
+      "bytes": 5259,
+      "path": "history/amendment-3b0defc0/FINITE-COVERAGE-AMENDMENT.json",
+      "sha256": "930021d44b5e7c930a5fdcca4c6e936bd04f7332b3ebf02c8f4ad5d16303e5c0"
+    },
+    {
+      "bytes": 1913,
+      "path": "history/amendment-3b0defc0/HANDOFF.json",
+      "sha256": "3b0defc0d0ffc0aed7f020f832b5fc9f73a3f6b60295291625a3c4f1463202ee"
+    },
+    {
+      "bytes": 471,
+      "path": "history/amendment-3b0defc0/SOURCE-OBSERVATION.json",
+      "sha256": "c0b2efd71fc498b6beb8dd8f5fc7b90c047a803c1e2003467978191911f5e9d8"
+    },
+    {
+      "bytes": 28551,
+      "path": "history/amendment-3b0defc0/primary-sources/CompositeActionHandler-v2.337.0.cs",
+      "sha256": "3cff0728f7ede6f6efe816f6b7704acfd69a64e7930b0be3883d16cdf327a81a"
+    },
+    {
+      "bytes": 71143,
+      "path": "history/amendment-3b0defc0/primary-sources/ExecutionContext-v2.337.0.cs",
+      "sha256": "d2e079200bf885ec1153a38e65c4eb9186f0348f74a01cc582b208ef992e3f14"
+    },
+    {
+      "bytes": 19002,
+      "path": "history/amendment-3b0defc0/primary-sources/StepsRunner-v2.337.0.cs",
+      "sha256": "7f89529ca548e704db0e6dc97df1a2d291c0db85ad18701d17db59330861ca6c"
+    },
+    {
+      "bytes": 3159,
+      "path": "history/amendment-3b0defc0/primary-sources/upload-artifact-ea165f8-action.yml",
+      "sha256": "29b21270ff44638a165ea12abb4481796770c629e513217af7b4df1aa3821177"
+    },
+    {
+      "bytes": 13498,
+      "path": "history/reviews/adversarial-3b0defc0.md",
+      "sha256": "5d752ebc02f62b6e82f51e1237def5d6c134972317d901d74eb7ff0eb7696cec"
+    },
+    {
+      "bytes": 16137,
+      "path": "history/reviews/exhaustive-3b0defc0.md",
+      "sha256": "ff1432a7655dd7e988e04b222215c71dbaa7d8c3859864952b4ac40540bd8ca8"
+    },
+    {
+      "bytes": 28551,
+      "path": "primary-sources/CompositeActionHandler-v2.337.0.cs",
+      "sha256": "3cff0728f7ede6f6efe816f6b7704acfd69a64e7930b0be3883d16cdf327a81a"
+    },
+    {
+      "bytes": 71143,
+      "path": "primary-sources/ExecutionContext-v2.337.0.cs",
+      "sha256": "d2e079200bf885ec1153a38e65c4eb9186f0348f74a01cc582b208ef992e3f14"
+    },
+    {
+      "bytes": 19002,
+      "path": "primary-sources/StepsRunner-v2.337.0.cs",
+      "sha256": "7f89529ca548e704db0e6dc97df1a2d291c0db85ad18701d17db59330861ca6c"
+    },
+    {
+      "bytes": 3159,
+      "path": "primary-sources/upload-artifact-ea165f8-action.yml",
+      "sha256": "29b21270ff44638a165ea12abb4481796770c629e513217af7b4df1aa3821177"
+    },
+    {
+      "bytes": 5246,
+      "path": "primary-sources/upload-artifact-ea165f8-search.ts",
+      "sha256": "4cbd489c239640073ee1bd17b9f941aabcf34cb7f41d68edd2264ee0438174e9"
+    }
+  ],
+  "implementation_changes": 0,
+  "metadata_checks": "prior/report pins verified; unchanged caps/17 paths/397 methods/zero newOSroots; exactly6 added path subcases,12 amendment subcases total",
+  "prior_handoff_sha256": "3b0defc0d0ffc0aed7f020f832b5fc9f73a3f6b60295291625a3c4f1463202ee",
+  "registered_protocol_sha256": "17abf2d644106bb7c10fbec5481deb7da33e17867ee2f08ea065ca591e8499a7",
+  "runner_calls": 0,
+  "schema": "worker38-upload-amendment-repair01-handoff-v1",
+  "scientific_calls": 0,
+  "status": "immutable repaired prospective metadata for two renewed complete reviews",
+  "tests": 0
+}
