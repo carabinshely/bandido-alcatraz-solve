@@ -439,7 +439,10 @@ class Capture:
         # traceback-text classification or arbitrary callback discovery.
         global FAILURE_SEQUENCE
         seen = set()
-        is_admission = bool(self.current_row and self.current_row.get('literal_case_id', '').startswith('A'))
+        is_admission = bool(type(self.current) is str and type(self.current_row) is dict and
+            self.current_row.get('selector') == self.current and
+            type(self.current_row.get('literal_case_id')) is str and
+            self.current_row['literal_case_id'].startswith('A'))
         admission_type = getattr(sys.modules.get('worker38.admission'), 'AdmissionError', None)
         test_module = sys.modules.get('test_worker38_bootstrap_integration')
         table = getattr(test_module, 'A_ACCEPTANCE', {})
@@ -776,7 +779,7 @@ class Capture:
         self.inventory_index.append(self.pending_inventory_pin)
         self.active_prefix_reservation = 0
         self.active_log_reservation = 0
-        self.current = None
+        self.current = self.current_row = None
 
 
 def main():

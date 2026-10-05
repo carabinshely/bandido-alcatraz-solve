@@ -11016,7 +11016,7 @@
   "mocked_GETs_prefix_max": 50,
   "native_environment": {
     "path": "evidence-design/NATIVE-ENVIRONMENT-CLOSURE.json",
-    "sha256": "322e0bc2d8b84507a9e01e549a605ced59d086dfb2577ab9356ee8a9bf26c104",
+    "sha256": "dbacaf1f17f70b9fd7d62fc0624be88e93d7fd7c7385e7d3375d10091c94f639",
     "size_bytes": 454759
   },
   "order_authority": "Root prospectively selected existing saved draft order new64, Worker37, diagnostic module/list order; original cross-group order was unspecified. No outcome-dependent reorder.",
@@ -11036,8 +11036,8 @@
       "size_bytes": 5900
     },
     "evidence-design/run-worker38-fixed-preparation.py": {
-      "sha256": "469741b80929d9e9efbc3f5687e57115754deeb3ae18a898e2f28e1974b541cd",
-      "size_bytes": 52752
+      "sha256": "ba7101f99b11a48148d28bae86def243b4f52fb4d4914007460ffa84dd04441e",
+      "size_bytes": 52953
     },
     "experiments/worker38-synthetic-profile/FINITE-PREPARATION-PLAN.json": {
       "sha256": "31ed253dafcfa502bbfa4d7dca9292e93de6e7b48e39a0e33336b6df894b35c9",
@@ -11275,7 +11275,7 @@
       "size_bytes": 141809
     },
     "evidence-design/NATIVE-ENVIRONMENT-CLOSURE.json": {
-      "sha256": "322e0bc2d8b84507a9e01e549a605ced59d086dfb2577ab9356ee8a9bf26c104",
+      "sha256": "dbacaf1f17f70b9fd7d62fc0624be88e93d7fd7c7385e7d3375d10091c94f639",
       "size_bytes": 454759
     },
     "evidence-design/PREFIX33-REPAIR01-DISPOSITION.json": {

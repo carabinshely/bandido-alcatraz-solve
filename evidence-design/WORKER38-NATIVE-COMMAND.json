@@ -2,7 +2,7 @@
   "activity": "Command written only; never executed. Project/test/helper imports and evaluator/game calls zero.",
   "address_space_bytes": 536870912,
   "arguments": {
-    "cmd": "set -euo pipefail\nfor w38_name in \"${!LD_@}\" \"${!PYTHON@}\" BASH_ENV ENV OPENSSL_CONF OPENSSL_MODULES SSLKEYLOGFILE SSL_CERT_FILE SSL_CERT_DIR; do\n  if [[ -n \"$w38_name\" ]]; then unset \"$w38_name\"; fi\ndone\numask 077\nulimit -c 0\nulimit -v 524288\nIFS=' ' read -r w38_uptime w38_idle < /proc/uptime\n[[ \"$w38_uptime\" =~ ^[0-9]+\\.[0-9][0-9]$ ]]\nw38_seconds=${w38_uptime%.*}\nw38_fraction=${w38_uptime#*.}\n[[ ${#w38_seconds} -le 11 ]]\nw38_deadline_cs=$((10#$w38_seconds * 100 + 10#$w38_fraction + 60000))\nexec /usr/bin/env -i PATH=/usr/bin:/bin HOME=/workspace/shared TMPDIR=/workspace/shared LC_ALL=C LANG=C PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 WORKER38_FIXED_MAP_SHA256=0bd2489d5d7c71bbfa336a9967c805d4f6ddd910a3d6130ae8946a47cb1d3992 WORKER38_NATIVE_DEADLINE_CS=\"$w38_deadline_cs\" /usr/bin/timeout --signal=KILL 600s /usr/bin/python3 -B -P evidence-design/run-worker38-fixed-preparation.py\n",
+    "cmd": "set -euo pipefail\nfor w38_name in \"${!LD_@}\" \"${!PYTHON@}\" BASH_ENV ENV OPENSSL_CONF OPENSSL_MODULES SSLKEYLOGFILE SSL_CERT_FILE SSL_CERT_DIR; do\n  if [[ -n \"$w38_name\" ]]; then unset \"$w38_name\"; fi\ndone\numask 077\nulimit -c 0\nulimit -v 524288\nIFS=' ' read -r w38_uptime w38_idle < /proc/uptime\n[[ \"$w38_uptime\" =~ ^[0-9]+\\.[0-9][0-9]$ ]]\nw38_seconds=${w38_uptime%.*}\nw38_fraction=${w38_uptime#*.}\n[[ ${#w38_seconds} -le 11 ]]\nw38_deadline_cs=$((10#$w38_seconds * 100 + 10#$w38_fraction + 60000))\nexec /usr/bin/env -i PATH=/usr/bin:/bin HOME=/workspace/shared TMPDIR=/workspace/shared LC_ALL=C LANG=C PYTHONHASHSEED=0 PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 WORKER38_FIXED_MAP_SHA256=5deedb3174a02747525acf83de8ed2d6e3e269304aaae2cd85beec7fe7006ec7 WORKER38_NATIVE_DEADLINE_CS=\"$w38_deadline_cs\" /usr/bin/timeout --signal=KILL 600s /usr/bin/python3 -B -P evidence-design/run-worker38-fixed-preparation.py\n",
     "login": false,
     "max_output_tokens": 2000,
     "shell": "/bin/bash",
@@ -12,7 +12,7 @@
   "clock_rule": "GNU timeout owns the actual hard600-second invocation interval. The earlier builtin BOOTTIME sample plus600s is a conservative cooperative cutoff; Python pairs MONO-before/BOOT-after and floors minus1ms. The two start instants are not claimed identical. Nested native waits use the minimum of their original local cutoff and this cooperative cutoff. Neither is renewed.",
   "expected_exit_if_all_prefix_cases_pass": 1,
   "first_unstartable_ordinal": 34,
-  "fixed_map_sha256": "0bd2489d5d7c71bbfa336a9967c805d4f6ddd910a3d6130ae8946a47cb1d3992",
+  "fixed_map_sha256": "5deedb3174a02747525acf83de8ed2d6e3e269304aaae2cd85beec7fe7006ec7",
   "fixed_map_size_bytes": 486355,
   "full_pass_requires_397_cases_and_outer_exit_zero": true,
   "global_reserve_within_prefix_bytes": 65536,
@@ -40,7 +40,7 @@
     0
   ],
   "planned_prefix_methods": 33,
-  "predecessor_command_sha256": "c507b10508d63207330d9b12f2e8821b36b7b02358c9911fabbd4d52b5ada2ec",
+  "predecessor_command_sha256": "a7d7814de561cab603e256554ccc9663d538725cadb04d7a8888fc3230222fcb",
   "prefix_bytes": 25165824,
   "remaining_unexecuted_methods": 364,
   "schema": "worker38-native-command-candidate-v1",
