@@ -254,6 +254,7 @@ _worker38_science_environment() {
   export WORKER38_HANDOFF_SHA256="$worker38_handoff_handoff_sha256"
   export GITHUB_OUTPUT="$attempt_directory/coordinator-output.txt"
   cd -- "$attempt_directory" || block execution_blocked science_cwd
+  unset OLDPWD || block execution_blocked science_cwd
   # Bash builtin descriptor close, including inherited credential FD9. The
   # function is already parsed; the shell parser's own descriptor is not needed.
   for descriptor in /proc/self/fd/*; do
