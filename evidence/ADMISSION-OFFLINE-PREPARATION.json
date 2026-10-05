@@ -1,0 +1,46 @@
+{
+  "evaluator_calls": 0,
+  "files": [
+    {
+      "bytes": 74181,
+      "git_blob_sha": "61096f8b316b824d46277a997fe59404da6d7b94",
+      "mode": "100644",
+      "path": "scripts/worker38/admission.py",
+      "sha256": "260309ba2ba0e2c720c805dd7c9821f6efb689ce76ef6d9a4513d9a26473b7ce"
+    },
+    {
+      "bytes": 70923,
+      "git_blob_sha": "b0e28eeb7f2b3ec0976540e01dcc99020b771fea",
+      "mode": "100644",
+      "path": "scripts/worker38/verify.py",
+      "sha256": "d8040979eb7ba7ca4081075efaa2176c8d74628fad086cb71a6c795ad0f29204"
+    },
+    {
+      "bytes": 66609,
+      "git_blob_sha": "2ddb358bd09455abf7fbeddd394e0b0f6400ccd9",
+      "mode": "100644",
+      "path": "scripts/worker38/transport.py",
+      "sha256": "4f4251b06277de2b617498d243148342c0e5abb363b1ac61bd1cb2f91f48f73b"
+    }
+  ],
+  "games": 0,
+  "historical_imports": 0,
+  "preregistration_comment_id": 5987629515,
+  "project_imports": 0,
+  "remaining": [
+    "Complete exact397-method fixture, command and output map",
+    "Independent prospective fixture equivalence and accounting checks",
+    "Root native test gate and later complete source reviews, CI, freeze and GO"
+  ],
+  "schema": "worker38-admission-offline-preparation-v1",
+  "scope": [
+    "Closed seven-JSON admission for the same allocation, with exact source, runtime, review and earlier current-head CI bindings",
+    "Dedicated confirmed startup-failure exit79 and immutable original600-second cutoff handoff",
+    "External and retained verification remain distinct; full scientific records, original P journals and fixed ratio rule",
+    "Actual provider wrapper, original transport manifest and canonical byte readback custody",
+    "Literal, no-follow fixed upload seal and control plan within original deadline; no custom uploader"
+  ],
+  "status": "untested incomplete preparation; literal fixture output-lineage accounting still in progress",
+  "tests": 0,
+  "upload_adoption_comment_id": 5988411319
+}
