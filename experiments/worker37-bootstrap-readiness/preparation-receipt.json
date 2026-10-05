@@ -1,169 +1,534 @@
 {
-  "actual_counts": {
-    "actual_main": 66,
-    "authenticated_mock_attempts": 209,
-    "evaluator_calls": 0,
-    "games": 0,
-    "harness_bash": 17,
-    "historical_imports": 0,
-    "inert_pinned_entrypoint": 4,
-    "inner_timeout_stub": 4,
-    "live_network": 0,
-    "measurement_fixture_constructions": 0,
-    "mock_http_attempts": 213,
-    "outer_timeout_stub": 2,
-    "seeds": 0,
-    "static_source_case": 1,
-    "unauthenticated_mock_attempts": 4
-  },
-  "all_source_and_fixture_hashes_unchanged_after": true,
-  "amendment_sha256": "2b14bb31eae55c0a52a65e30a65356e86e11d6c15bee557c68099f3aa629bae3",
-  "attempt": 1,
-  "batch": "repair02_provider_association",
-  "batches_executed": 1,
-  "caps": {
-    "case_snapshot_bytes": 8388608,
-    "combined_output_bytes": 16777216,
-    "enforcement": "Frozen wrapper set real RLIMIT_AS/RLIMIT_FSIZE before loading tests; outer GNU timeout supervised the single native process. Later getrlimit/setrlimit test mocks did not mutate those actual process limits.",
-    "memory_bytes": 536870912,
-    "stdout_stderr_bytes": 8388608,
-    "wall_seconds": 600
-  },
-  "errors": 0,
-  "exact_command": "/usr/bin/timeout --signal=KILL 600s /usr/bin/python3 -B evidence/repair02-provider-association/run-literal-batch.py",
-  "exit_code": 0,
-  "failed": 0,
-  "fixture_command_map_sha256": "2d5bf740efcc8eb5ec9a7ce6429f06ab2925a5a156c09ddb99e8e4f9cc20ca91",
-  "fixture_inventory_sha256": "cfe53e72a9de01b45cec2441f536ef29ec651bbf67fdebcefb324c829e110787",
-  "games": 0,
-  "historical_imports": 0,
-  "implementation_owner_Worker37_batches_including_predecessors": 3,
-  "limitations": [
-    "Literal and inert-command-stub tests do not prove actual pinned3.11.16 runner/cache/network readiness; native version3.13.5 was directly recorded in this batch.",
-    "Current source still requires complete independent and external review, exact source/runtime/input freeze and separate engineering GO.",
-    "The native suite elapsed value is not a scientific timing or performance result.",
-    "No digest of this receipt, containing commit/tree or final external freeze is embedded."
-  ],
-  "measurement_admitted": false,
-  "native_interpreter": {
-    "effective_pre_test_rlimit_as": [
-      536870912,
-      536870912
-    ],
-    "schema": "worker37-repair02-native-runtime-v1",
-    "sys_executable": "/usr/bin/python3",
-    "sys_version": "3.13.5 (main, Aug 10 2026, 12:06:59) [GCC 14.2.0]"
-  },
-  "observed_output": {
-    "case_snapshot_bytes": 7647964,
-    "combined_bytes": 7670341,
-    "full_result_sha256": "fcf7ed472895ab12e173af13b8d17fa9c827e809aae7f90dd66b3739cf8f029e",
-    "inventory_files": 837,
-    "stdout_stderr_sha256": "bec92482dc8c6d6b954919c21c22dcbf10eec4dd1557c64ed628c9893ad87ae9",
-    "stdout_stderr_size_bytes": 22377
-  },
-  "observed_stub_invocations": {
-    "cat": 14,
-    "git": 8,
-    "id": 12,
-    "inner_timeout": 4,
-    "mkdir": 17,
-    "outer_timeout": 2,
-    "python3.11": 4,
-    "readlink": 97,
-    "realpath": 97,
-    "sha256sum": 87,
-    "stat": 294,
-    "sync": 233,
-    "timeout": 6
-  },
-  "observed_unique_stub_pids": 865,
-  "passed": 84,
-  "physical_process_count": null,
-  "physical_process_count_note": "Observed initiating Bash PIDs and inert command PIDs/PPIDs are preserved; unobserved subshell forks are not counted or inferred.",
-  "planned_counts_match": true,
-  "predecessor": {
-    "blocker_and_review_custody": "14BHPEClkRwzlf0s4vGWbYJSf2tg9BOTm",
-    "canonical_source_archive": "1fR5vHxy2Vw4Gt5pAOQ4IIEvfg1fED_UJ",
-    "handoff_sha256": "0a0b56716ee275a4dc96b1751c73a8643ab51ea915928ac53c943e2298986aa0",
-    "head": "f704d408eb84dc220ed23e3eb62b4c799e13eff3",
-    "live_blocker": "Historical GET5 returns typedempty pull_requests; length1 assumption would reject before engineering GO.",
-    "passed": 75,
-    "receipt_sha256": "566217864ab9f52f451cc4258adbf66539910e7ebc79aa5eb38d2e6cf864fa59",
-    "tests": 75
-  },
-  "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5983940003",
-  "protocol_sha256": "599f21cefbca5440e288639b4a450f65b4046872a810417b2cb237db1d8408c7",
-  "real_network_requests": 0,
-  "real_runner_execution": false,
-  "reruns": 0,
-  "schema": "worker37-literal-preparation-receipt-v3",
-  "scientific_calls": 0,
-  "scientific_classification": null,
-  "seeds": 0,
-  "separate_canonical_test_batches": 1,
-  "skipped": 0,
-  "source_bindings": [
-    {
-      "path": ".github/workflows/worker37-bootstrap-readiness.yml",
-      "sha256": "40beb0a911df7fa744f6f733616310e0e8e51f380337f81c601493b909e56081",
-      "size_bytes": 6509
+  "schema": "worker37-preparation-and-terminal-archive-v1",
+  "record_role": "Archival envelope for the consumed Worker37 engineering allocation; no execution authority.",
+  "repository": "carabinshely/bandido-alcatraz-solve",
+  "pr_number": 41,
+  "historical_preparation_snapshot": {
+    "scope": "Exact original JSON object, with every original key and value unchanged. Status, limitations, false real_runner_execution, pending-review language and all counts describe that earlier native preparation batch only; they are not restated as current terminal status.",
+    "original_raw_receipt": {
+      "path": "experiments/worker37-bootstrap-readiness/preparation-receipt.json",
+      "source_commit": "2fb364e125c43b545d085fa0654bb1bfcac7426e",
+      "source_tree": "bef71e69ca0c200fd4f6ceb4bec227410e8f9c0e",
+      "mode": "100644",
+      "git_blob": "c04048ce88468399c5f5ea79a68fdd79b00f076d",
+      "sha256": "9a214e3ca2c3972bb8cc091fd4bf3f7624bb17b09e59d60a1a4b4495fb206b8e",
+      "size_bytes": 6845,
+      "git_url": "https://github.com/carabinshely/bandido-alcatraz-solve/blob/2fb364e125c43b545d085fa0654bb1bfcac7426e/experiments/worker37-bootstrap-readiness/preparation-receipt.json",
+      "canonical_archive": {
+        "file_id": "1udZvXFe036M2R2IthnBqX0CK58T3tLR8",
+        "url": "https://drive.google.com/file/d/1udZvXFe036M2R2IthnBqX0CK58T3tLR8/view?usp=drivesdk",
+        "sha256": "6c0cfc39db2900145aa57588c7cebffdd5e14a2154c330f8cf6b3b319498a067",
+        "size_bytes": 428423,
+        "member": "frozen-source/experiments/worker37-bootstrap-readiness/preparation-receipt.json",
+        "basis": "Existing canonical custody receipt plus exact local archive-member equality; no historical evidence is reconstructed or replaced."
+      }
     },
-    {
-      "path": "experiments/worker37-bootstrap-readiness/PROTOCOL.md",
-      "sha256": "599f21cefbca5440e288639b4a450f65b4046872a810417b2cb237db1d8408c7",
-      "size_bytes": 32417
-    },
-    {
-      "path": "experiments/worker37-bootstrap-readiness/inputs/worker37-host-policy-evidence.json",
-      "sha256": "6ac0850fc20c4aaa9a8b8f4696e505246f8974daa4c0aea174a18365befded01",
-      "size_bytes": 5404
-    },
-    {
-      "path": "experiments/worker37-bootstrap-readiness/literal-test-plan.json",
-      "sha256": "4373898b46e40c4687dacaf55114d8c9ed3a4667ccc548374d3b64f63dd42426",
-      "size_bytes": 35209
-    },
-    {
-      "path": "experiments/worker37-bootstrap-readiness/preregistration-decisions.json",
-      "sha256": "3fef9b3287aec94df180b55bb13b7776089b0de597cdf50f3007a5eee9881c4d",
-      "size_bytes": 6967
-    },
-    {
-      "path": "experiments/worker37-bootstrap-readiness/repair01-test-amendment.json",
-      "sha256": "2b14bb31eae55c0a52a65e30a65356e86e11d6c15bee557c68099f3aa629bae3",
-      "size_bytes": 20482
-    },
-    {
-      "path": "experiments/worker37-bootstrap-readiness/source-grounding.json",
-      "sha256": "8bd0f96466c1f5e901f47e899438cca96ea9846fc542ea7238d6ff22d6ef18c8",
-      "size_bytes": 21970
-    },
-    {
-      "path": "scripts/worker37-bootstrap.sh",
-      "sha256": "8f5f06a96af1cb3c55e8f7db8cf8ca8be813d6d73c2c49052b0ee5df0ae2c7bc",
-      "size_bytes": 18495
-    },
-    {
-      "path": "scripts/worker37_bootstrap.py",
-      "sha256": "0b9a4d0349d983e383dcd8d005bf0dfbde9b693acd75d6a7a04e689136738d43",
-      "size_bytes": 57764
-    },
-    {
-      "path": "tests/test_worker37_bootstrap.py",
-      "sha256": "3e05e377f7d27eb3d0b4b80063a6c9f5bd1d9343759f6d4d143b24ba733ae6cb",
-      "size_bytes": 102144
-    },
-    {
-      "path": "experiments/worker37-bootstrap-readiness/source-manifest.json",
-      "sha256": "bc5ef655a468f26cb7ff80ecf3c59fd563461fe7eb8f3156ce9407bc330a6793",
-      "size_bytes": 51485
+    "preparation_receipt": {
+      "actual_counts": {
+        "actual_main": 66,
+        "authenticated_mock_attempts": 209,
+        "evaluator_calls": 0,
+        "games": 0,
+        "harness_bash": 17,
+        "historical_imports": 0,
+        "inert_pinned_entrypoint": 4,
+        "inner_timeout_stub": 4,
+        "live_network": 0,
+        "measurement_fixture_constructions": 0,
+        "mock_http_attempts": 213,
+        "outer_timeout_stub": 2,
+        "seeds": 0,
+        "static_source_case": 1,
+        "unauthenticated_mock_attempts": 4
+      },
+      "all_source_and_fixture_hashes_unchanged_after": true,
+      "amendment_sha256": "2b14bb31eae55c0a52a65e30a65356e86e11d6c15bee557c68099f3aa629bae3",
+      "attempt": 1,
+      "batch": "repair02_provider_association",
+      "batches_executed": 1,
+      "caps": {
+        "case_snapshot_bytes": 8388608,
+        "combined_output_bytes": 16777216,
+        "enforcement": "Frozen wrapper set real RLIMIT_AS/RLIMIT_FSIZE before loading tests; outer GNU timeout supervised the single native process. Later getrlimit/setrlimit test mocks did not mutate those actual process limits.",
+        "memory_bytes": 536870912,
+        "stdout_stderr_bytes": 8388608,
+        "wall_seconds": 600
+      },
+      "errors": 0,
+      "exact_command": "/usr/bin/timeout --signal=KILL 600s /usr/bin/python3 -B evidence/repair02-provider-association/run-literal-batch.py",
+      "exit_code": 0,
+      "failed": 0,
+      "fixture_command_map_sha256": "2d5bf740efcc8eb5ec9a7ce6429f06ab2925a5a156c09ddb99e8e4f9cc20ca91",
+      "fixture_inventory_sha256": "cfe53e72a9de01b45cec2441f536ef29ec651bbf67fdebcefb324c829e110787",
+      "games": 0,
+      "historical_imports": 0,
+      "implementation_owner_Worker37_batches_including_predecessors": 3,
+      "limitations": [
+        "Literal and inert-command-stub tests do not prove actual pinned3.11.16 runner/cache/network readiness; native version3.13.5 was directly recorded in this batch.",
+        "Current source still requires complete independent and external review, exact source/runtime/input freeze and separate engineering GO.",
+        "The native suite elapsed value is not a scientific timing or performance result.",
+        "No digest of this receipt, containing commit/tree or final external freeze is embedded."
+      ],
+      "measurement_admitted": false,
+      "native_interpreter": {
+        "effective_pre_test_rlimit_as": [
+          536870912,
+          536870912
+        ],
+        "schema": "worker37-repair02-native-runtime-v1",
+        "sys_executable": "/usr/bin/python3",
+        "sys_version": "3.13.5 (main, Aug 10 2026, 12:06:59) [GCC 14.2.0]"
+      },
+      "observed_output": {
+        "case_snapshot_bytes": 7647964,
+        "combined_bytes": 7670341,
+        "full_result_sha256": "fcf7ed472895ab12e173af13b8d17fa9c827e809aae7f90dd66b3739cf8f029e",
+        "inventory_files": 837,
+        "stdout_stderr_sha256": "bec92482dc8c6d6b954919c21c22dcbf10eec4dd1557c64ed628c9893ad87ae9",
+        "stdout_stderr_size_bytes": 22377
+      },
+      "observed_stub_invocations": {
+        "cat": 14,
+        "git": 8,
+        "id": 12,
+        "inner_timeout": 4,
+        "mkdir": 17,
+        "outer_timeout": 2,
+        "python3.11": 4,
+        "readlink": 97,
+        "realpath": 97,
+        "sha256sum": 87,
+        "stat": 294,
+        "sync": 233,
+        "timeout": 6
+      },
+      "observed_unique_stub_pids": 865,
+      "passed": 84,
+      "physical_process_count": null,
+      "physical_process_count_note": "Observed initiating Bash PIDs and inert command PIDs/PPIDs are preserved; unobserved subshell forks are not counted or inferred.",
+      "planned_counts_match": true,
+      "predecessor": {
+        "blocker_and_review_custody": "14BHPEClkRwzlf0s4vGWbYJSf2tg9BOTm",
+        "canonical_source_archive": "1fR5vHxy2Vw4Gt5pAOQ4IIEvfg1fED_UJ",
+        "handoff_sha256": "0a0b56716ee275a4dc96b1751c73a8643ab51ea915928ac53c943e2298986aa0",
+        "head": "f704d408eb84dc220ed23e3eb62b4c799e13eff3",
+        "live_blocker": "Historical GET5 returns typedempty pull_requests; length1 assumption would reject before engineering GO.",
+        "passed": 75,
+        "receipt_sha256": "566217864ab9f52f451cc4258adbf66539910e7ebc79aa5eb38d2e6cf864fa59",
+        "tests": 75
+      },
+      "preregistration_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5983940003",
+      "protocol_sha256": "599f21cefbca5440e288639b4a450f65b4046872a810417b2cb237db1d8408c7",
+      "real_network_requests": 0,
+      "real_runner_execution": false,
+      "reruns": 0,
+      "schema": "worker37-literal-preparation-receipt-v3",
+      "scientific_calls": 0,
+      "scientific_classification": null,
+      "seeds": 0,
+      "separate_canonical_test_batches": 1,
+      "skipped": 0,
+      "source_bindings": [
+        {
+          "path": ".github/workflows/worker37-bootstrap-readiness.yml",
+          "sha256": "40beb0a911df7fa744f6f733616310e0e8e51f380337f81c601493b909e56081",
+          "size_bytes": 6509
+        },
+        {
+          "path": "experiments/worker37-bootstrap-readiness/PROTOCOL.md",
+          "sha256": "599f21cefbca5440e288639b4a450f65b4046872a810417b2cb237db1d8408c7",
+          "size_bytes": 32417
+        },
+        {
+          "path": "experiments/worker37-bootstrap-readiness/inputs/worker37-host-policy-evidence.json",
+          "sha256": "6ac0850fc20c4aaa9a8b8f4696e505246f8974daa4c0aea174a18365befded01",
+          "size_bytes": 5404
+        },
+        {
+          "path": "experiments/worker37-bootstrap-readiness/literal-test-plan.json",
+          "sha256": "4373898b46e40c4687dacaf55114d8c9ed3a4667ccc548374d3b64f63dd42426",
+          "size_bytes": 35209
+        },
+        {
+          "path": "experiments/worker37-bootstrap-readiness/preregistration-decisions.json",
+          "sha256": "3fef9b3287aec94df180b55bb13b7776089b0de597cdf50f3007a5eee9881c4d",
+          "size_bytes": 6967
+        },
+        {
+          "path": "experiments/worker37-bootstrap-readiness/repair01-test-amendment.json",
+          "sha256": "2b14bb31eae55c0a52a65e30a65356e86e11d6c15bee557c68099f3aa629bae3",
+          "size_bytes": 20482
+        },
+        {
+          "path": "experiments/worker37-bootstrap-readiness/source-grounding.json",
+          "sha256": "8bd0f96466c1f5e901f47e899438cca96ea9846fc542ea7238d6ff22d6ef18c8",
+          "size_bytes": 21970
+        },
+        {
+          "path": "scripts/worker37-bootstrap.sh",
+          "sha256": "8f5f06a96af1cb3c55e8f7db8cf8ca8be813d6d73c2c49052b0ee5df0ae2c7bc",
+          "size_bytes": 18495
+        },
+        {
+          "path": "scripts/worker37_bootstrap.py",
+          "sha256": "0b9a4d0349d983e383dcd8d005bf0dfbde9b693acd75d6a7a04e689136738d43",
+          "size_bytes": 57764
+        },
+        {
+          "path": "tests/test_worker37_bootstrap.py",
+          "sha256": "3e05e377f7d27eb3d0b4b80063a6c9f5bd1d9343759f6d4d143b24ba733ae6cb",
+          "size_bytes": 102144
+        },
+        {
+          "path": "experiments/worker37-bootstrap-readiness/source-manifest.json",
+          "sha256": "bc5ef655a468f26cb7ff80ecf3c59fd563461fe7eb8f3156ce9407bc330a6793",
+          "size_bytes": 51485
+        }
+      ],
+      "source_manifest_sha256": "bc5ef655a468f26cb7ff80ecf3c59fd563461fe7eb8f3156ce9407bc330a6793",
+      "status": "passed_fixed84_case_provider_association_batch_pending_full_reviews",
+      "suite_reported_seconds": 3.749,
+      "tests_run": 84,
+      "unchanged_fixture_inputs": 216,
+      "unchanged_source_inputs": 11
     }
-  ],
-  "source_manifest_sha256": "bc5ef655a468f26cb7ff80ecf3c59fd563461fe7eb8f3156ce9407bc330a6793",
-  "status": "passed_fixed84_case_provider_association_batch_pending_full_reviews",
-  "suite_reported_seconds": 3.749,
-  "tests_run": 84,
-  "unchanged_fixture_inputs": 216,
-  "unchanged_source_inputs": 11
+  },
+  "terminal_engineering_checkpoint": {
+    "engineering_classification": "bootstrap_ready",
+    "scientific_classification": null,
+    "preparation_only": true,
+    "measurement_admitted": false,
+    "allocation": {
+      "id": "worker37-bootstrap-readiness-01",
+      "state": "consumed_closed",
+      "admitted_attempts": 1,
+      "observed_run_attempt": 1,
+      "reruns": 0,
+      "additional_execution_authorized": false,
+      "disposition": "Successful engineering completion consumes and closes the allocation. Preserve the existing reservation and all evidence. No rerun, resume, replacement attempt, claim reset or second admission follows."
+    },
+    "executed_source": {
+      "commit": "2fb364e125c43b545d085fa0654bb1bfcac7426e",
+      "tree": "bef71e69ca0c200fd4f6ceb4bec227410e8f9c0e",
+      "base_commit": "2b00e0d1e76364ae287946f7c0e3dc2baac4653f",
+      "base_tree": "a40cceee052f97141275cb44bd0a86a1a52c76a6",
+      "protocol_sha256": "599f21cefbca5440e288639b4a450f65b4046872a810417b2cb237db1d8408c7",
+      "source_manifest_sha256": "bc5ef655a468f26cb7ff80ecf3c59fd563461fe7eb8f3156ce9407bc330a6793",
+      "original_preparation_receipt_sha256": "9a214e3ca2c3972bb8cc091fd4bf3f7624bb17b09e59d60a1a4b4495fb206b8e",
+      "scope": "The one real engineering run checked out this historical head. A later archival checkpoint commit/tree is a different source identity and was not executed by this run."
+    },
+    "historical_admission": {
+      "go_comment_id": 5985946867,
+      "go_url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5985946867",
+      "go_body_sha256": "dfbe8dd1025078d01db5642d6e120379027e8d1b1c719da5e32e467266dc44d5",
+      "freeze_sha256": "5cb532de3fae5b363497053269e77c6d1239354e0f6227a2d48a8c0e0ed45fa9",
+      "descriptor_sha256": "fbf75cdccbbf435739f93ff3ced50374833231746d89ce9e9276a3f35edf4ed0",
+      "complete_admitted_body_sha256": "7af852018c130ab956bc8438efa84d199b325a6df9542368f8d929dd1955ab8c",
+      "scope": "Immutable history of the completed first admission only. The descriptor source map binds the old executed-head receipt, not this later envelope. Historical GO, original body and edited event remain in separate canonical provenance."
+    },
+    "execution": {
+      "run_id": 37246938239,
+      "job_id": 111566563421,
+      "artifact_id": 11318724078,
+      "run_url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/37246938239",
+      "job_url": "https://github.com/carabinshely/bandido-alcatraz-solve/actions/runs/37246938239/job/111566563421",
+      "provider_status": "completed",
+      "provider_conclusion": "success",
+      "completion_basis": "Actual P00-P09 evidence, exact source/runtime/input bindings, matching result/inventory/terminal hashes, terminal confirmation, metadata/stdout/shell exit0, restoration and canonical wrapper custody; Actions success alone is insufficient.",
+      "runtime_version": "3.11.16",
+      "address_space_soft_hard_bytes": [
+        536870912,
+        536870912
+      ],
+      "runtime_flags": {
+        "dont_write_bytecode": 1,
+        "ignore_environment": 0,
+        "isolated": 0,
+        "no_site": 0,
+        "no_user_site": 1,
+        "optimize": 0
+      },
+      "runtime_inherited_limits": {
+        "RLIMIT_AS": [
+          -1,
+          -1
+        ],
+        "RLIMIT_CORE": [
+          0,
+          -1
+        ],
+        "RLIMIT_CPU": [
+          -1,
+          -1
+        ],
+        "RLIMIT_DATA": [
+          -1,
+          -1
+        ],
+        "RLIMIT_FSIZE": [
+          -1,
+          -1
+        ],
+        "RLIMIT_MEMLOCK": [
+          67108864,
+          67108864
+        ],
+        "RLIMIT_MSGQUEUE": [
+          819200,
+          819200
+        ],
+        "RLIMIT_NICE": [
+          0,
+          0
+        ],
+        "RLIMIT_NOFILE": [
+          1048576,
+          1048576
+        ],
+        "RLIMIT_NPROC": [
+          127622,
+          127622
+        ],
+        "RLIMIT_OFILE": [
+          1048576,
+          1048576
+        ],
+        "RLIMIT_RSS": [
+          -1,
+          -1
+        ],
+        "RLIMIT_RTPRIO": [
+          0,
+          0
+        ],
+        "RLIMIT_RTTIME": [
+          -1,
+          -1
+        ],
+        "RLIMIT_SIGPENDING": [
+          127622,
+          127622
+        ],
+        "RLIMIT_STACK": [
+          8388608,
+          -1
+        ]
+      },
+      "runtime_executable_sha256": "a15ccdaf07655a8667a3687b13171486c9a265d92273ba3ad820fbb64d2cfecc",
+      "runtime_library_sha256": "ba4450817186fbe1e3c477f6aefeee7c353cba3593cc9950382ad9d1f5e62896",
+      "runtime_library_size_bytes": 23041360,
+      "authenticated_api_requests": 7,
+      "credential_free_storage_requests": 1,
+      "response_body_bytes": 152328,
+      "historical_pr_association": {
+        "absence_cause": "not_established",
+        "association_basis": "frozen_historical_provenance",
+        "frozen_pr_number": 40,
+        "live_array_binding": "absent",
+        "live_array_count": 0
+      },
+      "restoration_confirmed": true,
+      "metadata_exit": 0,
+      "shell_exit": 0,
+      "terminal_confirmed": true,
+      "result_sha256": "acfff76211e5533bc04030e3a1b1aabbce59d49e3349c873b8478b6536dd395d",
+      "inventory_sha256": "8ac4c81da425c89c57199eae23eb5f3719eadc382fee012ce96e7105c7fb5f6b",
+      "terminal_sha256": "6dc204bcf1eeb8eb5edaea3170505aef89a0b526ca4317383c4efdb2f697a66b",
+      "payload_files": 20,
+      "payload_bytes": 218195,
+      "ordinary_payload_bytes": 201797,
+      "terminal_payload_bytes": 16398,
+      "provider_wrapper_size_bytes": 220733,
+      "provider_wrapper_sha256": "43d0bb6cd830fd512d2a650b5b6208c74dbb10ae89a5fd594f3566febaca3135",
+      "resource_caps_unchanged": {
+        "checkout_step_minutes": 5,
+        "evidence_bytes": 31457280,
+        "expanded_zip_bytes": 2097152,
+        "input_bytes": 2097152,
+        "launcher_wall_seconds": 600,
+        "memory_bytes": 536870912,
+        "minimum_free_storage_bytes": 1073741824,
+        "provider_wrapper_strictly_below_bytes": 33554432,
+        "response_body_bytes": 16777216,
+        "scope_seconds": 120,
+        "socket_seconds": 10,
+        "terminal_reserve_bytes": 1048576,
+        "upload_step_minutes": 5,
+        "workflow_minutes": 45
+      }
+    },
+    "zero_science": {
+      "historical_or_policy_imports": 0,
+      "measurement_fixture_constructions": 0,
+      "evaluator_calls": 0,
+      "games": 0,
+      "seeds": 0,
+      "basis": "Independent static/reachability review of the exact executed workflow and standard-library metadata leaf plus actual provider steps and raw records; the historical ZIP was data only. This is limited to the admitted run, not a machine-wide assertion."
+    },
+    "verification": {
+      "owner_report": {
+        "path": "evidence/runner-37246938239/owner-raw-verification.json",
+        "sha256": "081b10f64dadd195fbbe76989a2cd20137a9439f9f03b477cca609cfc496e7cd",
+        "size_bytes": 3291
+      },
+      "owner_checks": 52,
+      "owner_verifier_history": {
+        "path": "evidence/runner-37246938239/owner-verification-history.json",
+        "sha256": "a631182a8ce8e04da2142d7cd9110e8ccecb2dfa2848e6cd1ec21baa4f33f18c",
+        "size_bytes": 735
+      },
+      "owner_verifier_history_note": "An initial overstrict context-equality assertion was corrected against the pinned producer and preserved; no runner failure, candidate edit or additional execution resulted.",
+      "independent_report": {
+        "path": "evidence/runner-37246938239/adversarial-verification-report.json",
+        "sha256": "cd319ceb30316cd11203ff37880353370725ab149430fa68d7bb759c825ed6bb",
+        "size_bytes": 14172
+      },
+      "independent_verdict": "verified_bootstrap_ready",
+      "actionable_counts": {
+        "P0": 0,
+        "P1": 0,
+        "P2": 0,
+        "P3": 0
+      },
+      "limitations": [
+        "No archived code, candidate module, test, policy or game was executed during verification. Only read-only metadata/hash/ZIP inspection and new verifier-report files were used.",
+        "No fresh network or independent Drive custody readback was performed. Provider identity and GO are verified against supplied retained authenticated responses and the actual downloaded provider wrapper.",
+        "Runtime hashes, mapping, fsync and restoration are corroborated by matching records and the exact audited executed source; the exited process or physical storage was not independently probed.",
+        "No external packet capture establishes wire-level request/header behavior. Request counts and credential separation are supported by audited code plus complete request/input records.",
+        "The successful run demonstrates this exact bootstrap path and frozen input set once. It does not establish timeout-fault handling, future runtime availability, strategy efficacy, PROGRAM_SUCCESS or permission for another allocation.",
+        "Canonical custody and final acceptance are owner responsibilities outside this verifier task."
+      ]
+    },
+    "canonical_custody": {
+      "original_provider_wrapper": {
+        "receipt": {
+          "path": "evidence/runner-37246938239/raw-custody-receipt.json",
+          "sha256": "ed96744c5e718aa7268297db661b41490e52aef9b8b35848f3104f982d3f2097",
+          "size_bytes": 768
+        },
+        "file_id": "1kPmlasYbL9kNIVKH_caaW7XcWy6t0m2J",
+        "url": "https://drive.google.com/file/d/1kPmlasYbL9kNIVKH_caaW7XcWy6t0m2J/view?usp=drivesdk",
+        "sha256": "43d0bb6cd830fd512d2a650b5b6208c74dbb10ae89a5fd594f3566febaca3135",
+        "size_bytes": 220733,
+        "verification_basis": "Existing custody receipt records fresh raw-byte readback and unchanged owner-only permissions; this archival drafting task did not repeat Drive readback."
+      },
+      "complete_execution_provenance": {
+        "receipt": {
+          "path": "evidence/runner-37246938239/provenance-custody-receipt.json",
+          "sha256": "9be6186086197f905d8ecb6210770e86282750140a2770ce5cd071859cd74a48",
+          "size_bytes": 834
+        },
+        "file_id": "1EUjb8YVjYg43E4AuXbCLcDB_A3yi_FGA",
+        "url": "https://drive.google.com/file/d/1EUjb8YVjYg43E4AuXbCLcDB_A3yi_FGA/view?usp=drivesdk",
+        "sha256": "d0ea125240c6086c005914fc2453922c7c970dc4493730d28e638ae5d9d2cced",
+        "size_bytes": 177267,
+        "verification_basis": "Existing custody receipt records fresh raw-byte readback and unchanged owner-only permissions; this archival drafting task did not repeat Drive readback."
+      },
+      "independent_verifier_and_root_disposition": {
+        "receipt": {
+          "path": "evidence/runner-37246938239/independent-verifier-custody-receipt.json",
+          "sha256": "891f459c532f6df03c720076ab57a4f3a57658a7ce82f4ec91a1fa42fd314bbd",
+          "size_bytes": 730
+        },
+        "file_id": "1tNBLiMANOK7zr9EH8PqmMuMWE-ssk64G",
+        "url": "https://drive.google.com/file/d/1tNBLiMANOK7zr9EH8PqmMuMWE-ssk64G/view?usp=drivesdk",
+        "sha256": "cd115ba3a42008635d2d1c410ca47262099173190da3d42822fa700bec09e2a2",
+        "size_bytes": 10275,
+        "verification_basis": "Existing custody receipt records fresh raw-byte readback and unchanged owner-only permissions; this archival drafting task did not repeat Drive readback."
+      }
+    },
+    "historical_exact_executed_head_validation": {
+      "head": "2fb364e125c43b545d085fa0654bb1bfcac7426e",
+      "tree": "bef71e69ca0c200fd4f6ceb4bec227410e8f9c0e",
+      "native_preparation": {
+        "passed": 84,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "receipt_sha256": "9a214e3ca2c3972bb8cc091fd4bf3f7624bb17b09e59d60a1a4b4495fb206b8e",
+        "scope": "Finite native literal/mock/stub preparation on recorded CPython3.13.5; separate from real runner readiness and from routine CI."
+      },
+      "whole_source_native_reviews": [
+        {
+          "author": "carabinshely",
+          "body_sha256": "1642a26b2738f9f01ab7315d0052d9c743122b27c3a5bde547b0994d6e656a63",
+          "comment_id": 5985685542,
+          "head": "2fb364e125c43b545d085fa0654bb1bfcac7426e",
+          "role": "exhaustive",
+          "tree": "bef71e69ca0c200fd4f6ceb4bec227410e8f9c0e"
+        },
+        {
+          "author": "carabinshely",
+          "body_sha256": "e8bf8c3b6c8be0d26484d23d046660467a7dfaea1d23de2637dc3ba364e4c4b1",
+          "comment_id": 5985686458,
+          "head": "2fb364e125c43b545d085fa0654bb1bfcac7426e",
+          "role": "adversarial",
+          "tree": "bef71e69ca0c200fd4f6ceb4bec227410e8f9c0e"
+        }
+      ],
+      "external_review": {
+        "exact_head_temporary_waiver_comment": 5985716153,
+        "external_verdict": null,
+        "quota_response_comment": 5985690947,
+        "request_comment": 5985689780,
+        "scope": "This head/tree and complete13-path handoff only; not engineering/science GO",
+        "waiver_body_sha256": "479023591de3aa29ead7443d28a9513d9a4c52c09f1db80fbf377d66374a2548",
+        "waiver_then_pending_CI_note": "Historical contemporaneous statement; separate later terminal CI establishes success."
+      },
+      "routine_CI": {
+        "all_canonical_smokes_and_provider_steps_success": true,
+        "attempt": 1,
+        "conclusion": "success",
+        "job": 111559886401,
+        "log": {
+          "path": "retained/evidence/pr-publication/2fb364e1-CI-111559886401.log",
+          "sha256": "a688187879fc0c22c8bd530e9bdf086ca0d405a229ccb133f7e2d5926440747f",
+          "size_bytes": 27855
+        },
+        "merge_commit": "145d2d6920efb814c037c65fcda33389059f7bc0",
+        "merge_parents": [
+          "2b00e0d1e76364ae287946f7c0e3dc2baac4653f",
+          "2fb364e125c43b545d085fa0654bb1bfcac7426e"
+        ],
+        "merge_tree": "bef71e69ca0c200fd4f6ceb4bec227410e8f9c0e",
+        "pytest_passed": 884,
+        "pytest_skipped": 2,
+        "run": 37244604206,
+        "scope": "Ordinary existing regression/smoke CI; separate from engineering allocation and not pinned-loader/runtime-readiness proof.",
+        "status": "completed"
+      },
+      "scope": "Historical evidence for the executed head only. It does not satisfy review, external-review disposition or CI for a later archival checkpoint head."
+    },
+    "root_disposition": {
+      "comment_id": 5986113643,
+      "url": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5986113643",
+      "created_at": "2026-10-05T00:34:51Z",
+      "status": "bounded_engineering_result_accepted_final_PR_acceptance_pending",
+      "scope": "Bootstrap readiness only; final PR41 evidence record, exact-head review/CI, guarded merge and postmerge acceptance remain pending."
+    }
+  },
+  "archival_checkpoint_boundary": {
+    "replacement_path": "experiments/worker37-bootstrap-readiness/preparation-receipt.json",
+    "only_source_change": "Replace this pre-existing receipt path with the archival envelope; retain all other paths, modes and bytes, including workflow, launcher, module, tests, protocol, manifests and caps.",
+    "pr_diff_scope": {
+      "worker37_additions": 12,
+      "canonical_test_correction": 1,
+      "other_canonical_files_unchanged": 158
+    },
+    "containing_checkpoint_identity": "Bind the actual later checkpoint head/tree externally after publication. This file contains no own digest, own containing commit/tree or claim that its containing head ran the engineering job.",
+    "manifest_boundary": "The unchanged source manifest excludes its own hash and the later receipt from source_files. Its pre-run intent and old status stay historical. The consumed descriptor remains frozen to the original receipt at the executed head and is never rebound to this envelope.",
+    "future_acceptance_requirements": [
+      "Root closure review before any terminal PR body publication.",
+      "Fresh whole-PR exhaustive and adversarial native review at the actual final head/tree.",
+      "Fresh exact-final-head external review request and its actual result; if unavailable, an explicit final-head-specific root disposition, with no inherited old quota waiver.",
+      "Successful routine CI bound to the actual final head/tree, followed by guarded merge and postmerge acceptance."
+    ],
+    "allocation_authority": "A terminal PR narrative is archival only. Retain the durable GO, edited event, exact admitted body, allocation reservation and custody history; no clearing or rearming is asserted or authorized.",
+    "future_consumer": "Retain the working reviewed startup path for a separately preregistered and separately admitted bounded consumer. Reuse its exact reviewed path under that consumer protocol; no copy-and-change substitute, recursive readiness allocation or scientific authority is created here.",
+    "unsupported_claims": [
+      "No scientific classification, strategy efficacy or PROGRAM_SUCCESS.",
+      "No proof of future cache availability, timeout-fault behavior or machine-wide execution absence.",
+      "No reconstructed lost history, overwritten execution bytes or inherited review acceptance at a new head."
+    ]
+  }
 }
