@@ -1619,15 +1619,27 @@ if [[ $name == python3.11 && ${4-} == measure ]]; then
   [[ -n $attempt ]]
   printf 'measure\n' >> "$attempt/stub-entries.txt"
   secret=false fd9=false allowed=true
+  unexpected_names= unexpected_separator= unexpected_count=0 unexpected_names_truncated=false
   for variable in $(compgen -e); do
     case $variable in
       PATH|LC_ALL|HOME|TMPDIR|PYTHONHASHSEED|PYTHONDONTWRITEBYTECODE|LD_LIBRARY_PATH|RUNNER_TOOL_CACHE|RUNNER_NAME|GITHUB_REPOSITORY|GITHUB_RUN_ID|GITHUB_RUN_ATTEMPT|GITHUB_ACTIONS|GITHUB_EVENT_NAME|WORKER38_EXECUTABLE|WORKER38_LIBRARY|WORKER38_EXECUTABLE_STAT|WORKER38_LIBRARY_STAT|WORKER38_HEAD|WORKER38_TREE|WORKER38_RUN_ID|WORKER38_PR_NUMBER|WORKER38_BRANCH|WORKER38_JOB|WORKER38_ALLOCATION_ID|WORKER38_ATTEMPT_DIRECTORY|WORKER38_SOURCE_DIRECTORY|WORKER38_HANDOFF_SHA256|GITHUB_OUTPUT|PWD|SHLVL|_) ;;
-      *) allowed=false;;
+      *) allowed=false
+        if (( unexpected_count < 4 )); then
+          unexpected_name=UNSUPPORTED_NAME
+          if [[ ${#variable} -le 48 && $variable =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+            unexpected_name=$variable
+          fi
+          unexpected_names+="${unexpected_separator}\"${unexpected_name}\""
+          unexpected_separator=,
+          unexpected_count=$((unexpected_count + 1))
+        else
+          unexpected_names_truncated=true
+        fi;;
     esac
     [[ ${!variable} != *INVENTED_TEST_CREDENTIAL_NOT_A_SECRET* ]] || secret=true
   done
   [[ ! -e /proc/self/fd/9 ]] || fd9=true
-  printf '{"secret_seen":%s,"fd9_seen":%s,"allowlist_checked":%s}\n' "$secret" "$fd9" "$allowed" > "$attempt/science-facts.json"
+  printf '{"secret_seen":%s,"fd9_seen":%s,"allowlist_checked":%s,"unexpected_names":[%s],"unexpected_names_truncated":%s}\n' "$secret" "$fd9" "$allowed" "$unexpected_names" "$unexpected_names_truncated" > "$attempt/science-facts.json"
   exit 0
 fi
 loader=clean

@@ -1,0 +1,99 @@
+{
+  "allowlist_limitation": {
+    "C01_executed": false,
+    "actual_unexpected_name_or_origin": "unknown; no retrospective attribution",
+    "future_diagnostics_are_not_a_production_fix_or_pass_claim": true,
+    "observed_S02_allowlist_checked": false,
+    "observed_S02_fd9_seen": false,
+    "observed_S02_secret_seen": false
+  },
+  "changes": {
+    "S09": {
+      "bytes": 59,
+      "new_target": "/workspace/shared/worker38-native-batch-02/c0009/t01/actual",
+      "no_follow_input_role_preserved": true,
+      "sha256": "13247286c47dd57b60c13c9ddde2cb3f59b0b417924d8c8002f0c1bae1527014"
+    },
+    "acknowledgment_rules": {
+      "literal_sha256": "21fe940a391d4111fb31f2cf95a9d4a4c701855cc6602a05b8457b3753691dad",
+      "new_maximum": 29,
+      "old_maximum": 27,
+      "producer_literal_unchanged": true,
+      "selectors": [
+        "S02",
+        "S03",
+        "S05",
+        "S06",
+        "S08",
+        "C01",
+        "C02"
+      ]
+    },
+    "combined_reservation_delta_across_seven_cases": 51006,
+    "name_only_diagnostics": {
+      "maximum_ASCII_identifier_characters": 48,
+      "maximum_compact_fact_bytes_with_LF": 325,
+      "maximum_names": 4,
+      "old_fact_rule_maximum": 128,
+      "original_booleans_and_C01_assertion_changed": false,
+      "production_allowlist_changed": false,
+      "selectors": [
+        "S02",
+        "S05",
+        "C01",
+        "C02"
+      ],
+      "truncation_boolean": true,
+      "unsupported_placeholder": "UNSUPPORTED_NAME",
+      "values_or_token_hashes": false
+    },
+    "new_largest_reservation": 21379806,
+    "stub_input_bytes": {
+      "affected_methods": 7,
+      "copies_each": 11,
+      "delta": 652,
+      "new": 4901,
+      "new_sha256": "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349",
+      "old": 4249,
+      "total_setup_partial_reserve_delta": 50204
+    }
+  },
+  "failed_attempt_status": "integrity_invalid;2 methods started,1 settled,395 unexecuted",
+  "historical_expected_ceiling_policy": "Retain the original29035551 disclosure as historical; current per-case certified reservations bind prospective source. No post-outcome aggregate cap increase or relabeling of attempt01.",
+  "new_execution_authority": null,
+  "new_output": "/workspace/shared/worker38-native-batch-02",
+  "original_output": "/workspace/shared/worker38-native-batch-01",
+  "original_output_preserved": true,
+  "proposal_Drive_id": "1M_qW4_YBeOzrjHyxpVviTtd9j3GJxwV2",
+  "remaining_gate": "Both complete fresh candidate reviews and a separate exact root one-shot gate; no retry/resume under spentgate.",
+  "schema": "worker38-native-attempt02-correction-scope-v1",
+  "selected_proposal_sha256": "b2cfcdf78c18d9a64aeef23c8f1deba6ed0e387d201c0b5ee5a8ac493997686d",
+  "spent_native_gate": 5993291689,
+  "status": "PROSPECTIVE_IMPLEMENTATION_UNADMITTED",
+  "terminal_disposition": 5993483739,
+  "unchanged": {
+    "Bash_roots_max": 8,
+    "address_space_bytes": 536870912,
+    "eligible_prefix": 33,
+    "generic_supervisor_roots": 0,
+    "global_reserve_within_prefix": 65536,
+    "log_bytes": 8388608,
+    "mandatory_stop": "C04",
+    "mandatory_stop_ordinal": 34,
+    "method_bodies": 397,
+    "mocked_GETs_max": 50,
+    "native_flags": [
+      "-B",
+      "-P"
+    ],
+    "prefix_bytes": 25165824,
+    "roster_order": true,
+    "scientific_calls": 0,
+    "scientific_flags": [
+      "-B",
+      "-s"
+    ],
+    "scientific_source_model_deck_RNG_order_and_runtime": true,
+    "wall_seconds": 600
+  }
+}

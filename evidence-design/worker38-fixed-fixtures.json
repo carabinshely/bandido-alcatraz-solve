@@ -398,10 +398,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert executable setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S02/cache/Python/3.11.16/x64/bin/python3.11",
@@ -424,10 +424,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S02/commands/cat",
@@ -437,10 +437,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S02/commands/git",
@@ -450,10 +450,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S02/commands/id",
@@ -463,10 +463,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S02/commands/mkdir",
@@ -476,10 +476,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S02/commands/readlink",
@@ -489,10 +489,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S02/commands/realpath",
@@ -502,10 +502,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S02/commands/sha256sum",
@@ -515,10 +515,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S02/commands/stat",
@@ -528,10 +528,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S02/commands/sync",
@@ -541,10 +541,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S02/commands/timeout",
@@ -740,7 +740,7 @@
         },
         {
           "expected_type": "file",
-          "maximum_bytes": 128,
+          "maximum_bytes": 325,
           "maximum_occurrences": 1,
           "pattern": "t01/S02/cache/worker38-synthetic-profile/allocations/worker38-synthetic-profile-01/run-501-attempt-1/science-facts.json"
         },
@@ -752,7 +752,7 @@
         },
         {
           "expected_type": "file",
-          "maximum_bytes": 27,
+          "maximum_bytes": 29,
           "maximum_occurrences": 1,
           "pattern": "t01/S02/native-fsize-confirmation.txt"
         },
@@ -779,9 +779,9 @@
         "path": "evidence/NEW64-HARD-RESERVATIONS.json",
         "selector": "tests/test_worker38_bootstrap_integration.py:Worker38BootstrapIntegration.test_S02_new_closed_shared_path"
       },
-      "reservation_upper_bytes": 21372435,
+      "reservation_upper_bytes": 21379806,
       "selector": "tests/test_worker38_bootstrap_integration.py:Worker38BootstrapIntegration.test_S02_new_closed_shared_path",
-      "setup_prefix_reservation_bytes": 94549,
+      "setup_prefix_reservation_bytes": 101721,
       "source_path": "tests/test_worker38_bootstrap_integration.py",
       "test_module_dependencies": [
         "tests/test_worker38_bootstrap_integration.py"
@@ -795,10 +795,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert executable setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S03/cache/Python/3.11.16/x64/bin/python3.11",
@@ -821,10 +821,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S03/commands/cat",
@@ -834,10 +834,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S03/commands/git",
@@ -847,10 +847,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S03/commands/id",
@@ -860,10 +860,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S03/commands/mkdir",
@@ -873,10 +873,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S03/commands/readlink",
@@ -886,10 +886,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S03/commands/realpath",
@@ -899,10 +899,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S03/commands/sha256sum",
@@ -912,10 +912,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S03/commands/stat",
@@ -925,10 +925,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S03/commands/sync",
@@ -938,10 +938,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S03/commands/timeout",
@@ -1047,7 +1047,7 @@
         },
         {
           "expected_type": "file",
-          "maximum_bytes": 27,
+          "maximum_bytes": 29,
           "maximum_occurrences": 1,
           "pattern": "t01/S03/native-fsize-confirmation.txt"
         },
@@ -1074,9 +1074,9 @@
         "path": "evidence/NEW64-HARD-RESERVATIONS.json",
         "selector": "tests/test_worker38_bootstrap_integration.py:Worker38BootstrapIntegration.test_S03_shell_extra_argument"
       },
-      "reservation_upper_bytes": 12846704,
+      "reservation_upper_bytes": 12853878,
       "selector": "tests/test_worker38_bootstrap_integration.py:Worker38BootstrapIntegration.test_S03_shell_extra_argument",
-      "setup_prefix_reservation_bytes": 94549,
+      "setup_prefix_reservation_bytes": 101721,
       "source_path": "tests/test_worker38_bootstrap_integration.py",
       "test_module_dependencies": [
         "tests/test_worker38_bootstrap_integration.py"
@@ -1121,10 +1121,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert executable setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S05/cache/Python/3.11.16/x64/bin/python3.11",
@@ -1147,10 +1147,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S05/commands/cat",
@@ -1160,10 +1160,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S05/commands/git",
@@ -1173,10 +1173,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S05/commands/id",
@@ -1186,10 +1186,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S05/commands/mkdir",
@@ -1199,10 +1199,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S05/commands/readlink",
@@ -1212,10 +1212,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S05/commands/realpath",
@@ -1225,10 +1225,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S05/commands/sha256sum",
@@ -1238,10 +1238,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S05/commands/stat",
@@ -1251,10 +1251,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S05/commands/sync",
@@ -1264,10 +1264,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S05/commands/timeout",
@@ -1463,7 +1463,7 @@
         },
         {
           "expected_type": "file",
-          "maximum_bytes": 128,
+          "maximum_bytes": 325,
           "maximum_occurrences": 1,
           "pattern": "t01/S05/cache/worker38-synthetic-profile/allocations/worker38-synthetic-profile-01/run-501-attempt-1/science-facts.json"
         },
@@ -1475,7 +1475,7 @@
         },
         {
           "expected_type": "file",
-          "maximum_bytes": 27,
+          "maximum_bytes": 29,
           "maximum_occurrences": 1,
           "pattern": "t01/S05/native-fsize-confirmation.txt"
         },
@@ -1502,9 +1502,9 @@
         "path": "evidence/NEW64-HARD-RESERVATIONS.json",
         "selector": "tests/test_worker38_bootstrap_integration.py:Worker38BootstrapIntegration.test_S05_fresh_shell_sanitation"
       },
-      "reservation_upper_bytes": 21372435,
+      "reservation_upper_bytes": 21379806,
       "selector": "tests/test_worker38_bootstrap_integration.py:Worker38BootstrapIntegration.test_S05_fresh_shell_sanitation",
-      "setup_prefix_reservation_bytes": 94549,
+      "setup_prefix_reservation_bytes": 101721,
       "source_path": "tests/test_worker38_bootstrap_integration.py",
       "test_module_dependencies": [
         "tests/test_worker38_bootstrap_integration.py"
@@ -1518,10 +1518,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert executable setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S06/cache/Python/3.11.16/x64/bin/python3.11",
@@ -1557,10 +1557,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S06/commands/cat",
@@ -1570,10 +1570,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S06/commands/git",
@@ -1583,10 +1583,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S06/commands/id",
@@ -1596,10 +1596,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S06/commands/mkdir",
@@ -1609,10 +1609,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S06/commands/readlink",
@@ -1622,10 +1622,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S06/commands/realpath",
@@ -1635,10 +1635,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S06/commands/sha256sum",
@@ -1648,10 +1648,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S06/commands/stat",
@@ -1661,10 +1661,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S06/commands/sync",
@@ -1674,10 +1674,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S06/commands/timeout",
@@ -1783,7 +1783,7 @@
         },
         {
           "expected_type": "file",
-          "maximum_bytes": 27,
+          "maximum_bytes": 29,
           "maximum_occurrences": 1,
           "pattern": "t01/S06/native-fsize-confirmation.txt"
         },
@@ -1810,9 +1810,9 @@
         "path": "evidence/NEW64-HARD-RESERVATIONS.json",
         "selector": "tests/test_worker38_bootstrap_integration.py:Worker38BootstrapIntegration.test_S06_occupied_new_allocation"
       },
-      "reservation_upper_bytes": 12977264,
+      "reservation_upper_bytes": 12984438,
       "selector": "tests/test_worker38_bootstrap_integration.py:Worker38BootstrapIntegration.test_S06_occupied_new_allocation",
-      "setup_prefix_reservation_bytes": 94549,
+      "setup_prefix_reservation_bytes": 101721,
       "source_path": "tests/test_worker38_bootstrap_integration.py",
       "test_module_dependencies": [
         "tests/test_worker38_bootstrap_integration.py"
@@ -1857,10 +1857,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert executable setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S08/cache/Python/3.11.16/x64/bin/python3.11",
@@ -1896,10 +1896,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S08/commands/cat",
@@ -1909,10 +1909,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S08/commands/git",
@@ -1922,10 +1922,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S08/commands/id",
@@ -1935,10 +1935,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S08/commands/mkdir",
@@ -1948,10 +1948,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S08/commands/readlink",
@@ -1961,10 +1961,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S08/commands/realpath",
@@ -1974,10 +1974,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S08/commands/sha256sum",
@@ -1987,10 +1987,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S08/commands/stat",
@@ -2000,10 +2000,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S08/commands/sync",
@@ -2013,10 +2013,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/S08/commands/timeout",
@@ -2122,7 +2122,7 @@
         },
         {
           "expected_type": "file",
-          "maximum_bytes": 27,
+          "maximum_bytes": 29,
           "maximum_occurrences": 1,
           "pattern": "t01/S08/native-fsize-confirmation.txt"
         },
@@ -2149,9 +2149,9 @@
         "path": "evidence/NEW64-HARD-RESERVATIONS.json",
         "selector": "tests/test_worker38_bootstrap_integration.py:Worker38BootstrapIntegration.test_S08_changed_descriptor_same_allocation"
       },
-      "reservation_upper_bytes": 12977264,
+      "reservation_upper_bytes": 12984438,
       "selector": "tests/test_worker38_bootstrap_integration.py:Worker38BootstrapIntegration.test_S08_changed_descriptor_same_allocation",
-      "setup_prefix_reservation_bytes": 94549,
+      "setup_prefix_reservation_bytes": 101721,
       "source_path": "tests/test_worker38_bootstrap_integration.py",
       "test_module_dependencies": [
         "tests/test_worker38_bootstrap_integration.py"
@@ -2165,7 +2165,7 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "ceada1bc42eff17cf05bd6d4d221f01f8edb93624d6e666712ed9c2680383d3e"
+            "13247286c47dd57b60c13c9ddde2cb3f59b0b417924d8c8002f0c1bae1527014"
           ],
           "expected_type": "symlink",
           "maximum_bytes": 59,
@@ -4337,10 +4337,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert executable setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C01/cache/Python/3.11.16/x64/bin/python3.11",
@@ -4363,10 +4363,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C01/commands/cat",
@@ -4376,10 +4376,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C01/commands/git",
@@ -4389,10 +4389,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C01/commands/id",
@@ -4402,10 +4402,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C01/commands/mkdir",
@@ -4415,10 +4415,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C01/commands/readlink",
@@ -4428,10 +4428,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C01/commands/realpath",
@@ -4441,10 +4441,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C01/commands/sha256sum",
@@ -4454,10 +4454,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C01/commands/stat",
@@ -4467,10 +4467,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C01/commands/sync",
@@ -4480,10 +4480,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C01/commands/timeout",
@@ -4679,7 +4679,7 @@
         },
         {
           "expected_type": "file",
-          "maximum_bytes": 128,
+          "maximum_bytes": 325,
           "maximum_occurrences": 1,
           "pattern": "t01/C01/cache/worker38-synthetic-profile/allocations/worker38-synthetic-profile-01/run-501-attempt-1/science-facts.json"
         },
@@ -4691,7 +4691,7 @@
         },
         {
           "expected_type": "file",
-          "maximum_bytes": 27,
+          "maximum_bytes": 29,
           "maximum_occurrences": 1,
           "pattern": "t01/C01/native-fsize-confirmation.txt"
         },
@@ -4718,9 +4718,9 @@
         "path": "evidence/NEW64-HARD-RESERVATIONS.json",
         "selector": "tests/test_worker38_bootstrap_integration.py:Worker38BootstrapIntegration.test_C01_credential_free_exec_environment"
       },
-      "reservation_upper_bytes": 21372435,
+      "reservation_upper_bytes": 21379806,
       "selector": "tests/test_worker38_bootstrap_integration.py:Worker38BootstrapIntegration.test_C01_credential_free_exec_environment",
-      "setup_prefix_reservation_bytes": 94549,
+      "setup_prefix_reservation_bytes": 101721,
       "source_path": "tests/test_worker38_bootstrap_integration.py",
       "test_module_dependencies": [
         "tests/test_worker38_bootstrap_integration.py"
@@ -4734,10 +4734,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert executable setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C02/cache/Python/3.11.16/x64/bin/python3.11",
@@ -4760,10 +4760,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C02/commands/cat",
@@ -4773,10 +4773,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C02/commands/git",
@@ -4786,10 +4786,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C02/commands/id",
@@ -4799,10 +4799,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C02/commands/mkdir",
@@ -4812,10 +4812,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C02/commands/readlink",
@@ -4825,10 +4825,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C02/commands/realpath",
@@ -4838,10 +4838,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C02/commands/sha256sum",
@@ -4851,10 +4851,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C02/commands/stat",
@@ -4864,10 +4864,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C02/commands/sync",
@@ -4877,10 +4877,10 @@
         {
           "allowed_complete_versions": 1,
           "allowed_sha256": [
-            "795c1fbd37736843035a97340e93650857cc8c7b0fb1e899f123405c779bd8a7"
+            "ed72d31e3ec571b9f42b43d1590a54c3bff078102b89b7d65da9b94fa57ae349"
           ],
           "expected_type": "file",
-          "maximum_bytes": 4249,
+          "maximum_bytes": 4901,
           "origin": "fixed inert command setup",
           "partial_or_divergent_bytes_are_output": true,
           "pattern": "t01/C02/commands/timeout",
@@ -5089,7 +5089,7 @@
         },
         {
           "expected_type": "file",
-          "maximum_bytes": 128,
+          "maximum_bytes": 325,
           "maximum_occurrences": 1,
           "pattern": "t01/C02/cache/worker38-synthetic-profile/allocations/worker38-synthetic-profile-01/run-501-attempt-1/science-facts.json"
         },
@@ -5101,7 +5101,7 @@
         },
         {
           "expected_type": "file",
-          "maximum_bytes": 27,
+          "maximum_bytes": 29,
           "maximum_occurrences": 1,
           "pattern": "t01/C02/native-fsize-confirmation.txt"
         },
@@ -5128,9 +5128,9 @@
         "path": "evidence/NEW64-HARD-RESERVATIONS.json",
         "selector": "tests/test_worker38_bootstrap_integration.py:Worker38BootstrapIntegration.test_C02_credential_file_descriptors_closed"
       },
-      "reservation_upper_bytes": 21372435,
+      "reservation_upper_bytes": 21379806,
       "selector": "tests/test_worker38_bootstrap_integration.py:Worker38BootstrapIntegration.test_C02_credential_file_descriptors_closed",
-      "setup_prefix_reservation_bytes": 94549,
+      "setup_prefix_reservation_bytes": 101721,
       "source_path": "tests/test_worker38_bootstrap_integration.py",
       "test_module_dependencies": [
         "tests/test_worker38_bootstrap_integration.py"
@@ -11016,8 +11016,8 @@
   "mocked_GETs_prefix_max": 50,
   "native_environment": {
     "path": "evidence-design/NATIVE-ENVIRONMENT-CLOSURE.json",
-    "sha256": "dbacaf1f17f70b9fd7d62fc0624be88e93d7fd7c7385e7d3375d10091c94f639",
-    "size_bytes": 454759
+    "sha256": "24920ca7cb6938fd9c3951a4db116225b996dfd0e8128bccc6af2fe33f6a968e",
+    "size_bytes": 483568
   },
   "order_authority": "Root prospectively selected existing saved draft order new64, Worker37, diagnostic module/list order; original cross-group order was unspecified. No outcome-dependent reorder.",
   "partial_prefix_is_not_scientific_readiness": true,
@@ -11036,7 +11036,7 @@
       "size_bytes": 5900
     },
     "evidence-design/run-worker38-fixed-preparation.py": {
-      "sha256": "ba7101f99b11a48148d28bae86def243b4f52fb4d4914007460ffa84dd04441e",
+      "sha256": "ac58cf94e89fbf5e57de7ae1aed9f8a23988278ca9e9bdb7f458616fa0d8de6c",
       "size_bytes": 52953
     },
     "experiments/worker38-synthetic-profile/FINITE-PREPARATION-PLAN.json": {
@@ -11232,8 +11232,8 @@
       "size_bytes": 123546
     },
     "tests/test_worker38_bootstrap_integration.py": {
-      "sha256": "9f58354234308477323b137791dfcda7008beb49c5109e9fd4b59987225f7d5a",
-      "size_bytes": 106522
+      "sha256": "125b0ee9bfbb0c8c371babacb87164547a90b1c202660cd2c5ef715c40fd0042",
+      "size_bytes": 107174
     },
     "tests/test_worker38_cell_integration.py": {
       "sha256": "0fc276cef0ee61c17e797a4928dddc7dda90d83a8f1f11ceea6796ec70f4e5ca",
@@ -11270,13 +11270,17 @@
   },
   "status": "UNADMITTED_EXACT_MAP_FOR_STATIC_REVIEW",
   "support_files": {
+    "evidence-design/ATTEMPT02-CORRECTION-SCOPE.json": {
+      "sha256": "28686cad2573b649ee45611256304465c03be729e307dda7a504d16b43333678",
+      "size_bytes": 3470
+    },
     "evidence-design/FIRST33-INDEPENDENT-INPUT-PINS.json": {
-      "sha256": "23320de1b5088f676228f2f6b719f9d88acaa24c91b549ec4dd3cf1eeb16faa6",
-      "size_bytes": 141809
+      "sha256": "88c57140eb8a559b48928684d5aa8807454f5ce1ee2977167b709ebe8391560c",
+      "size_bytes": 177029
     },
     "evidence-design/NATIVE-ENVIRONMENT-CLOSURE.json": {
-      "sha256": "dbacaf1f17f70b9fd7d62fc0624be88e93d7fd7c7385e7d3375d10091c94f639",
-      "size_bytes": 454759
+      "sha256": "24920ca7cb6938fd9c3951a4db116225b996dfd0e8128bccc6af2fe33f6a968e",
+      "size_bytes": 483568
     },
     "evidence-design/PREFIX33-REPAIR01-DISPOSITION.json": {
       "sha256": "4b0eb857eaec7117bbac43e1d50b1e50efe6f91fc57dda14f68e696215e6316e",
@@ -11291,8 +11295,8 @@
       "size_bytes": 1055844
     },
     "evidence-design/assemble-worker38-prefix-map.py": {
-      "sha256": "9d81e896accb1212c61b3dcbf51b6e8f1dcab21caf563949e53f31e2a6e15f23",
-      "size_bytes": 10545
+      "sha256": "4c66a5ddfdd64f55d408adcd040ba3556c36ffb945310399ab35127d50d0f2a3",
+      "size_bytes": 10600
     },
     "evidence-design/worker38-reservations-177.json": {
       "sha256": "98aa747dd02123647f2a96aa8acc381460b4f107b15b5adb7660229c17ca894f",
@@ -11307,8 +11311,8 @@
       "size_bytes": 882958
     },
     "evidence/NEW64-HARD-RESERVATIONS.json": {
-      "sha256": "4efe90cd7a62d1d8313c9617d6399a73cc6d233c18e647eec10eff76330f06e0",
-      "size_bytes": 320065
+      "sha256": "fd590ddeb069470be7d7c013e6973582e8982650e45ece7a564af0b8be0393c2",
+      "size_bytes": 324582
     },
     "evidence/budget-amendment-adoption-5990100199.json": {
       "sha256": "c2251e89c5a6d4e541bb5a15b0e2f6500b9843bcab4fab0313a68aa94b59cbdb",

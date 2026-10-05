@@ -28,7 +28,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 MAP_PATH = ROOT / 'evidence-design/worker38-fixed-fixtures.json'
-OUTPUT = Path('/workspace/shared/worker38-native-batch-01')
+OUTPUT = Path('/workspace/shared/worker38-native-batch-02')
 LOG_CAP = 8 * 1024 ** 2
 PREFIX_CAP = 24 * 1024 ** 2
 MEMORY_CAP = 512 * 1024 ** 2
