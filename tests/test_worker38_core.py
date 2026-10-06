@@ -23,6 +23,158 @@ from worker38.verify import normalized_journal
 
 STUB_CALLS = 0
 
+# Preparation-only, closed loader boundaries. Ordinary unittest runs leave the
+# hook unset; none of these observers read files, invoke mocks, or write output.
+PRODUCTION_OUTPUT_HOOK = None
+CURRENT_PRODUCTION_SELECTOR = None
+_LOADER_IDENTITY_FUNCTION = c.loader_identity
+_LOADER_IDENTITY_KEYS = (
+    'schema', 'tool_cache', 'executable_path', 'executable_sha256',
+    'library_relative_path', 'library_path', 'library_directory',
+    'library_sha256', 'library_size_bytes', 'library_device', 'library_inode',
+    'mapped_library', 'loader_environment', 'extra')
+_LOADER_STAT_FIELDS = ('dev', 'ino', 'mode', 'size', 'mtime_ns', 'ctime_ns', 'nlink')
+_LOADER_DIRTY_KEYS = ('KEEP', 'LD_LIBRARY_PATH', 'LD_AUDIT', 'LD_UNKNOWN',
+                      'PYTHONPATH', 'PYTHONUNKNOWN')
+
+
+def _loader_scalar(name, value):
+    # Only an already selected scalar can enter the closed context. Unknown
+    # objects become a fixed mismatch marker; their values are never serialized.
+    if value is None:
+        return [name, 'null', None]
+    if type(value) is bool:
+        return [name, 'bool', value]
+    if type(value) is int:
+        return [name, 'int', value]
+    if type(value) is str:
+        return [name, 'str', value]
+    return [name, 'str', '<invalid-type>']
+
+
+def _loader_shape(prefix, value, keys):
+    if type(value) is not dict:
+        return [[prefix + '.shape', 'str', 'absent' if value is None else 'invalid-type'],
+                [prefix + '.mask', 'null', None]]
+    return [[prefix + '.shape', 'str', 'dict' if set(value) <= set(keys) else 'invalid-keys'],
+            [prefix + '.mask', 'int', sum(1 << index for index, key in enumerate(keys) if key in value)]]
+
+
+def _loader_identity_context(value, prefix='argument'):
+    if type(value) is str:
+        return [[prefix + '.shape', 'str', 'str'], [prefix + '.mask', 'null', None],
+                _loader_scalar(prefix + '.value', value)]
+    fields = _loader_shape(prefix, value, _LOADER_IDENTITY_KEYS)
+    identity = value if type(value) is dict else {}
+    for key in ('schema', 'tool_cache', 'executable_path', 'executable_sha256',
+                'library_relative_path', 'library_path', 'library_directory',
+                'library_sha256', 'library_size_bytes', 'library_inode', 'extra'):
+        fields.append(_loader_scalar(prefix + '.' + key, identity.get(key)))
+    device = identity.get('library_device')
+    fields.extend(_loader_shape(prefix + '.library_device', device, ('major', 'minor')))
+    for key in ('major', 'minor'):
+        fields.append(_loader_scalar(prefix + '.library_device.' + key,
+                                     device.get(key) if type(device) is dict else None))
+    mapped = identity.get('mapped_library')
+    fields.extend(_loader_shape(prefix + '.mapped_library', mapped, ('path', 'device', 'inode')))
+    for key in ('path', 'inode'):
+        fields.append(_loader_scalar(prefix + '.mapped_library.' + key,
+                                     mapped.get(key) if type(mapped) is dict else None))
+    device = mapped.get('device') if type(mapped) is dict else None
+    fields.extend(_loader_shape(prefix + '.mapped_library.device', device, ('major', 'minor')))
+    for key in ('major', 'minor'):
+        fields.append(_loader_scalar(prefix + '.mapped_library.device.' + key,
+                                     device.get(key) if type(device) is dict else None))
+    environment = identity.get('loader_environment')
+    fields.extend(_loader_shape(prefix + '.loader_environment', environment,
+                                ('LD_LIBRARY_PATH', 'LD_PRELOAD')))
+    for key in ('LD_LIBRARY_PATH', 'LD_PRELOAD'):
+        fields.append(_loader_scalar(prefix + '.loader_environment.' + key,
+                                     environment.get(key) if type(environment) is dict else None))
+    return fields
+
+
+def _loader_tuple_context(prefix, value, fields):
+    valid = type(value) is tuple and len(value) == len(fields)
+    return [[prefix + '.container', 'str', 'tuple' if valid else 'invalid-shape']] + [
+        _loader_scalar(prefix + '.' + name, value[index] if valid else None)
+        for index, name in enumerate(fields)]
+
+
+def _loader_stat_context(prefix, value):
+    return _loader_tuple_context(prefix, value, _LOADER_STAT_FIELDS)
+
+
+def _loader_file_info_context(prefix, value):
+    valid = type(value) is dict
+    fields = [[prefix + '.shape', 'str', 'dict' if valid and set(value) ==
+               {'sha256', 'size_bytes', 'device', 'inode', '_stat'} else 'invalid-shape']]
+    info = value if valid else {}
+    fields.extend(_loader_scalar(prefix + '.' + key, info.get(key))
+                  for key in ('sha256', 'size_bytes'))
+    device = info.get('device')
+    fields.append([prefix + '.device.shape', 'str', 'dict' if type(device) is dict and
+                   set(device) == {'major', 'minor'} else 'invalid-shape'])
+    fields.extend(_loader_scalar(prefix + '.device.' + key,
+                  device.get(key) if type(device) is dict else None) for key in ('major', 'minor'))
+    fields.append(_loader_scalar(prefix + '.inode', info.get('inode')))
+    fields.extend(_loader_stat_context(prefix + '._stat', info.get('_stat')))
+    return fields
+
+
+def _loader_failure_context(prefix, value):
+    if value is None:
+        return [[prefix + '.mode', 'str', 'return'], [prefix + '.error', 'null', None]]
+    if type(value) is c.IntegrityError and len(value.args) == 1:
+        return [[prefix + '.mode', 'str', 'IntegrityError'],
+                _loader_scalar(prefix + '.error', value.args[0])]
+    return [[prefix + '.mode', 'str', 'invalid-mode'], [prefix + '.error', 'null', None]]
+
+
+def _loader_clean_context(dirty, argument, *, omitted=False):
+    fields = _loader_shape('dirty', dirty, _LOADER_DIRTY_KEYS)
+    fields.extend(_loader_scalar('dirty.' + key, dirty.get(key)) for key in _LOADER_DIRTY_KEYS)
+    if c.loader_identity is _LOADER_IDENTITY_FUNCTION:
+        fields.extend([['local.mode', 'str', 'function'], ['local.error', 'null', None]])
+    else:
+        fields.extend(_loader_failure_context('local', c.loader_identity.side_effect))
+    fields.extend([['argument.shape', 'str', 'omitted']] if omitted else
+                  _loader_identity_context(argument))
+    return fields
+
+
+def _loader_runtime_context(observe, child):
+    fields = [_loader_scalar('implementation', c.platform.python_implementation.return_value),
+              _loader_scalar('version', c.platform.python_version.return_value),
+              _loader_scalar('platform', c.sys.platform)]
+    for key in ('dont_write_bytecode', 'no_user_site', 'ignore_environment',
+                'isolated', 'optimize', 'no_site'):
+        fields.append(_loader_scalar('flags.' + key, getattr(c.sys.flags, key)))
+    fields.append(_loader_scalar('gc.enabled', c.gc.isenabled.return_value))
+    fields.extend(_loader_tuple_context('gc.threshold', c.gc.get_threshold.return_value, ('0', '1', '2')))
+    fields.extend(_loader_tuple_context('timer', c.signal.getitimer.return_value, ('0', '1')))
+    fields.extend(_loader_tuple_context('limits', c.resource.getrlimit.return_value, ('0', '1')))
+    fields.extend([_loader_scalar('registered.sha256', c.REGISTERED_LIBRARY_SHA256),
+                   _loader_scalar('registered.size', c.REGISTERED_LIBRARY_SIZE)])
+    fields.extend(_loader_failure_context('loader', observe.side_effect))
+    for key in ('GITHUB_ACTIONS', 'GITHUB_REPOSITORY', 'RUNNER_NAME', 'PYTHONUNEXPECTED'):
+        fields.append(_loader_scalar('environment.' + key, os.environ.get(key)))
+    fields.append(_loader_scalar('child', child))
+    for name, configured in (('implementation', c.platform.python_implementation),
+                             ('version', c.platform.python_version), ('gc.enabled', c.gc.isenabled),
+                             ('gc.threshold', c.gc.get_threshold), ('timer', c.signal.getitimer),
+                             ('limits', c.resource.getrlimit)):
+        fields.append(_loader_scalar(name + '.side_effect', configured.side_effect))
+    fields.extend(_loader_identity_context(observe.return_value, 'loader'))
+    return fields
+
+
+def _loader_emit(boundary, context, paths):
+    if PRODUCTION_OUTPUT_HOOK is not None:
+        PRODUCTION_OUTPUT_HOOK(CURRENT_PRODUCTION_SELECTOR, [
+            {'event': 'loader_context', 'boundary': boundary, 'context': context,
+             'paths': [str(path) for path in paths]}])
+
 class CoreTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(); self.root = Path(self.tmp.name)
@@ -288,12 +440,26 @@ class CoreTests(unittest.TestCase):
                 else:
                     library.unlink()
                     library.mkdir()
+                if PRODUCTION_OUTPUT_HOOK is not None:
+                    paths = [executable, library]
+                    if name == 'wrong_executable':
+                        paths.append(other)
+                    elif name == 'symlink_library':
+                        paths.append(target)
+                    elif name == 'symlink_directory':
+                        paths = [executable, library.parent, library, target / library.name]
+                    _loader_emit(name, [_loader_scalar('variant', name),
+                        _loader_scalar('cache', os.environ.get('RUNNER_TOOL_CACHE')),
+                        _loader_scalar('executable', c.sys.executable),
+                        _loader_scalar('library_environment', os.environ.get('LD_LIBRARY_PATH'))], paths)
                 with self.assertRaises((c.IntegrityError, OSError)):
                     c.loader_identity()
 
     def test_26_loader_file_identity_stays_stable(self):
         literal = self.root / 'literal-library'
         literal.write_bytes(b'fixed literal file')
+        if PRODUCTION_OUTPUT_HOOK is not None:
+            _loader_emit('P01-before-stable-read', [['content_state', 'str', 'fixed']], [literal])
         self.assertEqual(c._stable_loader_file(literal)['sha256'],
                          hashlib.sha256(b'fixed literal file').hexdigest(),
                          'P01: stable literal file')
@@ -302,6 +468,7 @@ class CoreTests(unittest.TestCase):
             original_read, original_fstat = os.read, os.fstat
             initial = literal.stat()
             changed = False
+            loader_observed_fstat = loader_returned_fstat = None
             def mutating_read(descriptor, size):
                 nonlocal changed
                 result = original_read(descriptor, size)
@@ -315,22 +482,54 @@ class CoreTests(unittest.TestCase):
                         os.replace(replacement, literal)
                 return result
             def observed_fstat(descriptor):
+                nonlocal loader_observed_fstat, loader_returned_fstat
                 observed = original_fstat(descriptor)
                 if changed and variant == 'P02_same_size_observed_metadata_change':
                     # This case tests an observed metadata change. Timestamp
                     # units do not imply filesystem precision or unique writes.
-                    return types.SimpleNamespace(
+                    returned = types.SimpleNamespace(
                         st_dev=observed.st_dev, st_ino=observed.st_ino,
                         st_mode=observed.st_mode, st_size=observed.st_size,
                         st_mtime_ns=initial.st_mtime_ns + 1,
                         st_ctime_ns=observed.st_ctime_ns, st_nlink=observed.st_nlink)
+                    if PRODUCTION_OUTPUT_HOOK is not None:
+                        loader_observed_fstat = (observed.st_dev, observed.st_ino, observed.st_mode,
+                            observed.st_size, observed.st_mtime_ns, observed.st_ctime_ns, observed.st_nlink)
+                        loader_returned_fstat = (returned.st_dev, returned.st_ino, returned.st_mode,
+                            returned.st_size, returned.st_mtime_ns, returned.st_ctime_ns, returned.st_nlink)
+                    return returned
                 return observed
+            if PRODUCTION_OUTPUT_HOOK is not None:
+                fields = [['content_state', 'str', 'fixed'], _loader_scalar('changed', changed)]
+                if variant == 'P02_same_size_observed_metadata_change':
+                    fields.extend(_loader_stat_context('initial', (initial.st_dev, initial.st_ino,
+                        initial.st_mode, initial.st_size, initial.st_mtime_ns, initial.st_ctime_ns, initial.st_nlink)))
+                    boundary = 'P02-before-mutating-read'
+                else:
+                    fields.extend([_loader_scalar('initial.dev', initial.st_dev),
+                                   _loader_scalar('initial.ino', initial.st_ino)])
+                    boundary = 'P03-before-mutating-read'
+                _loader_emit(boundary, fields, [literal])
             with self.subTest(variant=variant), \
                  patch.object(c.os, 'read', side_effect=mutating_read), \
                  patch.object(c.os, 'fstat', side_effect=observed_fstat):
                 with self.assertRaises(c.IntegrityError, msg=variant):
                     c._stable_loader_file(literal)
             self.assertTrue(changed, variant + ': mutation must occur')
+            if PRODUCTION_OUTPUT_HOOK is not None:
+                if variant == 'P02_same_size_observed_metadata_change':
+                    fields = [['content_state', 'str', 'changed'], _loader_scalar('changed', changed)]
+                    fields.extend(_loader_stat_context('initial', (initial.st_dev, initial.st_ino,
+                        initial.st_mode, initial.st_size, initial.st_mtime_ns, initial.st_ctime_ns, initial.st_nlink)))
+                    fields.extend(_loader_stat_context('observed', loader_observed_fstat))
+                    fields.extend(_loader_stat_context('returned', loader_returned_fstat))
+                    boundary = 'P02-after-mocks-before-reset'
+                else:
+                    fields = [['content_state', 'str', 'fixed'], _loader_scalar('changed', changed),
+                              _loader_scalar('initial.dev', initial.st_dev),
+                              _loader_scalar('initial.ino', initial.st_ino)]
+                    boundary = 'P03-after-mocks-before-next-context'
+                _loader_emit(boundary, fields, [literal])
 
         variant = 'P04_same_metadata_changed_second_library_hash'
         with self.subTest(variant=variant), self.literal_loader() as (_, executable, library, _, _):
@@ -340,6 +539,11 @@ class CoreTests(unittest.TestCase):
             self.assertNotEqual(changed_info['sha256'], library_info['sha256'], variant)
             self.assertEqual({k: v for k, v in changed_info.items() if k != 'sha256'},
                              {k: v for k, v in library_info.items() if k != 'sha256'}, variant)
+            if PRODUCTION_OUTPUT_HOOK is not None:
+                _loader_emit('P04-before-loader-identity',
+                    _loader_file_info_context('executable', executable_info) +
+                    _loader_file_info_context('library', library_info) +
+                    _loader_file_info_context('changed', changed_info), [executable, library])
             with patch.object(c, '_stable_loader_file',
                               side_effect=(executable_info, library_info, changed_info)):
                 with self.assertRaisesRegex(c.IntegrityError,
@@ -347,7 +551,7 @@ class CoreTests(unittest.TestCase):
                     c.loader_identity()
 
     def test_27_loader_rejects_mapping_variants(self):
-        with self.literal_loader() as (_, _, library, maps, identity):
+        with self.literal_loader() as (_, executable, library, maps, identity):
             device = identity['library_device']
             devtext = '%x:%x' % (device['major'], device['minor'])
             inode = identity['library_inode']
@@ -362,10 +566,22 @@ class CoreTests(unittest.TestCase):
                 ('same_inode_alias', maps + '3000-4000 r-xp 00000000 %s %s /other/alias.so\n' % (devtext, inode)))
             for name, raw in variants:
                 with self.subTest(variant=name), patch.object(c, '_loader_maps', return_value=raw):
+                    if PRODUCTION_OUTPUT_HOOK is not None:
+                        _loader_emit(name, [['maps.container', 'str', 'single'],
+                            _loader_scalar('maps.0', raw), _loader_scalar('device.major', device['major']),
+                            _loader_scalar('device.minor', device['minor']), _loader_scalar('inode', inode)],
+                            [executable, library])
                     with self.assertRaises(c.IntegrityError):
                         c.loader_identity()
+            mapping_sequence = (maps, maps.replace('2000-3000', '2000-4000'))
             with self.subTest(variant='changed_mapping'), patch.object(c, '_loader_maps',
-                    side_effect=(maps, maps.replace('2000-3000', '2000-4000'))):
+                    side_effect=mapping_sequence):
+                if PRODUCTION_OUTPUT_HOOK is not None:
+                    _loader_emit('changed_mapping',
+                        _loader_tuple_context('maps', mapping_sequence, ('0', '1')) +
+                        [_loader_scalar('device.major', device['major']),
+                         _loader_scalar('device.minor', device['minor']), _loader_scalar('inode', inode)],
+                        [executable, library])
                 with self.assertRaises(c.IntegrityError):
                     c.loader_identity()
 
@@ -374,22 +590,35 @@ class CoreTests(unittest.TestCase):
                            ('LD_DEBUG', 'libs'), ('LD_UNKNOWN', 'literal'),
                            ('LD_LIBRARY_PATH', None), ('LD_LIBRARY_PATH', '/one:/two'),
                            ('LD_LIBRARY_PATH', '/wrong/library')):
-            with self.subTest(key=key, value=value), self.literal_loader():
+            with self.subTest(key=key, value=value), self.literal_loader() as (cache, executable, library, _, _):
                 if value is None:
                     os.environ.pop(key)
                 else:
                     os.environ[key] = value
+                if PRODUCTION_OUTPUT_HOOK is not None:
+                    boundary = key
+                    if key == 'LD_LIBRARY_PATH':
+                        boundary += '-absent' if value is None else '-colon' if value == '/one:/two' else '-wrong'
+                    _loader_emit(boundary, [_loader_scalar('key', key),
+                        _loader_scalar('present', key in os.environ), _loader_scalar('value', os.environ.get(key)),
+                        _loader_scalar('cache', os.environ.get('RUNNER_TOOL_CACHE')),
+                        _loader_scalar('library_environment', os.environ.get('LD_LIBRARY_PATH'))],
+                        [executable, library])
                 with self.assertRaises(c.IntegrityError):
                     c.loader_identity()
 
     def test_29_loader_portable_pin_exact_fields(self):
-        with self.literal_loader() as (_, _, _, _, identity):
+        with self.literal_loader() as (_, executable, library, _, identity):
             expected = {'schema': 'worker38-loader-pin-v1',
                         'executable_sha256': identity['executable_sha256'],
                         'library_relative_path': identity['library_relative_path'],
                         'library_sha256': identity['library_sha256'],
                         'library_size_bytes': identity['library_size_bytes']}
+            if PRODUCTION_OUTPUT_HOOK is not None:
+                _loader_emit('positive-full-identity', _loader_identity_context(identity), [executable, library])
             self.assertEqual(c.loader_pin(identity), expected)
+            if PRODUCTION_OUTPUT_HOOK is not None:
+                _loader_emit('positive-portable-pin', _loader_identity_context(expected), [executable, library])
             self.assertEqual(c.loader_pin(expected), expected)
             invalid = [dict(expected), {**expected, 'extra': 1}, {**expected, 'schema': 'other'},
                        {**expected, 'library_size_bytes': True}, {**expected, 'library_size_bytes': 0},
@@ -398,11 +627,13 @@ class CoreTests(unittest.TestCase):
                        {**expected, 'library_relative_path': '../libpython3.11.so.1.0'}]
             invalid[0].pop('library_sha256')
             for index, value in enumerate(invalid):
+                if PRODUCTION_OUTPUT_HOOK is not None:
+                    _loader_emit('negative-' + str(index), _loader_identity_context(value), [executable, library])
                 with self.subTest(variant=index), self.assertRaises(c.IntegrityError):
                     c.loader_pin(value)
 
     def test_30_loader_full_identity_consistency(self):
-        with self.literal_loader() as (_, _, _, _, identity):
+        with self.literal_loader() as (_, executable, library, _, identity):
             for variant in ('extra', 'missing', 'cache', 'executable', 'library', 'directory',
                             'mapped_path', 'device', 'inode', 'environment'):
                 value = copy.deepcopy(identity)
@@ -416,34 +647,50 @@ class CoreTests(unittest.TestCase):
                 elif variant == 'device': value['mapped_library']['device']['minor'] += 1
                 elif variant == 'inode': value['mapped_library']['inode'] += 1
                 else: value['loader_environment']['LD_PRELOAD'] = '/literal.so'
+                if PRODUCTION_OUTPUT_HOOK is not None:
+                    _loader_emit(variant, _loader_identity_context(value), [executable, library])
                 with self.subTest(variant=variant), self.assertRaises(c.IntegrityError):
                     c.loader_pin(value)
 
     def test_31_clean_environment_requires_verified_loader(self):
-        with self.literal_loader() as (_, _, library, _, identity):
+        with self.literal_loader() as (_, executable, library, _, identity):
             dirty = {'KEEP': 'yes', 'LD_LIBRARY_PATH': '/wrong', 'LD_AUDIT': '/wrong',
                      'LD_UNKNOWN': 'yes', 'PYTHONPATH': '/wrong', 'PYTHONUNKNOWN': 'yes'}
             original = dict(dirty)
             clean = {'PYTHONHASHSEED': '0', 'PYTHONDONTWRITEBYTECODE': '1'}
+            if PRODUCTION_OUTPUT_HOOK is not None:
+                _loader_emit('clean-without-loader', _loader_clean_context(dirty, None, omitted=True), [])
             self.assertEqual(c.clean_environment(dirty), clean)
             expected = {**clean, 'LD_LIBRARY_PATH': str(library.parent)}
+            if PRODUCTION_OUTPUT_HOOK is not None:
+                _loader_emit('clean-with-full-identity', _loader_clean_context(dirty, identity), [executable, library])
             self.assertEqual(c.clean_environment(dirty, loader=identity), expected)
-            self.assertEqual(c.clean_environment(dirty, loader=c.loader_pin(identity)), expected)
+            portable_loader = c.loader_pin(identity)
+            if PRODUCTION_OUTPUT_HOOK is not None:
+                _loader_emit('clean-with-portable-pin', _loader_clean_context(dirty, portable_loader), [executable, library])
+            self.assertEqual(c.clean_environment(dirty, loader=portable_loader), expected)
             different = copy.deepcopy(identity)
             different['library_inode'] += 1
             different['mapped_library']['inode'] += 1
             different_pin = c.loader_pin(identity)
             different_pin['library_sha256'] = '0' * 64
             for variant in (different, different_pin, '/arbitrary/library'):
+                if PRODUCTION_OUTPUT_HOOK is not None:
+                    boundary = ('reject-different-inode' if variant is different else
+                                'reject-different-pin' if variant is different_pin else 'reject-string-loader')
+                    _loader_emit(boundary, _loader_clean_context(dirty, variant), [executable, library])
                 with self.subTest(loader=variant), self.assertRaises(c.IntegrityError):
                     c.clean_environment(dirty, loader=variant)
             with patch.object(c, 'loader_identity', side_effect=c.IntegrityError('literal local verification failure')):
+                if PRODUCTION_OUTPUT_HOOK is not None:
+                    _loader_emit('reject-local-verification-failure', _loader_clean_context(dirty, identity),
+                                 [executable, library])
                 with self.assertRaises(c.IntegrityError):
                     c.clean_environment(dirty, loader=identity)
             self.assertEqual(dirty, original)
 
     def test_32_runtime_binds_loader_identity(self):
-        with self.literal_loader() as (_, executable, _, _, identity), \
+        with self.literal_loader() as (_, executable, library, _, identity), \
              patch.object(c, 'idle_hooks'), \
              patch.object(c.platform, 'python_implementation', return_value='CPython'), \
              patch.object(c.platform, 'python_version', return_value='3.11.16'), \
@@ -459,13 +706,20 @@ class CoreTests(unittest.TestCase):
              patch.object(c, 'REGISTERED_LIBRARY_SHA256', identity['library_sha256']), \
              patch.object(c, 'REGISTERED_LIBRARY_SIZE', identity['library_size_bytes']), \
              patch.object(c, 'loader_identity', return_value=identity) as observe:
+            if PRODUCTION_OUTPUT_HOOK is not None:
+                _loader_emit('runtime-positive-child', _loader_runtime_context(observe, True), [executable, library])
             actual = c._runtime_details(child=True)
             self.assertEqual(actual['loader'], identity)
             self.assertEqual(actual['executable'], str(executable))
             observe.side_effect = c.IntegrityError('fixed loader verification failure')
+            if PRODUCTION_OUTPUT_HOOK is not None:
+                _loader_emit('runtime-loader-failure', _loader_runtime_context(observe, False), [executable, library])
             with self.assertRaises(c.IntegrityError): c._runtime_details()
             observe.side_effect = None
             with patch.dict(os.environ, PYTHONUNEXPECTED='literal'):
+                if PRODUCTION_OUTPUT_HOOK is not None:
+                    _loader_emit('runtime-unexpected-environment', _loader_runtime_context(observe, False),
+                                 [executable, library])
                 with self.assertRaises(c.IntegrityError): c._runtime_details()
 
     def test_33_loader_shell_static_contract(self):

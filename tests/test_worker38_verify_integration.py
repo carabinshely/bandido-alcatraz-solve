@@ -73,6 +73,53 @@ INITIAL_MODULES = ('bandido_alcatraz', 'bandido_alcatraz.board', 'bandido_alcatr
 # Ordinary CI never copies an overwritten receipt through this boundary.
 PRODUCTION_OUTPUT_HOOK = None
 CURRENT_PRODUCTION_SELECTOR = None
+# Only these adopted native selectors may construct an input witness.
+# Shared helpers used by F07 and ordinary CI emit no input-identity event.
+INPUT_WITNESS_SELECTORS = frozenset((
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V01_complete_literal_bundle',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V02_external_admission_binding',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V03_authenticated_freeze_pins',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V04_parent_source_preflight',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V05_cell_module_manifest',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V06_exact_runtime_policy',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V07_supervision_and_logs_required_for_every_cell',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V08_parent_totals_errors_inventory',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V09_science_rng_capture_boundary',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V10_required_accounting_and_timing',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V11_joint_threshold_inclusive',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V12_each_joint_threshold_failure',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V13_revalidate_complete_evidence_binding',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V14_external_custody_gate',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V15_exact_readback_provenance_and_files',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V16_closing_phase_proof',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V17_closing_totals_are_reported',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V18_matched_clock_error_types',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V19_recovery_loader_runtime_binding',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V20_supervisor_preservation_boundary_consistency',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V21_supervisor_partial_spawn_consistency',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V22_recovery_loader_admission_and_helper_pin',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_JR01_exact_successful_journal_schema',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_JR02_identical_reference_science_contradiction',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_JR03_matching_extra_reference_science_rejected',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_JR04_reference_digest_required_and_bound',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_JR05_chosen_bound_to_each_full_sidecar',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_JR06_ordinal_scope_and_exact_result_keys',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_JR07_full_reference_sidecar_still_required',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR01_complete_original_metric_fields',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR02_inclusive_clock_and_uncapped_rss_fields',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR03_missing_malformed_and_over_cap_metrics',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR04_metric_identity_fields',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR05_identical_invalid_repeated_metrics',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR06_nonfinite_and_huge_integer_metrics',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR07_true_integer_monotonic_high_water',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR08_method_rows_and_unmeasured_flags_unchanged',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_PW01_complete_wrapper_final_classification',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_PW02_wrapper_coverage_is_mandatory',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_PW13_outer_wrapper_is_not_canonical_part',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_PW14_exact_and_semantic_wrapper_binding',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_PW15_legacy_custody_is_not_accepted',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_ER_I02_retained_prerequisites_replayed_offline',
+))
 CUSTODY_VERSION_LABELS = {
     'test_V14_external_custody_gate': (
         'V14-custody-before-02', 'V14-custody-before-03', 'V14-custody-before-04',
@@ -480,6 +527,12 @@ class LiteralBundle:
                 'trusted_provenance_sha256': c.sha(self.provenance.read_bytes()), 'expected_workflow_run': '123'}
         args.update(overrides)
         with mock.patch.object(sources, 'SOURCE_MANIFEST_SHA256', c.sha(c.canonical(self.manifest))):
+            if PRODUCTION_OUTPUT_HOOK is not None and CURRENT_PRODUCTION_SELECTOR in INPUT_WITNESS_SELECTORS:
+                PRODUCTION_OUTPUT_HOOK(CURRENT_PRODUCTION_SELECTOR, [{
+                    'event': 'input_identity', 'boundary': 'LiteralBundle.verify',
+                    'paths': {'attempt': str(self.root),
+                        'trusted_admission': str(args['trusted_admission_path']) if args['trusted_admission_path'] is not None else None,
+                        'trusted_provenance': str(args['trusted_provenance_path']) if args['trusted_provenance_path'] is not None else None}}])
             result = v.verify_attempt(self.root, **args)
         if self.custody_case is not None and result['raw_inventory'] != self._frozen_inventory:
             raise AssertionError('real verifier inventory differs from independently frozen literal inputs')
@@ -689,6 +742,16 @@ class LiteralBundle:
                 'trusted_custody_sha256': c.sha(self.custody_path.read_bytes())}
         args.update(overrides)
         with mock.patch.object(sources, 'SOURCE_MANIFEST_SHA256', c.sha(c.canonical(self.manifest))):
+            if PRODUCTION_OUTPUT_HOOK is not None and CURRENT_PRODUCTION_SELECTOR in INPUT_WITNESS_SELECTORS:
+                binding = verification.get('binding') if type(verification) is dict else None
+                if type(binding) is not dict:
+                    binding = {}
+                PRODUCTION_OUTPUT_HOOK(CURRENT_PRODUCTION_SELECTOR, [{
+                    'event': 'input_identity', 'boundary': 'LiteralBundle.timing',
+                    'paths': {'attempt': str(binding['root']) if binding.get('root') is not None else None,
+                        'trusted_admission': str(binding['trusted_admission_path']) if binding.get('trusted_admission_path') is not None else None,
+                        'trusted_provenance': str(binding['trusted_provenance_path']) if binding.get('trusted_provenance_path') is not None else None,
+                        'trusted_custody': str(args['trusted_custody_path']) if args['trusted_custody_path'] is not None else None}}])
             return v.timing_report(verification, **args)
 
 
@@ -722,6 +785,13 @@ class VerifyIntegrationTests(unittest.TestCase):
         # Same-attempt local validation is explicitly preliminary. It cannot
         # stand in for the separately authenticated off-runner acceptance gate.
         with mock.patch.object(sources, 'SOURCE_MANIFEST_SHA256', c.sha(c.canonical(self.bundle.manifest))):
+            if PRODUCTION_OUTPUT_HOOK is not None and CURRENT_PRODUCTION_SELECTOR in INPUT_WITNESS_SELECTORS:
+                PRODUCTION_OUTPUT_HOOK(CURRENT_PRODUCTION_SELECTOR, [{
+                    'event': 'input_identity',
+                    'boundary': 'VerifyIntegrationTests.test_V02_external_admission_binding',
+                    'paths': {'attempt': str(self.bundle.root),
+                        'trusted_admission': str(self.bundle.root / 'admission-inputs' / 'admission.json'),
+                        'trusted_provenance': str(self.bundle.root / 'admission-inputs' / 'provenance.json')}}])
             local = v.verify_retained_attempt(self.bundle.root,
                 admission_sha256=c.sha(self.bundle.admission.read_bytes()),
                 provenance_sha256=c.sha(self.bundle.provenance.read_bytes()),

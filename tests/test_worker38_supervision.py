@@ -417,6 +417,55 @@ class SupervisionStubTests(unittest.TestCase):
                              'independent stub self-expiry is a failed preparation case')
             self.assertLess(time.monotonic(), cutoff,
                             'supervisor cleanup must finish before independent stub cutoff')
+        if (self._testMethodName, self.counter) in (
+                ('test_S14_malformed_state_variants_fail_closed', 7),
+                ('test_S15_valid_transition_and_admission_rejections', 1)):
+            # The original second marker is reachable only after copy fsync,
+            # close, and directory fsync. No extra completion file or copy.
+            self.assertTrue(result['spawned'], 'registered predecessor child did not start')
+            directory = os.open(cell, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+            retained = []
+            try:
+                for name in ('call-state.predecessor', 'call-state.json'):
+                    descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK,
+                                         dir_fd=directory)
+                    try:
+                        before_capture = os.fstat(descriptor)
+                        self.assertEqual(before_capture.st_mode & 0o170000, 0o100000)
+                        self.assertEqual(before_capture.st_nlink, 1)
+                        self.assertTrue(0 < before_capture.st_size <= 137)
+                        raw = os.read(descriptor, 138)
+                        self.assertEqual(len(raw), before_capture.st_size)
+                        self.assertEqual(os.read(descriptor, 1), b'')
+                        after_capture = os.fstat(descriptor)
+                        named_capture = os.stat(name, dir_fd=directory, follow_symlinks=False)
+                        for observed in (after_capture, named_capture):
+                            self.assertEqual(
+                                (observed.st_dev, observed.st_ino, observed.st_mode, observed.st_size,
+                                 observed.st_mtime_ns, observed.st_ctime_ns, observed.st_nlink),
+                                (before_capture.st_dev, before_capture.st_ino, before_capture.st_mode,
+                                 before_capture.st_size, before_capture.st_mtime_ns,
+                                 before_capture.st_ctime_ns, before_capture.st_nlink))
+                    finally:
+                        os.close(descriptor)
+                    value = json.loads(raw)
+                    self.assertEqual(raw, json.dumps(value, allow_nan=False).encode('utf-8'))
+                    retained.append(value)
+            finally:
+                os.close(directory)
+            predecessor, successor = retained
+            for value in (retained if self.counter == 7 else (predecessor,)):
+                self.assertEqual(set(value), {'active', 'scope', 'cpu_started', 'wall_started'})
+                self.assertIs(value['active'], True)
+                self.assertEqual(value['scope'], 'candidate')
+                for field in ('cpu_started', 'wall_started'):
+                    self.assertIs(type(value[field]), float)
+                    self.assertTrue(math.isfinite(value[field]) and value[field] >= 0)
+            if self.counter == 7:
+                self.assertGreater(successor['wall_started'], predecessor['wall_started'])
+                self.assertGreaterEqual(successor['cpu_started'], predecessor['cpu_started'])
+            else:
+                self.assertEqual(successor, {'active': False})
         return result, cell, log
 
     def assert_clean(self, result):
@@ -624,7 +673,39 @@ else:
             "mark({'active': True, 'scope': 'candidate', 'wall_started': time.monotonic() + 100, 'cpu_started': 0})",
             "mark({'active': True, 'scope': 'candidate', 'wall_started': time.monotonic(), 'cpu_started': 1000000})",
             "Path('target').write_text('{}'); state_path.symlink_to('target')",
-            "activate(); time.sleep(0.1); activate()",
+            """activate(); time.sleep(0.1);
+_capture_directory = os.open('.', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+try:
+    _capture_source = os.open('call-state.json', os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK,
+                              dir_fd=_capture_directory)
+    try:
+        _capture_before = os.fstat(_capture_source)
+        if (_capture_before.st_mode & 0o170000 != 0o100000 or _capture_before.st_nlink != 1 or
+                not 0 < _capture_before.st_size <= 137):
+            raise RuntimeError('predecessor source is outside its fixed domain')
+        _capture_raw = os.read(_capture_source, 138)
+        if len(_capture_raw) != _capture_before.st_size or os.read(_capture_source, 1):
+            raise RuntimeError('predecessor source read is incomplete')
+        _capture_after = os.fstat(_capture_source)
+        _capture_named = os.stat('call-state.json', dir_fd=_capture_directory, follow_symlinks=False)
+        if any(getattr(_capture_before, key) != getattr(observed, key)
+               for observed in (_capture_after, _capture_named)
+               for key in ('st_dev', 'st_ino', 'st_mode', 'st_size', 'st_mtime_ns', 'st_ctime_ns', 'st_nlink')):
+            raise RuntimeError('predecessor source changed while read')
+    finally:
+        os.close(_capture_source)
+    _capture_copy = os.open('call-state.predecessor', os.O_WRONLY | os.O_CREAT | os.O_EXCL |
+                            os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=_capture_directory)
+    try:
+        if os.write(_capture_copy, _capture_raw) != len(_capture_raw):
+            raise RuntimeError('predecessor write is incomplete')
+        os.fsync(_capture_copy)
+    finally:
+        os.close(_capture_copy)
+    os.fsync(_capture_directory)
+finally:
+    os.close(_capture_directory)
+activate()""",
         ]
         for index, code in enumerate(variants):
             with self.subTest(variant=index):
@@ -635,7 +716,41 @@ else:
                 self.assert_clean(result)
 
     def test_S15_valid_transition_and_admission_rejections(self):
-        result, _, _ = self.run_stub("activate()\ntime.sleep(0.06)\nmark({'active': False})\ntime.sleep(0.06)")
+        result, _, _ = self.run_stub("""activate()
+time.sleep(0.06)
+_capture_directory = os.open('.', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+try:
+    _capture_source = os.open('call-state.json', os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK,
+                              dir_fd=_capture_directory)
+    try:
+        _capture_before = os.fstat(_capture_source)
+        if (_capture_before.st_mode & 0o170000 != 0o100000 or _capture_before.st_nlink != 1 or
+                not 0 < _capture_before.st_size <= 137):
+            raise RuntimeError('predecessor source is outside its fixed domain')
+        _capture_raw = os.read(_capture_source, 138)
+        if len(_capture_raw) != _capture_before.st_size or os.read(_capture_source, 1):
+            raise RuntimeError('predecessor source read is incomplete')
+        _capture_after = os.fstat(_capture_source)
+        _capture_named = os.stat('call-state.json', dir_fd=_capture_directory, follow_symlinks=False)
+        if any(getattr(_capture_before, key) != getattr(observed, key)
+               for observed in (_capture_after, _capture_named)
+               for key in ('st_dev', 'st_ino', 'st_mode', 'st_size', 'st_mtime_ns', 'st_ctime_ns', 'st_nlink')):
+            raise RuntimeError('predecessor source changed while read')
+    finally:
+        os.close(_capture_source)
+    _capture_copy = os.open('call-state.predecessor', os.O_WRONLY | os.O_CREAT | os.O_EXCL |
+                            os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=_capture_directory)
+    try:
+        if os.write(_capture_copy, _capture_raw) != len(_capture_raw):
+            raise RuntimeError('predecessor write is incomplete')
+        os.fsync(_capture_copy)
+    finally:
+        os.close(_capture_copy)
+    os.fsync(_capture_directory)
+finally:
+    os.close(_capture_directory)
+mark({'active': False})
+time.sleep(0.06)""")
         self.assertEqual(result["status"], "completed", result)
         self.assertIsNone(result["active_call_at_stop"])
         for filename in ("state", "log"):
@@ -953,12 +1068,46 @@ else:
             json.dumps({**valid, "unexpected": True}).encode(),
         ]
         self.assertEqual(len(raw_variants), 10)
+        def assert_complete_raw(path, raw):
+            self.assertLessEqual(len(raw) + 1, 508)
+            fields = ("st_dev", "st_ino", "st_mode", "st_nlink", "st_size", "st_mtime_ns", "st_ctime_ns")
+            fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+            try:
+                before = os.fstat(fd)
+                self.assertEqual(before.st_mode & 0o170000, 0o100000)
+                self.assertEqual(before.st_nlink, 1)
+                self.assertEqual(before.st_size, len(raw))
+                identity = tuple(getattr(before, field) for field in fields)
+                named_before = path.stat(follow_symlinks=False)
+                self.assertEqual(tuple(getattr(named_before, field) for field in fields), identity)
+                self.assertEqual(os.read(fd, len(raw) + 1), raw)
+                after = os.fstat(fd)
+                named_after = path.stat(follow_symlinks=False)
+                self.assertEqual(tuple(getattr(after, field) for field in fields), identity)
+                self.assertEqual(tuple(getattr(named_after, field) for field in fields), identity)
+                return identity
+            finally:
+                os.close(fd)
+
         for index, raw in enumerate(raw_variants):
             with self.subTest(variant=index):
                 path = self.root / f"committed-marker-{index}.json"
-                path.write_bytes(raw)
-                with self.assertRaises(supervision.CallStateIntegrityError):
+                written = path.write_bytes(raw)
+                self.assertIs(type(written), int)
+                self.assertEqual(written, len(raw))
+                identity = assert_complete_raw(path, raw)
+                with self.assertRaises(supervision.CallStateIntegrityError) as caught:
                     supervision._call_state(path, now, 1.0, now - 1, 100)
+                self.assertEqual(assert_complete_raw(path, raw), identity)
+                if index in (4, 6, 7, 8, 9):
+                    reasons = {
+                        4: "active call_state has missing or unexpected schema fields",
+                        6: "call_state wall clock outside child lifetime",
+                        7: "call_state wall clock outside child lifetime",
+                        8: "call_state CPU clock outside observed child lifetime",
+                        9: "active call_state has missing or unexpected schema fields",
+                    }
+                    self.assertEqual(str(caught.exception), reasons[index])
 
     def test_F4_05_unavailable_observations_are_not_corruption(self):
         with mock.patch.object(supervision, "_call_state", side_effect=PermissionError("invented unreadable marker")):
@@ -1007,17 +1156,43 @@ else:
         now = time.monotonic()
         valid = {"active": True, "scope": "candidate", "wall_started": now, "cpu_started": 0.1}
         huge = 10 ** 400  # Exactly 401 decimal digits; far below marker byte cap.
+        def assert_complete_raw(path, raw):
+            self.assertLessEqual(len(raw) + 1, 508)
+            fields = ("st_dev", "st_ino", "st_mode", "st_nlink", "st_size", "st_mtime_ns", "st_ctime_ns")
+            fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+            try:
+                before = os.fstat(fd)
+                self.assertEqual(before.st_mode & 0o170000, 0o100000)
+                self.assertEqual(before.st_nlink, 1)
+                self.assertEqual(before.st_size, len(raw))
+                identity = tuple(getattr(before, field) for field in fields)
+                named_before = path.stat(follow_symlinks=False)
+                self.assertEqual(tuple(getattr(named_before, field) for field in fields), identity)
+                self.assertEqual(os.read(fd, len(raw) + 1), raw)
+                after = os.fstat(fd)
+                named_after = path.stat(follow_symlinks=False)
+                self.assertEqual(tuple(getattr(after, field) for field in fields), identity)
+                self.assertEqual(tuple(getattr(named_after, field) for field in fields), identity)
+                return identity
+            finally:
+                os.close(fd)
+
         for name in ("wall_started", "cpu_started"):
             for sign in (1, -1):
                 with self.subTest(clock=name, sign=sign):
                     path = self.root / f"oversized-clock-{name}-{sign}.json"
                     raw = json.dumps({**valid, name: sign * huge}).encode()
                     self.assertLess(len(raw), supervision.CALL_STATE_LIMIT)
-                    path.write_bytes(raw)
+                    written = path.write_bytes(raw)
+                    self.assertIs(type(written), int)
+                    self.assertEqual(written, len(raw))
+                    identity = assert_complete_raw(path, raw)
                     with self.assertRaises(supervision.CallStateIntegrityError) as caught:
                         supervision._call_state(path, now, 1.0, now - 1, 100)
+                    self.assertEqual(assert_complete_raw(path, raw), identity)
                     self.assertIsInstance(caught.exception.__cause__, OverflowError)
                     self.assertEqual(supervision._exception_status(caught.exception), "integrity_invalid")
+                    self.assertEqual(str(caught.exception), f"invalid active call_state {name}")
 
     def test_F5_02_constructed_recursion_errors_are_resource_failures(self):
         for before_spawn in (False, True):

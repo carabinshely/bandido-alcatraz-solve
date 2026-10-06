@@ -27,6 +27,9 @@ SPEC = importlib.util.spec_from_file_location("worker38_offline_transport_only",
 transport = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(transport)
 
+PRODUCTION_OUTPUT_HOOK = None
+CURRENT_PRODUCTION_SELECTOR = None
+
 
 def sha(data):
     return hashlib.sha256(data).hexdigest()
@@ -236,6 +239,11 @@ class OfflineTransportPlan(unittest.TestCase):
 
     def test_PW06_strict_provider_zip_limit_uses_actual_size(self):
         parts, descriptors = self.classification_wrappers()
+        if PRODUCTION_OUTPUT_HOOK is not None:
+            PRODUCTION_OUTPUT_HOOK(CURRENT_PRODUCTION_SELECTOR, [{
+                'event': 'transport_input_identity',
+                'boundary': 'accepted-wrapper-before-positive-check',
+                'paths': [str(descriptors[0]['path'])]}])
         self.assertEqual(len(self.classification_wrapper_check(parts, descriptors)), 1)
         for size in (transport.PROVIDER_WRAPPER_LIMIT, transport.PROVIDER_WRAPPER_LIMIT + 1):
             # Fixed existing metadata-fault mechanism; no large allocation/cap edit.
@@ -591,6 +599,10 @@ class OfflineTransportPlan(unittest.TestCase):
         raw = bytearray(wrapper_path.read_bytes())
         central = raw.index(b"PK\x01\x02")
         struct.pack_into("<I", raw, central + 24, transport.PART_CAP + 1)
+        if PRODUCTION_OUTPUT_HOOK is not None:
+            PRODUCTION_OUTPUT_HOOK(CURRENT_PRODUCTION_SELECTOR, [{
+                'event': 'preserve_observed_version', 'path': str(wrapper_path),
+                'label': 't11-01-before-existing-mutation', 'maximum_bytes': 1185}])
         wrapper_path.write_bytes(raw)
         descriptors[0]["download_receipt"].update(size=len(raw), sha256=sha(raw))
         result = transport.verify_transport(package["manifest"], package["local_paths"], self.fresh("oversized-wrapper-payload"), provider_wrappers=descriptors, deadline_monotonic=self.deadline)
@@ -603,6 +615,10 @@ class OfflineTransportPlan(unittest.TestCase):
         self.assertEqual(result["status"], "local_canonical_readback_verified", result)
         self.assertTrue(result["local_readback_verified"])
         self.assertEqual(result["files"], package["manifest"]["files"])
+        if PRODUCTION_OUTPUT_HOOK is not None:
+            PRODUCTION_OUTPUT_HOOK(CURRENT_PRODUCTION_SELECTOR, [{
+                'event': 'preserve_observed_version', 'path': str(mapping['part-001.bin']['path']),
+                'label': 't12-01-before-existing-mutation', 'maximum_bytes': 260}])
         Path(mapping["part-001.bin"]["path"]).write_bytes(b"tampered")
         self.assertEqual(transport.verify_custody(package["manifest"], mapping, deadline_monotonic=self.deadline)["status"], "blocked")
 
@@ -666,6 +682,11 @@ class OfflineTransportPlan(unittest.TestCase):
         original_inventory = transport._inventory
         def mutate_after_inventory(source, deadline):
             value = original_inventory(source, deadline)
+            if PRODUCTION_OUTPUT_HOOK is not None:
+                PRODUCTION_OUTPUT_HOOK(CURRENT_PRODUCTION_SELECTOR, [{
+                    'event': 'transport_input_identity',
+                    'boundary': 'after-original-inventory-before-mutation',
+                    'paths': [str(root / 'a')]}])
             (root / "a").write_bytes(b"after!")
             return value
         destination = self.fresh("mutated-output")

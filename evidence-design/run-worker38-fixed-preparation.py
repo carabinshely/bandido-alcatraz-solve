@@ -5,6 +5,7 @@ The map pins all source, fixture, command, retention and output definitions.
 """
 from __future__ import annotations
 
+import base64
 import builtins
 import fnmatch
 import gc
@@ -28,7 +29,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 MAP_PATH = ROOT / 'evidence-design/worker38-fixed-fixtures.json'
-OUTPUT = Path('/workspace/shared/worker38-native-batch-03')
+OUTPUT = Path('/workspace/shared/worker38-native-batch-04')
 LOG_CAP = 8 * 1024 ** 2
 PREFIX_CAP = 24 * 1024 ** 2
 MEMORY_CAP = 512 * 1024 ** 2
@@ -47,6 +48,8 @@ FSYNC = os.fsync
 OS_WRITE = os.write
 OS_OPEN = os.open
 OS_CLOSE = os.close
+OS_READ = os.read
+STAT = os.stat
 FSTAT = os.fstat
 GET_PROFILE = sys.getprofile
 GET_TRACE = sys.gettrace
@@ -55,7 +58,1111 @@ GET_HANDLER = signal.getsignal
 GC_ENABLED = gc.isenabled
 GC_THRESHOLDS = gc.get_threshold
 THREAD_COUNT = threading.active_count
+MAJOR = os.major
+MINOR = os.minor
 ORIGINAL_TEMPORARY_DIRECTORY = tempfile.TemporaryDirectory
+
+# Exact adopted verifier set; F07 and other selectors never emit these witnesses.
+INPUT_WITNESS_SELECTORS = (
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V01_complete_literal_bundle',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V02_external_admission_binding',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V03_authenticated_freeze_pins',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V04_parent_source_preflight',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V05_cell_module_manifest',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V06_exact_runtime_policy',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V07_supervision_and_logs_required_for_every_cell',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V08_parent_totals_errors_inventory',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V09_science_rng_capture_boundary',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V10_required_accounting_and_timing',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V11_joint_threshold_inclusive',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V12_each_joint_threshold_failure',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V13_revalidate_complete_evidence_binding',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V14_external_custody_gate',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V15_exact_readback_provenance_and_files',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V16_closing_phase_proof',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V17_closing_totals_are_reported',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V18_matched_clock_error_types',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V19_recovery_loader_runtime_binding',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V20_supervisor_preservation_boundary_consistency',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V21_supervisor_partial_spawn_consistency',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_V22_recovery_loader_admission_and_helper_pin',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_JR01_exact_successful_journal_schema',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_JR02_identical_reference_science_contradiction',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_JR03_matching_extra_reference_science_rejected',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_JR04_reference_digest_required_and_bound',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_JR05_chosen_bound_to_each_full_sidecar',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_JR06_ordinal_scope_and_exact_result_keys',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_JR07_full_reference_sidecar_still_required',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR01_complete_original_metric_fields',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR02_inclusive_clock_and_uncapped_rss_fields',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR03_missing_malformed_and_over_cap_metrics',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR04_metric_identity_fields',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR05_identical_invalid_repeated_metrics',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR06_nonfinite_and_huge_integer_metrics',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR07_true_integer_monotonic_high_water',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_MR08_method_rows_and_unmeasured_flags_unchanged',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_PW01_complete_wrapper_final_classification',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_PW02_wrapper_coverage_is_mandatory',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_PW13_outer_wrapper_is_not_canonical_part',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_PW14_exact_and_semantic_wrapper_binding',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_PW15_legacy_custody_is_not_accepted',
+    'tests/test_worker38_verify_integration.py:VerifyIntegrationTests.test_ER_I02_retained_prerequisites_replayed_offline',
+)
+
+# Adopted finite source seams, independent of runtime map contents.
+LOADER_CONTEXT_EVENTS = {
+    'tests/test_worker38_core.py:CoreTests.test_25_loader_rejects_noncanonical_paths': (
+        ('relative_cache', 'c25-01', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('cache_matches_variant', 'executable_matches_variant', 'selected_environment_matches_variant', 'node_layout_matches_variant')),
+        ('dotdot_cache', 'c25-02', ('t03/toolcache/Python/3.11.16/x64/bin/python3.11', 't03/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('cache_matches_variant', 'executable_matches_variant', 'selected_environment_matches_variant', 'node_layout_matches_variant')),
+        ('wrong_executable', 'c25-03', ('t04/toolcache/Python/3.11.16/x64/bin/python3.11', 't04/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0', 't04/toolcache/Python/3.11.16/x64/bin/other-python'), ('cache_matches_variant', 'executable_matches_variant', 'selected_environment_matches_variant', 'node_layout_matches_variant')),
+        ('symlink_library', 'c25-04', ('t05/toolcache/Python/3.11.16/x64/bin/python3.11', 't05/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0', 't05/toolcache/Python/3.11.16/x64/lib/target'), ('cache_matches_variant', 'executable_matches_variant', 'selected_environment_matches_variant', 'node_layout_matches_variant')),
+        ('symlink_directory', 'c25-05', ('t06/toolcache/Python/3.11.16/x64/bin/python3.11', 't06/toolcache/Python/3.11.16/x64/lib', 't06/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0', 't06/toolcache/Python/3.11.16/x64/other-lib/libpython3.11.so.1.0'), ('cache_matches_variant', 'executable_matches_variant', 'selected_environment_matches_variant', 'node_layout_matches_variant')),
+        ('missing_library', 'c25-06', ('t07/toolcache/Python/3.11.16/x64/bin/python3.11', 't07/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('cache_matches_variant', 'executable_matches_variant', 'selected_environment_matches_variant', 'node_layout_matches_variant')),
+        ('directory_library', 'c25-07', ('t08/toolcache/Python/3.11.16/x64/bin/python3.11', 't08/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('cache_matches_variant', 'executable_matches_variant', 'selected_environment_matches_variant', 'node_layout_matches_variant')),
+    ),
+    'tests/test_worker38_core.py:CoreTests.test_26_loader_file_identity_stays_stable': (
+        ('P01-before-stable-read', 'c26-01', ('t01/literal-library',), ('file_bytes_match_fixed',)),
+        ('P02-before-mutating-read', 'c26-02', ('t01/literal-library',), ('file_bytes_match_fixed',)),
+        ('P02-after-mocks-before-reset', 'c26-03', ('t01/literal-library',), ('mutation_ran', 'file_bytes_match_changed', 'injected_mtime_delta_is_one')),
+        ('P03-before-mutating-read', 'c26-04', ('t01/literal-library',), ('file_bytes_match_fixed',)),
+        ('P03-after-mocks-before-next-context', 'c26-05', ('t01/literal-library',), ('mutation_ran', 'file_bytes_match_fixed', 'path_inode_differs_from_pre_read')),
+        ('P04-before-loader-identity', 'c26-06', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('fixed_executable_hash', 'fixed_library_hash', 'mocked_second_hash_differs', 'mocked_nonhash_metadata_equal')),
+    ),
+    'tests/test_worker38_core.py:CoreTests.test_27_loader_rejects_mapping_variants': (
+        ('absent', 'c27-01', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'mapping_variant_matches_recipe')),
+        ('alias_path', 'c27-02', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'mapping_variant_matches_recipe')),
+        ('deleted', 'c27-03', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'mapping_variant_matches_recipe')),
+        ('wrong_device', 'c27-04', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'mapping_variant_matches_recipe')),
+        ('wrong_inode', 'c27-05', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'mapping_variant_matches_recipe')),
+        ('other_version', 'c27-06', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'mapping_variant_matches_recipe')),
+        ('malformed', 'c27-07', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'mapping_variant_matches_recipe')),
+        ('same_inode_alias', 'c27-08', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'mapping_variant_matches_recipe')),
+        ('changed_mapping', 'c27-09', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'mapping_variant_matches_recipe')),
+    ),
+    'tests/test_worker38_core.py:CoreTests.test_28_loader_rejects_ambient_loader_settings': (
+        ('LD_PRELOAD', 'c28-01', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'selected_environment_matches_variant')),
+        ('LD_AUDIT', 'c28-02', ('t03/toolcache/Python/3.11.16/x64/bin/python3.11', 't03/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'selected_environment_matches_variant')),
+        ('LD_DEBUG', 'c28-03', ('t04/toolcache/Python/3.11.16/x64/bin/python3.11', 't04/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'selected_environment_matches_variant')),
+        ('LD_UNKNOWN', 'c28-04', ('t05/toolcache/Python/3.11.16/x64/bin/python3.11', 't05/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'selected_environment_matches_variant')),
+        ('LD_LIBRARY_PATH-absent', 'c28-05', ('t06/toolcache/Python/3.11.16/x64/bin/python3.11', 't06/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'selected_environment_matches_variant')),
+        ('LD_LIBRARY_PATH-colon', 'c28-06', ('t07/toolcache/Python/3.11.16/x64/bin/python3.11', 't07/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'selected_environment_matches_variant')),
+        ('LD_LIBRARY_PATH-wrong', 'c28-07', ('t08/toolcache/Python/3.11.16/x64/bin/python3.11', 't08/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'selected_environment_matches_variant')),
+    ),
+    'tests/test_worker38_core.py:CoreTests.test_29_loader_portable_pin_exact_fields': (
+        ('positive-full-identity', 'c29-01', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'argument_shape_matches_recipe')),
+        ('positive-portable-pin', 'c29-02', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'argument_shape_matches_recipe')),
+        ('negative-0', 'c29-03', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'argument_shape_matches_recipe')),
+        ('negative-1', 'c29-04', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'argument_shape_matches_recipe')),
+        ('negative-2', 'c29-05', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'argument_shape_matches_recipe')),
+        ('negative-3', 'c29-06', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'argument_shape_matches_recipe')),
+        ('negative-4', 'c29-07', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'argument_shape_matches_recipe')),
+        ('negative-5', 'c29-08', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'argument_shape_matches_recipe')),
+        ('negative-6', 'c29-09', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'argument_shape_matches_recipe')),
+        ('negative-7', 'c29-10', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'argument_shape_matches_recipe')),
+        ('negative-8', 'c29-11', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'argument_shape_matches_recipe')),
+    ),
+    'tests/test_worker38_core.py:CoreTests.test_30_loader_full_identity_consistency': (
+        ('extra', 'c30-01', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'identity_mutation_matches_recipe')),
+        ('missing', 'c30-02', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'identity_mutation_matches_recipe')),
+        ('cache', 'c30-03', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'identity_mutation_matches_recipe')),
+        ('executable', 'c30-04', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'identity_mutation_matches_recipe')),
+        ('library', 'c30-05', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'identity_mutation_matches_recipe')),
+        ('directory', 'c30-06', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'identity_mutation_matches_recipe')),
+        ('mapped_path', 'c30-07', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'identity_mutation_matches_recipe')),
+        ('device', 'c30-08', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'identity_mutation_matches_recipe')),
+        ('inode', 'c30-09', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'identity_mutation_matches_recipe')),
+        ('environment', 'c30-10', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('literal_files_match', 'identity_mutation_matches_recipe')),
+    ),
+    'tests/test_worker38_core.py:CoreTests.test_31_clean_environment_requires_verified_loader': (
+        ('clean-without-loader', 'c31-01', (), ('dirty_mapping_unchanged', 'loader_argument_matches_recipe', 'local_verification_mode_matches_recipe')),
+        ('clean-with-full-identity', 'c31-02', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('dirty_mapping_unchanged', 'loader_argument_matches_recipe', 'local_verification_mode_matches_recipe')),
+        ('clean-with-portable-pin', 'c31-03', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('dirty_mapping_unchanged', 'loader_argument_matches_recipe', 'local_verification_mode_matches_recipe')),
+        ('reject-different-inode', 'c31-04', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('dirty_mapping_unchanged', 'loader_argument_matches_recipe', 'local_verification_mode_matches_recipe')),
+        ('reject-different-pin', 'c31-05', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('dirty_mapping_unchanged', 'loader_argument_matches_recipe', 'local_verification_mode_matches_recipe')),
+        ('reject-string-loader', 'c31-06', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('dirty_mapping_unchanged', 'loader_argument_matches_recipe', 'local_verification_mode_matches_recipe')),
+        ('reject-local-verification-failure', 'c31-07', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('dirty_mapping_unchanged', 'loader_argument_matches_recipe', 'local_verification_mode_matches_recipe')),
+    ),
+    'tests/test_worker38_core.py:CoreTests.test_32_runtime_binds_loader_identity': (
+        ('runtime-positive-child', 'c32-01', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('runtime_mock_state_matches_recipe', 'loader_mode_matches_recipe', 'selected_environment_matches_recipe')),
+        ('runtime-loader-failure', 'c32-02', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('runtime_mock_state_matches_recipe', 'loader_mode_matches_recipe', 'selected_environment_matches_recipe')),
+        ('runtime-unexpected-environment', 'c32-03', ('t02/toolcache/Python/3.11.16/x64/bin/python3.11', 't02/toolcache/Python/3.11.16/x64/lib/libpython3.11.so.1.0'), ('runtime_mock_state_matches_recipe', 'loader_mode_matches_recipe', 'selected_environment_matches_recipe')),
+    ),
+}
+TRANSPORT_INPUT_EVENTS = {
+    'tests/test_worker38_transport.py:OfflineTransportPlan.test_PW06_strict_provider_zip_limit_uses_actual_size': (
+        ('accepted-wrapper-before-positive-check', 'pw06-01', ('t01/literal-github-download.zip-1',), ()),
+    ),
+    'tests/test_worker38_transport.py:OfflineTransportPlan.test_T15_source_mutation_is_rejected_and_preserved': (
+        ('after-original-inventory-before-mutation', 't15-01', ('t01/mutable-source-1/a',), ()),
+    ),
+}
+LOADER_CONTEXT_CAP = 8192
+LOADER_RECORD_CAP = 16384
+TRANSPORT_INPUT_CAPS = {'pw06-01': 735, 't15-01': 668}
+
+# Fixed source-derived names and exact scalar tags, never discovered at runtime.
+_LOADER_FIELDS_C25_01 = (
+    ('variant', 'str'),
+    ('cache', 'str'),
+    ('executable', 'str'),
+    ('library_environment', 'str'),
+)
+_LOADER_FIELDS_C26_01 = (
+    ('content_state', 'str'),
+)
+_LOADER_FIELDS_C26_02 = (
+    ('content_state', 'str'),
+    ('changed', 'bool'),
+    ('initial.container', 'str'),
+    ('initial.dev', 'int'),
+    ('initial.ino', 'int'),
+    ('initial.mode', 'int'),
+    ('initial.size', 'int'),
+    ('initial.mtime_ns', 'int'),
+    ('initial.ctime_ns', 'int'),
+    ('initial.nlink', 'int'),
+)
+_LOADER_FIELDS_C26_03 = (
+    ('content_state', 'str'),
+    ('changed', 'bool'),
+    ('initial.container', 'str'),
+    ('initial.dev', 'int'),
+    ('initial.ino', 'int'),
+    ('initial.mode', 'int'),
+    ('initial.size', 'int'),
+    ('initial.mtime_ns', 'int'),
+    ('initial.ctime_ns', 'int'),
+    ('initial.nlink', 'int'),
+    ('observed.container', 'str'),
+    ('observed.dev', 'int'),
+    ('observed.ino', 'int'),
+    ('observed.mode', 'int'),
+    ('observed.size', 'int'),
+    ('observed.mtime_ns', 'int'),
+    ('observed.ctime_ns', 'int'),
+    ('observed.nlink', 'int'),
+    ('returned.container', 'str'),
+    ('returned.dev', 'int'),
+    ('returned.ino', 'int'),
+    ('returned.mode', 'int'),
+    ('returned.size', 'int'),
+    ('returned.mtime_ns', 'int'),
+    ('returned.ctime_ns', 'int'),
+    ('returned.nlink', 'int'),
+)
+_LOADER_FIELDS_C26_04 = (
+    ('content_state', 'str'),
+    ('changed', 'bool'),
+    ('initial.dev', 'int'),
+    ('initial.ino', 'int'),
+)
+_LOADER_FIELDS_C26_06 = (
+    ('executable.shape', 'str'),
+    ('executable.sha256', 'str'),
+    ('executable.size_bytes', 'int'),
+    ('executable.device.shape', 'str'),
+    ('executable.device.major', 'int'),
+    ('executable.device.minor', 'int'),
+    ('executable.inode', 'int'),
+    ('executable._stat.container', 'str'),
+    ('executable._stat.dev', 'int'),
+    ('executable._stat.ino', 'int'),
+    ('executable._stat.mode', 'int'),
+    ('executable._stat.size', 'int'),
+    ('executable._stat.mtime_ns', 'int'),
+    ('executable._stat.ctime_ns', 'int'),
+    ('executable._stat.nlink', 'int'),
+    ('library.shape', 'str'),
+    ('library.sha256', 'str'),
+    ('library.size_bytes', 'int'),
+    ('library.device.shape', 'str'),
+    ('library.device.major', 'int'),
+    ('library.device.minor', 'int'),
+    ('library.inode', 'int'),
+    ('library._stat.container', 'str'),
+    ('library._stat.dev', 'int'),
+    ('library._stat.ino', 'int'),
+    ('library._stat.mode', 'int'),
+    ('library._stat.size', 'int'),
+    ('library._stat.mtime_ns', 'int'),
+    ('library._stat.ctime_ns', 'int'),
+    ('library._stat.nlink', 'int'),
+    ('changed.shape', 'str'),
+    ('changed.sha256', 'str'),
+    ('changed.size_bytes', 'int'),
+    ('changed.device.shape', 'str'),
+    ('changed.device.major', 'int'),
+    ('changed.device.minor', 'int'),
+    ('changed.inode', 'int'),
+    ('changed._stat.container', 'str'),
+    ('changed._stat.dev', 'int'),
+    ('changed._stat.ino', 'int'),
+    ('changed._stat.mode', 'int'),
+    ('changed._stat.size', 'int'),
+    ('changed._stat.mtime_ns', 'int'),
+    ('changed._stat.ctime_ns', 'int'),
+    ('changed._stat.nlink', 'int'),
+)
+_LOADER_FIELDS_C27_01 = (
+    ('maps.container', 'str'),
+    ('maps.0', 'str'),
+    ('device.major', 'int'),
+    ('device.minor', 'int'),
+    ('inode', 'int'),
+)
+_LOADER_FIELDS_C27_09 = (
+    ('maps.container', 'str'),
+    ('maps.0', 'str'),
+    ('maps.1', 'str'),
+    ('device.major', 'int'),
+    ('device.minor', 'int'),
+    ('inode', 'int'),
+)
+_LOADER_FIELDS_C28_01 = (
+    ('key', 'str'),
+    ('present', 'bool'),
+    ('value', 'str'),
+    ('cache', 'str'),
+    ('library_environment', 'str'),
+)
+_LOADER_FIELDS_C28_05 = (
+    ('key', 'str'),
+    ('present', 'bool'),
+    ('value', 'null'),
+    ('cache', 'str'),
+    ('library_environment', 'null'),
+)
+_LOADER_FIELDS_C29_01 = (
+    ('argument.shape', 'str'),
+    ('argument.mask', 'int'),
+    ('argument.schema', 'str'),
+    ('argument.tool_cache', 'str'),
+    ('argument.executable_path', 'str'),
+    ('argument.executable_sha256', 'str'),
+    ('argument.library_relative_path', 'str'),
+    ('argument.library_path', 'str'),
+    ('argument.library_directory', 'str'),
+    ('argument.library_sha256', 'str'),
+    ('argument.library_size_bytes', 'int'),
+    ('argument.library_inode', 'int'),
+    ('argument.extra', 'null'),
+    ('argument.library_device.shape', 'str'),
+    ('argument.library_device.mask', 'int'),
+    ('argument.library_device.major', 'int'),
+    ('argument.library_device.minor', 'int'),
+    ('argument.mapped_library.shape', 'str'),
+    ('argument.mapped_library.mask', 'int'),
+    ('argument.mapped_library.path', 'str'),
+    ('argument.mapped_library.inode', 'int'),
+    ('argument.mapped_library.device.shape', 'str'),
+    ('argument.mapped_library.device.mask', 'int'),
+    ('argument.mapped_library.device.major', 'int'),
+    ('argument.mapped_library.device.minor', 'int'),
+    ('argument.loader_environment.shape', 'str'),
+    ('argument.loader_environment.mask', 'int'),
+    ('argument.loader_environment.LD_LIBRARY_PATH', 'str'),
+    ('argument.loader_environment.LD_PRELOAD', 'null'),
+)
+_LOADER_FIELDS_C29_02 = (
+    ('argument.shape', 'str'),
+    ('argument.mask', 'int'),
+    ('argument.schema', 'str'),
+    ('argument.tool_cache', 'null'),
+    ('argument.executable_path', 'null'),
+    ('argument.executable_sha256', 'str'),
+    ('argument.library_relative_path', 'str'),
+    ('argument.library_path', 'null'),
+    ('argument.library_directory', 'null'),
+    ('argument.library_sha256', 'str'),
+    ('argument.library_size_bytes', 'int'),
+    ('argument.library_inode', 'null'),
+    ('argument.extra', 'null'),
+    ('argument.library_device.shape', 'str'),
+    ('argument.library_device.mask', 'null'),
+    ('argument.library_device.major', 'null'),
+    ('argument.library_device.minor', 'null'),
+    ('argument.mapped_library.shape', 'str'),
+    ('argument.mapped_library.mask', 'null'),
+    ('argument.mapped_library.path', 'null'),
+    ('argument.mapped_library.inode', 'null'),
+    ('argument.mapped_library.device.shape', 'str'),
+    ('argument.mapped_library.device.mask', 'null'),
+    ('argument.mapped_library.device.major', 'null'),
+    ('argument.mapped_library.device.minor', 'null'),
+    ('argument.loader_environment.shape', 'str'),
+    ('argument.loader_environment.mask', 'null'),
+    ('argument.loader_environment.LD_LIBRARY_PATH', 'null'),
+    ('argument.loader_environment.LD_PRELOAD', 'null'),
+)
+_LOADER_FIELDS_C29_03 = (
+    ('argument.shape', 'str'),
+    ('argument.mask', 'int'),
+    ('argument.schema', 'str'),
+    ('argument.tool_cache', 'null'),
+    ('argument.executable_path', 'null'),
+    ('argument.executable_sha256', 'str'),
+    ('argument.library_relative_path', 'str'),
+    ('argument.library_path', 'null'),
+    ('argument.library_directory', 'null'),
+    ('argument.library_sha256', 'null'),
+    ('argument.library_size_bytes', 'int'),
+    ('argument.library_inode', 'null'),
+    ('argument.extra', 'null'),
+    ('argument.library_device.shape', 'str'),
+    ('argument.library_device.mask', 'null'),
+    ('argument.library_device.major', 'null'),
+    ('argument.library_device.minor', 'null'),
+    ('argument.mapped_library.shape', 'str'),
+    ('argument.mapped_library.mask', 'null'),
+    ('argument.mapped_library.path', 'null'),
+    ('argument.mapped_library.inode', 'null'),
+    ('argument.mapped_library.device.shape', 'str'),
+    ('argument.mapped_library.device.mask', 'null'),
+    ('argument.mapped_library.device.major', 'null'),
+    ('argument.mapped_library.device.minor', 'null'),
+    ('argument.loader_environment.shape', 'str'),
+    ('argument.loader_environment.mask', 'null'),
+    ('argument.loader_environment.LD_LIBRARY_PATH', 'null'),
+    ('argument.loader_environment.LD_PRELOAD', 'null'),
+)
+_LOADER_FIELDS_C29_04 = (
+    ('argument.shape', 'str'),
+    ('argument.mask', 'int'),
+    ('argument.schema', 'str'),
+    ('argument.tool_cache', 'null'),
+    ('argument.executable_path', 'null'),
+    ('argument.executable_sha256', 'str'),
+    ('argument.library_relative_path', 'str'),
+    ('argument.library_path', 'null'),
+    ('argument.library_directory', 'null'),
+    ('argument.library_sha256', 'str'),
+    ('argument.library_size_bytes', 'int'),
+    ('argument.library_inode', 'null'),
+    ('argument.extra', 'int'),
+    ('argument.library_device.shape', 'str'),
+    ('argument.library_device.mask', 'null'),
+    ('argument.library_device.major', 'null'),
+    ('argument.library_device.minor', 'null'),
+    ('argument.mapped_library.shape', 'str'),
+    ('argument.mapped_library.mask', 'null'),
+    ('argument.mapped_library.path', 'null'),
+    ('argument.mapped_library.inode', 'null'),
+    ('argument.mapped_library.device.shape', 'str'),
+    ('argument.mapped_library.device.mask', 'null'),
+    ('argument.mapped_library.device.major', 'null'),
+    ('argument.mapped_library.device.minor', 'null'),
+    ('argument.loader_environment.shape', 'str'),
+    ('argument.loader_environment.mask', 'null'),
+    ('argument.loader_environment.LD_LIBRARY_PATH', 'null'),
+    ('argument.loader_environment.LD_PRELOAD', 'null'),
+)
+_LOADER_FIELDS_C29_06 = (
+    ('argument.shape', 'str'),
+    ('argument.mask', 'int'),
+    ('argument.schema', 'str'),
+    ('argument.tool_cache', 'null'),
+    ('argument.executable_path', 'null'),
+    ('argument.executable_sha256', 'str'),
+    ('argument.library_relative_path', 'str'),
+    ('argument.library_path', 'null'),
+    ('argument.library_directory', 'null'),
+    ('argument.library_sha256', 'str'),
+    ('argument.library_size_bytes', 'bool'),
+    ('argument.library_inode', 'null'),
+    ('argument.extra', 'null'),
+    ('argument.library_device.shape', 'str'),
+    ('argument.library_device.mask', 'null'),
+    ('argument.library_device.major', 'null'),
+    ('argument.library_device.minor', 'null'),
+    ('argument.mapped_library.shape', 'str'),
+    ('argument.mapped_library.mask', 'null'),
+    ('argument.mapped_library.path', 'null'),
+    ('argument.mapped_library.inode', 'null'),
+    ('argument.mapped_library.device.shape', 'str'),
+    ('argument.mapped_library.device.mask', 'null'),
+    ('argument.mapped_library.device.major', 'null'),
+    ('argument.mapped_library.device.minor', 'null'),
+    ('argument.loader_environment.shape', 'str'),
+    ('argument.loader_environment.mask', 'null'),
+    ('argument.loader_environment.LD_LIBRARY_PATH', 'null'),
+    ('argument.loader_environment.LD_PRELOAD', 'null'),
+)
+_LOADER_FIELDS_C30_01 = (
+    ('argument.shape', 'str'),
+    ('argument.mask', 'int'),
+    ('argument.schema', 'str'),
+    ('argument.tool_cache', 'str'),
+    ('argument.executable_path', 'str'),
+    ('argument.executable_sha256', 'str'),
+    ('argument.library_relative_path', 'str'),
+    ('argument.library_path', 'str'),
+    ('argument.library_directory', 'str'),
+    ('argument.library_sha256', 'str'),
+    ('argument.library_size_bytes', 'int'),
+    ('argument.library_inode', 'int'),
+    ('argument.extra', 'int'),
+    ('argument.library_device.shape', 'str'),
+    ('argument.library_device.mask', 'int'),
+    ('argument.library_device.major', 'int'),
+    ('argument.library_device.minor', 'int'),
+    ('argument.mapped_library.shape', 'str'),
+    ('argument.mapped_library.mask', 'int'),
+    ('argument.mapped_library.path', 'str'),
+    ('argument.mapped_library.inode', 'int'),
+    ('argument.mapped_library.device.shape', 'str'),
+    ('argument.mapped_library.device.mask', 'int'),
+    ('argument.mapped_library.device.major', 'int'),
+    ('argument.mapped_library.device.minor', 'int'),
+    ('argument.loader_environment.shape', 'str'),
+    ('argument.loader_environment.mask', 'int'),
+    ('argument.loader_environment.LD_LIBRARY_PATH', 'str'),
+    ('argument.loader_environment.LD_PRELOAD', 'null'),
+)
+_LOADER_FIELDS_C30_02 = (
+    ('argument.shape', 'str'),
+    ('argument.mask', 'int'),
+    ('argument.schema', 'str'),
+    ('argument.tool_cache', 'str'),
+    ('argument.executable_path', 'str'),
+    ('argument.executable_sha256', 'str'),
+    ('argument.library_relative_path', 'str'),
+    ('argument.library_path', 'str'),
+    ('argument.library_directory', 'str'),
+    ('argument.library_sha256', 'str'),
+    ('argument.library_size_bytes', 'int'),
+    ('argument.library_inode', 'int'),
+    ('argument.extra', 'null'),
+    ('argument.library_device.shape', 'str'),
+    ('argument.library_device.mask', 'int'),
+    ('argument.library_device.major', 'int'),
+    ('argument.library_device.minor', 'int'),
+    ('argument.mapped_library.shape', 'str'),
+    ('argument.mapped_library.mask', 'null'),
+    ('argument.mapped_library.path', 'null'),
+    ('argument.mapped_library.inode', 'null'),
+    ('argument.mapped_library.device.shape', 'str'),
+    ('argument.mapped_library.device.mask', 'null'),
+    ('argument.mapped_library.device.major', 'null'),
+    ('argument.mapped_library.device.minor', 'null'),
+    ('argument.loader_environment.shape', 'str'),
+    ('argument.loader_environment.mask', 'int'),
+    ('argument.loader_environment.LD_LIBRARY_PATH', 'str'),
+    ('argument.loader_environment.LD_PRELOAD', 'null'),
+)
+_LOADER_FIELDS_C30_10 = (
+    ('argument.shape', 'str'),
+    ('argument.mask', 'int'),
+    ('argument.schema', 'str'),
+    ('argument.tool_cache', 'str'),
+    ('argument.executable_path', 'str'),
+    ('argument.executable_sha256', 'str'),
+    ('argument.library_relative_path', 'str'),
+    ('argument.library_path', 'str'),
+    ('argument.library_directory', 'str'),
+    ('argument.library_sha256', 'str'),
+    ('argument.library_size_bytes', 'int'),
+    ('argument.library_inode', 'int'),
+    ('argument.extra', 'null'),
+    ('argument.library_device.shape', 'str'),
+    ('argument.library_device.mask', 'int'),
+    ('argument.library_device.major', 'int'),
+    ('argument.library_device.minor', 'int'),
+    ('argument.mapped_library.shape', 'str'),
+    ('argument.mapped_library.mask', 'int'),
+    ('argument.mapped_library.path', 'str'),
+    ('argument.mapped_library.inode', 'int'),
+    ('argument.mapped_library.device.shape', 'str'),
+    ('argument.mapped_library.device.mask', 'int'),
+    ('argument.mapped_library.device.major', 'int'),
+    ('argument.mapped_library.device.minor', 'int'),
+    ('argument.loader_environment.shape', 'str'),
+    ('argument.loader_environment.mask', 'int'),
+    ('argument.loader_environment.LD_LIBRARY_PATH', 'str'),
+    ('argument.loader_environment.LD_PRELOAD', 'str'),
+)
+_LOADER_FIELDS_C31_01 = (
+    ('dirty.shape', 'str'),
+    ('dirty.mask', 'int'),
+    ('dirty.KEEP', 'str'),
+    ('dirty.LD_LIBRARY_PATH', 'str'),
+    ('dirty.LD_AUDIT', 'str'),
+    ('dirty.LD_UNKNOWN', 'str'),
+    ('dirty.PYTHONPATH', 'str'),
+    ('dirty.PYTHONUNKNOWN', 'str'),
+    ('local.mode', 'str'),
+    ('local.error', 'null'),
+    ('argument.shape', 'str'),
+)
+_LOADER_FIELDS_C31_02 = (
+    ('dirty.shape', 'str'),
+    ('dirty.mask', 'int'),
+    ('dirty.KEEP', 'str'),
+    ('dirty.LD_LIBRARY_PATH', 'str'),
+    ('dirty.LD_AUDIT', 'str'),
+    ('dirty.LD_UNKNOWN', 'str'),
+    ('dirty.PYTHONPATH', 'str'),
+    ('dirty.PYTHONUNKNOWN', 'str'),
+    ('local.mode', 'str'),
+    ('local.error', 'null'),
+    ('argument.shape', 'str'),
+    ('argument.mask', 'int'),
+    ('argument.schema', 'str'),
+    ('argument.tool_cache', 'str'),
+    ('argument.executable_path', 'str'),
+    ('argument.executable_sha256', 'str'),
+    ('argument.library_relative_path', 'str'),
+    ('argument.library_path', 'str'),
+    ('argument.library_directory', 'str'),
+    ('argument.library_sha256', 'str'),
+    ('argument.library_size_bytes', 'int'),
+    ('argument.library_inode', 'int'),
+    ('argument.extra', 'null'),
+    ('argument.library_device.shape', 'str'),
+    ('argument.library_device.mask', 'int'),
+    ('argument.library_device.major', 'int'),
+    ('argument.library_device.minor', 'int'),
+    ('argument.mapped_library.shape', 'str'),
+    ('argument.mapped_library.mask', 'int'),
+    ('argument.mapped_library.path', 'str'),
+    ('argument.mapped_library.inode', 'int'),
+    ('argument.mapped_library.device.shape', 'str'),
+    ('argument.mapped_library.device.mask', 'int'),
+    ('argument.mapped_library.device.major', 'int'),
+    ('argument.mapped_library.device.minor', 'int'),
+    ('argument.loader_environment.shape', 'str'),
+    ('argument.loader_environment.mask', 'int'),
+    ('argument.loader_environment.LD_LIBRARY_PATH', 'str'),
+    ('argument.loader_environment.LD_PRELOAD', 'null'),
+)
+_LOADER_FIELDS_C31_03 = (
+    ('dirty.shape', 'str'),
+    ('dirty.mask', 'int'),
+    ('dirty.KEEP', 'str'),
+    ('dirty.LD_LIBRARY_PATH', 'str'),
+    ('dirty.LD_AUDIT', 'str'),
+    ('dirty.LD_UNKNOWN', 'str'),
+    ('dirty.PYTHONPATH', 'str'),
+    ('dirty.PYTHONUNKNOWN', 'str'),
+    ('local.mode', 'str'),
+    ('local.error', 'null'),
+    ('argument.shape', 'str'),
+    ('argument.mask', 'int'),
+    ('argument.schema', 'str'),
+    ('argument.tool_cache', 'null'),
+    ('argument.executable_path', 'null'),
+    ('argument.executable_sha256', 'str'),
+    ('argument.library_relative_path', 'str'),
+    ('argument.library_path', 'null'),
+    ('argument.library_directory', 'null'),
+    ('argument.library_sha256', 'str'),
+    ('argument.library_size_bytes', 'int'),
+    ('argument.library_inode', 'null'),
+    ('argument.extra', 'null'),
+    ('argument.library_device.shape', 'str'),
+    ('argument.library_device.mask', 'null'),
+    ('argument.library_device.major', 'null'),
+    ('argument.library_device.minor', 'null'),
+    ('argument.mapped_library.shape', 'str'),
+    ('argument.mapped_library.mask', 'null'),
+    ('argument.mapped_library.path', 'null'),
+    ('argument.mapped_library.inode', 'null'),
+    ('argument.mapped_library.device.shape', 'str'),
+    ('argument.mapped_library.device.mask', 'null'),
+    ('argument.mapped_library.device.major', 'null'),
+    ('argument.mapped_library.device.minor', 'null'),
+    ('argument.loader_environment.shape', 'str'),
+    ('argument.loader_environment.mask', 'null'),
+    ('argument.loader_environment.LD_LIBRARY_PATH', 'null'),
+    ('argument.loader_environment.LD_PRELOAD', 'null'),
+)
+_LOADER_FIELDS_C31_06 = (
+    ('dirty.shape', 'str'),
+    ('dirty.mask', 'int'),
+    ('dirty.KEEP', 'str'),
+    ('dirty.LD_LIBRARY_PATH', 'str'),
+    ('dirty.LD_AUDIT', 'str'),
+    ('dirty.LD_UNKNOWN', 'str'),
+    ('dirty.PYTHONPATH', 'str'),
+    ('dirty.PYTHONUNKNOWN', 'str'),
+    ('local.mode', 'str'),
+    ('local.error', 'null'),
+    ('argument.shape', 'str'),
+    ('argument.mask', 'null'),
+    ('argument.value', 'str'),
+)
+_LOADER_FIELDS_C31_07 = (
+    ('dirty.shape', 'str'),
+    ('dirty.mask', 'int'),
+    ('dirty.KEEP', 'str'),
+    ('dirty.LD_LIBRARY_PATH', 'str'),
+    ('dirty.LD_AUDIT', 'str'),
+    ('dirty.LD_UNKNOWN', 'str'),
+    ('dirty.PYTHONPATH', 'str'),
+    ('dirty.PYTHONUNKNOWN', 'str'),
+    ('local.mode', 'str'),
+    ('local.error', 'str'),
+    ('argument.shape', 'str'),
+    ('argument.mask', 'int'),
+    ('argument.schema', 'str'),
+    ('argument.tool_cache', 'str'),
+    ('argument.executable_path', 'str'),
+    ('argument.executable_sha256', 'str'),
+    ('argument.library_relative_path', 'str'),
+    ('argument.library_path', 'str'),
+    ('argument.library_directory', 'str'),
+    ('argument.library_sha256', 'str'),
+    ('argument.library_size_bytes', 'int'),
+    ('argument.library_inode', 'int'),
+    ('argument.extra', 'null'),
+    ('argument.library_device.shape', 'str'),
+    ('argument.library_device.mask', 'int'),
+    ('argument.library_device.major', 'int'),
+    ('argument.library_device.minor', 'int'),
+    ('argument.mapped_library.shape', 'str'),
+    ('argument.mapped_library.mask', 'int'),
+    ('argument.mapped_library.path', 'str'),
+    ('argument.mapped_library.inode', 'int'),
+    ('argument.mapped_library.device.shape', 'str'),
+    ('argument.mapped_library.device.mask', 'int'),
+    ('argument.mapped_library.device.major', 'int'),
+    ('argument.mapped_library.device.minor', 'int'),
+    ('argument.loader_environment.shape', 'str'),
+    ('argument.loader_environment.mask', 'int'),
+    ('argument.loader_environment.LD_LIBRARY_PATH', 'str'),
+    ('argument.loader_environment.LD_PRELOAD', 'null'),
+)
+_LOADER_FIELDS_C32_01 = (
+    ('implementation', 'str'),
+    ('version', 'str'),
+    ('platform', 'str'),
+    ('flags.dont_write_bytecode', 'int'),
+    ('flags.no_user_site', 'int'),
+    ('flags.ignore_environment', 'int'),
+    ('flags.isolated', 'int'),
+    ('flags.optimize', 'int'),
+    ('flags.no_site', 'int'),
+    ('gc.enabled', 'bool'),
+    ('gc.threshold.container', 'str'),
+    ('gc.threshold.0', 'int'),
+    ('gc.threshold.1', 'int'),
+    ('gc.threshold.2', 'int'),
+    ('timer.container', 'str'),
+    ('timer.0', 'int'),
+    ('timer.1', 'int'),
+    ('limits.container', 'str'),
+    ('limits.0', 'int'),
+    ('limits.1', 'int'),
+    ('registered.sha256', 'str'),
+    ('registered.size', 'int'),
+    ('loader.mode', 'str'),
+    ('loader.error', 'null'),
+    ('environment.GITHUB_ACTIONS', 'str'),
+    ('environment.GITHUB_REPOSITORY', 'str'),
+    ('environment.RUNNER_NAME', 'str'),
+    ('environment.PYTHONUNEXPECTED', 'null'),
+    ('child', 'bool'),
+    ('implementation.side_effect', 'null'),
+    ('version.side_effect', 'null'),
+    ('gc.enabled.side_effect', 'null'),
+    ('gc.threshold.side_effect', 'null'),
+    ('timer.side_effect', 'null'),
+    ('limits.side_effect', 'null'),
+    ('loader.shape', 'str'),
+    ('loader.mask', 'int'),
+    ('loader.schema', 'str'),
+    ('loader.tool_cache', 'str'),
+    ('loader.executable_path', 'str'),
+    ('loader.executable_sha256', 'str'),
+    ('loader.library_relative_path', 'str'),
+    ('loader.library_path', 'str'),
+    ('loader.library_directory', 'str'),
+    ('loader.library_sha256', 'str'),
+    ('loader.library_size_bytes', 'int'),
+    ('loader.library_inode', 'int'),
+    ('loader.extra', 'null'),
+    ('loader.library_device.shape', 'str'),
+    ('loader.library_device.mask', 'int'),
+    ('loader.library_device.major', 'int'),
+    ('loader.library_device.minor', 'int'),
+    ('loader.mapped_library.shape', 'str'),
+    ('loader.mapped_library.mask', 'int'),
+    ('loader.mapped_library.path', 'str'),
+    ('loader.mapped_library.inode', 'int'),
+    ('loader.mapped_library.device.shape', 'str'),
+    ('loader.mapped_library.device.mask', 'int'),
+    ('loader.mapped_library.device.major', 'int'),
+    ('loader.mapped_library.device.minor', 'int'),
+    ('loader.loader_environment.shape', 'str'),
+    ('loader.loader_environment.mask', 'int'),
+    ('loader.loader_environment.LD_LIBRARY_PATH', 'str'),
+    ('loader.loader_environment.LD_PRELOAD', 'null'),
+)
+_LOADER_FIELDS_C32_02 = (
+    ('implementation', 'str'),
+    ('version', 'str'),
+    ('platform', 'str'),
+    ('flags.dont_write_bytecode', 'int'),
+    ('flags.no_user_site', 'int'),
+    ('flags.ignore_environment', 'int'),
+    ('flags.isolated', 'int'),
+    ('flags.optimize', 'int'),
+    ('flags.no_site', 'int'),
+    ('gc.enabled', 'bool'),
+    ('gc.threshold.container', 'str'),
+    ('gc.threshold.0', 'int'),
+    ('gc.threshold.1', 'int'),
+    ('gc.threshold.2', 'int'),
+    ('timer.container', 'str'),
+    ('timer.0', 'int'),
+    ('timer.1', 'int'),
+    ('limits.container', 'str'),
+    ('limits.0', 'int'),
+    ('limits.1', 'int'),
+    ('registered.sha256', 'str'),
+    ('registered.size', 'int'),
+    ('loader.mode', 'str'),
+    ('loader.error', 'str'),
+    ('environment.GITHUB_ACTIONS', 'str'),
+    ('environment.GITHUB_REPOSITORY', 'str'),
+    ('environment.RUNNER_NAME', 'str'),
+    ('environment.PYTHONUNEXPECTED', 'null'),
+    ('child', 'bool'),
+    ('implementation.side_effect', 'null'),
+    ('version.side_effect', 'null'),
+    ('gc.enabled.side_effect', 'null'),
+    ('gc.threshold.side_effect', 'null'),
+    ('timer.side_effect', 'null'),
+    ('limits.side_effect', 'null'),
+    ('loader.shape', 'str'),
+    ('loader.mask', 'int'),
+    ('loader.schema', 'str'),
+    ('loader.tool_cache', 'str'),
+    ('loader.executable_path', 'str'),
+    ('loader.executable_sha256', 'str'),
+    ('loader.library_relative_path', 'str'),
+    ('loader.library_path', 'str'),
+    ('loader.library_directory', 'str'),
+    ('loader.library_sha256', 'str'),
+    ('loader.library_size_bytes', 'int'),
+    ('loader.library_inode', 'int'),
+    ('loader.extra', 'null'),
+    ('loader.library_device.shape', 'str'),
+    ('loader.library_device.mask', 'int'),
+    ('loader.library_device.major', 'int'),
+    ('loader.library_device.minor', 'int'),
+    ('loader.mapped_library.shape', 'str'),
+    ('loader.mapped_library.mask', 'int'),
+    ('loader.mapped_library.path', 'str'),
+    ('loader.mapped_library.inode', 'int'),
+    ('loader.mapped_library.device.shape', 'str'),
+    ('loader.mapped_library.device.mask', 'int'),
+    ('loader.mapped_library.device.major', 'int'),
+    ('loader.mapped_library.device.minor', 'int'),
+    ('loader.loader_environment.shape', 'str'),
+    ('loader.loader_environment.mask', 'int'),
+    ('loader.loader_environment.LD_LIBRARY_PATH', 'str'),
+    ('loader.loader_environment.LD_PRELOAD', 'null'),
+)
+_LOADER_FIELDS_C32_03 = (
+    ('implementation', 'str'),
+    ('version', 'str'),
+    ('platform', 'str'),
+    ('flags.dont_write_bytecode', 'int'),
+    ('flags.no_user_site', 'int'),
+    ('flags.ignore_environment', 'int'),
+    ('flags.isolated', 'int'),
+    ('flags.optimize', 'int'),
+    ('flags.no_site', 'int'),
+    ('gc.enabled', 'bool'),
+    ('gc.threshold.container', 'str'),
+    ('gc.threshold.0', 'int'),
+    ('gc.threshold.1', 'int'),
+    ('gc.threshold.2', 'int'),
+    ('timer.container', 'str'),
+    ('timer.0', 'int'),
+    ('timer.1', 'int'),
+    ('limits.container', 'str'),
+    ('limits.0', 'int'),
+    ('limits.1', 'int'),
+    ('registered.sha256', 'str'),
+    ('registered.size', 'int'),
+    ('loader.mode', 'str'),
+    ('loader.error', 'null'),
+    ('environment.GITHUB_ACTIONS', 'str'),
+    ('environment.GITHUB_REPOSITORY', 'str'),
+    ('environment.RUNNER_NAME', 'str'),
+    ('environment.PYTHONUNEXPECTED', 'str'),
+    ('child', 'bool'),
+    ('implementation.side_effect', 'null'),
+    ('version.side_effect', 'null'),
+    ('gc.enabled.side_effect', 'null'),
+    ('gc.threshold.side_effect', 'null'),
+    ('timer.side_effect', 'null'),
+    ('limits.side_effect', 'null'),
+    ('loader.shape', 'str'),
+    ('loader.mask', 'int'),
+    ('loader.schema', 'str'),
+    ('loader.tool_cache', 'str'),
+    ('loader.executable_path', 'str'),
+    ('loader.executable_sha256', 'str'),
+    ('loader.library_relative_path', 'str'),
+    ('loader.library_path', 'str'),
+    ('loader.library_directory', 'str'),
+    ('loader.library_sha256', 'str'),
+    ('loader.library_size_bytes', 'int'),
+    ('loader.library_inode', 'int'),
+    ('loader.extra', 'null'),
+    ('loader.library_device.shape', 'str'),
+    ('loader.library_device.mask', 'int'),
+    ('loader.library_device.major', 'int'),
+    ('loader.library_device.minor', 'int'),
+    ('loader.mapped_library.shape', 'str'),
+    ('loader.mapped_library.mask', 'int'),
+    ('loader.mapped_library.path', 'str'),
+    ('loader.mapped_library.inode', 'int'),
+    ('loader.mapped_library.device.shape', 'str'),
+    ('loader.mapped_library.device.mask', 'int'),
+    ('loader.mapped_library.device.major', 'int'),
+    ('loader.mapped_library.device.minor', 'int'),
+    ('loader.loader_environment.shape', 'str'),
+    ('loader.loader_environment.mask', 'int'),
+    ('loader.loader_environment.LD_LIBRARY_PATH', 'str'),
+    ('loader.loader_environment.LD_PRELOAD', 'null'),
+)
+
+LOADER_CONTEXT_SCHEMAS = {
+    'c25-01': _LOADER_FIELDS_C25_01,
+    'c25-02': _LOADER_FIELDS_C25_01,
+    'c25-03': _LOADER_FIELDS_C25_01,
+    'c25-04': _LOADER_FIELDS_C25_01,
+    'c25-05': _LOADER_FIELDS_C25_01,
+    'c25-06': _LOADER_FIELDS_C25_01,
+    'c25-07': _LOADER_FIELDS_C25_01,
+    'c26-01': _LOADER_FIELDS_C26_01,
+    'c26-02': _LOADER_FIELDS_C26_02,
+    'c26-03': _LOADER_FIELDS_C26_03,
+    'c26-04': _LOADER_FIELDS_C26_04,
+    'c26-05': _LOADER_FIELDS_C26_04,
+    'c26-06': _LOADER_FIELDS_C26_06,
+    'c27-01': _LOADER_FIELDS_C27_01,
+    'c27-02': _LOADER_FIELDS_C27_01,
+    'c27-03': _LOADER_FIELDS_C27_01,
+    'c27-04': _LOADER_FIELDS_C27_01,
+    'c27-05': _LOADER_FIELDS_C27_01,
+    'c27-06': _LOADER_FIELDS_C27_01,
+    'c27-07': _LOADER_FIELDS_C27_01,
+    'c27-08': _LOADER_FIELDS_C27_01,
+    'c27-09': _LOADER_FIELDS_C27_09,
+    'c28-01': _LOADER_FIELDS_C28_01,
+    'c28-02': _LOADER_FIELDS_C28_01,
+    'c28-03': _LOADER_FIELDS_C28_01,
+    'c28-04': _LOADER_FIELDS_C28_01,
+    'c28-05': _LOADER_FIELDS_C28_05,
+    'c28-06': _LOADER_FIELDS_C28_01,
+    'c28-07': _LOADER_FIELDS_C28_01,
+    'c29-01': _LOADER_FIELDS_C29_01,
+    'c29-02': _LOADER_FIELDS_C29_02,
+    'c29-03': _LOADER_FIELDS_C29_03,
+    'c29-04': _LOADER_FIELDS_C29_04,
+    'c29-05': _LOADER_FIELDS_C29_02,
+    'c29-06': _LOADER_FIELDS_C29_06,
+    'c29-07': _LOADER_FIELDS_C29_02,
+    'c29-08': _LOADER_FIELDS_C29_02,
+    'c29-09': _LOADER_FIELDS_C29_02,
+    'c29-10': _LOADER_FIELDS_C29_02,
+    'c29-11': _LOADER_FIELDS_C29_02,
+    'c30-01': _LOADER_FIELDS_C30_01,
+    'c30-02': _LOADER_FIELDS_C30_02,
+    'c30-03': _LOADER_FIELDS_C29_01,
+    'c30-04': _LOADER_FIELDS_C29_01,
+    'c30-05': _LOADER_FIELDS_C29_01,
+    'c30-06': _LOADER_FIELDS_C29_01,
+    'c30-07': _LOADER_FIELDS_C29_01,
+    'c30-08': _LOADER_FIELDS_C29_01,
+    'c30-09': _LOADER_FIELDS_C29_01,
+    'c30-10': _LOADER_FIELDS_C30_10,
+    'c31-01': _LOADER_FIELDS_C31_01,
+    'c31-02': _LOADER_FIELDS_C31_02,
+    'c31-03': _LOADER_FIELDS_C31_03,
+    'c31-04': _LOADER_FIELDS_C31_02,
+    'c31-05': _LOADER_FIELDS_C31_03,
+    'c31-06': _LOADER_FIELDS_C31_06,
+    'c31-07': _LOADER_FIELDS_C31_07,
+    'c32-01': _LOADER_FIELDS_C32_01,
+    'c32-02': _LOADER_FIELDS_C32_02,
+    'c32-03': _LOADER_FIELDS_C32_03,
+}
+_LOADER_DYNAMIC_C25_01 = ()
+_LOADER_DYNAMIC_C26_02 = (
+    'initial.dev',
+    'initial.ino',
+    'initial.mode',
+    'initial.size',
+    'initial.mtime_ns',
+    'initial.ctime_ns',
+    'initial.nlink',
+)
+_LOADER_DYNAMIC_C26_03 = (
+    'initial.dev',
+    'initial.ino',
+    'initial.mode',
+    'initial.size',
+    'initial.mtime_ns',
+    'initial.ctime_ns',
+    'initial.nlink',
+    'observed.dev',
+    'observed.ino',
+    'observed.mode',
+    'observed.size',
+    'observed.mtime_ns',
+    'observed.ctime_ns',
+    'observed.nlink',
+    'returned.dev',
+    'returned.ino',
+    'returned.mode',
+    'returned.size',
+    'returned.mtime_ns',
+    'returned.ctime_ns',
+    'returned.nlink',
+)
+_LOADER_DYNAMIC_C26_04 = (
+    'initial.dev',
+    'initial.ino',
+)
+_LOADER_DYNAMIC_C26_06 = (
+    'executable.device.major',
+    'executable.device.minor',
+    'executable.inode',
+    'executable._stat.dev',
+    'executable._stat.ino',
+    'executable._stat.mode',
+    'executable._stat.size',
+    'executable._stat.mtime_ns',
+    'executable._stat.ctime_ns',
+    'executable._stat.nlink',
+    'library.device.major',
+    'library.device.minor',
+    'library.inode',
+    'library._stat.dev',
+    'library._stat.ino',
+    'library._stat.mode',
+    'library._stat.size',
+    'library._stat.mtime_ns',
+    'library._stat.ctime_ns',
+    'library._stat.nlink',
+    'changed.device.major',
+    'changed.device.minor',
+    'changed.inode',
+    'changed._stat.dev',
+    'changed._stat.ino',
+    'changed._stat.mode',
+    'changed._stat.size',
+    'changed._stat.mtime_ns',
+    'changed._stat.ctime_ns',
+    'changed._stat.nlink',
+)
+_LOADER_DYNAMIC_C27_01 = (
+    'device.major',
+    'device.minor',
+    'inode',
+)
+_LOADER_DYNAMIC_C27_02 = (
+    'maps.0',
+    'device.major',
+    'device.minor',
+    'inode',
+)
+_LOADER_DYNAMIC_C27_09 = (
+    'maps.0',
+    'maps.1',
+    'device.major',
+    'device.minor',
+    'inode',
+)
+_LOADER_DYNAMIC_C29_01 = (
+    'argument.library_inode',
+    'argument.library_device.major',
+    'argument.library_device.minor',
+    'argument.mapped_library.inode',
+    'argument.mapped_library.device.major',
+    'argument.mapped_library.device.minor',
+)
+_LOADER_DYNAMIC_C30_02 = (
+    'argument.library_inode',
+    'argument.library_device.major',
+    'argument.library_device.minor',
+)
+_LOADER_DYNAMIC_C32_01 = (
+    'loader.library_inode',
+    'loader.library_device.major',
+    'loader.library_device.minor',
+    'loader.mapped_library.inode',
+    'loader.mapped_library.device.major',
+    'loader.mapped_library.device.minor',
+)
+
+LOADER_DYNAMIC_FIELDS = {
+    'c25-01': _LOADER_DYNAMIC_C25_01,
+    'c25-02': _LOADER_DYNAMIC_C25_01,
+    'c25-03': _LOADER_DYNAMIC_C25_01,
+    'c25-04': _LOADER_DYNAMIC_C25_01,
+    'c25-05': _LOADER_DYNAMIC_C25_01,
+    'c25-06': _LOADER_DYNAMIC_C25_01,
+    'c25-07': _LOADER_DYNAMIC_C25_01,
+    'c26-01': _LOADER_DYNAMIC_C25_01,
+    'c26-02': _LOADER_DYNAMIC_C26_02,
+    'c26-03': _LOADER_DYNAMIC_C26_03,
+    'c26-04': _LOADER_DYNAMIC_C26_04,
+    'c26-05': _LOADER_DYNAMIC_C26_04,
+    'c26-06': _LOADER_DYNAMIC_C26_06,
+    'c27-01': _LOADER_DYNAMIC_C27_01,
+    'c27-02': _LOADER_DYNAMIC_C27_02,
+    'c27-03': _LOADER_DYNAMIC_C27_02,
+    'c27-04': _LOADER_DYNAMIC_C27_02,
+    'c27-05': _LOADER_DYNAMIC_C27_02,
+    'c27-06': _LOADER_DYNAMIC_C27_02,
+    'c27-07': _LOADER_DYNAMIC_C27_02,
+    'c27-08': _LOADER_DYNAMIC_C27_02,
+    'c27-09': _LOADER_DYNAMIC_C27_09,
+    'c28-01': _LOADER_DYNAMIC_C25_01,
+    'c28-02': _LOADER_DYNAMIC_C25_01,
+    'c28-03': _LOADER_DYNAMIC_C25_01,
+    'c28-04': _LOADER_DYNAMIC_C25_01,
+    'c28-05': _LOADER_DYNAMIC_C25_01,
+    'c28-06': _LOADER_DYNAMIC_C25_01,
+    'c28-07': _LOADER_DYNAMIC_C25_01,
+    'c29-01': _LOADER_DYNAMIC_C29_01,
+    'c29-02': _LOADER_DYNAMIC_C25_01,
+    'c29-03': _LOADER_DYNAMIC_C25_01,
+    'c29-04': _LOADER_DYNAMIC_C25_01,
+    'c29-05': _LOADER_DYNAMIC_C25_01,
+    'c29-06': _LOADER_DYNAMIC_C25_01,
+    'c29-07': _LOADER_DYNAMIC_C25_01,
+    'c29-08': _LOADER_DYNAMIC_C25_01,
+    'c29-09': _LOADER_DYNAMIC_C25_01,
+    'c29-10': _LOADER_DYNAMIC_C25_01,
+    'c29-11': _LOADER_DYNAMIC_C25_01,
+    'c30-01': _LOADER_DYNAMIC_C29_01,
+    'c30-02': _LOADER_DYNAMIC_C30_02,
+    'c30-03': _LOADER_DYNAMIC_C29_01,
+    'c30-04': _LOADER_DYNAMIC_C29_01,
+    'c30-05': _LOADER_DYNAMIC_C29_01,
+    'c30-06': _LOADER_DYNAMIC_C29_01,
+    'c30-07': _LOADER_DYNAMIC_C29_01,
+    'c30-08': _LOADER_DYNAMIC_C29_01,
+    'c30-09': _LOADER_DYNAMIC_C29_01,
+    'c30-10': _LOADER_DYNAMIC_C29_01,
+    'c31-01': _LOADER_DYNAMIC_C25_01,
+    'c31-02': _LOADER_DYNAMIC_C29_01,
+    'c31-03': _LOADER_DYNAMIC_C25_01,
+    'c31-04': _LOADER_DYNAMIC_C29_01,
+    'c31-05': _LOADER_DYNAMIC_C25_01,
+    'c31-06': _LOADER_DYNAMIC_C25_01,
+    'c31-07': _LOADER_DYNAMIC_C29_01,
+    'c32-01': _LOADER_DYNAMIC_C32_01,
+    'c32-02': _LOADER_DYNAMIC_C32_01,
+    'c32-03': _LOADER_DYNAMIC_C32_01,
+}
 
 
 class BatchStopped(BaseException):
@@ -433,6 +1540,16 @@ class Capture:
         self.started_selectors = []
         self.log = None
         self.failure = None
+        self.capture_failed = False
+        self.version_identities = []
+        self.version_attempted_slots = set()
+        self.input_witnesses = []
+        self.input_attempted_slots = set()
+        self.loader_contexts = []
+        self.loader_attempted_slots = set()
+        self.loader_anchor_history = {}
+        self.transport_inputs = []
+        self.transport_attempted_slots = set()
 
     def fail(self, error, phase, code=None):
         # Finite known helper handoffs and real exception context only. No
@@ -579,6 +1696,16 @@ class Capture:
         self.log.case_limit = logs
         self.case_record_bytes = 0
         self.collect_attempted = False
+        self.capture_failed = False
+        self.version_identities = []
+        self.version_attempted_slots = set()
+        self.input_witnesses = []
+        self.input_attempted_slots = set()
+        self.loader_contexts = []
+        self.loader_attempted_slots = set()
+        self.loader_anchor_history = {}
+        self.transport_inputs = []
+        self.transport_attempted_slots = set()
         self.case_root = OUTPUT / f'c{index:04d}'
         self.case_root.mkdir(mode=0o700)
         sync_directory(OUTPUT)
@@ -619,40 +1746,735 @@ class Capture:
     def hook(self, selector, records):
         # Some tests still have mocked low-level I/O at this callback. Only
         # retain these plain records in memory; inspect after all cleanups.
-        if selector != self.current or type(records) is not list:
-            raise BatchStopped('native capture selector mismatch')
-        for record in records:
-            if record.get('event') == 'preserve_observed_version':
-                self.preserve_version(record)
-            else:
-                self.hooks.append(record)
+        try:
+            if selector != self.current or self.current is None or type(records) is not list:
+                raise BatchStopped('native capture selector mismatch', 'integrity_invalid')
+            for record in records:
+                if type(record) is not dict:
+                    raise BatchStopped('native capture record type differs', 'integrity_invalid')
+                if record.get('event') == 'preserve_observed_version':
+                    self.preserve_version(record)
+                elif record.get('event') == 'input_identity':
+                    self.preserve_input_identity(record)
+                elif record.get('event') == 'loader_context':
+                    self.preserve_loader_context(record)
+                elif record.get('event') == 'transport_input_identity':
+                    self.preserve_transport_input(record)
+                else:
+                    self.hooks.append(record)
+        except BaseException as error:
+            self.capture_error(error, 'native_capture_hook')
+            raise
+
+    def capture_error(self, error, phase):
+        # A tested expected-exception handler cannot erase a failed witness.
+        self.capture_failed = True
+        self.fail(error, phase)
+
+    @staticmethod
+    def capture_slot(value):
+        return (type(value) is str and 1 <= len(value) <= 48 and
+                all(ch in 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_' for ch in value))
+
+    def capture_relative(self, value):
+        if type(value) is not str or not value.isascii() or len(value) > 512:
+            raise BatchStopped('witness path domain differs', 'integrity_invalid')
+        path = Path(value)
+        if (not path.is_absolute() or '..' in path.parts or
+                not path.is_relative_to(self.case_root) or path == self.case_root):
+            raise BatchStopped('witness path is outside retained case', 'integrity_invalid')
+        return path.relative_to(self.case_root).as_posix()
+
+    def capture_file(self, relative, maximum, *, retain_bytes=False):
+        """Read one named regular file through stable no-follow descriptors."""
+        descriptors = []
+        directory_identities = []
+        primary = None
+        result = None
+        identity = lambda info: (info.st_dev, info.st_ino, info.st_mode,
+                                 info.st_size, info.st_mtime_ns, info.st_ctime_ns, info.st_nlink)
+        try:
+            self.check_time()
+            if (type(maximum) is not int or not 0 <= maximum <= PREFIX_CAP or
+                    type(relative) is not str or not relative or not relative.isascii() or
+                    Path(relative).is_absolute() or any(part in ('', '.', '..') for part in relative.split('/'))):
+                raise BatchStopped('witness regular-file rule differs', 'integrity_invalid')
+            flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+            current_path = self.case_root
+            before = LSTAT(current_path)
+            parent = OS_OPEN(current_path, flags)
+            descriptors.append(parent)
+            opened = FSTAT(parent)
+            if not stat.S_ISDIR(before.st_mode) or (before.st_dev, before.st_ino) != (opened.st_dev, opened.st_ino):
+                raise BatchStopped('witness case directory changed', 'integrity_invalid')
+            directory_identities.append((current_path, opened.st_dev, opened.st_ino))
+            parts = relative.split('/')
+            for part in parts[:-1]:
+                self.check_time()
+                before = STAT(part, dir_fd=parent, follow_symlinks=False)
+                child = OS_OPEN(part, flags, dir_fd=parent)
+                descriptors.append(child)
+                opened = FSTAT(child)
+                if not stat.S_ISDIR(before.st_mode) or (before.st_dev, before.st_ino) != (opened.st_dev, opened.st_ino):
+                    raise BatchStopped('witness ancestor changed', 'integrity_invalid')
+                parent = child
+                current_path = current_path / part
+                directory_identities.append((current_path, opened.st_dev, opened.st_ino))
+            before = STAT(parts[-1], dir_fd=parent, follow_symlinks=False)
+            fd = OS_OPEN(parts[-1], os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC | os.O_NONBLOCK, dir_fd=parent)
+            descriptors.append(fd)
+            opened = FSTAT(fd)
+            if not stat.S_ISREG(opened.st_mode) or identity(before) != identity(opened) or opened.st_size > maximum:
+                raise BatchStopped('witness file type, identity or size differs', 'integrity_invalid')
+            total = 0
+            digest = hashlib.sha256()
+            blocks = [] if retain_bytes else None
+            while True:
+                self.check_time()
+                block = OS_READ(fd, min(65536, maximum - total + 1))
+                if not block:
+                    break
+                total += len(block)
+                if total > maximum or total > opened.st_size:
+                    raise BatchStopped('witness file grew during read', 'integrity_invalid')
+                digest.update(block)
+                if blocks is not None:
+                    blocks.append(block)
+            after = FSTAT(fd)
+            path_after = STAT(parts[-1], dir_fd=parent, follow_symlinks=False)
+            if total != opened.st_size or identity(after) != identity(opened) or identity(path_after) != identity(opened):
+                raise BatchStopped('witness file changed during read', 'integrity_invalid')
+            for path, device, inode in directory_identities:
+                info = LSTAT(path)
+                if not stat.S_ISDIR(info.st_mode) or (info.st_dev, info.st_ino) != (device, inode):
+                    raise BatchStopped('witness ancestry changed during read', 'integrity_invalid')
+            result = (total, digest.hexdigest(), opened, b''.join(blocks) if blocks is not None else None)
+        except BaseException as error:
+            primary = error
+            self.capture_error(error, 'witness_read')
+        finally:
+            for fd in reversed(descriptors):
+                try:
+                    OS_CLOSE(fd)
+                except BaseException as error:
+                    self.capture_error(error, 'witness_read_close')
+                    if primary is None:
+                        primary = error
+        if primary is not None:
+            raise primary
+        return result
+
+    def write_capture(self, path, raw):
+        """One exclusive, bounded witness publication; a failed slot survives."""
+        fd = None
+        primary = None
+        try:
+            self.check_time()
+            fd = OS_OPEN(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+            position = 0
+            while position < len(raw):
+                self.check_time()
+                written = OS_WRITE(fd, memoryview(raw)[position:])
+                if type(written) is not int or not 0 < written <= len(raw) - position:
+                    raise BatchStopped('witness write progress is unconfirmed')
+                position += written
+            FSYNC(fd)
+            if FSTAT(fd).st_size != len(raw):
+                raise BatchStopped('witness publication size differs', 'integrity_invalid')
+            sync_directory(path.parent)
+        except BaseException as error:
+            primary = error
+            self.capture_error(error, 'witness_write')
+        finally:
+            if fd is not None:
+                try:
+                    OS_CLOSE(fd)
+                except BaseException as error:
+                    self.capture_error(error, 'witness_write_close')
+                    if primary is None:
+                        primary = error
+        if primary is not None:
+            raise primary
 
     def preserve_version(self, record):
         """Only explicitly registered before-overwrite fixture boundaries."""
-        self.check_time()
-        path = Path(record['path']).absolute()
-        if not path.is_relative_to(self.case_root):
-            raise BatchStopped('version witness outside current retained case')
-        relative = path.relative_to(self.case_root).as_posix()
-        allowed = self.current_row['version_witnesses']
-        matches = [item for item in allowed if item['label'] == record['label'] and
-                   fnmatch.fnmatchcase(relative, item['source_pattern'])]
-        if len(matches) != 1 or record['maximum_bytes'] != matches[0]['maximum_bytes']:
-            raise BatchStopped('unregistered observed version boundary')
-        rule = matches[0]
-        target = self.case_root / ('version-' + rule['slot'] + '.bin')
-        info = LSTAT(path)
-        if not stat.S_ISREG(info.st_mode) or info.st_size > rule['maximum_bytes']:
-            raise BatchStopped('observed version is not a bounded regular file')
-        with OPEN(path, 'rb') as stream:
-            raw = stream.read(rule['maximum_bytes'] + 1)
-        if len(raw) != info.st_size or len(raw) > rule['maximum_bytes']:
-            raise BatchStopped('observed version changed during capture')
-        # This exclusive slot's full maximum is already inside the case's
-        # producer reservation. It is not taken from diagnostic reserves.
-        with OPEN(target, 'xb') as stream:
-            stream.write(raw); stream.flush(); FSYNC(stream.fileno())
-        sync_directory(self.case_root)
+        try:
+            self.check_time()
+            if self.capture_failed:
+                raise BatchStopped('native evidence capture already failed', self.failure['status'])
+            if type(self.current_row) is not dict or self.current_row.get('selector') != self.current:
+                raise BatchStopped('version event has no active selector', 'integrity_invalid')
+            allowed = self.current_row['version_witnesses']
+            index = len(self.version_identities)
+            if (type(allowed) is not list or index >= len(allowed) or
+                    type(record) is not dict or set(record) != {'event', 'path', 'label', 'maximum_bytes'}):
+                raise BatchStopped('unexpected or failed observed version sequence', 'integrity_invalid')
+            rule = allowed[index]
+            relative = self.capture_relative(record['path'])
+            if (type(rule) is not dict or set(rule) != {'label', 'source_pattern', 'slot', 'maximum_bytes'} or
+                    not self.capture_slot(rule['slot']) or rule['slot'] in self.version_attempted_slots or
+                    type(rule['source_pattern']) is not str or rule['label'] != record['label'] or
+                    type(record['maximum_bytes']) is not int or record['maximum_bytes'] != rule['maximum_bytes'] or
+                    not fnmatch.fnmatchcase(relative, rule['source_pattern'])):
+                raise BatchStopped('unregistered observed version boundary', 'integrity_invalid')
+            self.version_attempted_slots.add(rule['slot'])
+            size, digest, info, raw = self.capture_file(relative, rule['maximum_bytes'], retain_bytes=True)
+            target = self.case_root / ('version-' + rule['slot'] + '.bin')
+            observed = {'label': record['label'], 'source_path': relative, 'slot': rule['slot'],
+                        'size_bytes': size, 'sha256': digest, 'source_device': info.st_dev,
+                        'source_inode': info.st_ino}
+            if len(canonical(observed)) > 1024:
+                raise BatchStopped('version identity record exceeds fixed domain', 'integrity_invalid')
+            self.write_capture(target, raw)
+            self.version_identities.append(observed)
+        except BaseException as error:
+            self.capture_error(error, 'observed_version')
+            raise
+
+    def input_path_identity(self, relative, maximum):
+        """Observe one map-listed path; expected negative nodes are not followed."""
+        descriptors = []
+        ancestors = []
+        primary = None
+        result = None
+        try:
+            self.check_time()
+            if (type(maximum) is not int or not 0 <= maximum <= PREFIX_CAP or
+                    type(relative) is not str or not relative or not relative.isascii() or
+                    Path(relative).is_absolute() or any(part in ('', '.', '..') for part in relative.split('/'))):
+                raise BatchStopped('input witness path rule differs', 'integrity_invalid')
+            flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+            parent = OS_OPEN(self.case_root, flags)
+            descriptors.append(parent)
+            info = FSTAT(parent)
+            ancestors.append((self.case_root, info.st_dev, info.st_ino))
+            parts = relative.split('/')
+            walked = self.case_root
+            blocked = False
+            for part in parts[:-1]:
+                self.check_time()
+                try:
+                    info = STAT(part, dir_fd=parent, follow_symlinks=False)
+                except FileNotFoundError:
+                    result = [relative, 'missing', 0, None, 0, 0, 0, 0]
+                    blocked = True
+                    break
+                if not stat.S_ISDIR(info.st_mode):
+                    result = [relative, 'blocked_ancestor', 0, None, stat.S_IMODE(info.st_mode),
+                              info.st_dev, info.st_ino, info.st_nlink]
+                    blocked = True
+                    break
+                child = OS_OPEN(part, flags, dir_fd=parent)
+                descriptors.append(child)
+                opened = FSTAT(child)
+                if (info.st_dev, info.st_ino) != (opened.st_dev, opened.st_ino):
+                    raise BatchStopped('input witness ancestor changed', 'integrity_invalid')
+                parent = child
+                walked = walked / part
+                ancestors.append((walked, opened.st_dev, opened.st_ino))
+            if not blocked:
+                try:
+                    info = STAT(parts[-1], dir_fd=parent, follow_symlinks=False)
+                except FileNotFoundError:
+                    result = [relative, 'missing', 0, None, 0, 0, 0, 0]
+                else:
+                    size, digest = 0, None
+                    if stat.S_ISREG(info.st_mode):
+                        kind = 'file'
+                        size, digest, opened, _ = self.capture_file(relative, maximum)
+                        if (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns) != (
+                                opened.st_dev, opened.st_ino, opened.st_size, opened.st_mtime_ns, opened.st_ctime_ns):
+                            raise BatchStopped('input witness regular-file identity changed', 'integrity_invalid')
+                    elif stat.S_ISLNK(info.st_mode):
+                        kind = 'symlink'
+                        target = os.fsencode(READLINK(parts[-1], dir_fd=parent))
+                        size, digest = len(target), sha(target)
+                        if size > maximum:
+                            raise BatchStopped('input witness symlink exceeds fixed domain', 'integrity_invalid')
+                    elif stat.S_ISDIR(info.st_mode):
+                        kind = 'directory'
+                    else:
+                        kind = 'special'
+                    after = STAT(parts[-1], dir_fd=parent, follow_symlinks=False)
+                    fields = lambda value: (value.st_dev, value.st_ino, value.st_mode, value.st_size,
+                                             value.st_mtime_ns, value.st_ctime_ns, value.st_nlink)
+                    if fields(after) != fields(info):
+                        raise BatchStopped('input witness node changed', 'integrity_invalid')
+                    result = [relative, kind, size, digest, stat.S_IMODE(info.st_mode),
+                              info.st_dev, info.st_ino, info.st_nlink]
+            for path, device, inode in ancestors:
+                after = LSTAT(path)
+                if not stat.S_ISDIR(after.st_mode) or (after.st_dev, after.st_ino) != (device, inode):
+                    raise BatchStopped('input witness ancestry changed', 'integrity_invalid')
+        except BaseException as error:
+            primary = error
+            self.capture_error(error, 'input_witness_read')
+        finally:
+            for fd in reversed(descriptors):
+                try:
+                    OS_CLOSE(fd)
+                except BaseException as error:
+                    self.capture_error(error, 'input_witness_close')
+                    if primary is None:
+                        primary = error
+        if primary is not None:
+            raise primary
+        return result
+
+    def preserve_input_identity(self, record):
+        """Only the exact registered verifier boundaries, with literal path rules."""
+        try:
+            self.check_time()
+            if self.capture_failed:
+                raise BatchStopped('native evidence capture already failed', self.failure['status'])
+            allowed_selectors = self.plan.get('input_witness_selectors', [])
+            if (allowed_selectors != list(INPUT_WITNESS_SELECTORS) or self.current not in INPUT_WITNESS_SELECTORS or
+                    type(self.current_row) is not dict or self.current_row.get('selector') != self.current or
+                    type(record) is not dict or set(record) != {'event', 'boundary', 'paths'}):
+                raise BatchStopped('input witness selector or event differs', 'integrity_invalid')
+            allowed = self.current_row.get('input_witnesses', [])
+            index = len(self.input_witnesses)
+            if type(allowed) is not list or index >= len(allowed):
+                raise BatchStopped('input witness event is unregistered', 'integrity_invalid')
+            rule = allowed[index]
+            required = {'boundary', 'call_ordinal', 'slot', 'argument_paths', 'path_rules',
+                        'maximum_rows', 'maximum_relative_path_bytes', 'record_byte_cap', 'independent_recipe_sha256'}
+            if (type(rule) is not dict or set(rule) != required or rule['boundary'] != record['boundary'] or
+                    not self.finite_digest(rule['independent_recipe_sha256']) or
+                    type(rule['call_ordinal']) is not int or rule['call_ordinal'] != index + 1 or
+                    not self.capture_slot(rule['slot']) or rule['slot'] in self.input_attempted_slots or
+                    type(record['paths']) is not dict or type(rule['argument_paths']) is not dict or
+                    set(record['paths']) != set(rule['argument_paths'])):
+                raise BatchStopped('input witness order or arguments differ', 'integrity_invalid')
+            arguments = {name: None if value is None else self.capture_relative(value)
+                         for name, value in record['paths'].items()}
+            if arguments != rule['argument_paths']:
+                raise BatchStopped('input witness effective paths differ', 'integrity_invalid')
+            paths = rule['path_rules']
+            if (type(paths) is not list or type(rule['maximum_rows']) is not int or
+                    not 0 <= len(paths) <= rule['maximum_rows'] <= 9999 or
+                    type(rule['maximum_relative_path_bytes']) is not int or
+                    not 1 <= rule['maximum_relative_path_bytes'] <= 512 or
+                    type(rule['record_byte_cap']) is not int or
+                    not 0 < rule['record_byte_cap'] <= self.current_row['capture_record_bytes_upper']):
+                raise BatchStopped('input witness row or byte bound differs', 'integrity_invalid')
+            lookup = {}
+            for category in ('input', 'output'):
+                for item in self.current_row[category + '_rules']:
+                    key = category + ':' + item['pattern']
+                    if key in lookup:
+                        raise BatchStopped('input witness rule identity is ambiguous', 'integrity_invalid')
+                    lookup[key] = item
+            rows, seen, validated_paths = [], set(), []
+            for item in paths:
+                if type(item) is not dict or set(item) != {'rule_id', 'relative_path', 'allowed_state'}:
+                    raise BatchStopped('input witness path selection differs', 'integrity_invalid')
+                relative = item['relative_path']
+                source_rule = lookup.get(item['rule_id'])
+                if (source_rule is None or type(relative) is not str or not relative.isascii() or
+                        len(relative) > rule['maximum_relative_path_bytes'] or relative in seen or
+                        not fnmatch.fnmatchcase(relative, source_rule['pattern'])):
+                    raise BatchStopped('input witness path lacks its fixed rule', 'integrity_invalid')
+                expected = item['allowed_state']
+                state_keys = {'type', 'size_bytes', 'sha256', 'lineage'}
+                node_types = {'file', 'symlink', 'missing', 'directory', 'special', 'blocked_ancestor'}
+                maximum = source_rule['maximum_bytes']
+                digest_pin = lambda value: (type(value) is str and len(value) == 64 and
+                                             all(ch in '0123456789abcdef' for ch in value))
+                lineage = 'independent_input' if item['rule_id'].startswith('input:') else 'produced_output'
+                if (type(expected) is not dict or set(expected) != state_keys or
+                        type(expected['type']) is not str or expected['type'] not in node_types or
+                        type(maximum) is not int or not 0 <= maximum <= PREFIX_CAP or
+                        type(expected['size_bytes']) is not int or not 0 <= expected['size_bytes'] <= maximum or
+                        expected['lineage'] != lineage):
+                    raise BatchStopped('input witness independent state pin differs', 'integrity_invalid')
+                if expected['type'] in ('file', 'symlink'):
+                    valid_identity = digest_pin(expected['sha256'])
+                else:
+                    valid_identity = expected['size_bytes'] == 0 and expected['sha256'] is None
+                if not valid_identity:
+                    raise BatchStopped('input witness state identity schema differs', 'integrity_invalid')
+                seen.add(relative)
+                validated_paths.append((relative, maximum,
+                    (expected['type'], expected['size_bytes'], expected['sha256'])))
+            # Validate the complete frozen state contract before reading any
+            # selected input, including a malformed pin in a later path rule.
+            state_mismatch = None
+            self.input_attempted_slots.add(rule['slot'])
+            for relative, maximum, expected_identity in validated_paths:
+                observed_row = self.input_path_identity(relative, maximum)
+                rows.append(observed_row)
+                # The fixed map supplies one independently anchored state for
+                # this exact invocation, never a union of all test variants.
+                # Raw malformed-file and symlink hashes are valid negative
+                # fixtures when pinned; no JSON parsing or link following occurs.
+                if tuple(observed_row[1:4]) != expected_identity:
+                    state_mismatch = BatchStopped('input witness consumed state differs', 'integrity_invalid')
+                    # Establish the primary cause before any fallible evidence
+                    # publication. Keep the observed prefix in this same slot.
+                    self.capture_error(state_mismatch, 'input_identity_state')
+                    break
+            observed = {'schema': 'worker38-native-input-witness-v1', 'selector': self.current,
+                        'boundary': record['boundary'], 'call_ordinal': index + 1, 'slot': rule['slot'],
+                        'arguments': arguments, 'rows': rows, 'rows_sha256': sha(canonical(rows))}
+            raw = canonical(observed)
+            if len(raw) > rule['record_byte_cap'] or self.case_record_bytes + len(raw) > self.current_row['capture_record_bytes_upper']:
+                raise BatchStopped('input witness exceeds reserved control bytes', 'resource_incomplete')
+            self.case_record_bytes += len(raw)
+            self.records_bytes += len(raw)
+            self.write_capture(self.case_root / ('input-witness-' + rule['slot'] + '.json'), raw)
+            if state_mismatch is not None:
+                # A durable mismatch witness is retained evidence, not an
+                # accepted event. It cannot advance the count or settle.
+                raise state_mismatch
+            identity = {'slot': rule['slot'], 'boundary': record['boundary'],
+                        'call_ordinal': index + 1, 'size_bytes': len(raw), 'sha256': sha(raw)}
+            if len(canonical(identity)) > 1024:
+                raise BatchStopped('input witness identity exceeds fixed domain', 'integrity_invalid')
+            self.input_witnesses.append(identity)
+        except BaseException as error:
+            self.capture_error(error, 'input_identity')
+            raise
+
+    @staticmethod
+    def finite_digest(value):
+        return (type(value) is str and len(value) == 64 and
+                all(ch in '0123456789abcdef' for ch in value))
+
+    def finite_path_contract(self, rule, exact_paths):
+        """Only the named loader/transport seams; never discover path rules."""
+        paths = rule['path_rules']
+        if type(paths) is not list or len(paths) != len(exact_paths):
+            raise BatchStopped('finite boundary path roster differs', 'integrity_invalid')
+        lookup = {}
+        for category in ('input', 'output'):
+            for item in self.current_row[category + '_rules']:
+                name = category + ':' + item['pattern']
+                if name in lookup:
+                    raise BatchStopped('finite boundary lineage is ambiguous', 'integrity_invalid')
+                lookup[name] = item
+        validated = []
+        for item, relative in zip(paths, exact_paths):
+            if (type(item) is not dict or set(item) != {'rule_id', 'relative_path', 'allowed_state'} or
+                    item['relative_path'] != relative or type(item['rule_id']) is not str):
+                raise BatchStopped('finite boundary path selection differs', 'integrity_invalid')
+            source = lookup.get(item['rule_id'])
+            if source is None or not fnmatch.fnmatchcase(relative, source['pattern']):
+                raise BatchStopped('finite boundary path lacks source lineage', 'integrity_invalid')
+            expected = item['allowed_state']
+            keys = {'type', 'size_bytes', 'sha256', 'lineage', 'independent_recipe_sha256', 'materialized'}
+            maximum = source['maximum_bytes']
+            lineage = 'independent_input' if item['rule_id'].startswith('input:') else 'produced_output'
+            if (type(expected) is not dict or set(expected) != keys or
+                    expected['materialized'] is not True or
+                    type(expected['type']) is not str or expected['type'] not in
+                        ('file', 'symlink', 'missing', 'directory', 'special', 'blocked_ancestor') or
+                    type(maximum) is not int or not 0 <= maximum <= PREFIX_CAP or
+                    type(expected['size_bytes']) is not int or not 0 <= expected['size_bytes'] <= maximum or
+                    expected['lineage'] != lineage or
+                    not self.finite_digest(expected['independent_recipe_sha256'])):
+                raise BatchStopped('finite boundary independent state is unadmitted', 'integrity_invalid')
+            if expected['type'] in ('file', 'symlink'):
+                valid = self.finite_digest(expected['sha256'])
+            else:
+                valid = expected['size_bytes'] == 0 and expected['sha256'] is None
+            if not valid:
+                raise BatchStopped('finite boundary state identity differs', 'integrity_invalid')
+            validated.append((relative, maximum,
+                (expected['type'], expected['size_bytes'], expected['sha256'])))
+        return validated
+
+    def finite_rows(self, validated, *, with_stats=False):
+        """Keep an observed prefix even when the next no-follow read fails."""
+        rows, anchors, failure = [], {}, None
+        for relative, maximum, expected in validated:
+            try:
+                row = self.input_path_identity(relative, maximum)
+                if (any(type(value) is not int or len(str(abs(value))) > 20 for value in row[4:]) or
+                        len(canonical(row)) > 192 + 6 * len(relative.encode('ascii'))):
+                    raise BatchStopped('finite boundary real scalar domain differs', 'integrity_invalid')
+                rows.append(row)
+                if tuple(row[1:4]) != expected:
+                    raise BatchStopped('finite boundary consumed state differs', 'integrity_invalid')
+                if with_stats and row[1] == 'file':
+                    size, digest, info, _ = self.capture_file(relative, maximum)
+                    signature = (info.st_dev, info.st_ino, info.st_mode, info.st_size,
+                                 info.st_mtime_ns, info.st_ctime_ns, info.st_nlink)
+                    if (any(type(value) is not int or len(str(abs(value))) > 20 for value in signature) or
+                            (size, digest, stat.S_IMODE(info.st_mode), info.st_dev, info.st_ino, info.st_nlink) !=
+                            (row[2], row[3], *row[4:])):
+                        raise BatchStopped('finite boundary real anchor changed', 'integrity_invalid')
+                    anchors[relative] = signature
+            except BaseException as error:
+                failure = error
+                self.capture_error(error, 'finite_boundary_state')
+                break
+        return rows, anchors, failure
+
+    def publish_finite_capture(self, rule, prefix, observed, accepted, failure):
+        raw = canonical(observed)
+        if len(raw) > rule['record_byte_cap'] or self.case_record_bytes + len(raw) > self.current_row['capture_record_bytes_upper']:
+            raise BatchStopped('finite boundary exceeds reserved control bytes', 'resource_incomplete')
+        # Same charge and same exclusive slot for success, mismatch and partial.
+        self.case_record_bytes += len(raw)
+        self.records_bytes += len(raw)
+        self.write_capture(self.case_root / (prefix + rule['slot'] + '.json'), raw)
+        if failure is not None:
+            raise failure
+        identity = {'slot': rule['slot'], 'boundary': rule['boundary'],
+                    'call_ordinal': rule['call_ordinal'], 'size_bytes': len(raw), 'sha256': sha(raw)}
+        if len(canonical(identity)) > 1024:
+            raise BatchStopped('finite reference scalar domain differs', 'integrity_invalid')
+        accepted.append(identity)
+
+    def finite_settlement_contract(self):
+        """Exact new-event counts and separately charged enclosing JSON framing."""
+        framing = 0
+        for name, events, accepted in (
+                ('loader_contexts', LOADER_CONTEXT_EVENTS, self.loader_contexts),
+                ('transport_inputs', TRANSPORT_INPUT_EVENTS, self.transport_inputs)):
+            required = len(events.get(self.current, ()))
+            listed = self.current_row.get(name, [])
+            if type(listed) is not list or len(listed) != required or len(accepted) != required:
+                raise BatchStopped('finite boundary sequence is incomplete', 'integrity_invalid')
+            if required:
+                # Nonempty inventory object: comma + quoted key + colon + []
+                # + (n-1) inter-reference commas. Reference bodies themselves
+                # are separately reserved, with their terminal newline removed.
+                framing += len(name) + required + 5
+        if (type(self.current_row.get('finite_reference_framing_bytes_upper', 0)) is not int or
+                self.current_row.get('finite_reference_framing_bytes_upper', 0) != framing):
+            raise BatchStopped('finite reference framing reservation differs', 'integrity_invalid')
+
+    def preserve_transport_input(self, record):
+        """Two fixed consumed-input seams, outside the unchanged verifier gate."""
+        try:
+            self.check_time()
+            if self.capture_failed:
+                raise BatchStopped('native evidence capture already failed', self.failure['status'])
+            events = TRANSPORT_INPUT_EVENTS.get(self.current)
+            if (events is None or type(self.current_row) is not dict or
+                    self.current_row.get('selector') != self.current or
+                    type(record) is not dict or set(record) != {'event', 'boundary', 'paths'}):
+                raise BatchStopped('transport boundary selector or envelope differs', 'integrity_invalid')
+            allowed = self.current_row.get('transport_inputs')
+            index = len(self.transport_inputs)
+            if type(allowed) is not list or len(allowed) != len(events) or index >= len(events):
+                raise BatchStopped('transport boundary count differs', 'integrity_invalid')
+            boundary, slot, paths, _ = events[index]
+            rule = allowed[index]
+            if (type(rule) is not dict or set(rule) !=
+                    {'boundary', 'call_ordinal', 'slot', 'path_rules', 'record_byte_cap'} or
+                    rule['boundary'] != boundary or record['boundary'] != boundary or rule['slot'] != slot or
+                    slot in self.transport_attempted_slots or type(rule['call_ordinal']) is not int or
+                    rule['call_ordinal'] != index + 1 or type(rule['record_byte_cap']) is not int or
+                    rule['record_byte_cap'] != TRANSPORT_INPUT_CAPS[slot] or
+                    type(record['paths']) is not list or len(record['paths']) != len(paths) or
+                    tuple(self.capture_relative(value) for value in record['paths']) != paths):
+                raise BatchStopped('transport boundary fixed contract differs', 'integrity_invalid')
+            validated = self.finite_path_contract(rule, paths)
+            self.transport_attempted_slots.add(slot)
+            rows, _, failure = self.finite_rows(validated)
+            observed = {'schema': 'worker38-native-transport-input-v1', 'selector': self.current,
+                        'boundary': boundary, 'call_ordinal': index + 1, 'slot': slot,
+                        'rows': rows, 'rows_sha256': sha(canonical(rows))}
+            self.publish_finite_capture(rule, 'transport-input-', observed, self.transport_inputs, failure)
+        except BaseException as error:
+            self.capture_error(error, 'transport_input_identity')
+            raise
+
+    @staticmethod
+    def loader_scalar_valid(name, tag, value, slot):
+        if tag == 'null':
+            return value is None
+        if tag == 'bool':
+            return type(value) is bool
+        if tag == 'int':
+            return type(value) is int and -(10 ** 20) < value < 10 ** 20
+        if tag != 'str' or type(value) is not str:
+            return False
+        if name.endswith('sha256'):
+            width = 63 if slot == 'c29-09' and name == 'argument.library_sha256' else 64
+            return len(value) == width and all(char in '0123456789abcdef' for char in value)
+        mapping = name in ('maps.0', 'maps.1')
+        ceiling = 2048 if mapping else (64 if name.endswith(('.shape', '.container', '.mode', '.error'))
+                                          or name in ('variant', 'content_state', 'key', 'implementation',
+                                                      'version', 'platform') else 512)
+        return (len(value) <= ceiling and value.isascii() and
+                all(' ' <= char <= '~' or mapping and char == '\n' for char in value))
+
+    def loader_context_prefix(self, context, schema, slot):
+        """Encode only the finite selected scalar roster, retaining a safe prefix."""
+        safe, complete = [], True
+        if type(context) is not list:
+            return canonical(safe), False
+        for index, item in enumerate(context[:65]):
+            if (index >= len(schema) or index >= 64 or type(item) is not list or len(item) != 3 or
+                    item[0] != schema[index][0] or type(item[1]) is not str or
+                    not self.loader_scalar_valid(item[0], item[1], item[2], slot)):
+                complete = False
+                break
+            safe.append(item)
+            raw = canonical(safe)
+            if len(raw) > LOADER_CONTEXT_CAP:
+                return raw[:LOADER_CONTEXT_CAP], False
+            if item[1] != schema[index][1]:
+                complete = False
+                break
+        raw = canonical(safe)
+        return raw, complete and len(safe) == len(schema) == len(context)
+
+    def loader_dynamic_values(self, slot, rows, anchors):
+        """Handwritten named substitutions; no map expressions or callback values."""
+        values = {}
+        stat_names = ('dev', 'ino', 'mode', 'size', 'mtime_ns', 'ctime_ns', 'nlink')
+        def stat_fields(prefix, signature):
+            for name, value in zip(stat_names, signature):
+                values[prefix + '.' + name] = value
+
+        if slot in ('c26-02', 'c26-03'):
+            current = anchors['t01/literal-library']
+            initial = current if slot == 'c26-02' else self.loader_anchor_history['c26-02']['t01/literal-library']
+            stat_fields('initial', initial)
+            if slot == 'c26-03':
+                stat_fields('observed', current)
+                stat_fields('returned', current)
+                values['returned.mtime_ns'] = initial[4] + 1
+        elif slot in ('c26-04', 'c26-05'):
+            current = anchors['t01/literal-library']
+            initial = current if slot == 'c26-04' else self.loader_anchor_history['c26-04']['t01/literal-library']
+            values['initial.dev'], values['initial.ino'] = initial[:2]
+            if slot == 'c26-05' and current[:2] == initial[:2]:
+                raise BatchStopped('P03 replacement real inode pair did not change', 'integrity_invalid')
+        elif slot == 'c26-06':
+            for prefix, row in (('executable', rows[0]), ('library', rows[1]), ('changed', rows[1])):
+                signature = anchors[row[0]]
+                values[prefix + '.device.major'] = MAJOR(signature[0])
+                values[prefix + '.device.minor'] = MINOR(signature[0])
+                values[prefix + '.inode'] = signature[1]
+                stat_fields(prefix + '._stat', signature)
+        elif slot.startswith('c27-'):
+            library = rows[1]
+            major, minor, inode = MAJOR(library[5]), MINOR(library[5]), library[6]
+            values.update({'device.major': major, 'device.minor': minor, 'inode': inode})
+            path = str(self.case_root / library[0])
+            devtext = '%x:%x' % (major, minor)
+            maps = ('1000-2000 r--p 00000000 %s %s %s\n'
+                    '2000-3000 r-xp 00001000 %s %s %s\n') % (devtext, inode, path, devtext, inode, path)
+            if slot == 'c27-02':
+                values['maps.0'] = maps.replace(path, str(Path(path).parent / 'alias-libpython.so'))
+            elif slot == 'c27-03':
+                values['maps.0'] = maps.replace(path, path + ' (deleted)')
+            elif slot == 'c27-04':
+                values['maps.0'] = maps.replace(' ' + devtext + ' ', ' ff:ff ')
+            elif slot == 'c27-05':
+                values['maps.0'] = maps.replace(' %s ' % inode, ' %s ' % (inode + 1))
+            elif slot == 'c27-06':
+                values['maps.0'] = maps + '3000-4000 r-xp 00000000 00:01 987 /other/libpython3.12.so.1.0\n'
+            elif slot == 'c27-07':
+                values['maps.0'] = maps + 'not a proc map\n'
+            elif slot == 'c27-08':
+                values['maps.0'] = maps + '3000-4000 r-xp 00000000 %s %s /other/alias.so\n' % (devtext, inode)
+            elif slot == 'c27-09':
+                values['maps.0'] = maps
+                values['maps.1'] = maps.replace('2000-3000', '2000-4000')
+        elif (slot == 'c29-01' or slot.startswith('c30-') or
+                slot in ('c31-02', 'c31-04', 'c31-07') or slot.startswith('c32-')):
+            library = rows[1]
+            prefix = 'loader' if slot.startswith('c32-') else 'argument'
+            major, minor, inode = MAJOR(library[5]), MINOR(library[5]), library[6]
+            values[prefix + '.library_device.major'] = major
+            values[prefix + '.library_device.minor'] = minor
+            values[prefix + '.library_inode'] = inode + (1 if slot == 'c31-04' else 0)
+            if slot != 'c30-02':
+                values[prefix + '.mapped_library.device.major'] = major
+                values[prefix + '.mapped_library.device.minor'] = minor + (1 if slot == 'c30-08' else 0)
+                values[prefix + '.mapped_library.inode'] = inode + (1 if slot in ('c30-09', 'c31-04') else 0)
+        return values
+
+    def preserve_loader_context(self, record):
+        """Sixty exact loader seams with actual context and independent contracts."""
+        try:
+            self.check_time()
+            if self.capture_failed:
+                raise BatchStopped('native evidence capture already failed', self.failure['status'])
+            events = LOADER_CONTEXT_EVENTS.get(self.current)
+            if (events is None or type(self.current_row) is not dict or
+                    self.current_row.get('selector') != self.current or type(record) is not dict):
+                raise BatchStopped('loader boundary selector differs', 'integrity_invalid')
+            allowed = self.current_row.get('loader_contexts')
+            index = len(self.loader_contexts)
+            if type(allowed) is not list or len(allowed) != len(events) or index >= len(events):
+                raise BatchStopped('loader boundary count differs', 'integrity_invalid')
+            boundary, slot, paths, relation_names = events[index]
+            rule = allowed[index]
+            keys = {'boundary', 'call_ordinal', 'slot', 'path_rules', 'record_byte_cap',
+                    'context_recipe_sha256', 'context_materialized', 'expected_context', 'context_dynamic_fields'}
+            if (type(rule) is not dict or set(rule) != keys or rule['boundary'] != boundary or
+                    rule['slot'] != slot or slot in self.loader_attempted_slots or
+                    type(rule['call_ordinal']) is not int or rule['call_ordinal'] != index + 1 or
+                    type(rule['record_byte_cap']) is not int or rule['record_byte_cap'] != LOADER_RECORD_CAP or
+                    rule['context_materialized'] is not True or not self.finite_digest(rule['context_recipe_sha256'])):
+                raise BatchStopped('loader independent contract is unadmitted', 'integrity_invalid')
+            schema, dynamic_fields = LOADER_CONTEXT_SCHEMAS[slot], LOADER_DYNAMIC_FIELDS[slot]
+            expected = rule['expected_context']
+            if (type(expected) is not list or len(expected) != len(schema) or
+                    rule['context_dynamic_fields'] != list(dynamic_fields)):
+                raise BatchStopped('loader independent context roster differs', 'integrity_invalid')
+            for item, (name, tag) in zip(expected, schema):
+                if (type(item) is not list or len(item) != 3 or item[:2] != [name, tag] or
+                        (item[2] is not None if name in dynamic_fields else
+                         not self.loader_scalar_valid(name, tag, item[2], slot))):
+                    raise BatchStopped('loader independent context value differs', 'integrity_invalid')
+            # Validate the whole independent contract before observing any file
+            # or accepting any dynamic substitution. A literal null is separate
+            # from the exact source-fixed dynamic-field roster above.
+            validated = self.finite_path_contract(rule, paths)
+            self.loader_attempted_slots.add(slot)
+            failure, rows, anchors = None, [], {}
+            try:
+                if (set(record) != {'event', 'boundary', 'context', 'paths'} or
+                        record.get('boundary') != boundary or type(record.get('paths')) is not list or
+                        len(record['paths']) != len(paths) or
+                        tuple(self.capture_relative(value) for value in record['paths']) != paths):
+                    raise BatchStopped('loader actual envelope or paths differ', 'integrity_invalid')
+                rows, anchors, failure = self.finite_rows(validated, with_stats=slot.startswith('c26-'))
+            except BaseException as error:
+                failure = error
+                self.capture_error(error, 'loader_context_envelope')
+            raw_context, complete = self.loader_context_prefix(record.get('context'), schema, slot)
+            actual_matches = False
+            if failure is None:
+                try:
+                    values = self.loader_dynamic_values(slot, rows, anchors)
+                    if set(values) != set(dynamic_fields):
+                        raise BatchStopped('loader real dynamic anchor roster differs', 'integrity_invalid')
+                    resolved = [[name, tag, values[name] if name in dynamic_fields else value]
+                                for name, tag, value in expected]
+                    if any(not self.loader_scalar_valid(name, tag, value, slot) for name, tag, value in resolved):
+                        raise BatchStopped('loader real dynamic anchor domain differs', 'integrity_invalid')
+                    actual_matches = complete and canonical(resolved) == raw_context
+                    if not actual_matches:
+                        raise BatchStopped('loader actual context differs from independent recipe', 'integrity_invalid')
+                except BaseException as error:
+                    failure = error
+                    self.capture_error(error, 'loader_context_state')
+            # Relations are verified only by complete independently checked
+            # context plus observed node state. Null means unverified on a
+            # failure path; it never claims an individual relation was false.
+            observed = {'schema': 'worker38-native-loader-context-v1', 'selector': self.current,
+                        'boundary': boundary, 'call_ordinal': index + 1, 'slot': slot,
+                        'rows': rows, 'rows_sha256': sha(canonical(rows)),
+                        'relations': [True if failure is None and actual_matches else None] * len(relation_names),
+                        'actual_context_b64': base64.b64encode(raw_context).decode('ascii'),
+                        'context_complete': complete, 'context_recipe_sha256': rule['context_recipe_sha256'],
+                        'context_size_bytes': len(raw_context)}
+            self.publish_finite_capture(rule, 'loader-context-', observed, self.loader_contexts, failure)
+            if slot in ('c26-02', 'c26-04'):
+                self.loader_anchor_history[slot] = anchors
+        except BaseException as error:
+            self.capture_error(error, 'loader_context')
+            raise
 
     def observe(self, status, label):
         self.check_time()
@@ -695,11 +2517,29 @@ class Capture:
         if len(rows) > self.current_row['maximum_inventory_rows']:
             raise BatchStopped('native retained path count contradicts its fixed reservation', 'integrity_invalid')
         out_rows, input_rows = [], []
-        control_names = {'start.json'} | {f'observation-{i+1:04d}.json' for i in range(len(self.observations))}
+        control_names = ({'start.json'} | {f'observation-{i+1:04d}.json' for i in range(len(self.observations))} |
+                         {'input-witness-' + slot + '.json' for slot in self.input_attempted_slots} |
+                         {'loader-context-' + slot + '.json' for slot in self.loader_attempted_slots} |
+                         {'transport-input-' + slot + '.json' for slot in self.transport_attempted_slots})
+        committed_witnesses = {
+            'version-' + item['slot'] + '.bin': item for item in self.version_identities}
+        committed_witnesses.update({
+            'input-witness-' + item['slot'] + '.json': item for item in self.input_witnesses})
+        committed_witnesses.update({
+            'loader-context-' + item['slot'] + '.json': item for item in self.loader_contexts})
+        committed_witnesses.update({
+            'transport-input-' + item['slot'] + '.json': item for item in self.transport_inputs})
+        found_witnesses = set()
         output_rules = self.current_row['output_rules']
         input_rules = self.current_row['input_rules']
         for item in rows:
             relative = item['path']; absolute = str(self.case_root / relative)
+            if relative in committed_witnesses:
+                expected_identity = committed_witnesses[relative]
+                if (item['type'] != 'file' or item['size_bytes'] != expected_identity['size_bytes'] or
+                        item.get('sha256') != expected_identity['sha256']):
+                    raise BatchStopped('committed witness bytes changed', 'integrity_invalid')
+                found_witnesses.add(relative)
             compact = [relative, item['type'], item['size_bytes'], item.get('sha256'),
                        item['mode'], item['device'], item['inode'], item['nlink']]
             if len(canonical(compact)) > 192 + 6 * len(relative.encode('ascii')):
@@ -733,6 +2573,8 @@ class Capture:
                 raise BatchStopped('retained literal setup is incomplete or differs from fixed pins', 'integrity_invalid')
             self.input_files[absolute] = {**item, 'absolute_path': absolute, 'selector': self.current}
             input_rows.append(compact)
+        if found_witnesses != set(committed_witnesses):
+            raise BatchStopped('committed witness is missing', 'integrity_invalid')
         case_payload = sum(item['size_bytes'] for item in self.output_files.values()
                            if item['selector'] == self.current)
         for group, ceiling in self.current_row.get('output_groups', {}).items():
@@ -749,6 +2591,14 @@ class Capture:
                   'produced_payload_bytes': case_payload, 'input_bytes': sum(row[2] for row in input_rows),
                   'logical_paths_are_charged_individually': True,
                   'excluded_later_native_records': ['inventory.json', 'method.json']}
+        if self.version_identities:
+            record['captured_versions'] = self.version_identities
+        if self.input_witnesses:
+            record['input_witnesses'] = self.input_witnesses
+        if self.loader_contexts:
+            record['loader_contexts'] = self.loader_contexts
+        if self.transport_inputs:
+            record['transport_inputs'] = self.transport_inputs
         self.write_record(self.case_root / 'inventory.json', record,
                           self.current_row['inventory_record_bytes_upper'])
         raw = canonical(record)
@@ -758,6 +2608,13 @@ class Capture:
     def end(self, status):
         if runtime_isolation_snapshot() != self.case_runtime_before:
             raise BatchStopped('native process state restoration is unconfirmed', 'integrity_invalid')
+        if self.capture_failed:
+            raise BatchStopped('native evidence capture failed', self.failure['status'])
+        if status == 'passed' and self.failure is None:
+            if (len(self.version_identities) != len(self.current_row.get('version_witnesses', [])) or
+                    len(self.input_witnesses) != len(self.current_row.get('input_witnesses', []))):
+                raise BatchStopped('required witness sequence is incomplete', 'integrity_invalid')
+            self.finite_settlement_contract()
         self.collect()
         if self.log.overflow or self.log.write_failure or self.log.size - self.case_log_started > self.active_log_reservation:
             raise BatchStopped('native case log capture is incomplete')
