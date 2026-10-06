@@ -1,0 +1,38 @@
+name: Bandido server representative tests
+
+on:
+  push:
+    branches: [codex/server-dual-host-ci-20261006]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bandido-server-representative-tests
+  cancel-in-progress: false
+
+jobs:
+  pytest:
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-tests, server-bandido-alcatraz-ci]
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: carabinshely/bandido-alcatraz-solve
+          ref: 6ff861bba828e78d8f5b75d8355f2f4a56018898
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+      - name: Report runner and Python
+        run: python -c "import os, platform, sys; print('Runner=' + os.environ['RUNNER_NAME']); print('Python=' + platform.python_version()); print('Executable=' + sys.executable); assert sys.version_info[:2] == (3, 11)"
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m pytest -q
+      - name: Synthetic simulation smoke
+        run: python scripts/run_synthetic_smoke.py
+      - name: Proxy transcription status
+        run: python scripts/proxy_status.py
+      - name: Real photographed-deck smoke
+        run: python scripts/run_real_deck_smoke.py
