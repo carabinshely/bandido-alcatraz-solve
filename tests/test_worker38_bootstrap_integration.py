@@ -635,7 +635,7 @@ class Worker38BootstrapIntegration(unittest.TestCase):
         self.assertEqual(report['classification'], 'integrity_invalid')
 
     def test_C07_inert_blob_digest_drift(self):
-        entry = {'size_bytes': len(b'INVENTED_SOURCE_BYTES_ONLY\n'), 'sha256': 'a' * 64, 'git_blob': 'a' * 40}
+        entry = {'path': 'src/literal_0.py', 'size_bytes': len(b'INVENTED_SOURCE_BYTES_ONLY\n'), 'sha256': 'a' * 64, 'git_blob': 'a' * 40}
         with self.assertRaises(c.IntegrityError):
             sources.verify_blob(b'INVENTED_SOURCE_BYTES_ONLY\n', entry)
 
