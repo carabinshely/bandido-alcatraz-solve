@@ -93,6 +93,8 @@ class Paired20Bindings(unittest.TestCase):
             self.assertIn(key + ": " + sha((EXP / filename).read_bytes()), workflow)
         for filename in ("bounds.py", "codec.py", "issuance.py"):
             self.assertIn(sha((EXP / filename).read_bytes()), workflow)
+        self.assertIn("ISSUANCE_SHA = '" + sha((EXP / "issuance.py").read_bytes()) + "'",
+                      (EXP / "diagnostic.py").read_text())
         self.assertIn("ref: " + SOURCE_HEAD, workflow)
         self.assertIn("head.ref == 'codex/strategy20-runner'", workflow)
         self.assertIn("timeout --signal=KILL 3620", workflow)
