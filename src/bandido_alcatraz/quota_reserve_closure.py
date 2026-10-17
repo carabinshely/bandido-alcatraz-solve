@@ -127,10 +127,13 @@ def _card_shape(card: CardDefinition) -> None:
 class QuotaReserveClosurePolicy:
     """Stateless candidate; the only instance data is an immutable public catalog."""
 
-    __slots__ = ("_catalog", "_start_card", "_exit_card")
+    __slots__ = ("_catalog", "_start_card", "_exit_card", "_min_open_override")
 
     def __init__(self, *, catalog: tuple[CardDefinition, ...],
-                 start_card: CardDefinition, exit_card: CardDefinition) -> None:
+                 start_card: CardDefinition, exit_card: CardDefinition,
+                 min_open_override: int = 0) -> None:
+        _require(type(min_open_override) is int and min_open_override in (0, 4),
+                 "only frozen original or strategy19 threshold is supported")
         _require(type(catalog) is tuple, "immutable catalog tuple required")
         for card in (*catalog, start_card, exit_card):
             _card_shape(card)
@@ -149,6 +152,7 @@ class QuotaReserveClosurePolicy:
         object.__setattr__(self, "_catalog", MappingProxyType(by_id))
         object.__setattr__(self, "_start_card", start_card)
         object.__setattr__(self, "_exit_card", exit_card)
+        object.__setattr__(self, "_min_open_override", min_open_override)
 
     def __setattr__(self, name, value):
         raise AttributeError("policy catalog is immutable")
@@ -339,6 +343,8 @@ class QuotaReserveClosurePolicy:
                             guard["reason"] = "not_reduced"
                         elif after[0] <= 0:
                             guard["reason"] = "closed_tunnels"
+                        elif after[0] < self._min_open_override:
+                            guard["reason"] = "min_open_reserve"
                         elif after[1] > baseline[1]:
                             guard["reason"] = "visible_water_increased"
                         elif after[2] > baseline[2]:
@@ -369,7 +375,9 @@ class QuotaReserveClosurePolicy:
                          true_original_all_collect_crossover=bool(closure) and original_all_collect,
                          reserve_filter_mediated_change=bool(closure) and tier != t0
                          and not original_all_collect)
-            audit = dict(schema="worker35-scientific-v1", input_before=before, input_after=after,
+            schema = ("worker35-strategy19-scientific-v1" if self._min_open_override
+                      else "worker35-scientific-v1")
+            audit = dict(schema=schema, input_before=before, input_after=after,
                          roots=[dict(move=move_wire(move), score=score)
                                 for move, score in zip(legal, scores)], supply=supply,
                          tiers=dict(T0=t0, F=filtered, T=tier, C=closure, final=final),

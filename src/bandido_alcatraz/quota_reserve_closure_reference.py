@@ -109,7 +109,9 @@ class QuotaReserveClosureReference:
     """Stateless cleanroom checker over a caller-frozen public physical catalog."""
 
     def __init__(self, *, catalog: Iterable[CardDefinition], start_card: CardDefinition,
-                 exit_card: CardDefinition) -> None:
+                 exit_card: CardDefinition, min_open_override: int = 0) -> None:
+        if type(min_open_override) is not int or min_open_override not in (0, 4):
+            raise ReferenceInputError('only original or strategy19 threshold is supported')
         cards = tuple(catalog)
         if len(cards) != 69 or any(not _typed_card(card) for card in cards):
             raise ReferenceInputError('catalog requires the 69 physical draw-deck cards')
@@ -134,6 +136,7 @@ class QuotaReserveClosureReference:
         self._catalog = mapping
         self._start = start_card
         self._exit = exit_card
+        self._min_open_override = min_open_override
         # Spell the frozen V4-250 weights locally rather than inheriting a policy.
         self._weights = strategy.PolicyWeights(
             collect_excess=0, delta_visible_water=20_000,
@@ -315,6 +318,7 @@ class QuotaReserveClosureReference:
                     failures = (
                         (after[0] >= before[0], 'not_reduced'),
                         (after[0] <= 0, 'closed_tunnels'),
+                        (after[0] < self._min_open_override, 'min_open_reserve'),
                         (after[1] > before[1], 'visible_water_increased'),
                         (after[2] > before[2], 'water_obstruction_increased'),
                         (after[3] > before[3], 'trapped_water_increased'),
@@ -332,7 +336,9 @@ class QuotaReserveClosureReference:
         final = best(closure) if closure else primary
         if legal and not final:
             raise ReferenceIntegrityError('nonempty legal list produced an empty final tier')
-        science = dict(schema='worker35-scientific-v1',
+        schema = ('worker35-strategy19-scientific-v1' if self._min_open_override
+                  else 'worker35-scientific-v1')
+        science = dict(schema=schema,
             roots=[dict(move=move_wire(action), score=score) for action, score in zip(legal, scores)],
             supply=supply,
             tiers=dict(T0=original, F=admissible, T=primary, C=closure, final=final),
