@@ -15,6 +15,7 @@ jobs:
   pytest:
     if: >-
       github.head_ref != 'codex/paired18' &&
+      github.head_ref != 'codex/strategy19' &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: [self-hosted, Linux, X64, bandido-alcatraz-tests]
     timeout-minutes: 20
