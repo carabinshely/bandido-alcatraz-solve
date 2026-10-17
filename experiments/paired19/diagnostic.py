@@ -79,8 +79,8 @@ def timeout(signum, frame):
 
 
 SEEDS = tuple(range(1000417, 1000425))
-CODEC_SHA = '212d9138e6b611f4171bd3303c671ad30831257c1e4d1fd2f19c6c4d4f3b2e7d'
-ISSUANCE_SHA = '65ddf44d4179c07480f298d86b92d1ade144ca728618ca3237ddd59cbb96c4cf'
+CODEC_SHA = '1d94917544578c6b9fe982f3ea27c3a218e59227ffe31a54fbffbd2b9db430c7'
+ISSUANCE_SHA = 'e66977e7967f1da53036c45e2895d2dabc80db5fdace465f4cecba9669052000'
 WHOLE_SECONDS = 1200
 BOUNDS_SHA = '5e13471ad7b4c5fe2a1a9feefb29305de017386aeb8b283d57df9f0d2fbae547'
 DATA = {
@@ -358,4 +358,3 @@ def main():
 if __name__ == '__main__':
     whole_started = time.monotonic()
     raise SystemExit(main())
-

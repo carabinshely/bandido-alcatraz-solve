@@ -322,4 +322,3 @@ def admit(control):
     receipt["global_preissue"] = global_first
     write_new(control / "issuance-accepted.json", canonical(receipt))
     return receipt
-

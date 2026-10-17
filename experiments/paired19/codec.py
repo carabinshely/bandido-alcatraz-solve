@@ -136,4 +136,3 @@ def decode(encoded):
         records[name] = raw[offset:end]
         offset = end
     return records
-
