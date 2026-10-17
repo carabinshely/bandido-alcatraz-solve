@@ -25,13 +25,28 @@ class MobilityFloorReference(QuotaReserveClosureReference):
             raise ReferenceInputError("EXIT must be non-equipment")
 
     def _public_validation(self, obs: PlayerObservation) -> dict:
+        def coord(value):
+            return (type(value) is tuple and len(value) == 2
+                    and all(type(part) is int for part in value))
+
         for record in obs.board.placements:
-            if type(record) is not CardPlacement or type(record.kind) is not PlacementKind:
-                raise ReferenceInputError("exact placement kind required")
-        for cell in obs.board.cells.values():
-            if (type(cell) is not VisibleCell or type(cell.tunnel_edges) is not frozenset
+            if (type(record) is not CardPlacement or type(record.card_id) is not str
+                    or not coord(record.origin) or type(record.quarter_turns) is not int
+                    or type(record.placement_index) is not int
+                    or type(record.kind) is not PlacementKind
+                    or type(record.cells) is not tuple
+                    or any(not coord(value) for value in record.cells)
+                    or type(record.overlaps) is not tuple
+                    or any(not coord(value) for value in record.overlaps)
+                    or (record.covered_placement_index is not None
+                        and type(record.covered_placement_index) is not int)):
+                raise ReferenceInputError("exact placement-history fields required")
+        for position, cell in obs.board.cells.items():
+            if (not coord(position) or type(cell) is not VisibleCell
+                    or type(cell.water) is not bool
+                    or type(cell.tunnel_edges) is not frozenset
                     or any(type(edge) is not Direction for edge in cell.tunnel_edges)):
-                raise ReferenceInputError("exact visible tunnel edges required")
+                raise ReferenceInputError("exact visible geometry fields required")
         supply = super()._public_validation(obs)
         if type(obs.board._placement_count) is not int:
             raise ReferenceInputError("public placement counter must be an exact integer")

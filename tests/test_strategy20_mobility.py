@@ -1,6 +1,7 @@
 """Invented-catalog checks only; no real-deck game is executed here."""
 import sys
 import unittest
+from enum import IntEnum, StrEnum
 from random import Random
 from unittest.mock import patch
 
@@ -126,6 +127,42 @@ class MobilityFloorTests(unittest.TestCase):
         obs, candidate, reference = pair(2)
         board = obs.board.clone()
         object.__setattr__(board.placements[1], "kind", PlacementKind.ORDINARY.value)
+        malformed = PlayerObservation(board, obs.hand, obs.raincoats, obs.ropes,
+                                      obs.exit_placed, obs.exit_seen, obs.turns,
+                                      obs.set_aside_unplayable, obs.collected_equipment,
+                                      obs.setup, obs.player_index)
+        with self.assertRaises(CandidateIntegrityError):
+            candidate.evaluate(malformed, Random(7))
+        with self.assertRaises(ReferenceInputError):
+            reference.evaluate(malformed, Random(7))
+
+    def test_enum_placement_id_is_rejected_by_both(self):
+        obs, candidate, reference = pair(2)
+        board = obs.board.clone()
+
+        class ForgedId(StrEnum):
+            CARD = board.placements[1].card_id
+
+        object.__setattr__(board.placements[1], "card_id", ForgedId.CARD)
+        malformed = PlayerObservation(board, obs.hand, obs.raincoats, obs.ropes,
+                                      obs.exit_placed, obs.exit_seen, obs.turns,
+                                      obs.set_aside_unplayable, obs.collected_equipment,
+                                      obs.setup, obs.player_index)
+        with self.assertRaises(CandidateIntegrityError):
+            candidate.evaluate(malformed, Random(7))
+        with self.assertRaises(ReferenceInputError):
+            reference.evaluate(malformed, Random(7))
+
+    def test_enum_placement_cell_coordinate_is_rejected_by_both(self):
+        obs, candidate, reference = pair(2)
+        board = obs.board.clone()
+        record = board.placements[1]
+
+        class ForgedCoordinate(IntEnum):
+            X = record.cells[0][0]
+
+        replaced = ((ForgedCoordinate.X, record.cells[0][1]),) + record.cells[1:]
+        object.__setattr__(record, "cells", replaced)
         malformed = PlayerObservation(board, obs.hand, obs.raincoats, obs.ropes,
                                       obs.exit_placed, obs.exit_seen, obs.turns,
                                       obs.set_aside_unplayable, obs.collected_equipment,
