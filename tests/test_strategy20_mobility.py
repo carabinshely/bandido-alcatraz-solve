@@ -7,6 +7,7 @@ from unittest.mock import patch
 sys.path[:0] = ["src", "tests"]
 
 from test_strategy19_min_open import invented_case
+from bandido_alcatraz.board import PlacementKind, VisibleCell
 from bandido_alcatraz.game import PlayerObservation
 from bandido_alcatraz.model import CardDefinition, CellSpec, Direction, Material
 from bandido_alcatraz.moves import Action
@@ -112,6 +113,33 @@ class MobilityFloorTests(unittest.TestCase):
         obs, candidate, reference = pair(0)
         board = obs.board.clone()
         board._placement_count = True
+        malformed = PlayerObservation(board, obs.hand, obs.raincoats, obs.ropes,
+                                      obs.exit_placed, obs.exit_seen, obs.turns,
+                                      obs.set_aside_unplayable, obs.collected_equipment,
+                                      obs.setup, obs.player_index)
+        with self.assertRaises(CandidateIntegrityError):
+            candidate.evaluate(malformed, Random(7))
+        with self.assertRaises(ReferenceInputError):
+            reference.evaluate(malformed, Random(7))
+
+    def test_string_placement_kind_is_rejected_by_both(self):
+        obs, candidate, reference = pair(2)
+        board = obs.board.clone()
+        object.__setattr__(board.placements[1], "kind", PlacementKind.ORDINARY.value)
+        malformed = PlayerObservation(board, obs.hand, obs.raincoats, obs.ropes,
+                                      obs.exit_placed, obs.exit_seen, obs.turns,
+                                      obs.set_aside_unplayable, obs.collected_equipment,
+                                      obs.setup, obs.player_index)
+        with self.assertRaises(CandidateIntegrityError):
+            candidate.evaluate(malformed, Random(7))
+        with self.assertRaises(ReferenceInputError):
+            reference.evaluate(malformed, Random(7))
+
+    def test_mutable_visible_edges_are_rejected_by_both(self):
+        obs, candidate, reference = pair(2)
+        board = obs.board.clone()
+        position, cell = next(iter(board.cells.items()))
+        board._cells[position] = VisibleCell(set(cell.tunnel_edges), cell.water)
         malformed = PlayerObservation(board, obs.hand, obs.raincoats, obs.ropes,
                                       obs.exit_placed, obs.exit_seen, obs.turns,
                                       obs.set_aside_unplayable, obs.collected_equipment,

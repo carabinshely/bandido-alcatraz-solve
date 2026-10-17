@@ -4,8 +4,9 @@ from __future__ import annotations
 from random import Random
 
 from . import strategy
+from .board import CardPlacement, PlacementKind, VisibleCell
 from .game import PlayerObservation
-from .model import CardDefinition
+from .model import CardDefinition, Direction
 from .moves import Action, Move
 from .quota_reserve_closure_reference import OperationLimits, QuotaReserveClosureReference, ReferenceInputError
 from .worker32.evidence import move as move_wire
@@ -24,6 +25,13 @@ class MobilityFloorReference(QuotaReserveClosureReference):
             raise ReferenceInputError("EXIT must be non-equipment")
 
     def _public_validation(self, obs: PlayerObservation) -> dict:
+        for record in obs.board.placements:
+            if type(record) is not CardPlacement or type(record.kind) is not PlacementKind:
+                raise ReferenceInputError("exact placement kind required")
+        for cell in obs.board.cells.values():
+            if (type(cell) is not VisibleCell or type(cell.tunnel_edges) is not frozenset
+                    or any(type(edge) is not Direction for edge in cell.tunnel_edges)):
+                raise ReferenceInputError("exact visible tunnel edges required")
         supply = super()._public_validation(obs)
         if type(obs.board._placement_count) is not int:
             raise ReferenceInputError("public placement counter must be an exact integer")
