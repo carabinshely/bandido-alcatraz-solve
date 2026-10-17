@@ -103,6 +103,27 @@ class Paired20Bindings(unittest.TestCase):
         self.assertIn("github.head_ref != 'codex/strategy20-runner'", old)
         self.assertNotIn("- run: python scripts/run_real_deck_smoke.py", workflow)
         self.assertEqual(len(re.findall(r"PAIRED20_GO_JSON", workflow)), 4)
+        self.assertEqual(workflow.count("actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683"), 2)
+        self.assertEqual(workflow.count("actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"), 1)
+        self.assertNotIn("actions/checkout@v4", workflow)
+        self.assertNotIn("actions/upload-artifact@v4", workflow)
+
+    def test_reference_comparison_rejects_physical_call_divergence(self):
+        tree = ast.parse((EXP / "diagnostic.py").read_text(encoding="utf-8"))
+        checks = [n for n in ast.walk(tree) if isinstance(n, ast.Call)
+                  and isinstance(n.func, ast.Name) and n.func.id == "require"
+                  and len(n.args) == 2 and isinstance(n.args[1], ast.Constant)
+                  and n.args[1].value == "FULL_REFERENCE_MISMATCH"]
+        self.assertEqual(len(checks), 1)
+        expr = compile(ast.Expression(checks[0].args[0]), "reference-parity", "eval")
+        candidate_rng, reference_rng = Random(17), Random(17)
+        values = dict(audit={"roots": []}, checked={"roots": []},
+                      chosen="a", expected="a", move=lambda value: value,
+                      operations={"previews": 1}, reference_operations={"previews": 1},
+                      rng=candidate_rng, copied=reference_rng)
+        self.assertTrue(eval(expr, {}, values))
+        values["reference_operations"] = {"previews": 2}
+        self.assertFalse(eval(expr, {}, values))
 
     def test_first_issue_uses_only_scoped_complete_workflow_history(self):
         spec = importlib.util.spec_from_file_location("paired20_issuer_pure", EXP / "issuance.py")
@@ -181,7 +202,8 @@ class Paired20Bindings(unittest.TestCase):
                          + 9 * (65536 + 8192 + 1024) + 512 * 1024)
         self.assertEqual(control_upper, 6_027_260)
         self.assertIn("6,027,260-byte prospective upper", (EXP / "CONTRACT.md").read_text())
-        self.assertLessEqual(5 * control_upper + 4_000_000 + 1_048_576, 35_903_427)
+        # A private terminal packet upper needs separate proof; the 4 MiB
+        # compressed evidence cap does not bound the whole packet to 4 MB.
 
     def test_precall_terminal_reserve_boundary(self):
         spec = importlib.util.spec_from_file_location("paired20_bounds_pure", EXP / "bounds.py")

@@ -34,7 +34,7 @@ jobs:
       CURRENT_BODY: ${{ github.event.pull_request.body }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
-      DRIVER_SHA: 06dd9d684eadd6001e7f77d7446e5570fa3ae77b9fd6f4dd62569e790399c5ca
+      DRIVER_SHA: 0ff1f1194b2d426427ffe2e2514674c06c673d2672481f9e0dbd392a1c497c4b
       MANIFEST_SHA: 019174fc9dde408ddac20fe54bca5a28147a0e9fba16fd82dc3202d56623b61e
       GATE_SHA: 4231d02252d9cb3b21335367e9f8c1898a18b447ac6a4acd9d97debdbb542de6
     steps:
@@ -60,14 +60,14 @@ jobs:
           assert all(type(go[k]) is str and 0<len(go[k])<=256 for k in ('exhaustive_review','adversarial_review','root_intent'))
           print('Exact admission consistency passed; external ROOT evidence remains required')
           PY
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         timeout-minutes: 2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           path: cost-driver
           persist-credentials: false
           fetch-depth: 1
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         timeout-minutes: 2
         with:
           ref: 7d740c82cd6f1be46ae01812c01de32ce2635d14
@@ -162,7 +162,7 @@ jobs:
           exit "$status"
       - name: Always preserve existing complete or partial files
         if: always() && env.CONTROL != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         timeout-minutes: 2
         with:
           name: paired20-${{ github.run_id }}-${{ github.run_attempt }}

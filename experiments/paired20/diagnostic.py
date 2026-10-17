@@ -271,7 +271,7 @@ def main():
             evidence.write(prefix + '-' + label + '.json', result)
             pins()
             deadline(WHOLE_SECONDS)
-            return chosen, audit
+            return chosen, audit, operations
 
         evidence.write('run-intent.json', dict(subject='paired20', seeds=SEEDS,
                        arms=['control', 'candidate'], purpose='FIXED16PAIR_DEVELOPMENT_NOT_CONFIRMATION',
@@ -329,12 +329,14 @@ def main():
                     if arm == 'candidate':
                         copied = Random()
                         copied.setstate(rng.getstate())
-                        chosen, audit = evaluation('candidate', policy, public, rng, prefix)
-                        expected, checked = evaluation('reference', checker, public, copied, prefix)
+                        chosen, audit, operations = evaluation('candidate', policy, public, rng, prefix)
+                        expected, checked, reference_operations = evaluation(
+                            'reference', checker, public, copied, prefix)
                         require(audit == checked and move(chosen) == move(expected)
+                                and operations == reference_operations
                                 and rng.getstate() == copied.getstate(), 'FULL_REFERENCE_MISMATCH')
                     else:
-                        chosen, audit = evaluation('control', baseline, public, rng, prefix)
+                        chosen, audit, _operations = evaluation('control', baseline, public, rng, prefix)
                     require(physical(state) == before, 'REAL_STATE_MUTATED_BY_POLICY')
                     if chosen is None:
                         if state.refresh_unplayable_hand():
