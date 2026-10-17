@@ -34,7 +34,7 @@ jobs:
       CURRENT_BODY: ${{ github.event.pull_request.body }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
-      DRIVER_SHA: 793903deef788c8c045b02946759a25c9762b53d7f718f25511e64ffc910473c
+      DRIVER_SHA: a88e098e15805ec8667129e08fe89a245e37af6b3951acc5efbae06e52c180b2
       MANIFEST_SHA: 76e652e352caaa9dfd80f8d64a9e4134e64021b73bea96ee982757586b2d8720
       GATE_SHA: 4231d02252d9cb3b21335367e9f8c1898a18b447ac6a4acd9d97debdbb542de6
     steps:
@@ -77,7 +77,7 @@ jobs:
           sparse-checkout: |
             src
             data
-      - name: Fixed8-pair cache-only development batch
+      - name: Fixed6-pair cache-only development batch
         id: pair
         env:
           ISSUANCE_TOKEN: ${{ github.token }}
@@ -101,7 +101,7 @@ jobs:
           printf '%s  %s\n' "$MANIFEST_SHA" "$manifest" | sha256sum --check --status
           printf '%s  %s\n' "$GATE_SHA" "$gate" | sha256sum --check --status
           printf '%s  %s\n' '1d94917544578c6b9fe982f3ea27c3a218e59227ffe31a54fbffbd2b9db430c7' "$codec" | sha256sum --check --status
-          printf '%s  %s\n' 'e66977e7967f1da53036c45e2895d2dabc80db5fdace465f4cecba9669052000' "$issuer" | sha256sum --check --status
+          printf '%s  %s\n' '67116ca86012131b3e33bd80f4a08c9f1f6d475d042cb182119ab6fc65f1bc07' "$issuer" | sha256sum --check --status
           py="$RUNNER_TOOL_CACHE/Python/3.11.16/x64/bin/python"
           # No installation or alternate interpreter fallback. Driver checks exact executable hash.
           test -x "$py"

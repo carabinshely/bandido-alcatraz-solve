@@ -13,9 +13,9 @@ import urllib.request
 
 REPO = "carabinshely/bandido-alcatraz-solve"
 BASE = "https://api.github.com/repos/" + REPO
-ALLOCATION = "bandido-seeds-1000417-1000424"
+ALLOCATION = "bandido-seeds-1000417-1000422"
 REF = "refs/tags/" + ALLOCATION
-GLOBAL_BRANCH = "codex/seed-allocation-1000417-1000424"
+GLOBAL_BRANCH = "codex/seed-allocation-1000417-1000422"
 GLOBAL_REF = "refs/heads/" + GLOBAL_BRANCH
 MAX_RESPONSE = 65536
 
@@ -53,7 +53,7 @@ class Client:
         first_issue_comments = (method == "GET" and label == "first_issue_comments"
                                 and re.fullmatch(r"/issues/[1-9][0-9]{0,9}/comments\?per_page=100", path))
         first_issue_runs = (method == "GET" and label == "first_issue_runs"
-                            and re.fullmatch(r"/actions/runs\?event=pull_request&head_sha=[0-9a-f]{40}&per_page=6", path))
+                            and re.fullmatch(r"/actions/workflows/paired19.yml/runs\?event=pull_request&head_sha=[0-9a-f]{40}&per_page=8", path))
         global_ref = (method == "GET" and label == "global_preissue_ref" and
                       path == "/git/ref/heads/" + GLOBAL_BRANCH)
         global_commit = (method == "GET" and label == "global_preissue_commit" and
@@ -117,7 +117,7 @@ def utc_second(value):
 def global_message(head, pr_number, root_intent, nonce):
     return canonical(dict(schema="bandido-first-issue-v1", allocation=ALLOCATION,
                           head=head, pr_number=pr_number, root_intent=root_intent,
-                          nonce=nonce, seeds=list(range(1000417, 1000425)))).decode()[:-1]
+                          nonce=nonce, seeds=list(range(1000417, 1000423)))).decode()[:-1]
 
 
 def validate_global_preissue(client, *, head, pr_number, root_intent, nonce,
@@ -203,11 +203,11 @@ def validate_first_run(client, *, head, run_id, pr_number, root_intent, comment_
     comment_at = utc_second(c.get("created_at"))
     require(comment_at >= issued_at,
             "FIRST_ISSUE_COMMENT_BEFORE_GLOBAL")
-    path = f"/actions/runs?event=pull_request&head_sha={head}&per_page=6"
+    path = f"/actions/workflows/paired19.yml/runs?event=pull_request&head_sha={head}&per_page=8"
     status, listing = client.request("GET", path, None, "first_issue_runs")
     require(status == 200 and type(listing) is dict and
             type(listing.get("total_count")) is int and
-            1 <= listing["total_count"] <= 6 and
+            1 <= listing["total_count"] <= 8 and
             type(listing.get("workflow_runs")) is list and
             len(listing["workflow_runs"]) == listing["total_count"],
             "FIRST_ISSUE_RUNS_INCOMPLETE")
@@ -221,16 +221,12 @@ def validate_first_run(client, *, head, run_id, pr_number, root_intent, comment_
         raw_path = run.get("path")
         require(type(raw_path) is str, "FIRST_ISSUE_RUN_PATH_UNKNOWN")
         base_path, separator, ref = raw_path.partition("@")
-        require(base_path in (".github/workflows/test.yml",
-                              ".github/workflows/paired19.yml",
-                              ".github/workflows/worker37-bootstrap-readiness.yml") and
+        require(base_path == ".github/workflows/paired19.yml" and
                 (not separator or
                  (re.fullmatch(r"[A-Za-z0-9_./-]{1,200}", ref) is not None and
                   ".." not in ref and "//" not in ref and not ref.startswith("/"))),
                 "FIRST_ISSUE_RUN_PATH_UNKNOWN")
         seen.add(run["id"])
-        if base_path != ".github/workflows/paired19.yml":
-            continue
         require(
                 type(run.get("pull_requests")) is list and
                 any(type(p) is dict and p.get("number") == pr_number
@@ -260,7 +256,7 @@ def claim(client, head, run_id, attempt, root_intent):
     status, old = client.request("GET", "/git/ref/tags/" + ALLOCATION, None, "check")
     require(status == 404, "ALLOCATION_ALREADY_ISSUED_OR_CHECK_NOT_404")
     message = canonical(dict(schema="bandido-fixed-allocation-issuance-v1",
-        allocation=ALLOCATION, seeds=list(range(1000417, 1000425)), head=head,
+        allocation=ALLOCATION, seeds=list(range(1000417, 1000423)), head=head,
         run_id=run_id, run_attempt=attempt, root_intent=root_intent)).decode()
     tag_request = dict(tag=ALLOCATION, message=message, object=head, type="commit")
     status, tag = client.request("POST", "/git/tags", tag_request, "tag")
@@ -282,7 +278,7 @@ def claim(client, head, run_id, attempt, root_intent):
             and current["object"].get("sha") == tag["sha"], "ISSUANCE_READBACK_UNKNOWN")
     return dict(schema="bandido-fixed-allocation-issuance-v1", allocation=ALLOCATION,
                 ref=REF, tag_sha=tag["sha"], head=head, run_id=run_id,
-                run_attempt=attempt, seeds=list(range(1000417, 1000425)),
+                run_attempt=attempt, seeds=list(range(1000417, 1000423)),
                 root_intent=root_intent, status="ONE_ATOMIC_REF_CREATED_AND_READ_BACK")
 
 def admit(control):

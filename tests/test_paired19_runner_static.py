@@ -36,7 +36,7 @@ class Paired19Bindings(unittest.TestCase):
         self.assertEqual(candidate["sha256"],
                          "5638aad3d06743e710eadecfb54d31489fdc70633f1022cab09be034c7efa863")
 
-    def test_driver_calls_exact_threshold_and_eight_seed_population(self):
+    def test_driver_calls_exact_threshold_and_six_seed_population(self):
         code = (EXP / "diagnostic.py").read_text(encoding="utf-8")
         tree = ast.parse(code)
         calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call)]
@@ -47,8 +47,8 @@ class Paired19Bindings(unittest.TestCase):
             self.assertEqual([(kw.arg, kw.value.value) for kw in selected[0].keywords
                               if kw.arg == "min_open_override"],
                              [("min_open_override", 4)])
-        self.assertIn("SEEDS = tuple(range(1000417, 1000425))", code)
-        self.assertIn("pairs=8, games=16", code)
+        self.assertIn("SEEDS = tuple(range(1000417, 1000423))", code)
+        self.assertIn("pairs=6, games=12", code)
         self.assertIn("WHOLE_SECONDS = 1200", code)
         self.assertIn("manifest['commit'] == '" + SOURCE_HEAD + "'", code)
         self.assertNotIn("1000401", code)
@@ -56,14 +56,15 @@ class Paired19Bindings(unittest.TestCase):
 
     def test_one_shot_issuer_has_new_unique_allocation(self):
         code = (EXP / "issuance.py").read_text(encoding="utf-8")
-        self.assertIn('ALLOCATION = "bandido-seeds-1000417-1000424"', code)
-        self.assertIn('GLOBAL_BRANCH = "codex/seed-allocation-1000417-1000424"', code)
-        self.assertIn("range(1000417, 1000425)", code)
+        self.assertIn('ALLOCATION = "bandido-seeds-1000417-1000422"', code)
+        self.assertIn('GLOBAL_BRANCH = "codex/seed-allocation-1000417-1000422"', code)
+        self.assertIn("range(1000417, 1000423)", code)
         self.assertIn("PAIRED19_FIRST_ISSUE_V1", code)
         self.assertIn("PAIRED19_GO_JSON", code)
         self.assertIn('".github/workflows/paired19.yml"', code)
-        self.assertIn("per_page=6", code)
-        self.assertIn('listing["total_count"] <= 6', code)
+        self.assertIn("/actions/workflows/paired19.yml/runs?event=pull_request", code)
+        self.assertIn("per_page=8", code)
+        self.assertIn('listing["total_count"] <= 8', code)
         self.assertNotIn("1000401", code)
         self.assertNotIn("PAIRED18", code)
 
@@ -83,7 +84,7 @@ class Paired19Bindings(unittest.TestCase):
         self.assertNotIn("- run: python scripts/run_real_deck_smoke.py", workflow)
         self.assertEqual(len(re.findall(r"PAIRED19_GO_JSON", workflow)), 4)
 
-    def test_first_issue_selects_only_this_workflow_among_five_runs(self):
+    def test_first_issue_uses_only_scoped_complete_workflow_history(self):
         spec = importlib.util.spec_from_file_location("paired19_issuer_pure", EXP / "issuance.py")
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -100,28 +101,30 @@ class Paired19Bindings(unittest.TestCase):
             return {"id": number, "head_sha": head, "event": "pull_request",
                     "path": ".github/workflows/" + path,
                     "created_at": when, "pull_requests": [{"number": pr}]}
-        runs = [row(1, "test.yml", "2026-10-17T09:59:58Z"),
-                row(2, "paired19.yml", "2026-10-17T09:59:59Z"),
-                row(3, "test.yml", "2026-10-17T10:00:02Z"),
-                row(4, "worker37-bootstrap-readiness.yml", "2026-10-17T10:00:02Z"),
+        unrelated = [row(n, "test.yml", "2026-10-17T09:59:58Z")
+                     for n in range(10, 18)]
+        self.assertEqual(len(unrelated), 8)
+        runs = [row(2, "paired19.yml", "2026-10-17T09:59:59Z"),
                 row(5, "paired19.yml", "2026-10-17T10:00:03Z")]
         class Client:
             def request(self, method, path, data, label):
                 assert method == "GET" and data is None
                 if label == "first_issue_comments":
                     return 200, [issue]
-                assert label == "first_issue_runs" and path.endswith("per_page=6")
+                assert label == "first_issue_runs"
+                assert path.startswith("/actions/workflows/paired19.yml/runs?")
+                assert path.endswith("per_page=8")
                 return 200, {"total_count": len(runs), "workflow_runs": runs}
         args = dict(head=head, run_id="5", pr_number=pr, root_intent="root",
                     comment_id=123, nonce=nonce,
                     global_created_at="2026-10-17T10:00:00Z")
         result = module.validate_first_run(Client(), **args)
         self.assertEqual(result["run_id"], "5")
-        runs[4]["path"] = ".github/workflows/unreviewed.yml"
+        runs[1]["path"] = ".github/workflows/unreviewed.yml"
         with self.assertRaisesRegex(ValueError, "FIRST_ISSUE_RUN_PATH_UNKNOWN"):
             module.validate_first_run(Client(), **args)
-        runs[4]["path"] = ".github/workflows/paired19.yml"
-        runs[1]["created_at"] = "2026-10-17T10:00:02Z"
+        runs[1]["path"] = ".github/workflows/paired19.yml"
+        runs[0]["created_at"] = "2026-10-17T10:00:02Z"
         with self.assertRaisesRegex(ValueError, "FIRST_RUN_ALREADY_SPENT"):
             module.validate_first_run(Client(), **args)
 

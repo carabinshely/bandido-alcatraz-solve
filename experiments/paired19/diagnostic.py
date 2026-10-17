@@ -1,4 +1,4 @@
-"""Fixed8-pair exploratory real-deck batch; CI-only execution under separate root GO."""
+"""Fixed6-pair developmental real-deck batch; CI-only under separate root GO."""
 import argparse
 import hashlib
 import json
@@ -78,9 +78,9 @@ def timeout(signum, frame):
 
 
 
-SEEDS = tuple(range(1000417, 1000425))
+SEEDS = tuple(range(1000417, 1000423))
 CODEC_SHA = '1d94917544578c6b9fe982f3ea27c3a218e59227ffe31a54fbffbd2b9db430c7'
-ISSUANCE_SHA = 'e66977e7967f1da53036c45e2895d2dabc80db5fdace465f4cecba9669052000'
+ISSUANCE_SHA = '67116ca86012131b3e33bd80f4a08c9f1f6d475d042cb182119ab6fc65f1bc07'
 WHOLE_SECONDS = 1200
 BOUNDS_SHA = '5e13471ad7b4c5fe2a1a9feefb29305de017386aeb8b283d57df9f0d2fbae547'
 DATA = {
@@ -245,7 +245,7 @@ def main():
             return chosen, audit
 
         evidence.write('run-intent.json', dict(subject='paired19', seeds=SEEDS,
-                       arms=['control', 'candidate'], purpose='FIXED8PAIR_DEVELOPMENT_NOT_CONFIRMATION',
+                       arms=['control', 'candidate'], purpose='FIXED6PAIR_DEVELOPMENT_NOT_CONFIRMATION',
                        source=manifest['commit'], setup=SOLO_EASY.setup_id, data=DATA,
                        runtime_executable_sha256=EXPECTED_EXE, codec_sha256=CODEC_SHA, issuance=issuance))
         batch_results = []
@@ -339,8 +339,8 @@ def main():
                 for r in results]))
         evidence.prefix = ''
         evidence.rows = []
-        evidence.write('result.json', dict(status='FIXED8PAIR_COMPLETE_DEVELOPMENT_NO_ADOPTION',
-                       seeds=SEEDS, pairs=8, games=16, results=batch_results,
+        evidence.write('result.json', dict(status='FIXED6PAIR_COMPLETE_DEVELOPMENT_NO_ADOPTION',
+                       seeds=SEEDS, pairs=6, games=12, results=batch_results,
                        raw_evidence_bytes_before_result=evidence.total,
                        whole_seconds=time.monotonic() - whole_started), terminal=True)
         evidence.finish()
