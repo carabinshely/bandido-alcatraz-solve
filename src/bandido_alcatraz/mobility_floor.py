@@ -4,6 +4,7 @@ from __future__ import annotations
 from random import Random
 
 from . import strategy
+from .board import Board
 from .game import PlayerObservation
 from .model import CardDefinition
 from .moves import Action, Move
@@ -27,6 +28,16 @@ class MobilityFloorPolicy(QuotaReserveClosurePolicy):
                  start_card: CardDefinition, exit_card: CardDefinition) -> None:
         super().__init__(catalog=catalog, start_card=start_card,
                          exit_card=exit_card, min_open_override=0)
+        seeded = Board()
+        seeded.seed(start_card)
+        _require(seeded.open_tunnels == 5, "easy START must have five open tunnels")
+
+    def _validate(self, observation: PlayerObservation) -> dict:
+        supply = super()._validate(observation)
+        _require(type(observation.board._placement_count) is int
+                 and observation.board._placement_count == len(observation.board.placements),
+                 "public placement counter disagrees with history")
+        return supply
 
     def evaluate(self, observation: PlayerObservation, rng: Random, *,
                  limits: OperationLimits | None = None) -> tuple[Move | None, dict, dict]:

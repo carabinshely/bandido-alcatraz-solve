@@ -7,10 +7,13 @@ sys.path[:0] = ["src", "tests"]
 
 from test_strategy19_min_open import invented_case
 from bandido_alcatraz.game import PlayerObservation
+from bandido_alcatraz.model import CardDefinition, CellSpec, Direction
 from bandido_alcatraz.moves import Action
 from bandido_alcatraz.mobility_floor import MobilityFloorPolicy
 from bandido_alcatraz.mobility_floor_reference import MobilityFloorReference
 from bandido_alcatraz.quota_reserve_closure import OperationLimits, ResourceExceeded
+from bandido_alcatraz.quota_reserve_closure import IntegrityError as CandidateIntegrityError
+from bandido_alcatraz.quota_reserve_closure_reference import ReferenceInputError
 from bandido_alcatraz.worker32.evidence import observation as observation_wire
 
 
@@ -67,6 +70,31 @@ class MobilityFloorTests(unittest.TestCase):
     def test_previous_policy_is_unchanged(self):
         obs, old, old_reference = invented_case(2, None)
         self.assertEqual(old.evaluate(obs, Random(7)), old_reference.evaluate(obs, Random(7)))
+
+    def test_corrupt_board_placement_counter_is_rejected_by_both(self):
+        obs, candidate, reference = pair(2)
+        board = obs.board.clone()
+        board._placement_count += 1
+        malformed = PlayerObservation(board, obs.hand, obs.raincoats, obs.ropes,
+                                      obs.exit_placed, obs.exit_seen, obs.turns,
+                                      obs.set_aside_unplayable, obs.collected_equipment,
+                                      obs.setup, obs.player_index)
+        with self.assertRaises(CandidateIntegrityError):
+            candidate.evaluate(malformed, Random(7))
+        with self.assertRaises(ReferenceInputError):
+            reference.evaluate(malformed, Random(7))
+
+    def test_noncanonical_easy_start_is_rejected_by_both(self):
+        _, old, _ = invented_case(0, None)
+        invalid_start = CardDefinition("start_easy", (
+            CellSpec(0, 0, frozenset((Direction.WEST,))),
+        ))
+        args = dict(catalog=tuple(old.catalog.values()), start_card=invalid_start,
+                    exit_card=old._exit_card)
+        with self.assertRaises(CandidateIntegrityError):
+            MobilityFloorPolicy(**args)
+        with self.assertRaises(ReferenceInputError):
+            MobilityFloorReference(**args)
 
 
 if __name__ == "__main__":
