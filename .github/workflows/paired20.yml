@@ -34,7 +34,7 @@ jobs:
       CURRENT_BODY: ${{ github.event.pull_request.body }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
-      DRIVER_SHA: ed45d1780e3596385f71caf54f647949eeb81ba9595ca095e749a45bda7ac110
+      DRIVER_SHA: 06dd9d684eadd6001e7f77d7446e5570fa3ae77b9fd6f4dd62569e790399c5ca
       MANIFEST_SHA: 019174fc9dde408ddac20fe54bca5a28147a0e9fba16fd82dc3202d56623b61e
       GATE_SHA: 4231d02252d9cb3b21335367e9f8c1898a18b447ac6a4acd9d97debdbb542de6
     steps:
@@ -100,13 +100,13 @@ jobs:
           printf '%s  %s\n' 'c7985720e132df4fbd65afe6ef557b08a4bda793c8c70b82546fe5b533e4c70d' "$bounds" | sha256sum --check --status
           printf '%s  %s\n' "$MANIFEST_SHA" "$manifest" | sha256sum --check --status
           printf '%s  %s\n' "$GATE_SHA" "$gate" | sha256sum --check --status
-          printf '%s  %s\n' 'd1f90c89ae5449728346e075cd422702e0d6be353c233ea43563c3b679b7a0a7' "$codec" | sha256sum --check --status
+          printf '%s  %s\n' '7daa5f2447cafa9f59fda5d16c6f4e59a28baa9d345c2870d9b16aa1cc056c62' "$codec" | sha256sum --check --status
           printf '%s  %s\n' '34586d1eb6ae12f93c7963efd707c2ece4f7df34a3ad7d964600e42f0bf09224' "$issuer" | sha256sum --check --status
           py="$RUNNER_TOOL_CACHE/Python/3.11.16/x64/bin/python"
           # No installation or alternate interpreter fallback. Driver checks exact executable hash.
           test -x "$py"
           set +o posix
-          ulimit -f 8192
+          ulimit -f 4096
           printf '%s  %s\n' 'a15ccdaf07655a8667a3687b13171486c9a265d92273ba3ad820fbb64d2cfecc' "$py" | sha256sum --check --status
           # Actual narrow cache-library provenance, not an inherited LD path or install.
           libdir="$RUNNER_TOOL_CACHE/Python/3.11.16/x64/lib"
@@ -132,14 +132,32 @@ jobs:
               --source-root "$GITHUB_WORKSPACE/cost-source" --work-root "$control/source-gate" \
               > "$control/source-gate-stdout.log" 2> "$control/source-gate-stderr.log"
           )
+          out_fifo="$RUNNER_TEMP/paired20-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-stdout.pipe"
+          err_fifo="$RUNNER_TEMP/paired20-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-stderr.pipe"
+          test ! -e "$out_fifo" && test ! -e "$err_fifo"
+          mkfifo -m 600 -- "$out_fifo" "$err_fifo"
+          trap 'rm -f -- "$out_fifo" "$err_fifo"' EXIT
           set +e
+          (ulimit -f 128; cat -- "$out_fifo" > "$control/stdout.log") &
+          out_capture=$!
+          (ulimit -f 128; cat -- "$err_fifo" > "$control/stderr.log") &
+          err_capture=$!
           timeout --signal=KILL 3620 "$py" -I -S -B "$driver" \
             --source-root "$GITHUB_WORKSPACE/cost-source" \
             --manifest "$manifest" --manifest-sha256 "$MANIFEST_SHA" \
-            --output-dir "$control/evidence" > "$control/stdout.log" 2> "$control/stderr.log"
+            --output-dir "$control/evidence" > "$out_fifo" 2> "$err_fifo"
           status=$?
+          wait "$out_capture"
+          out_status=$?
+          wait "$err_capture"
+          err_status=$?
           set -e
+          printf 'driver=%s stdout_capture=%s stderr_capture=%s\n' "$status" "$out_status" "$err_status" > "$control/capture-status.txt"
           printf '%s\n' "$status" > "$control/process-exit.txt"
+          if (( out_status != 0 || err_status != 0 )); then
+            printf 'INCOMPLETE_CAPTURE_FAILURE_OR_OVERFLOW; no game verdict\n'
+            exit 97
+          fi
           printf 'Diagnostic process exit=%s; complete/partial artifact required\n' "$status"
           exit "$status"
       - name: Always preserve existing complete or partial files

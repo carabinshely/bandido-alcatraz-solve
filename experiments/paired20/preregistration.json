@@ -37,7 +37,7 @@
   "address_space_bytes": 536870912,
   "fd_limit": 64,
   "raw_payload_cap": 201326592,
-  "compressed_file_cap": 8388608,
+  "compressed_file_cap": 4194304,
   "terminal_reserve": 524288,
   "record_cap": 8192,
   "journal_pre_call_cap": 600,
