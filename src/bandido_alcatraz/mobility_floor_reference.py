@@ -12,10 +12,14 @@ from .worker32.evidence import move as move_wire
 class MobilityFloorReference(QuotaReserveClosureReference):
     def __init__(self, *, catalog: tuple[CardDefinition, ...],
                  start_card: CardDefinition, exit_card: CardDefinition) -> None:
+        if type(catalog) is not tuple:
+            raise ReferenceInputError("immutable catalog tuple required")
         super().__init__(catalog=catalog, start_card=start_card,
                          exit_card=exit_card, min_open_override=0)
         if start_card.card_id != "start_easy":
             raise ReferenceInputError("easy START identity required")
+        if exit_card.material is not None:
+            raise ReferenceInputError("EXIT must be non-equipment")
 
     def _public_validation(self, obs: PlayerObservation) -> dict:
         supply = super()._public_validation(obs)

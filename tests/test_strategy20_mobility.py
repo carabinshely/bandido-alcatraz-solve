@@ -7,7 +7,7 @@ sys.path[:0] = ["src", "tests"]
 
 from test_strategy19_min_open import invented_case
 from bandido_alcatraz.game import PlayerObservation
-from bandido_alcatraz.model import CardDefinition, CellSpec, Direction
+from bandido_alcatraz.model import CardDefinition, CellSpec, Direction, Material
 from bandido_alcatraz.moves import Action
 from bandido_alcatraz.mobility_floor import MobilityFloorPolicy
 from bandido_alcatraz.mobility_floor_reference import MobilityFloorReference
@@ -114,6 +114,27 @@ class MobilityFloorTests(unittest.TestCase):
         old_start = old._start_card
         wrong_start = CardDefinition("wrong_easy", old_start.cells)
         args = dict(catalog=tuple(old.catalog.values()), start_card=wrong_start,
+                    exit_card=old._exit_card)
+        with self.assertRaises(CandidateIntegrityError):
+            MobilityFloorPolicy(**args)
+        with self.assertRaises(ReferenceInputError):
+            MobilityFloorReference(**args)
+
+    def test_equipment_exit_is_rejected_by_both(self):
+        _, old, _ = invented_case(0, None)
+        cards = tuple(old.catalog.values())
+        object.__setattr__(cards[-1], "material", Material.ROPE)
+        object.__setattr__(cards[12], "material", None)
+        args = dict(catalog=cards, start_card=old._start_card,
+                    exit_card=cards[-1])
+        with self.assertRaises(CandidateIntegrityError):
+            MobilityFloorPolicy(**args)
+        with self.assertRaises(ReferenceInputError):
+            MobilityFloorReference(**args)
+
+    def test_mutable_catalog_container_is_rejected_by_both(self):
+        _, old, _ = invented_case(0, None)
+        args = dict(catalog=list(old.catalog.values()), start_card=old._start_card,
                     exit_card=old._exit_card)
         with self.assertRaises(CandidateIntegrityError):
             MobilityFloorPolicy(**args)
