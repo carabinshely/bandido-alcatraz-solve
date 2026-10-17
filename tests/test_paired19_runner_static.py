@@ -6,6 +6,7 @@ import importlib.util
 import json
 from pathlib import Path
 import re
+import tempfile
 import unittest
 
 
@@ -127,6 +128,49 @@ class Paired19Bindings(unittest.TestCase):
         runs[0]["created_at"] = "2026-10-17T10:00:02Z"
         with self.assertRaisesRegex(ValueError, "FIRST_RUN_ALREADY_SPENT"):
             module.validate_first_run(Client(), **args)
+
+
+    def test_evidence_and_process_file_caps_fit_custody_reservation(self):
+        codec = (EXP / "codec.py").read_text()
+        driver = (EXP / "diagnostic.py").read_text()
+        workflow = (ROOT / ".github/workflows/paired19.yml").read_text()
+        prereg = json.loads((EXP / "preregistration.json").read_bytes())
+        self.assertIn("COMPRESSED_BYTES = 4 * 1024 * 1024", codec)
+        self.assertIn("FILE_BYTES = 4 * 1024 * 1024", driver)
+        self.assertIn("TERMINAL_RESERVE = 524288", codec)
+        self.assertIn("TERMINAL_RESERVE = 524288", driver)
+        bounds = (EXP / "bounds.py").read_text()
+        self.assertIn("TERMINAL_RESERVE = 524288", bounds)
+        self.assertIn("ulimit -f 4096", workflow)
+        self.assertEqual(prereg["compressed_file_cap"], 4 * 1024 * 1024)
+        self.assertEqual(prereg["terminal_reserve"], 524288)
+        control_upper = (3 * 4 * 1024 * 1024 + 2 * 65536 + 232927
+                         + 9 * (65536 + 8192 + 1024) + 1024 * 1024)
+        self.assertLessEqual(control_upper, 16 * 1024 * 1024)
+
+    def test_precall_terminal_reserve_boundary(self):
+        spec = importlib.util.spec_from_file_location("paired19_bounds_pure", EXP / "bounds.py")
+        bounds = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(bounds)
+        total = 4 * 1024 * 1024
+        bounds.reserve(0, total - 524288, total)
+        with self.assertRaisesRegex(ValueError, "EVIDENCE_CAP_BEFORE_CALL_NO_TRUNCATION"):
+            bounds.reserve(0, total - 524288 + 1, total)
+
+    def test_terminal_reserve_accepts_maximum_journal_and_failure_context(self):
+        spec = importlib.util.spec_from_file_location("paired19_codec_pure", EXP / "codec.py")
+        codec = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(codec)
+        with tempfile.TemporaryDirectory() as root:
+            folder = Path(root) / "evidence"
+            evidence = codec.Evidence(folder)
+            failure = {"journal": ["x" * 256 for _ in range(600)],
+                       "traceback": "t" * 65536,
+                       "completed_pairs": ["p" * 4096 for _ in range(6)]}
+            evidence.write("failure.json", failure, terminal=True)
+            evidence.finish()
+            recovered = codec.decode((folder / "records.gz").read_bytes())
+            self.assertEqual(json.loads(recovered["failure.json"]), failure)
 
 
 if __name__ == "__main__":

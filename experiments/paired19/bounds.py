@@ -1,5 +1,5 @@
 """Closed evidence budget for the separately admitted paired diagnostic."""
-TERMINAL_RESERVE = 131072
+TERMINAL_RESERVE = 524288
 
 
 def decision_upper(public_bytes, roots, candidate):

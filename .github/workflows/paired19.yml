@@ -34,7 +34,7 @@ jobs:
       CURRENT_BODY: ${{ github.event.pull_request.body }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
-      DRIVER_SHA: a88e098e15805ec8667129e08fe89a245e37af6b3951acc5efbae06e52c180b2
+      DRIVER_SHA: 09e826705d024e8d0f73eb4065c034ff06b2230f0575a0d835e8728d8a79ae02
       MANIFEST_SHA: 76e652e352caaa9dfd80f8d64a9e4134e64021b73bea96ee982757586b2d8720
       GATE_SHA: 4231d02252d9cb3b21335367e9f8c1898a18b447ac6a4acd9d97debdbb542de6
     steps:
@@ -97,16 +97,16 @@ jobs:
           manifest="$GITHUB_WORKSPACE/cost-driver/experiments/paired19/source-pins.json"
           gate="$GITHUB_WORKSPACE/cost-driver/experiments/paired19/check_source_gate.py"
           printf '%s  %s\n' "$DRIVER_SHA" "$driver" | sha256sum --check --status
-          printf '%s  %s\n' '5e13471ad7b4c5fe2a1a9feefb29305de017386aeb8b283d57df9f0d2fbae547' "$bounds" | sha256sum --check --status
+          printf '%s  %s\n' 'c7985720e132df4fbd65afe6ef557b08a4bda793c8c70b82546fe5b533e4c70d' "$bounds" | sha256sum --check --status
           printf '%s  %s\n' "$MANIFEST_SHA" "$manifest" | sha256sum --check --status
           printf '%s  %s\n' "$GATE_SHA" "$gate" | sha256sum --check --status
-          printf '%s  %s\n' '1d94917544578c6b9fe982f3ea27c3a218e59227ffe31a54fbffbd2b9db430c7' "$codec" | sha256sum --check --status
+          printf '%s  %s\n' 'ac3dc888d748de8aad3f15d0aab44c733fa7115d78fa4952d79abb13ddd46220' "$codec" | sha256sum --check --status
           printf '%s  %s\n' '67116ca86012131b3e33bd80f4a08c9f1f6d475d042cb182119ab6fc65f1bc07' "$issuer" | sha256sum --check --status
           py="$RUNNER_TOOL_CACHE/Python/3.11.16/x64/bin/python"
           # No installation or alternate interpreter fallback. Driver checks exact executable hash.
           test -x "$py"
           set +o posix
-          ulimit -f 12288
+          ulimit -f 4096
           printf '%s  %s\n' 'a15ccdaf07655a8667a3687b13171486c9a265d92273ba3ad820fbb64d2cfecc' "$py" | sha256sum --check --status
           # Actual narrow cache-library provenance, not an inherited LD path or install.
           libdir="$RUNNER_TOOL_CACHE/Python/3.11.16/x64/lib"
