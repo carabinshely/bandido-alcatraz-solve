@@ -142,6 +142,7 @@ class Paired19Bindings(unittest.TestCase):
         bounds = (EXP / "bounds.py").read_text()
         self.assertIn("TERMINAL_RESERVE = 524288", bounds)
         self.assertIn("ulimit -f 4096", workflow)
+        self.assertIn("            ulimit -f 64\n            timeout --signal=KILL 60", workflow)
         self.assertEqual(prereg["compressed_file_cap"], 4 * 1024 * 1024)
         self.assertEqual(prereg["terminal_reserve"], 524288)
         control_upper = (3 * 4 * 1024 * 1024 + 2 * 65536 + 232927

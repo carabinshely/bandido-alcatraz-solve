@@ -125,10 +125,13 @@ jobs:
           stat --printf='mode=%f size=%s dev=%d inode=%i mtime=%Y ctime=%Z\n' -- "$lib" > "$control/runtime-libpython-after.txt"
           cmp --silent "$control/runtime-libpython-before.txt" "$control/runtime-libpython-after.txt"
           export LD_LIBRARY_PATH="$libdir"
-          timeout --signal=KILL 60 "$py" -I -S -B "$gate" \
-            --driver "$driver" --manifest "$manifest" \
-            --source-root "$GITHUB_WORKSPACE/cost-source" --work-root "$control/source-gate" \
-            > "$control/source-gate-stdout.log" 2> "$control/source-gate-stderr.log"
+          (
+            ulimit -f 64
+            timeout --signal=KILL 60 "$py" -I -S -B "$gate" \
+              --driver "$driver" --manifest "$manifest" \
+              --source-root "$GITHUB_WORKSPACE/cost-source" --work-root "$control/source-gate" \
+              > "$control/source-gate-stdout.log" 2> "$control/source-gate-stderr.log"
+          )
           set +e
           timeout --signal=KILL 1220 "$py" -I -S -B "$driver" \
             --source-root "$GITHUB_WORKSPACE/cost-source" \
