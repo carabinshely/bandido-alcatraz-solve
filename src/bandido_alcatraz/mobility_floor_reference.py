@@ -5,7 +5,7 @@ from . import strategy
 from .game import PlayerObservation
 from .model import CardDefinition
 from .moves import Action, Move
-from .quota_reserve_closure_reference import QuotaReserveClosureReference
+from .quota_reserve_closure_reference import QuotaReserveClosureReference, ReferenceInputError
 from .worker32.evidence import move as move_wire
 
 
@@ -14,6 +14,14 @@ class MobilityFloorReference(QuotaReserveClosureReference):
                  start_card: CardDefinition, exit_card: CardDefinition) -> None:
         super().__init__(catalog=catalog, start_card=start_card,
                          exit_card=exit_card, min_open_override=0)
+        if start_card.card_id != "start_easy":
+            raise ReferenceInputError("easy START identity required")
+
+    def _public_validation(self, obs: PlayerObservation) -> dict:
+        supply = super()._public_validation(obs)
+        if type(obs.board._placement_count) is not int:
+            raise ReferenceInputError("public placement counter must be an exact integer")
+        return supply
 
     def _compute(self, obs: PlayerObservation) -> tuple[list[Move], dict]:
         self._public_validation(obs)

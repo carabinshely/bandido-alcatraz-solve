@@ -96,6 +96,30 @@ class MobilityFloorTests(unittest.TestCase):
         with self.assertRaises(ReferenceInputError):
             MobilityFloorReference(**args)
 
+    def test_boolean_board_placement_counter_is_rejected_by_both(self):
+        obs, candidate, reference = pair(0)
+        board = obs.board.clone()
+        board._placement_count = True
+        malformed = PlayerObservation(board, obs.hand, obs.raincoats, obs.ropes,
+                                      obs.exit_placed, obs.exit_seen, obs.turns,
+                                      obs.set_aside_unplayable, obs.collected_equipment,
+                                      obs.setup, obs.player_index)
+        with self.assertRaises(CandidateIntegrityError):
+            candidate.evaluate(malformed, Random(7))
+        with self.assertRaises(ReferenceInputError):
+            reference.evaluate(malformed, Random(7))
+
+    def test_wrong_identity_five_open_start_is_rejected_by_both(self):
+        _, old, _ = invented_case(0, None)
+        old_start = old._start_card
+        wrong_start = CardDefinition("wrong_easy", old_start.cells)
+        args = dict(catalog=tuple(old.catalog.values()), start_card=wrong_start,
+                    exit_card=old._exit_card)
+        with self.assertRaises(CandidateIntegrityError):
+            MobilityFloorPolicy(**args)
+        with self.assertRaises(ReferenceInputError):
+            MobilityFloorReference(**args)
+
 
 if __name__ == "__main__":
     unittest.main()
