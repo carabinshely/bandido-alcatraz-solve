@@ -1,23 +1,20 @@
-# Prospective NEW paired18 diagnostic route; no PR/GO/issue yet.
-name: tests and admitted paired18
+name: tests
+
 on:
   push:
-    branches: [main]
+    branches: ["main"]
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+
 permissions:
   contents: read
-  pull-requests: read
+
 concurrency:
   group: bandido-ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.head_ref != 'codex/paired18' }}
+  cancel-in-progress: true
+
 jobs:
   pytest:
-    if: >-
-      github.head_ref != 'codex/paired18' &&
-      github.head_ref != 'codex/strategy19' &&
-      github.head_ref != 'codex/strategy20-runner' &&
-      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    if: github.head_ref != 'codex/strategy20-runner' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: [self-hosted, Linux, X64, bandido-alcatraz-tests]
     timeout-minutes: 20
     steps:
@@ -26,150 +23,15 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: pip
+          python-version: "3.11"
+          cache: "pip"
+      - name: Report runner and Python
+        run: python -c "import os, platform, sys; print('Runner=' + os.environ['RUNNER_NAME']); print('Python=' + platform.python_version()); print('Executable=' + sys.executable); assert sys.version_info[:2] == (3, 11)"
       - run: python -m pip install -e ".[dev]"
       - run: python -m pytest -q
-      - run: python scripts/run_synthetic_smoke.py
-      - run: python scripts/proxy_status.py
-      - run: python scripts/run_real_deck_smoke.py
-  paired18:
-    permissions:
-      contents: write
-      pull-requests: read
-      actions: read
-    if: >-
-      github.repository == 'carabinshely/bandido-alcatraz-solve' &&
-      github.event.action == 'edited' && github.event.changes.body != null && github.run_attempt == 1 &&
-      github.actor == 'carabinshely' && github.triggering_actor == 'carabinshely' &&
-      github.event.sender.login == 'carabinshely' &&
-      github.event.pull_request.user.login == 'carabinshely' &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event.pull_request.base.ref == 'main' &&
-      github.event.pull_request.base.sha == '925f5d4a8c4f20b8044bd32a4abcdcad379a3e56' &&
-      github.event.pull_request.head.ref == 'codex/paired18' &&
-      github.event.pull_request.draft &&
-      contains(github.event.pull_request.body, 'PAIRED18_GO_JSON') &&
-      !contains(github.event.changes.body.from, 'PAIRED18_GO_JSON')
-    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
-    timeout-minutes: 25
-    env:
-      CURRENT_BODY: ${{ github.event.pull_request.body }}
-      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-      PR_NUMBER: ${{ github.event.pull_request.number }}
-      DRIVER_SHA: cb3e62dee415cdc22a895363d01238bca3bba5efcefb48317e9df84e95352b92
-      MANIFEST_SHA: 23366c3a410c667a5a54d66cfb1a82c3a57c819107d84548bc0dbe4ed0e90131
-      GATE_SHA: 4231d02252d9cb3b21335367e9f8c1898a18b447ac6a4acd9d97debdbb542de6
-    steps:
-      - name: Admission consistency before checkout, no policy imports
-        timeout-minutes: 1
-        shell: bash --noprofile --norc -e -o pipefail {0}
-        run: |
-          umask 077
-          python3 -I -S -B - <<'PY'
-          import json, os
-          body=os.environ['CURRENT_BODY']
-          assert len(body)<=8192 and body.count('PAIRED18_GO_JSON\n')==1 and body.count('\nPAIRED18_END')==1
-          go=json.loads(body.split('PAIRED18_GO_JSON\n',1)[1].split('\nPAIRED18_END',1)[0])
-          assert set(go)=={'subject','go','head','driver_sha256','manifest_sha256','gate_sha256','exhaustive_review','adversarial_review','root_intent','first_issue_comment_id','first_issue_nonce','pr_number','allocation_commit_sha'}
-          assert go['subject']=='paired18' and go['go'] is True
-          assert go['head']==os.environ['HEAD_SHA'] and len(go['head'])==40
-          assert type(go['pr_number']) is int and str(go['pr_number'])==os.environ['PR_NUMBER']
-          assert type(go['first_issue_comment_id']) is int and go['first_issue_comment_id']>0
-          assert type(go['first_issue_nonce']) is str and len(go['first_issue_nonce'])==64
-          assert type(go['allocation_commit_sha']) is str and len(go['allocation_commit_sha'])==40
-          assert go['driver_sha256']==os.environ['DRIVER_SHA'] and go['manifest_sha256']==os.environ['MANIFEST_SHA']
-          assert go['gate_sha256']==os.environ['GATE_SHA']
-          assert all(type(go[k]) is str and 0<len(go[k])<=256 for k in ('exhaustive_review','adversarial_review','root_intent'))
-          print('Exact admission consistency passed; external ROOT evidence remains required')
-          PY
-      - uses: actions/checkout@v4
-        timeout-minutes: 2
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          path: cost-driver
-          persist-credentials: false
-          fetch-depth: 1
-      - uses: actions/checkout@v4
-        timeout-minutes: 2
-        with:
-          ref: 7ac2f62c9c5c9dcac9ec9b8770382960f985acc2
-          path: cost-source
-          persist-credentials: false
-          fetch-depth: 1
-          sparse-checkout: |
-            src
-            data
-      - name: Fixed16-pair cache-only exploratory batch
-        id: pair
-        env:
-          ISSUANCE_TOKEN: ${{ github.token }}
-        timeout-minutes: 17
-        shell: bash --noprofile --norc -e -o pipefail {0}
-        run: |
-          set +xv
-          umask 077
-          for name in ${!LD@} ${!PYTHON@}; do unset "$name"; done
-          control="$RUNNER_TEMP/paired18-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          mkdir -m 700 "$control"
-          printf 'CONTROL=%s\n' "$control" >> "$GITHUB_ENV"
-          driver="$GITHUB_WORKSPACE/cost-driver/experiments/paired18/diagnostic.py"
-          bounds="$GITHUB_WORKSPACE/cost-driver/experiments/paired18/bounds.py"
-          codec="$GITHUB_WORKSPACE/cost-driver/experiments/paired18/codec.py"
-          issuer="$GITHUB_WORKSPACE/cost-driver/experiments/paired18/issuance.py"
-          manifest="$GITHUB_WORKSPACE/cost-driver/experiments/paired18/source-pins.json"
-          gate="$GITHUB_WORKSPACE/cost-driver/experiments/paired18/check_source_gate.py"
-          printf '%s  %s\n' "$DRIVER_SHA" "$driver" | sha256sum --check --status
-          printf '%s  %s\n' '5e13471ad7b4c5fe2a1a9feefb29305de017386aeb8b283d57df9f0d2fbae547' "$bounds" | sha256sum --check --status
-          printf '%s  %s\n' "$MANIFEST_SHA" "$manifest" | sha256sum --check --status
-          printf '%s  %s\n' "$GATE_SHA" "$gate" | sha256sum --check --status
-          printf '%s  %s\n' '212d9138e6b611f4171bd3303c671ad30831257c1e4d1fd2f19c6c4d4f3b2e7d' "$codec" | sha256sum --check --status
-          printf '%s  %s\n' '3824c5b2ca6b4e8d44735adc38049cc264d74dc96d8d5f7b22715c557ac89345' "$issuer" | sha256sum --check --status
-          py="$RUNNER_TOOL_CACHE/Python/3.11.16/x64/bin/python"
-          # No installation or alternate interpreter fallback. Driver checks exact executable hash.
-          test -x "$py"
-          set +o posix
-          ulimit -f 12288
-          printf '%s  %s\n' 'a15ccdaf07655a8667a3687b13171486c9a265d92273ba3ad820fbb64d2cfecc' "$py" | sha256sum --check --status
-          # Actual narrow cache-library provenance, not an inherited LD path or install.
-          libdir="$RUNNER_TOOL_CACHE/Python/3.11.16/x64/lib"
-          lib="$libdir/libpython3.11.so.1.0"
-          test -d "$libdir"
-          test ! -L "$libdir"
-          test -f "$lib"
-          test ! -L "$lib"
-          test -r "$lib"
-          lib_size=$(stat --format=%s -- "$lib")
-          [[ "$lib_size" =~ ^[0-9]+$ ]]
-          test "$lib_size" -eq 23041360
-          stat --printf='mode=%f size=%s dev=%d inode=%i mtime=%Y ctime=%Z\n' -- "$lib" > "$control/runtime-libpython-before.txt"
-          sha256sum -- "$lib" > "$control/runtime-libpython.sha256"
-          printf '%s  %s\n' 'ba4450817186fbe1e3c477f6aefeee7c353cba3593cc9950382ad9d1f5e62896' "$lib" | sha256sum --check --status
-          stat --printf='mode=%f size=%s dev=%d inode=%i mtime=%Y ctime=%Z\n' -- "$lib" > "$control/runtime-libpython-after.txt"
-          cmp --silent "$control/runtime-libpython-before.txt" "$control/runtime-libpython-after.txt"
-          export LD_LIBRARY_PATH="$libdir"
-          timeout --signal=KILL 60 "$py" -I -S -B "$gate" \
-            --driver "$driver" --manifest "$manifest" \
-            --source-root "$GITHUB_WORKSPACE/cost-source" --work-root "$control/source-gate" \
-            > "$control/source-gate-stdout.log" 2> "$control/source-gate-stderr.log"
-          set +e
-          timeout --signal=KILL 920 "$py" -I -S -B "$driver" \
-            --source-root "$GITHUB_WORKSPACE/cost-source" \
-            --manifest "$manifest" --manifest-sha256 "$MANIFEST_SHA" \
-            --output-dir "$control/evidence" > "$control/stdout.log" 2> "$control/stderr.log"
-          status=$?
-          set -e
-          printf '%s\n' "$status" > "$control/process-exit.txt"
-          printf 'Diagnostic process exit=%s; complete/partial artifact required\n' "$status"
-          exit "$status"
-      - name: Always preserve existing complete or partial files
-        if: always() && env.CONTROL != ''
-        uses: actions/upload-artifact@v4
-        timeout-minutes: 2
-        with:
-          name: paired18-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ env.CONTROL }}/
-          if-no-files-found: error
-          retention-days: 7
-          include-hidden-files: true
-
+      - name: Synthetic simulation smoke
+        run: python scripts/run_synthetic_smoke.py
+      - name: Proxy transcription status
+        run: python scripts/proxy_status.py
+      - name: Real photographed-deck smoke
+        run: python scripts/run_real_deck_smoke.py
