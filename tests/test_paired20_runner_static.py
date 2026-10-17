@@ -136,6 +136,10 @@ class Paired20Bindings(unittest.TestCase):
                     global_created_at="2026-10-17T10:00:00Z")
         result = module.validate_first_run(Client(), **args)
         self.assertEqual(result["run_id"], "5")
+        runs[0]["created_at"] = "2026-10-17T10:00:00Z"
+        with self.assertRaisesRegex(ValueError, "FIRST_ISSUE_COMMENT_AFTER_RUN"):
+            module.validate_first_run(Client(), **args)
+        runs[0]["created_at"] = "2026-10-17T09:59:59Z"
         runs[1]["path"] = ".github/workflows/unreviewed.yml"
         with self.assertRaisesRegex(ValueError, "FIRST_ISSUE_RUN_PATH_UNKNOWN"):
             module.validate_first_run(Client(), **args)

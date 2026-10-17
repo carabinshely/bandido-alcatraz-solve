@@ -101,7 +101,7 @@ jobs:
           printf '%s  %s\n' "$MANIFEST_SHA" "$manifest" | sha256sum --check --status
           printf '%s  %s\n' "$GATE_SHA" "$gate" | sha256sum --check --status
           printf '%s  %s\n' 'd1f90c89ae5449728346e075cd422702e0d6be353c233ea43563c3b679b7a0a7' "$codec" | sha256sum --check --status
-          printf '%s  %s\n' '179c3f289c5eb1c39230be090110362e201ee1a82561fa34c4cf37c12d5fd31f' "$issuer" | sha256sum --check --status
+          printf '%s  %s\n' '34586d1eb6ae12f93c7963efd707c2ece4f7df34a3ad7d964600e42f0bf09224' "$issuer" | sha256sum --check --status
           py="$RUNNER_TOOL_CACHE/Python/3.11.16/x64/bin/python"
           # No installation or alternate interpreter fallback. Driver checks exact executable hash.
           test -x "$py"

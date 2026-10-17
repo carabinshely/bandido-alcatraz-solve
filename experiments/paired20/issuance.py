@@ -232,7 +232,7 @@ def validate_first_run(client, *, head, run_id, pr_number, root_intent, comment_
                 any(type(p) is dict and p.get("number") == pr_number
                     for p in run["pull_requests"]), "FIRST_ISSUE_RUN_ROW")
         when = utc_second(run.get("created_at"))
-        if when > issued_at:
+        if when >= issued_at:
             eligible.append((when, run["id"]))
     require(eligible, "FIRST_ISSUE_NO_RUN")
     eligible.sort()
