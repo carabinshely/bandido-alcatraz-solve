@@ -7,8 +7,7 @@ from . import strategy
 from .game import PlayerObservation
 from .model import CardDefinition
 from .moves import Action, Move
-from .quota_reserve_closure import OperationLimits
-from .quota_reserve_closure_reference import QuotaReserveClosureReference, ReferenceInputError
+from .quota_reserve_closure_reference import OperationLimits, QuotaReserveClosureReference, ReferenceInputError
 from .worker32.evidence import move as move_wire
 
 
@@ -32,8 +31,8 @@ class MobilityFloorReference(QuotaReserveClosureReference):
 
     def evaluate(self, observation: PlayerObservation, rng: Random, *,
                  limits: OperationLimits | None = None) -> tuple[Move | None, dict, dict]:
-        if not isinstance(rng, Random):
-            raise ReferenceInputError("canonical Random-compatible RNG required")
+        if type(rng) is not Random:
+            raise ReferenceInputError("exact canonical Random required")
         return super().evaluate(observation, rng, limits=limits)
 
     def _compute(self, obs: PlayerObservation) -> tuple[list[Move], dict]:

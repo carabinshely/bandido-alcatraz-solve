@@ -41,7 +41,7 @@ class MobilityFloorPolicy(QuotaReserveClosurePolicy):
 
     def evaluate(self, observation: PlayerObservation, rng: Random, *,
                  limits: OperationLimits | None = None) -> tuple[Move | None, dict, dict]:
-        _require(isinstance(rng, Random), "canonical Random-compatible RNG required")
+        _require(type(rng) is Random, "exact canonical Random required")
         if limits is None:
             limits = OperationLimits()
         _require(type(limits) is OperationLimits, "invalid operation limits")
@@ -71,6 +71,8 @@ class MobilityFloorPolicy(QuotaReserveClosurePolicy):
             domain = safe if safe else list(range(len(legal)))
             best = max((scores[i] for i in domain), default=None)
             final = [i for i in domain if scores[i] == best]
+            _require(sha(rng.getstate()) == rng_before,
+                     "scoring or guards mutated RNG state")
             chosen = rng.choice([legal[i] for i in final]) if final else None
             _require(chosen is None if not final else chosen in [legal[i] for i in final],
                      "RNG choice escaped final tier")

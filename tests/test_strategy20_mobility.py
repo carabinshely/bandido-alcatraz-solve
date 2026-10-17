@@ -2,6 +2,7 @@
 import sys
 import unittest
 from random import Random
+from unittest.mock import patch
 
 sys.path[:0] = ["src", "tests"]
 
@@ -13,7 +14,10 @@ from bandido_alcatraz.mobility_floor import MobilityFloorPolicy
 from bandido_alcatraz.mobility_floor_reference import MobilityFloorReference
 from bandido_alcatraz.quota_reserve_closure import OperationLimits, ResourceExceeded
 from bandido_alcatraz.quota_reserve_closure import IntegrityError as CandidateIntegrityError
-from bandido_alcatraz.quota_reserve_closure_reference import ReferenceInputError, ReferenceIntegrityError
+from bandido_alcatraz.quota_reserve_closure_reference import (
+    OperationLimits as ReferenceOperationLimits, ReferenceInputError, ReferenceIntegrityError,
+    ResourceExceeded as ReferenceResourceExceeded,
+)
 from bandido_alcatraz.worker32.evidence import observation as observation_wire
 
 
@@ -65,6 +69,14 @@ class MobilityFloorTests(unittest.TestCase):
         before = observation_wire(obs)
         with self.assertRaises(ResourceExceeded):
             candidate.evaluate(obs, Random(3), limits=OperationLimits(previews=0))
+        self.assertEqual(observation_wire(obs), before)
+
+    def test_reference_native_physical_preview_ceiling_fails_closed(self):
+        obs, _, reference = pair(2)
+        before = observation_wire(obs)
+        with self.assertRaises(ReferenceResourceExceeded):
+            reference.evaluate(obs, Random(3),
+                               limits=ReferenceOperationLimits(previews=0))
         self.assertEqual(observation_wire(obs), before)
 
     def test_previous_policy_is_unchanged(self):
@@ -169,8 +181,26 @@ class MobilityFloorTests(unittest.TestCase):
 
         with self.assertRaises(CandidateIntegrityError):
             candidate.evaluate(obs, Rogue(7))
-        with self.assertRaises(ReferenceIntegrityError):
+        with self.assertRaises(ReferenceInputError):
             reference.evaluate(obs, Rogue(7))
+
+    def test_scoring_cannot_advance_canonical_rng(self):
+        obs, candidate, reference = pair(2)
+        rng = Random(7)
+        from bandido_alcatraz import strategy
+        original = strategy.score_move_no_draw
+
+        def altered(*args, **kwargs):
+            rng.random()
+            return original(*args, **kwargs)
+
+        with patch.object(strategy, "score_move_no_draw", altered):
+            with self.assertRaises(CandidateIntegrityError):
+                candidate.evaluate(obs, rng)
+        rng = Random(7)
+        with patch.object(strategy, "score_move_no_draw", altered):
+            with self.assertRaises(ReferenceIntegrityError):
+                reference.evaluate(obs, rng)
 
 
 if __name__ == "__main__":
