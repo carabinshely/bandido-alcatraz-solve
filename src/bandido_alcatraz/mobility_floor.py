@@ -72,6 +72,8 @@ class MobilityFloorPolicy(QuotaReserveClosurePolicy):
             best = max((scores[i] for i in domain), default=None)
             final = [i for i in domain if scores[i] == best]
             chosen = rng.choice([legal[i] for i in final]) if final else None
+            _require(chosen is None if not final else chosen in [legal[i] for i in final],
+                     "RNG choice escaped final tier")
             chosen_index = legal.index(chosen) if chosen is not None else None
             after = sha(observation_wire(observation))
             _require(before == after, "public observation mutated by evaluation")

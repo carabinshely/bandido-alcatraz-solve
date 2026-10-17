@@ -13,7 +13,7 @@ from bandido_alcatraz.mobility_floor import MobilityFloorPolicy
 from bandido_alcatraz.mobility_floor_reference import MobilityFloorReference
 from bandido_alcatraz.quota_reserve_closure import OperationLimits, ResourceExceeded
 from bandido_alcatraz.quota_reserve_closure import IntegrityError as CandidateIntegrityError
-from bandido_alcatraz.quota_reserve_closure_reference import ReferenceInputError
+from bandido_alcatraz.quota_reserve_closure_reference import ReferenceInputError, ReferenceIntegrityError
 from bandido_alcatraz.worker32.evidence import observation as observation_wire
 
 
@@ -140,6 +140,37 @@ class MobilityFloorTests(unittest.TestCase):
             MobilityFloorPolicy(**args)
         with self.assertRaises(ReferenceInputError):
             MobilityFloorReference(**args)
+
+    def test_rng_wrapper_is_rejected_by_both(self):
+        obs, candidate, reference = pair(2)
+
+        class RngWrapper:
+            def __init__(self):
+                self.inner = Random(7)
+
+            def getstate(self):
+                return self.inner.getstate()
+
+            def choice(self, choices):
+                return self.inner.choice(choices)
+
+        with self.assertRaises(CandidateIntegrityError):
+            candidate.evaluate(obs, RngWrapper())
+        with self.assertRaises(ReferenceInputError):
+            reference.evaluate(obs, RngWrapper())
+
+    def test_rng_subclass_cannot_select_outside_final_tier(self):
+        obs, candidate, reference = pair(2)
+
+        class Rogue(Random):
+            def choice(self, choices):
+                legal = obs.legal_moves()
+                return next(move for move in legal if move not in choices)
+
+        with self.assertRaises(CandidateIntegrityError):
+            candidate.evaluate(obs, Rogue(7))
+        with self.assertRaises(ReferenceIntegrityError):
+            reference.evaluate(obs, Rogue(7))
 
 
 if __name__ == "__main__":

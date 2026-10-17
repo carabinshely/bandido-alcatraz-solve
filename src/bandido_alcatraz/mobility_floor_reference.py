@@ -1,10 +1,13 @@
 """Independent strategy20 tier calculation over the frozen public validator."""
 from __future__ import annotations
 
+from random import Random
+
 from . import strategy
 from .game import PlayerObservation
 from .model import CardDefinition
 from .moves import Action, Move
+from .quota_reserve_closure import OperationLimits
 from .quota_reserve_closure_reference import QuotaReserveClosureReference, ReferenceInputError
 from .worker32.evidence import move as move_wire
 
@@ -26,6 +29,12 @@ class MobilityFloorReference(QuotaReserveClosureReference):
         if type(obs.board._placement_count) is not int:
             raise ReferenceInputError("public placement counter must be an exact integer")
         return supply
+
+    def evaluate(self, observation: PlayerObservation, rng: Random, *,
+                 limits: OperationLimits | None = None) -> tuple[Move | None, dict, dict]:
+        if not isinstance(rng, Random):
+            raise ReferenceInputError("canonical Random-compatible RNG required")
+        return super().evaluate(observation, rng, limits=limits)
 
     def _compute(self, obs: PlayerObservation) -> tuple[list[Move], dict]:
         self._public_validation(obs)
