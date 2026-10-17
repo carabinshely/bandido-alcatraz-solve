@@ -8,7 +8,10 @@ from .board import CardPlacement, PlacementKind, VisibleCell
 from .game import PlayerObservation
 from .model import CardDefinition, Direction
 from .moves import Action, Move
-from .quota_reserve_closure_reference import OperationLimits, QuotaReserveClosureReference, ReferenceInputError
+from .quota_reserve_closure_reference import (
+    OperationLimits, QuotaReserveClosureReference, ReferenceInputError,
+    ReferenceIntegrityError,
+)
 from .worker32.evidence import move as move_wire
 
 
@@ -62,6 +65,8 @@ class MobilityFloorReference(QuotaReserveClosureReference):
         self._public_validation(obs)
         roots = obs.legal_moves()
         scores = [strategy.score_move_no_draw(obs, root, self._weights) for root in roots]
+        if any(type(score) is not int for score in scores):
+            raise ReferenceIntegrityError("canonical scores must be exact integers")
         marks = []
         kept = []
         for index, root in enumerate(roots):

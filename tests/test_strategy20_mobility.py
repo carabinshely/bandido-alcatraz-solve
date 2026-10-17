@@ -267,6 +267,15 @@ class MobilityFloorTests(unittest.TestCase):
             with self.assertRaises(ReferenceIntegrityError):
                 reference.evaluate(obs, rng)
 
+    def test_boolean_score_is_rejected_by_both(self):
+        obs, candidate, reference = pair(2)
+        from bandido_alcatraz import strategy
+        with patch.object(strategy, "score_move_no_draw", return_value=True):
+            with self.assertRaises(CandidateIntegrityError):
+                candidate.evaluate(obs, Random(7))
+            with self.assertRaises(ReferenceIntegrityError):
+                reference.evaluate(obs, Random(7))
+
 
 if __name__ == "__main__":
     unittest.main()
