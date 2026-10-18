@@ -213,13 +213,13 @@ class Paired20Bindings(unittest.TestCase):
         driver = (EXP / "diagnostic.py").read_text()
         workflow = (ROOT / ".github/workflows/paired20.yml").read_text()
         prereg = json.loads((EXP / "preregistration.json").read_bytes())
-        self.assertIn("COMPRESSED_BYTES = 3 * 1024 * 1024", codec)
-        self.assertIn("FILE_BYTES = 3 * 1024 * 1024", driver)
+        self.assertIn("COMPRESSED_BYTES = 9 * 1024 * 1024 // 4", codec)
+        self.assertIn("FILE_BYTES = 9 * 1024 * 1024 // 4", driver)
         self.assertIn("TERMINAL_RESERVE = 524288", codec)
         self.assertIn("TERMINAL_RESERVE = 524288", driver)
         bounds = (EXP / "bounds.py").read_text()
         self.assertIn("TERMINAL_RESERVE = 524288", bounds)
-        self.assertIn("ulimit -f 3072", workflow)
+        self.assertIn("ulimit -f 2304", workflow)
         self.assertIn("ulimit -f 128", workflow)
         self.assertIn("mkfifo", workflow)
         self.assertIn("capture-status.txt", workflow)
@@ -230,12 +230,12 @@ class Paired20Bindings(unittest.TestCase):
         self.assertIn('trap \'rm -f -- "$out_fifo" "$err_fifo"\' EXIT', workflow)
         self.assertIn('> "$out_fifo" 2> "$err_fifo"', workflow)
         self.assertIn("            ulimit -f 64\n            timeout --signal=KILL 60", workflow)
-        self.assertEqual(prereg["compressed_file_cap"], 3 * 1024 * 1024)
+        self.assertEqual(prereg["compressed_file_cap"], 9 * 1024 * 1024 // 4)
         self.assertEqual(prereg["terminal_reserve"], 524288)
-        control_upper = (3 * 1024 * 1024 + 2 * 128 * 1024 + 2 * 65536 + 242684
+        control_upper = (9 * 1024 * 1024 // 4 + 2 * 128 * 1024 + 2 * 65536 + 242684
                          + 9 * (65536 + 8192 + 1024) + 512 * 1024)
-        self.assertEqual(control_upper, 4_978_684)
-        self.assertIn("4,978,684-byte prospective upper", (EXP / "CONTRACT.md").read_text())
+        self.assertEqual(control_upper, 4_192_252)
+        self.assertIn("4,192,252-byte prospective upper", (EXP / "CONTRACT.md").read_text())
         # A private terminal packet upper needs separate proof; the 3 MiB
         # compressed evidence cap does not bound the whole packet to 3 MB.
 
