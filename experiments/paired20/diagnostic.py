@@ -119,6 +119,36 @@ def v4_counterfactual(audit, rng_state):
     return copied.choice(tied)
 
 
+def paired_analysis(pairs):
+    from math import comb
+    counts = dict(both_win=0, both_loss=0, control_only=0, candidate_only=0)
+    terminal_open_tunnels = dict(control=[], candidate=[])
+    for pair in pairs:
+        arms = {row['arm']: row for row in pair['results']}
+        control = arms['control']['result']['won']
+        candidate = arms['candidate']['result']['won']
+        key = ('both_win' if control and candidate else
+               'both_loss' if not control and not candidate else
+               'control_only' if control else 'candidate_only')
+        counts[key] += 1
+        for arm in terminal_open_tunnels:
+            terminal_open_tunnels[arm].append(arms[arm]['terminal_open_tunnels'])
+    discordant = counts['control_only'] + counts['candidate_only']
+    tail = sum(comb(discordant, k) for k in range(min(counts['control_only'],
+                                                      counts['candidate_only']) + 1))
+    denominator = 1 << discordant
+    return dict(wins=dict(control=counts['both_win'] + counts['control_only'],
+                          candidate=counts['both_win'] + counts['candidate_only']),
+                paired_outcomes=counts,
+                paired_difference=counts['candidate_only'] - counts['control_only'],
+                discordant_pairs=discordant,
+                exact_two_sided_binomial=dict(numerator=min(2 * tail, denominator),
+                                              denominator=denominator),
+                choice_changes=sum(row['choice_changes'] for pair in pairs
+                                   for row in pair['results'] if row['arm'] == 'candidate'),
+                terminal_open_tunnels=terminal_open_tunnels)
+
+
 def main():
     from collections import Counter
     from dataclasses import asdict
@@ -358,6 +388,7 @@ def main():
                 require(reason != 'step_limit', 'ENGINE_STEP_LIMIT_INCOMPLETE')
                 result = dict(arm=arm, seed=seed, result=asdict(_result(state, reason)),
                               terminal=physical(state), rng=rng.getstate(),
+                              terminal_open_tunnels=state.board.open_tunnels,
                               choice_changes=changed_choices - changed_before,
                               floor_active_decisions=floor_active_decisions - active_before,
                               wall_seconds=time.monotonic() - began)
@@ -367,6 +398,7 @@ def main():
                            seed=seed, games=2,
                            results=[dict(arm=r['arm'], seed=seed, result=r['result'],
                                          choice_changes=r['choice_changes'],
+                                         terminal_open_tunnels=r['terminal_open_tunnels'],
                                          floor_active_decisions=r['floor_active_decisions'],
                                          wall_seconds=r['wall_seconds']) for r in results],
                            whole_seconds=time.monotonic() - whole_started,
@@ -374,6 +406,7 @@ def main():
             batch_results.append(dict(seed=seed, results=[
                 dict(arm=r['arm'], result=r['result'],
                      choice_changes=r['choice_changes'],
+                     terminal_open_tunnels=r['terminal_open_tunnels'],
                      floor_active_decisions=r['floor_active_decisions'],
                      wall_seconds=r['wall_seconds'])
                 for r in results]))
@@ -381,6 +414,7 @@ def main():
         evidence.rows = []
         evidence.write('result.json', dict(status='FIXED16PAIR_COMPLETE_DEVELOPMENT_NO_ADOPTION',
                        seeds=SEEDS, pairs=16, games=32, results=batch_results,
+                       analysis=paired_analysis(batch_results),
                        choice_changes=changed_choices,
                        floor_active_decisions=floor_active_decisions,
                        raw_evidence_bytes_before_result=evidence.total,

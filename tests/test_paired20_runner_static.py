@@ -21,6 +21,40 @@ def sha(raw):
 
 
 class Paired20Bindings(unittest.TestCase):
+    def test_preregistered_paired_analysis(self):
+        tree = ast.parse((EXP / "diagnostic.py").read_text(encoding="utf-8"))
+        target = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
+                      and node.name == "paired_analysis")
+        scope = {}
+        exec(compile(ast.Module(body=[target], type_ignores=[]), "analysis", "exec"), scope)
+
+        def pair(control, candidate):
+            return {"results": [
+                {"arm": "control", "result": {"won": control},
+                 "choice_changes": 0, "terminal_open_tunnels": 2},
+                {"arm": "candidate", "result": {"won": candidate},
+                 "choice_changes": 3, "terminal_open_tunnels": 1}]}
+
+        analyze = scope["paired_analysis"]
+        tied = analyze([pair(True, True), pair(False, False)])
+        self.assertEqual(tied["exact_two_sided_binomial"],
+                         {"numerator": 1, "denominator": 1})
+        self.assertEqual(tied["paired_difference"], 0)
+        one_sided = analyze([pair(False, True)] * 3)
+        self.assertEqual(one_sided["exact_two_sided_binomial"],
+                         {"numerator": 2, "denominator": 8})
+        mixed = analyze([pair(True, True)] * 2 + [pair(False, False)] * 10
+                        + [pair(True, False)] + [pair(False, True)] * 3)
+        self.assertEqual(mixed["wins"], {"control": 3, "candidate": 5})
+        self.assertEqual(mixed["paired_outcomes"],
+                         {"both_win": 2, "both_loss": 10,
+                          "control_only": 1, "candidate_only": 3})
+        self.assertEqual(mixed["exact_two_sided_binomial"],
+                         {"numerator": 10, "denominator": 16})
+        self.assertEqual(mixed["choice_changes"], 48)
+        self.assertEqual(mixed["terminal_open_tunnels"],
+                         {"control": [2] * 16, "candidate": [1] * 16})
+
     def test_manifest_closed_source_inventory(self):
         manifest = json.loads((EXP / "source-pins.json").read_bytes())
         self.assertEqual((manifest["schema"], manifest["commit"]),
