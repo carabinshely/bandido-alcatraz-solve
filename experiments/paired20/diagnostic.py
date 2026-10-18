@@ -1,4 +1,4 @@
-"""Fixed16-pair developmental real-deck batch; CI-only under separate root GO."""
+"""Fixed eight-pair developmental real-deck batch; CI-only under separate root GO."""
 import argparse
 import hashlib
 import json
@@ -12,7 +12,7 @@ import time
 import traceback
 
 TOTAL_BYTES = 192 * 1024 * 1024
-FILE_BYTES = 4 * 1024 * 1024
+FILE_BYTES = 3 * 1024 * 1024
 JOURNAL_RECORDS = 600
 TERMINAL_RESERVE = 524288
 OP_LIMIT = 32768
@@ -78,9 +78,9 @@ def timeout(signum, frame):
 
 
 
-SEEDS = tuple(range(1000423, 1000439))
-CODEC_SHA = '7daa5f2447cafa9f59fda5d16c6f4e59a28baa9d345c2870d9b16aa1cc056c62'
-ISSUANCE_SHA = '34586d1eb6ae12f93c7963efd707c2ece4f7df34a3ad7d964600e42f0bf09224'
+SEEDS = tuple(range(1000423, 1000431))
+CODEC_SHA = '3ecf75af13375c8b168d3cc26bf748f0875f366d64953dfc5e8d28ea0c97a1e7'
+ISSUANCE_SHA = 'cc06be1ef666c24084ed3356419bda262c2a8e5da268e60b00027e7e85b0ea88'
 WHOLE_SECONDS = 3600
 BOUNDS_SHA = 'c7985720e132df4fbd65afe6ef557b08a4bda793c8c70b82546fe5b533e4c70d'
 DATA = {
@@ -304,7 +304,7 @@ def main():
             return chosen, audit, operations
 
         evidence.write('run-intent.json', dict(subject='paired20', seeds=SEEDS,
-                       arms=['control', 'candidate'], purpose='FIXED16PAIR_DEVELOPMENT_NOT_CONFIRMATION',
+                       arms=['control', 'candidate'], purpose='FIXED8PAIR_DEVELOPMENT_NOT_CONFIRMATION',
                        source=manifest['commit'], setup=SOLO_EASY.setup_id, data=DATA,
                        runtime_executable_sha256=EXPECTED_EXE, codec_sha256=CODEC_SHA, issuance=issuance))
         batch_results = []
@@ -412,8 +412,8 @@ def main():
                 for r in results]))
         evidence.prefix = ''
         evidence.rows = []
-        evidence.write('result.json', dict(status='FIXED16PAIR_COMPLETE_DEVELOPMENT_NO_ADOPTION',
-                       seeds=SEEDS, pairs=16, games=32, results=batch_results,
+        evidence.write('result.json', dict(status='FIXED8PAIR_COMPLETE_DEVELOPMENT_NO_ADOPTION',
+                       seeds=SEEDS, pairs=8, games=16, results=batch_results,
                        analysis=paired_analysis(batch_results),
                        choice_changes=changed_choices,
                        floor_active_decisions=floor_active_decisions,

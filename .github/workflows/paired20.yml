@@ -34,7 +34,7 @@ jobs:
       CURRENT_BODY: ${{ github.event.pull_request.body }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
-      DRIVER_SHA: 2479b8e0241efb8d72b9a149820d1a91dda26e0921071b810b8de45d4008bf40
+      DRIVER_SHA: 69cc2ecd856b636e9dd184ff3bda8968d3a8d7da170df320c0288d5d8fd1398a
       MANIFEST_SHA: 019174fc9dde408ddac20fe54bca5a28147a0e9fba16fd82dc3202d56623b61e
       GATE_SHA: 4231d02252d9cb3b21335367e9f8c1898a18b447ac6a4acd9d97debdbb542de6
     steps:
@@ -77,7 +77,7 @@ jobs:
           sparse-checkout: |
             src
             data
-      - name: Fixed16-pair cache-only development batch
+      - name: Fixed8-pair cache-only development batch
         id: pair
         env:
           ISSUANCE_TOKEN: ${{ github.token }}
@@ -100,13 +100,13 @@ jobs:
           printf '%s  %s\n' 'c7985720e132df4fbd65afe6ef557b08a4bda793c8c70b82546fe5b533e4c70d' "$bounds" | sha256sum --check --status
           printf '%s  %s\n' "$MANIFEST_SHA" "$manifest" | sha256sum --check --status
           printf '%s  %s\n' "$GATE_SHA" "$gate" | sha256sum --check --status
-          printf '%s  %s\n' '7daa5f2447cafa9f59fda5d16c6f4e59a28baa9d345c2870d9b16aa1cc056c62' "$codec" | sha256sum --check --status
-          printf '%s  %s\n' '34586d1eb6ae12f93c7963efd707c2ece4f7df34a3ad7d964600e42f0bf09224' "$issuer" | sha256sum --check --status
+          printf '%s  %s\n' '3ecf75af13375c8b168d3cc26bf748f0875f366d64953dfc5e8d28ea0c97a1e7' "$codec" | sha256sum --check --status
+          printf '%s  %s\n' 'cc06be1ef666c24084ed3356419bda262c2a8e5da268e60b00027e7e85b0ea88' "$issuer" | sha256sum --check --status
           py="$RUNNER_TOOL_CACHE/Python/3.11.16/x64/bin/python"
           # No installation or alternate interpreter fallback. Driver checks exact executable hash.
           test -x "$py"
           set +o posix
-          ulimit -f 4096
+          ulimit -f 3072
           printf '%s  %s\n' 'a15ccdaf07655a8667a3687b13171486c9a265d92273ba3ad820fbb64d2cfecc' "$py" | sha256sum --check --status
           # Actual narrow cache-library provenance, not an inherited LD path or install.
           libdir="$RUNNER_TOOL_CACHE/Python/3.11.16/x64/lib"

@@ -81,8 +81,8 @@ class Paired20Bindings(unittest.TestCase):
                         and n.func.attr == cls]
             self.assertEqual(len(selected), 1)
             self.assertFalse(any(kw.arg == "min_open_override" for kw in selected[0].keywords))
-        self.assertIn("SEEDS = tuple(range(1000423, 1000439))", code)
-        self.assertIn("pairs=16, games=32", code)
+        self.assertIn("SEEDS = tuple(range(1000423, 1000431))", code)
+        self.assertIn("pairs=8, games=16", code)
         self.assertIn("WHOLE_SECONDS = 3600", code)
         self.assertIn("TOTAL_BYTES = 192 * 1024 * 1024", code)
         self.assertIn("manifest['commit'] == '" + SOURCE_HEAD + "'", code)
@@ -106,9 +106,9 @@ class Paired20Bindings(unittest.TestCase):
 
     def test_one_shot_issuer_has_new_unique_allocation(self):
         code = (EXP / "issuance.py").read_text(encoding="utf-8")
-        self.assertIn('ALLOCATION = "bandido-seeds-1000423-1000438"', code)
-        self.assertIn('GLOBAL_BRANCH = "codex/seed-allocation-1000423-1000438"', code)
-        self.assertIn("range(1000423, 1000439)", code)
+        self.assertIn('ALLOCATION = "bandido-seeds-1000423-1000430"', code)
+        self.assertIn('GLOBAL_BRANCH = "codex/seed-allocation-1000423-1000430"', code)
+        self.assertIn("range(1000423, 1000431)", code)
         self.assertIn("PAIRED20_FIRST_ISSUE_V1", code)
         self.assertIn("PAIRED20_GO_JSON", code)
         self.assertIn('".github/workflows/paired20.yml"', code)
@@ -213,13 +213,13 @@ class Paired20Bindings(unittest.TestCase):
         driver = (EXP / "diagnostic.py").read_text()
         workflow = (ROOT / ".github/workflows/paired20.yml").read_text()
         prereg = json.loads((EXP / "preregistration.json").read_bytes())
-        self.assertIn("COMPRESSED_BYTES = 4 * 1024 * 1024", codec)
-        self.assertIn("FILE_BYTES = 4 * 1024 * 1024", driver)
+        self.assertIn("COMPRESSED_BYTES = 3 * 1024 * 1024", codec)
+        self.assertIn("FILE_BYTES = 3 * 1024 * 1024", driver)
         self.assertIn("TERMINAL_RESERVE = 524288", codec)
         self.assertIn("TERMINAL_RESERVE = 524288", driver)
         bounds = (EXP / "bounds.py").read_text()
         self.assertIn("TERMINAL_RESERVE = 524288", bounds)
-        self.assertIn("ulimit -f 4096", workflow)
+        self.assertIn("ulimit -f 3072", workflow)
         self.assertIn("ulimit -f 128", workflow)
         self.assertIn("mkfifo", workflow)
         self.assertIn("capture-status.txt", workflow)
@@ -230,20 +230,20 @@ class Paired20Bindings(unittest.TestCase):
         self.assertIn('trap \'rm -f -- "$out_fifo" "$err_fifo"\' EXIT', workflow)
         self.assertIn('> "$out_fifo" 2> "$err_fifo"', workflow)
         self.assertIn("            ulimit -f 64\n            timeout --signal=KILL 60", workflow)
-        self.assertEqual(prereg["compressed_file_cap"], 4 * 1024 * 1024)
+        self.assertEqual(prereg["compressed_file_cap"], 3 * 1024 * 1024)
         self.assertEqual(prereg["terminal_reserve"], 524288)
-        control_upper = (4 * 1024 * 1024 + 2 * 128 * 1024 + 2 * 65536 + 242684
+        control_upper = (3 * 1024 * 1024 + 2 * 128 * 1024 + 2 * 65536 + 242684
                          + 9 * (65536 + 8192 + 1024) + 512 * 1024)
-        self.assertEqual(control_upper, 6_027_260)
-        self.assertIn("6,027,260-byte prospective upper", (EXP / "CONTRACT.md").read_text())
-        # A private terminal packet upper needs separate proof; the 4 MiB
-        # compressed evidence cap does not bound the whole packet to 4 MB.
+        self.assertEqual(control_upper, 4_978_684)
+        self.assertIn("4,978,684-byte prospective upper", (EXP / "CONTRACT.md").read_text())
+        # A private terminal packet upper needs separate proof; the 3 MiB
+        # compressed evidence cap does not bound the whole packet to 3 MB.
 
     def test_precall_terminal_reserve_boundary(self):
         spec = importlib.util.spec_from_file_location("paired20_bounds_pure", EXP / "bounds.py")
         bounds = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(bounds)
-        total = 4 * 1024 * 1024
+        total = 3 * 1024 * 1024
         bounds.reserve(0, total - 524288, total)
         with self.assertRaisesRegex(ValueError, "EVIDENCE_CAP_BEFORE_CALL_NO_TRUNCATION"):
             bounds.reserve(0, total - 524288 + 1, total)
@@ -257,7 +257,7 @@ class Paired20Bindings(unittest.TestCase):
             evidence = codec.Evidence(folder)
             failure = {"journal": ["x" * 256 for _ in range(600)],
                        "traceback": "t" * 65536,
-                       "completed_pairs": ["p" * 4096 for _ in range(16)]}
+                       "completed_pairs": ["p" * 4096 for _ in range(8)]}
             evidence.write("failure.json", failure, terminal=True)
             evidence.finish()
             recovered = codec.decode((folder / "records.gz").read_bytes())
