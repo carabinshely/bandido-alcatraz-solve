@@ -34,7 +34,7 @@ jobs:
       CURRENT_BODY: ${{ github.event.pull_request.body }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
-      DRIVER_SHA: a43940ee1d832bf64838119167a30b158480e31d48d6a244481eb45920b1a5e8
+      DRIVER_SHA: 298796e71726daffd93d4d7c521d0adde003397a95789f7eb001fe1581d9eff4
       MANIFEST_SHA: 6ba97d8ef68af5f527a2ce657ca4073b1067f225e27e6b12956e0ca2b57050aa
       GATE_SHA: 4231d02252d9cb3b21335367e9f8c1898a18b447ac6a4acd9d97debdbb542de6
     steps:
@@ -101,7 +101,7 @@ jobs:
           printf '%s  %s\n' "$MANIFEST_SHA" "$manifest" | sha256sum --check --status
           printf '%s  %s\n' "$GATE_SHA" "$gate" | sha256sum --check --status
           printf '%s  %s\n' '94a5ef9939668d7a7d4340cece938d0437a2d7b1902e5ee54529064660634741' "$codec" | sha256sum --check --status
-          printf '%s  %s\n' '8c77ebb71fa0b0534ff2f6b81381b6d07f93dff55a2155da39585b3e087f2ec0' "$issuer" | sha256sum --check --status
+          printf '%s  %s\n' '13f73b223986f1ce740d1eb29b6c248a702299181ed96781022ec33b25739c0b' "$issuer" | sha256sum --check --status
           py="$RUNNER_TOOL_CACHE/Python/3.11.16/x64/bin/python"
           # No installation or alternate interpreter fallback. Driver checks exact executable hash.
           test -x "$py"

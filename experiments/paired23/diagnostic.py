@@ -80,7 +80,7 @@ def timeout(signum, frame):
 
 SEEDS = tuple(range(1000447, 1000463))
 CODEC_SHA = '94a5ef9939668d7a7d4340cece938d0437a2d7b1902e5ee54529064660634741'
-ISSUANCE_SHA = '8c77ebb71fa0b0534ff2f6b81381b6d07f93dff55a2155da39585b3e087f2ec0'
+ISSUANCE_SHA = '13f73b223986f1ce740d1eb29b6c248a702299181ed96781022ec33b25739c0b'
 WHOLE_SECONDS = 7200
 BOUNDS_SHA = 'c7985720e132df4fbd65afe6ef557b08a4bda793c8c70b82546fe5b533e4c70d'
 DATA = {
@@ -290,7 +290,7 @@ def main():
                 floor_active_decisions += int(audit['flags']['floor_active'])
             result = dict(call=label, chosen=move(chosen), science=audit,
                           operations=operations, rng_before=rng_before, rng_after=rng.getstate(),
-                          v4_counterfactual=counterfactual, choice_changed=changed,
+                          late_counterfactual=counterfactual, choice_changed=changed,
                           wall_seconds=elapsed, cpu_seconds=cpu_used)
             evidence.write(prefix + '-' + label + '.json', result)
             pins()

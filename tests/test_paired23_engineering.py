@@ -2,6 +2,7 @@
 
 import ast
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 from random import Random
@@ -14,6 +15,58 @@ EXPERIMENT = ROOT / "experiments" / "paired23"
 
 
 class Paired23Engineering(unittest.TestCase):
+    def test_first_issue_rejects_earlier_failed_run_despite_future_commit_time(self):
+        self._first_issue_case(
+            comment_updated="2026-10-19T16:00:00Z",
+            runs=[(41, "2026-10-19T16:00:10Z", "completed", "failure"),
+                  (42, "2026-10-19T16:00:20Z", "in_progress", None)],
+            error="FIRST_RUN_ALREADY_SPENT",
+        )
+
+    def test_first_issue_ignores_only_completed_skipped_pre_go_runs(self):
+        self._first_issue_case(
+            comment_updated="2026-10-19T16:00:00Z",
+            runs=[(40, "2026-10-19T15:50:00Z", "completed", "skipped"),
+                  (42, "2026-10-19T16:00:20Z", "in_progress", None)],
+            error=None,
+        )
+
+    def test_first_issue_rejects_comment_rewritten_after_run(self):
+        self._first_issue_case(
+            comment_updated="2026-10-19T16:00:30Z",
+            runs=[(42, "2026-10-19T16:00:20Z", "in_progress", None)],
+            error="FIRST_ISSUE_COMMENT_AFTER_RUN",
+        )
+
+    def _first_issue_case(self, *, comment_updated, runs, error):
+        spec = importlib.util.spec_from_file_location("paired23_issuance", EXPERIMENT / "issuance.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        head = "a" * 40
+        nonce = "b" * 64
+        comment = dict(id=7, user={"login": "carabinshely"},
+                       issue_url=module.BASE + "/issues/57",
+                       created_at="2026-10-19T15:59:59Z", updated_at=comment_updated,
+                       body="PAIRED23_FIRST_ISSUE_V1\n" + module.canonical(dict(
+                           allocation=module.ALLOCATION, head=head, nonce=nonce,
+                           root_intent="root", pr_number=57)).decode())
+        rows = [dict(id=ident, created_at=when, status=status, conclusion=conclusion,
+                     head_sha=head, event="pull_request", pull_requests=[{"number": 57}],
+                     path=".github/workflows/paired23.yml")
+                for ident, when, status, conclusion in runs]
+        class Client:
+            def request(self, method, path, data, label):
+                return (200, [comment]) if label == "first_issue_comments" else (
+                    200, dict(total_count=len(rows), workflow_runs=rows))
+        call = lambda: module.validate_first_run(
+            Client(), head=head, run_id="42", pr_number=57, root_intent="root",
+            comment_id=7, nonce=nonce, global_created_at="2026-10-20T00:00:00Z")
+        if error is None:
+            self.assertEqual(call()["run_id"], "42")
+        else:
+            with self.assertRaisesRegex(ValueError, error):
+                call()
+
     def test_exact_source_manifest_matches_committed_git_blobs(self):
         manifest = json.loads((EXPERIMENT / "source-pins.json").read_bytes())
         self.assertEqual(manifest["schema"], "strategy23-source-pins-v1")

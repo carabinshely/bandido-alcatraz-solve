@@ -199,10 +199,12 @@ def validate_first_run(client, *, head, run_id, pr_number, root_intent, comment_
             details == dict(allocation=ALLOCATION, head=head, nonce=nonce,
                             root_intent=root_intent, pr_number=pr_number),
             "FIRST_ISSUE_COMMENT_BODY")
-    issued_at = utc_second(global_created_at)
+    # Committer time is author supplied. It records the root claim but cannot
+    # exclude a prior provider-created workflow run.
+    utc_second(global_created_at)
     comment_at = utc_second(c.get("created_at"))
-    require(comment_at >= issued_at,
-            "FIRST_ISSUE_COMMENT_BEFORE_GLOBAL")
+    comment_updated_at = utc_second(c.get("updated_at"))
+    require(comment_updated_at >= comment_at, "FIRST_ISSUE_COMMENT_TIME_ORDER")
     path = f"/actions/workflows/paired23.yml/runs?event=pull_request&head_sha={head}&per_page=8"
     status, listing = client.request("GET", path, None, "first_issue_runs")
     require(status == 200 and type(listing) is dict and
@@ -232,15 +234,18 @@ def validate_first_run(client, *, head, run_id, pr_number, root_intent, comment_
                 any(type(p) is dict and p.get("number") == pr_number
                     for p in run["pull_requests"]), "FIRST_ISSUE_RUN_ROW")
         when = utc_second(run.get("created_at"))
-        if when >= issued_at:
-            eligible.append((when, run["id"]))
+        # Open/synchronize events before GO have skipped jobs. Every other
+        # exact-head attempt spends this first issue, even when it failed.
+        if run.get("status") == "completed" and run.get("conclusion") == "skipped":
+            continue
+        eligible.append((when, run["id"]))
     require(eligible, "FIRST_ISSUE_NO_RUN")
     eligible.sort()
     require(len(eligible) == 1 or eligible[0][0] != eligible[1][0],
             "FIRST_ISSUE_RUN_TIME_TIE")
     first_when, first_id = eligible[0]
-    require(comment_at < first_when, "FIRST_ISSUE_COMMENT_AFTER_RUN")
-    require((first_when - issued_at).total_seconds() <= 300,
+    require(comment_updated_at < first_when, "FIRST_ISSUE_COMMENT_AFTER_RUN")
+    require((first_when - comment_updated_at).total_seconds() <= 300,
             "FIRST_ISSUE_EVENT_EXPIRED")
     require(str(first_id) == run_id, "FIRST_RUN_ALREADY_SPENT")
     return dict(comment_id=comment_id, comment_created_at=c["created_at"],
