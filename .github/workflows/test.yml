@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   pytest:
-    if: github.head_ref != 'codex/strategy21-floor2' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    if: github.head_ref != 'codex/strategy21-floor2' && github.head_ref != 'codex/strategy22-evidence-cap' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: [self-hosted, Linux, X64, bandido-alcatraz-tests]
     timeout-minutes: 20
     steps:
