@@ -45,6 +45,9 @@ class RunnerBinding(unittest.TestCase):
         manifest = json.loads((EXP / "source-pins.json").read_bytes())
         self.assertEqual(manifest["schema"], "strategy22-source-pins-v1")
         self.assertEqual(manifest["commit"], "808457711c823a5f1d9e7469c8b057997176d63e")
+        self.assertEqual(manifest["tree"], subprocess.check_output(
+            ["git", "show", "-s", "--format=%T", manifest["commit"]],
+            cwd=ROOT).decode().strip())
         self.assertEqual(len(manifest["files"]), 39)
         self.assertEqual(sum(row["bytes"] for row in manifest["files"]), 262593)
         self.assertEqual(len({row["path"] for row in manifest["files"]}), 39)
