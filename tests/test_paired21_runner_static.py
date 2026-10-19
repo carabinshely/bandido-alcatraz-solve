@@ -6,6 +6,7 @@ import importlib.util
 import json
 from pathlib import Path
 import re
+import subprocess
 import tempfile
 import unittest
 from random import Random
@@ -121,12 +122,15 @@ class Paired21Bindings(unittest.TestCase):
     def test_workflow_binds_current_hashes_and_skips_unadmitted_smoke(self):
         workflow = (ROOT / ".github/workflows/paired21.yml").read_text()
         old = (ROOT / ".github/workflows/test.yml").read_text()
+        def committed_bytes(filename):
+            return subprocess.check_output(
+                ["git", "show", "HEAD:experiments/paired21/" + filename], cwd=ROOT)
         for filename, key in (("diagnostic.py", "DRIVER_SHA"),
                               ("source-pins.json", "MANIFEST_SHA"),
                               ("check_source_gate.py", "GATE_SHA")):
-            self.assertIn(key + ": " + sha((EXP / filename).read_bytes()), workflow)
+            self.assertIn(key + ": " + sha(committed_bytes(filename)), workflow)
         for filename in ("bounds.py", "codec.py", "issuance.py"):
-            self.assertIn(sha((EXP / filename).read_bytes()), workflow)
+            self.assertIn(sha(committed_bytes(filename)), workflow)
         self.assertIn("ISSUANCE_SHA = '" + sha((EXP / "issuance.py").read_bytes()) + "'",
                       (EXP / "diagnostic.py").read_text())
         self.assertIn("CODEC_SHA = '" + sha((EXP / "codec.py").read_bytes()) + "'",

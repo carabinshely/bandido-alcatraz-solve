@@ -35,7 +35,7 @@ jobs:
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
       DRIVER_SHA: f3b92f8660632e1969b3bd9f9a33136054e23e1214e5140e2b6e30353101f0b4
-      MANIFEST_SHA: b67adfff10a0dc05056ce5f2608c86714278db8102878827eb6d57dbbe0ff454
+      MANIFEST_SHA: 0923c8b614631dc65c12a4028788d66aa09d1c27fcd8101ccf209f3523a3f334
       GATE_SHA: 4231d02252d9cb3b21335367e9f8c1898a18b447ac6a4acd9d97debdbb542de6
     steps:
       - name: Admission consistency before checkout, no policy imports
