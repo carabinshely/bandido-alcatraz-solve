@@ -361,7 +361,7 @@
     },
     {
       "preregistration": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5947200127",
-      "status": "source_resource_configuration_prepared_waiting_exact_head_review_and_go",
+      "status": "interrupted_infrastructure",
       "kind": "spent_development",
       "existing_spent_cohort_inclusive": [
         1000000,
@@ -382,9 +382,49 @@
       "canonical_control_normalized_sha256": "a4d2d06e5592caa35c03d00337d0254c07f767d5cb8ee0777cbb51f543803021",
       "advancement_screen_net_wins_at_least": 8,
       "equipment_completion_and_mechanism_counts": "descriptive only; no additional advancement gates",
-      "note": "Scientific policy and complete ascending three-pass spent population fixed prospectively. No real evaluation is admitted until independent synthetic preflight and separate exact source/runtime/resource freeze/go. Existing historical seed status never restored.",
+      "note": "One interrupted first attempt preserved as original sealed evidence plus three complete tail files. Counts record durable completions, not a valid 400-pair screen; no candidate/replay scientific acceptance, net-win comparison, valid negative result or advancement. Failure cause and resource exception remain unestablished. All recorded snapshot bytes are preserved with fresh canonical custody readback; global quiescence is not claimed. All 400 seeds remain permanently spent. No rerun/resume/second admission/cap increase or candidate tuning is authorized by this checkpoint. Original protocol allows consideration of a separately recorded full rerun only for harness-only repair with the unchanged scientific question and population.",
       "research_step": 35,
-      "execution_freeze_path": "experiments/quota-reserve-closure-development/execution-freeze.json"
+      "classification": null,
+      "scientific_outcome_admissible": false,
+      "candidate_adopted": false,
+      "candidate_advanced": null,
+      "advancement_screen_applied": false,
+      "execution_head": "7ac2f62c9c5c9dcac9ec9b8770382960f985acc2",
+      "execution_tree": "2cd7946824a136d8e9addaf9abff05fd79294ba4",
+      "execution_go": "https://github.com/carabinshely/bandido-alcatraz-solve/issues/2#issuecomment-5949218025",
+      "execution_freeze_at_execution": "https://github.com/carabinshely/bandido-alcatraz-solve/blob/7ac2f62c9c5c9dcac9ec9b8770382960f985acc2/experiments/quota-reserve-closure-development/execution-freeze.json",
+      "execution_freeze_sha256": "f630a40f3f4fd1bf3135045ba5428e26e1f597937a49c67791f094830c2b025d",
+      "run_id": 36990202101,
+      "run_attempt": 1,
+      "job_id": 110784375570,
+      "recorded_control_completions": 400,
+      "recorded_candidate_completions": 319,
+      "recorded_candidate_replay_completions": 0,
+      "recorded_journal_rows": 719,
+      "incomplete_game": {
+        "pass": 2,
+        "seed": 1000319,
+        "last_started_decision_ordinal": 22
+      },
+      "manifest_path": "experiments/quota-reserve-closure-development/interrupted-attempt-2026-10-03.manifest.json",
+      "preserved_attempts": [
+        {
+          "run_id": 36990202101,
+          "run_attempt": 1,
+          "execution_head": "7ac2f62c9c5c9dcac9ec9b8770382960f985acc2",
+          "status": "interrupted_infrastructure",
+          "original_receipt_status": "execution_blocked",
+          "classification": null,
+          "original_receipt_sha256": "027b6b35d75983ecf1760395418ff00d2df2a7fab63afee617bc73e4d8e3b3af",
+          "recorded_snapshot_raw_files": 2162,
+          "recorded_snapshot_raw_bytes": 736735404,
+          "original_sealed_zip_sha256": "47b3f93e8825936c5106820bc536f8e7dfbfb4781ab9680bf495c15593767ba1",
+          "complete_tail_zip_sha256": "59a4b4cb7f6213ca95eb785546f88941cc7de00afb7ade5d0ac7f29152ba54c9",
+          "fresh_remote_byte_readback_verified": true,
+          "manifest_path": "experiments/quota-reserve-closure-development/interrupted-attempt-2026-10-03.manifest.json"
+        }
+      ],
+      "new_execution_authorized_by_checkpoint": false
     }
   ],
   "fresh_confirmation_allocations": [],

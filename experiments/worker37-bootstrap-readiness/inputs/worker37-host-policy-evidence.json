@@ -1,0 +1,85 @@
+{
+  "schema": "worker37-redirect-host-policy-evidence-v1",
+  "status": "root_selected_for_draft_review_not_execution",
+  "selection_recorded_utc": "2026-10-04T19:31:19Z",
+  "question": "Ground one artifact-download redirect policy without guessing an observed account hostname.",
+  "primary_sources": [
+    {
+      "url": "https://docs.github.com/en/rest/actions/artifacts?apiVersion=2022-11-28#download-an-artifact",
+      "title": "GitHub REST API: Download an artifact",
+      "accessed_utc": "2026-10-04T19:30:16Z",
+      "supported_facts": [
+        "The artifact ZIP endpoint returns HTTP302 with a Location for the download.",
+        "The returned download URL expires after one minute.",
+        "The endpoint requires Actions repository read permission for a private artifact."
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/actions/reference/runners/self-hosted-runners#accessible-domains-by-function",
+      "title": "GitHub self-hosted runners: accessible domains by function",
+      "accessed_utc": "2026-10-04T19:30:16Z",
+      "supported_facts": [
+        "GitHub documents *.blob.core.windows.net among endpoints needed for uploading/downloading workflow artifacts, job summaries, logs and caches.",
+        "The document lists results-receiver.actions.githubusercontent.com too; this selected download-redirect policy does not admit that host or arbitrary actions domains."
+      ]
+    },
+    {
+      "url": "https://docs.github.com/en/organizations/managing-organization-settings/configuring-private-networking-for-github-hosted-runners-in-your-organization",
+      "title": "GitHub private networking: domain lists",
+      "accessed_utc": "2026-10-04T19:30:16Z",
+      "supported_facts": [
+        "GitHub describes more specific published domain lists via its public meta endpoint.",
+        "No exact storage-account list or exact Location was recovered through the available web response, so none is claimed or pinned."
+      ]
+    }
+  ],
+  "retained_metadata_findings": {
+    "artifact_id": 11310585783,
+    "artifact_run_id": 37221141227,
+    "exact_authenticated_endpoint": "https://api.github.com/repos/carabinshely/bandido-alcatraz-solve/actions/artifacts/11310585783/zip",
+    "artifact_zip_size_bytes": 83342,
+    "artifact_zip_sha256": "f7447bc2c7d8bd8c84fc940b83567d0c4f1c1ba34523310b75046916883ea971",
+    "files": [
+      {
+        "path": "/workspace/shared/worker36-recovery-r1/evidence/runner-78506a66/artifact-origin-metadata.json",
+        "size_bytes": 1410,
+        "sha256": "436aa1340e37f47cd067df5ea0a6c441f1256f851715e89dc185326be8fd20b5"
+      },
+      {
+        "path": "/workspace/shared/worker36-recovery-r1/evidence/runner-78506a66/preflight-result.json",
+        "size_bytes": 18963,
+        "sha256": "826055ae4d296b77b26ec771b637866a3a549a7726afda2a91c123edcce35d5b"
+      }
+    ],
+    "exposes_authenticated_api_endpoint_and_digest": true,
+    "exposes_final_storage_location": false,
+    "observed_storage_account_hostname": null,
+    "limitation": "The existing provider metadata and raw-custody receipt do not expose the GitHub redirect Location. Connector attachment storage must not be mistaken for GitHub's artifact storage."
+  },
+  "selected_policy": {
+    "authority": "Root selection for revised protocol review under standing mandate; no implementation or execution admission.",
+    "source": "The one302 Location returned by the TLS-authenticated exact api.github.com artifact ZIP endpoint for the frozen artifact ID.",
+    "maximum_hops": 1,
+    "target_scheme": "https",
+    "target_port": "443 or absent (default443)",
+    "target_host": "Exactly one nonempty ASCII account/DNS label followed by .blob.core.windows.net; no nested label, IP literal, alternative suffix, trailing dot, Unicode/IDNA substitution, userinfo or malformed authority.",
+    "host_comparison": "Parse once using strict URL validation; compare a canonical lowercase ASCII hostname. Do not follow unexpected hosts before requesting them.",
+    "credentials": "No Authorization, cookies, API-specific credentials or Referer forwarded; create an explicit fresh unauthenticated request rather than inherit headers.",
+    "tls": "Default certificate and hostname verification; no trust/verification changes.",
+    "url_restrictions": "No fragment, userinfo, downgrade or second redirect. Keep the provider-supplied signed path/query only in memory for that one request; do not log or persist the signed URL.",
+    "path_policy": "No speculative path-prefix pin. Relation to the frozen artifact is supplied by the authenticated exact endpoint's Location plus final exact ZIP size and SHA256.",
+    "final_response": "HTTP200 only; enforce frozen HTTP response-body and time caps, and exact 83342-byte ZIP/SHA256 before success.",
+    "unsupported_response": "Fail closed before another GET for any disallowed host/URL, missing Location, second redirect or other status.",
+    "is_observed_account_pin": false,
+    "is_documented_host_family": true
+  },
+  "activity_limits": {
+    "runner_http_requests": 0,
+    "artifact_download_requests": 0,
+    "tests": 0,
+    "implementation_edits": 0,
+    "scientific_calls": 0,
+    "signed_urls_logged": 0
+  },
+  "research_method": "Read-only local provider metadata plus public primary GitHub documentation. A public meta documentation endpoint was viewed; no actual runner or artifact endpoint was exercised."
+}

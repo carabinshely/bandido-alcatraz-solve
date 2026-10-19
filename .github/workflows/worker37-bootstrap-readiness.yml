@@ -1,0 +1,132 @@
+name: Worker37 bootstrap readiness
+
+on:
+  pull_request:
+    types: [edited]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: read
+
+concurrency:
+  group: worker37-bootstrap-readiness-01
+  cancel-in-progress: false
+
+jobs:
+  bootstrap:
+    if: >-
+      github.repository == 'carabinshely/bandido-alcatraz-solve' &&
+      github.actor == 'carabinshely' &&
+      github.triggering_actor == 'carabinshely' &&
+      github.event.sender.login == 'carabinshely' &&
+      github.event.pull_request.user.login == 'carabinshely' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.base.repo.full_name == github.repository &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.base.sha == '2b00e0d1e76364ae287946f7c0e3dc2baac4653f' &&
+      github.event.pull_request.head.ref == 'research/worker37-bootstrap-readiness' &&
+      github.event.action == 'edited' &&
+      github.event.changes.body != null &&
+      !contains(github.event.changes.body.from, 'WORKER37_ENGINEERING_ADMISSION') &&
+      contains(github.event.pull_request.body, 'WORKER37_ENGINEERING_ADMISSION_JSON') &&
+      github.run_attempt == 1
+    runs-on: [self-hosted, bandido-alcatraz-ci]
+    timeout-minutes: 45
+    env:
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      WORKER37_EVENT_ACTION: ${{ github.event.action }}
+      WORKER37_SENDER: ${{ github.event.sender.login }}
+      WORKER37_PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+      WORKER37_HEAD: ${{ github.event.pull_request.head.sha }}
+      WORKER37_HEAD_REF: ${{ github.event.pull_request.head.ref }}
+      WORKER37_HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+      WORKER37_BASE_REF: ${{ github.event.pull_request.base.ref }}
+      WORKER37_BASE_HEAD: ${{ github.event.pull_request.base.sha }}
+      WORKER37_BASE_REPOSITORY: ${{ github.event.pull_request.base.repo.full_name }}
+      WORKER37_BODY_CHANGED: ${{ github.event.changes.body != null }}
+      WORKER37_PREVIOUS_BODY: ${{ github.event.changes.body.from }}
+      WORKER37_CURRENT_BODY: ${{ github.event.pull_request.body }}
+    steps:
+      - name: P00 builtin identity
+        id: identity
+        shell: bash --noprofile --norc -e -o pipefail {0}
+        run: |
+          # WORKER37_P00_BEGIN
+          set +xv
+          set -euo pipefail
+          umask 077
+          for worker37_name in ${!LD@} ${!PYTHON@}; do
+            unset "$worker37_name"
+          done
+          export LC_ALL=C
+          worker37_block() { printf 'P00 execution_blocked %s\n' "$1"; exit 1; }
+          [[ ${GITHUB_REPOSITORY-} == carabinshely/bandido-alcatraz-solve ]] || worker37_block repository
+          [[ ${GITHUB_ACTOR-} == carabinshely && ${GITHUB_TRIGGERING_ACTOR-} == carabinshely ]] || worker37_block actor
+          [[ ${WORKER37_SENDER-} == carabinshely && ${WORKER37_PR_AUTHOR-} == carabinshely ]] || worker37_block sender
+          [[ ${RUNNER_NAME-} == bandido-alcatraz-ci ]] || worker37_block runner
+          [[ ${GITHUB_SERVER_URL-} == https://github.com && ${GITHUB_API_URL-} == https://api.github.com ]] || worker37_block origin
+          [[ ${GITHUB_EVENT_NAME-} == pull_request && ${WORKER37_EVENT_ACTION-} == edited ]] || worker37_block event
+          [[ ${GITHUB_RUN_ATTEMPT-} == 1 ]] || worker37_block attempt
+          [[ ${GITHUB_RUN_ID-} =~ ^[1-9][0-9]*$ && ${PR_NUMBER-} =~ ^[1-9][0-9]*$ ]] || worker37_block identifier
+          [[ ${WORKER37_HEAD-} =~ ^[0-9a-f]{40}$ ]] || worker37_block head
+          [[ ${WORKER37_HEAD_REPOSITORY-} == "$GITHUB_REPOSITORY" && ${WORKER37_BASE_REPOSITORY-} == "$GITHUB_REPOSITORY" ]] || worker37_block same_repository
+          [[ ${WORKER37_HEAD_REF-} == research/worker37-bootstrap-readiness && ${WORKER37_BASE_REF-} == main ]] || worker37_block branch
+          [[ ${WORKER37_BASE_HEAD-} == 2b00e0d1e76364ae287946f7c0e3dc2baac4653f ]] || worker37_block base
+          [[ ${WORKER37_BODY_CHANGED-} == true ]] || worker37_block body_change
+          [[ ${WORKER37_PREVIOUS_BODY-} != *WORKER37_ENGINEERING_ADMISSION* ]] || worker37_block repeated_marker
+          [[ ${WORKER37_CURRENT_BODY-} == *WORKER37_ENGINEERING_ADMISSION_JSON* && ${WORKER37_CURRENT_BODY-} == *END_WORKER37_ENGINEERING_ADMISSION_JSON* && ${WORKER37_CURRENT_BODY-} == *WORKER37_ENGINEERING_ADMISSION_SHA256* ]] || worker37_block missing_marker
+          [[ ${#WORKER37_CURRENT_BODY} -le 65536 ]] || worker37_block body_size
+          printf 'P00 completed\n'
+          # WORKER37_P00_END
+
+      - name: P01 bounded exact checkout
+        # One action invocation. Its pinned vendor fetch retries, if used, share
+        # this five-minute platform bound and are not metadata-client requests.
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        timeout-minutes: 5
+        with:
+          repository: carabinshely/bandido-alcatraz-solve
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+          submodules: false
+          lfs: false
+
+      - name: P02 bounded launcher
+        id: launcher
+        shell: bash --noprofile --norc -e -o pipefail {0}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # WORKER37_P02_BEGIN
+          set +xv
+          set -euo pipefail
+          umask 077
+          for worker37_name in ${!LD@} ${!PYTHON@}; do
+            unset "$worker37_name"
+          done
+          export LC_ALL=C
+          export -n GH_TOKEN worker37_api_token
+          worker37_api_token=${GH_TOKEN-}
+          unset GH_TOKEN
+          if ! type -P timeout >/dev/null; then
+            printf 'P02 execution_blocked missing_timeout\n'
+            exit 1
+          fi
+          GH_TOKEN="$worker37_api_token" command timeout --signal=KILL 600s /bin/bash --noprofile --norc "$GITHUB_WORKSPACE/scripts/worker37-bootstrap.sh" 2>/dev/null
+          # WORKER37_P02_END
+
+      - name: P09 one bounded evidence upload
+        if: ${{ always() && steps.launcher.outputs.payload_ready == 'true' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        timeout-minutes: 5
+        with:
+          name: worker37-bootstrap-readiness-${{ github.run_id }}-1
+          path: ${{ steps.launcher.outputs.payload_paths }}
+          if-no-files-found: error
+          include-hidden-files: false
+          compression-level: 0
+          overwrite: false
+          retention-days: 30
