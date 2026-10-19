@@ -218,7 +218,8 @@ def validate_first_run(client, *, head, run_id, pr_number, root_intent, comment_
     for run in listing["workflow_runs"]:
         require(type(run) is dict and type(run.get("id")) is int and
                 run["id"] > 0 and run["id"] not in seen and
-                run.get("head_sha") == head and run.get("event") == "pull_request",
+                run.get("head_sha") == head and run.get("event") == "pull_request" and
+                type(run.get("run_attempt")) is int and run["run_attempt"] >= 1,
                 "FIRST_ISSUE_RUN_ROW")
         raw_path = run.get("path")
         require(type(raw_path) is str, "FIRST_ISSUE_RUN_PATH_UNKNOWN")
@@ -236,7 +237,8 @@ def validate_first_run(client, *, head, run_id, pr_number, root_intent, comment_
         when = utc_second(run.get("created_at"))
         # Open/synchronize events before GO have skipped jobs. Every other
         # exact-head attempt spends this first issue, even when it failed.
-        if run.get("status") == "completed" and run.get("conclusion") == "skipped":
+        if (run.get("status") == "completed" and run.get("conclusion") == "skipped"
+                and run["run_attempt"] == 1):
             continue
         eligible.append((when, run["id"]))
     require(eligible, "FIRST_ISSUE_NO_RUN")

@@ -38,6 +38,14 @@ class Paired23Engineering(unittest.TestCase):
             error="FIRST_ISSUE_COMMENT_AFTER_RUN",
         )
 
+    def test_first_issue_rejects_skipped_retry_of_prior_failed_run(self):
+        self._first_issue_case(
+            comment_updated="2026-10-19T16:00:00Z",
+            runs=[(41, "2026-10-19T16:00:10Z", "completed", "skipped", 2),
+                  (42, "2026-10-19T16:00:20Z", "in_progress", None)],
+            error="FIRST_RUN_ALREADY_SPENT",
+        )
+
     def _first_issue_case(self, *, comment_updated, runs, error):
         spec = importlib.util.spec_from_file_location("paired23_issuance", EXPERIMENT / "issuance.py")
         module = importlib.util.module_from_spec(spec)
@@ -50,10 +58,11 @@ class Paired23Engineering(unittest.TestCase):
                        body="PAIRED23_FIRST_ISSUE_V1\n" + module.canonical(dict(
                            allocation=module.ALLOCATION, head=head, nonce=nonce,
                            root_intent="root", pr_number=57)).decode())
-        rows = [dict(id=ident, created_at=when, status=status, conclusion=conclusion,
+        rows = [dict(id=row[0], created_at=row[1], status=row[2], conclusion=row[3],
+                     run_attempt=row[4] if len(row) == 5 else 1,
                      head_sha=head, event="pull_request", pull_requests=[{"number": 57}],
                      path=".github/workflows/paired23.yml")
-                for ident, when, status, conclusion in runs]
+                for row in runs]
         class Client:
             def request(self, method, path, data, label):
                 return (200, [comment]) if label == "first_issue_comments" else (
