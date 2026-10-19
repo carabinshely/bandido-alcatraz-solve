@@ -1,5 +1,6 @@
 """Pure source and admission binding checks; no game or project import."""
 
+import ast
 import hashlib
 import json
 from pathlib import Path
@@ -16,7 +17,30 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def committed_sha(path):
+    relative = path.relative_to(ROOT).as_posix()
+    raw = subprocess.check_output(["git", "show", "HEAD:" + relative], cwd=ROOT)
+    return hashlib.sha256(raw).hexdigest()
+
+
 class RunnerBinding(unittest.TestCase):
+    def test_counterfactual_undoes_late_weight(self):
+        tree = ast.parse((EXP / "diagnostic.py").read_text())
+        function = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
+                        and node.name == "v4_counterfactual")
+        def require(condition, message):
+            if not condition:
+                raise AssertionError(message)
+        namespace = {"require": require}
+        exec(compile(ast.Module(body=[function], type_ignores=[]), "counterfactual", "exec"),
+             namespace)
+        from random import Random
+        state = Random(1).getstate()
+        audit = {"roots": [{"move": "A", "score": 500},
+                            {"move": "B", "score": 1000}],
+                 "mobility": [{"after_open": 5}, {"after_open": 4}]}
+        self.assertEqual(namespace["v4_counterfactual"](audit, state, 5, 20), "A")
+
     def test_closed_source_inventory(self):
         manifest = json.loads((EXP / "source-pins.json").read_bytes())
         self.assertEqual(manifest["schema"], "strategy22-source-pins-v1")
@@ -54,11 +78,11 @@ class RunnerBinding(unittest.TestCase):
         for name, key in (("diagnostic.py", "DRIVER_SHA"),
                           ("source-pins.json", "MANIFEST_SHA"),
                           ("check_source_gate.py", "GATE_SHA")):
-            self.assertIn(key + ": " + sha(EXP / name), workflow)
+            self.assertIn(key + ": " + committed_sha(EXP / name), workflow)
         for name in ("bounds.py", "codec.py", "issuance.py"):
-            self.assertIn(sha(EXP / name), workflow)
-        self.assertIn("CODEC_SHA = '" + sha(EXP / "codec.py") + "'", driver)
-        self.assertIn("ISSUANCE_SHA = '" + sha(EXP / "issuance.py") + "'", driver)
+            self.assertIn(committed_sha(EXP / name), workflow)
+        self.assertIn("CODEC_SHA = '" + committed_sha(EXP / "codec.py") + "'", driver)
+        self.assertIn("ISSUANCE_SHA = '" + committed_sha(EXP / "issuance.py") + "'", driver)
         self.assertEqual(len(re.findall("PAIRED22_GO_JSON", workflow)), 4)
         self.assertEqual(subprocess.check_output(["git", "status", "--porcelain", "--",
                                                     "src/bandido_alcatraz"], cwd=ROOT), b"")

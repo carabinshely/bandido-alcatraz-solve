@@ -79,7 +79,7 @@ def timeout(signum, frame):
 
 
 SEEDS = tuple(range(1000439, 1000447))
-CODEC_SHA = 'dcd87ff05f2244581fd4bb5f782807281d02efabae2b6076f4830445f4d4ca35'
+CODEC_SHA = '7ae4548a5a4931276f9935ee6b0ffa757bdffd0a335986d01772fa9036d09477'
 ISSUANCE_SHA = 'ec37a858d904aa13b12eb9e174955043032da0a4b816e952f05daa51ce1d7dcd'
 WHOLE_SECONDS = 3600
 BOUNDS_SHA = 'c7985720e132df4fbd65afe6ef557b08a4bda793c8c70b82546fe5b533e4c70d'
@@ -105,15 +105,25 @@ def deadline(seconds=180):
     signal.alarm(max(1, int(min(seconds, remaining))))
 
 
-def v4_counterfactual(audit, rng_state):
+def v4_counterfactual(audit, rng_state, before_open, turns):
     """One V4 tie choice on the same public roots and pre-call RNG state."""
     from random import Random
     roots = audit['roots']
-    require(all(type(row['score']) is int for row in roots), 'COUNTERFACTUAL_SCORES')
+    mobility = audit['mobility']
+    require(type(before_open) is int and type(turns) is int
+            and len(roots) == len(mobility)
+            and all(type(row['score']) is int and type(mark['after_open']) is int
+                    for row, mark in zip(roots, mobility)), 'COUNTERFACTUAL_SCORES')
     if not roots:
         return None
-    peak = max(row['score'] for row in roots)
-    tied = [row['move'] for row in roots if row['score'] == peak]
+    # Candidate changes only the delta_open_tunnels weight: 100 -> 1000.
+    # Undo that term to reconstruct the frozen V4 score, including roots
+    # excluded by the candidate's separate two-open safety filter.
+    scores = [row['score'] - (900 * (before_open - mark['after_open'])
+                             if turns >= 20 else 0)
+              for row, mark in zip(roots, mobility)]
+    peak = max(scores)
+    tied = [row['move'] for row, score in zip(roots, scores) if score == peak]
     copied = Random()
     copied.setstate(rng_state)
     return copied.choice(tied)
@@ -290,7 +300,8 @@ def main():
                 require(audit['schema'] == 'strategy22-late-closure-v1'
                         and type(audit['flags']['floor_active']) is bool,
                         'MOBILITY_AUDIT_SCHEMA')
-                counterfactual = v4_counterfactual(audit, rng_before)
+                counterfactual = v4_counterfactual(
+                    audit, rng_before, public.board.open_tunnels, public.turns)
                 changed = move(chosen) != counterfactual
                 changed_choices += int(changed)
                 floor_active_decisions += int(audit['flags']['floor_active'])

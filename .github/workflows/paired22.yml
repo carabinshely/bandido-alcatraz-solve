@@ -34,9 +34,9 @@ jobs:
       CURRENT_BODY: ${{ github.event.pull_request.body }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
-      DRIVER_SHA: 421c62aea8dd0946d258480057a4bf8051e1ccce6524a4832450de717ce8fabc
-      MANIFEST_SHA: a6e8a5db18e5518144aed7d437ffce06b7b8f7d6c8b6c9d7fa57ecfa9d266171
-      GATE_SHA: 173496525b67934ea44281b69e493dea279f3afdecc5f6ce16fdd4dce5669a24
+      DRIVER_SHA: b31709728867a0e4068516c1b209c9ef969351dc26e092c4ca95da2b9f4704ea
+      MANIFEST_SHA: a69db0170a7fb24a208ff73a051c03bdfda9daa1e5e19b91e646c1fbab62ce0e
+      GATE_SHA: 4231d02252d9cb3b21335367e9f8c1898a18b447ac6a4acd9d97debdbb542de6
     steps:
       - name: Admission consistency before checkout, no policy imports
         timeout-minutes: 1
@@ -100,7 +100,7 @@ jobs:
           printf '%s  %s\n' 'c7985720e132df4fbd65afe6ef557b08a4bda793c8c70b82546fe5b533e4c70d' "$bounds" | sha256sum --check --status
           printf '%s  %s\n' "$MANIFEST_SHA" "$manifest" | sha256sum --check --status
           printf '%s  %s\n' "$GATE_SHA" "$gate" | sha256sum --check --status
-          printf '%s  %s\n' 'dcd87ff05f2244581fd4bb5f782807281d02efabae2b6076f4830445f4d4ca35' "$codec" | sha256sum --check --status
+          printf '%s  %s\n' '7ae4548a5a4931276f9935ee6b0ffa757bdffd0a335986d01772fa9036d09477' "$codec" | sha256sum --check --status
           printf '%s  %s\n' 'ec37a858d904aa13b12eb9e174955043032da0a4b816e952f05daa51ce1d7dcd' "$issuer" | sha256sum --check --status
           py="$RUNNER_TOOL_CACHE/Python/3.11.16/x64/bin/python"
           # No installation or alternate interpreter fallback. Driver checks exact executable hash.
