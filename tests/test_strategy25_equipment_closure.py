@@ -47,6 +47,9 @@ class EquipmentClosureTests(unittest.TestCase):
                 self.assertEqual(result[1]["flags"],
                                  {"equipment_ready": ready,
                                   "closure_weight": weight})
+                changed = [row for row in result[1]["roots"]
+                           if row["score"] != row["v4_score"]]
+                self.assertEqual(bool(changed), ready)
                 self.assertEqual(observation_wire(obs), before)
 
     def test_one_open_root_is_not_vetoed(self):
