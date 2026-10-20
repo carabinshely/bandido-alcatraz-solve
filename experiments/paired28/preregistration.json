@@ -2,7 +2,7 @@
   "subject": "paired28",
   "stage": "SOURCE_ONLY_NOT_ADMITTED",
   "purpose": "Fixed top-two visible-hand lookahead versus frozen V4-250, motivated by spent developmental frontiers and lack of a valid current-model V6 outcome; fixed eight fresh developmental pairs, not confirmation",
-  "source_commit": "7ceaf2184bbf2c7a819936729f5878ee9542d573",
+  "source_commit": "2cd870911c2dd77714ef7e94e1158fd69335bcc8",
   "candidate": "VisibleBeamTwoPolicy",
   "reference": "VisibleBeamTwoReference",
   "control": "BoundedMergeV4Policy(setup_weight=250)",

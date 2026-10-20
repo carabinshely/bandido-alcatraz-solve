@@ -201,7 +201,7 @@ def main():
         require(digest(raw) == args.manifest_sha256, 'MANIFEST_PIN')
         manifest = json.loads(raw)
         require(manifest['schema'] == 'strategy28-source-pins-v1' and
-                manifest['commit'] == '7ceaf2184bbf2c7a819936729f5878ee9542d573', 'SUBJECT')
+                manifest['commit'] == '2cd870911c2dd77714ef7e94e1158fd69335bcc8', 'SUBJECT')
         root = args.source_root.resolve(strict=True)
 
         def pins():

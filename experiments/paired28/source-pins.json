@@ -1,7 +1,7 @@
 {
   "schema": "strategy28-source-pins-v1",
-  "commit": "7ceaf2184bbf2c7a819936729f5878ee9542d573",
-  "tree": "24abec35f65579f1f372345455e514536ffb1735",
+  "commit": "2cd870911c2dd77714ef7e94e1158fd69335bcc8",
+  "tree": "5971917105b3ed51091a4123f90202357f8b0dc3",
   "files": [
     {
       "path": "src/bandido_alcatraz/__init__.py",
@@ -221,9 +221,9 @@
     },
     {
       "path": "src/bandido_alcatraz/visible_beam2_reference.py",
-      "bytes": 2178,
-      "sha256": "d9d4887866584a51773292a31a21fbcbec8f435aba2bff2b9e7b49bff5c96616",
-      "git_blob": "7d55d36df0df93b2d02a03c0ba9b327f80a03348"
+      "bytes": 2184,
+      "sha256": "f91fbacde28e71d5617fea0d7896123a83c3ba8dca796f42cbbab6e25a8c89b9",
+      "git_blob": "560f586c51f639d06879ee831092462d312f691c"
     },
     {
       "path": "src/bandido_alcatraz/worker32/__init__.py",
