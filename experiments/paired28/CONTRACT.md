@@ -1,0 +1,7 @@
+# Paired28 visible-hand top-two development — source only
+
+Eight paired developmental seeds compare fixed V4-250 with a candidate that scores every legal first action using V4-250, expands the two best roots in score and canonical-order ranking, and adds the best second V4-250 score from the retained visible hand without a draw. A winning or zero-open first action is terminal for lookahead. The candidate and independent reference must agree on choice, audit, RNG state and physical-call counts. Neither arm reads future draw order.
+
+Seeds 1000483–1000490 are proposed and unissued. These fixed eight pairs are exploratory after many prior candidate screens. A partial batch has no eight-pair verdict; no retry, suffix resume, replacement or optional stopping. Report paired wins, exact discordant-pair p, choice changes, two-root decisions, terminal frontiers, operation counts and runtime. Favorable development still requires untouched preregistered confirmation and independent replication.
+
+Only `bandido-alcatraz-ci` may run the real 69-card solo easy5 hand6 experiment after exact source/runner/namespace/resource/issuance/root GO. The source-only files and invented-fixture tests do not establish GO or scientific improvement.

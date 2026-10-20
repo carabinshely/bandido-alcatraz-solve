@@ -1,0 +1,3 @@
+# Paired28 capacity proposal — no reservation or GO
+
+Eight pairs mean 16 games. The copied runner proposes 128 MiB decoded evidence, 32 MiB compressed artifact, 1,200 records per pair, 32,768 physical operations per call, and 3,600 seconds whole-run. Visible-hand top-two expansion can exceed paired27's one-step runtime and evidence. Before any issue, independently verify exact normal and failure resource bounds, actual CPU/wall/AS/FD/disk fit, complete private-copy/custody capacity and fresh owner accounting. No prior run's unused capacity is assumed available. An exceeded bound produces incomplete evidence, spent seeds and no verdict.
