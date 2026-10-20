@@ -120,6 +120,10 @@ class Paired24Engineering(unittest.TestCase):
         self.assertIn('ALLOCATION = "bandido-seeds-1000463-1000466"', issuance)
         self.assertNotIn("PAIRED22_GO_JSON", workflow)
 
+    def test_general_ci_skips_this_branch_before_science_go(self):
+        workflow = (ROOT / ".github" / "workflows" / "test.yml").read_text()
+        self.assertIn("github.head_ref != 'codex/strategy24-fourpair'", workflow)
+
     def test_four_pair_subject_and_checked_runtime_hashes(self):
         workflow = (ROOT / ".github" / "workflows" / "paired24.yml").read_text()
         driver = (EXPERIMENT / "diagnostic.py").read_text()
