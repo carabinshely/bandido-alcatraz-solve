@@ -1,0 +1,3 @@
+# Paired27 prospective capacity
+
+Eight pairs mean sixteen games. Proposed caps: 128 MiB decoded raw, 32 MiB compressed, 1,200 journal records per pair, with per-call reservation and complete/partial evidence preservation. The prior paired26 four-pair run decoded 35,825,555 bytes and 1,954 total records, but it does not prove eight-pair fit. Before GO, verify actual runner memory, CPU, disk, provenance, copies and 5 GB owner headroom afresh; prospectively charge a 512 MiB whole-cycle reserve only after the full accounting proof. Unknown issuance or partial execution spends the newly allocated cohort. No resource GO is recorded here.
