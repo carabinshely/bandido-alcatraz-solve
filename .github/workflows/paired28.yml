@@ -34,8 +34,8 @@ jobs:
       CURRENT_BODY: ${{ github.event.pull_request.body }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
-      DRIVER_SHA: f1ed9a2dcf928a4ef18c29ba1633644c23fc51f385f33ead69b6463ba4464beb
-      MANIFEST_SHA: ca2b61d4407a452704f74d13ef97d1ff5a84b1d34f797070781c43564858f7be
+      DRIVER_SHA: 0e84ab93be0ff1abf8706343dd8a78ca72db2d05dc0325a82b9aa60e2eae18bd
+      MANIFEST_SHA: 0790fa92a99b9a341ec37eeb8f03cc40785601956a59b20587c59a04b53bdf76
       GATE_SHA: 4231d02252d9cb3b21335367e9f8c1898a18b447ac6a4acd9d97debdbb542de6
     steps:
       - name: Admission consistency before checkout, no policy imports
@@ -70,7 +70,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         timeout-minutes: 2
         with:
-          ref: 7ceaf2184bbf2c7a819936729f5878ee9542d573
+          ref: 2cd870911c2dd77714ef7e94e1158fd69335bcc8
           path: cost-source
           persist-credentials: false
           fetch-depth: 1
