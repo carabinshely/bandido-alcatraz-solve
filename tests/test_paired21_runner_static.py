@@ -131,9 +131,9 @@ class Paired21Bindings(unittest.TestCase):
             self.assertIn(key + ": " + sha(committed_bytes(filename)), workflow)
         for filename in ("bounds.py", "codec.py", "issuance.py"):
             self.assertIn(sha(committed_bytes(filename)), workflow)
-        self.assertIn("ISSUANCE_SHA = '" + sha((EXP / "issuance.py").read_bytes()) + "'",
+        self.assertIn("ISSUANCE_SHA = '" + sha(committed_bytes("issuance.py")) + "'",
                       (EXP / "diagnostic.py").read_text())
-        self.assertIn("CODEC_SHA = '" + sha((EXP / "codec.py").read_bytes()) + "'",
+        self.assertIn("CODEC_SHA = '" + sha(committed_bytes("codec.py")) + "'",
                       (EXP / "diagnostic.py").read_text())
         self.assertIn("ref: " + SOURCE_HEAD, workflow)
         self.assertIn("head.ref == 'codex/strategy21-floor2'", workflow)
