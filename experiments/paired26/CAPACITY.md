@@ -1,0 +1,3 @@
+# Paired26 prospective capacity
+
+Four pairs and eight games have 128 MiB decoded raw, 32 MiB compressed and 1,200 journal records per pair, with per-call pre-reservation and available complete/partial evidence preservation. The previous paired24 four-pair run produced 24,432,660 decoded bytes and 1,363 records in total, but this observation is no completion guarantee. Before GO, charge the proposed 512 MiB whole-cycle conservative reserve: raw128, two staging archives64, four private/copy slots128, control64 and contingency128 MiB. Verify actual runner memory, CPU, disk, provenance, copies and 5 GB owner headroom afresh. Unknown issuance or partial execution spends the entire newly allocated cohort.
