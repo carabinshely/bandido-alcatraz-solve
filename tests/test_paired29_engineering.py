@@ -20,6 +20,8 @@ class Paired29Engineering(unittest.TestCase):
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         self.assertGreaterEqual(module.MAX_RECORDS, 12 * 1200 + 2)
+        self.assertGreaterEqual(module.FRAME_RAW_BYTES,
+                                module.RAW_BYTES + module.MAX_RECORDS * (6 + 96))
 
     def test_reference_uses_its_exact_operation_limits(self):
         # The reference inherits the limit type from the quota module.
