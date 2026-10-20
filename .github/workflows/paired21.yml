@@ -16,6 +16,7 @@ jobs:
       pull-requests: read
       actions: read
     if: >-
+      false &&
       github.repository == 'carabinshely/bandido-alcatraz-solve' &&
       github.event.action == 'edited' && github.event.changes.body != null && github.run_attempt == 1 &&
       github.actor == 'carabinshely' && github.triggering_actor == 'carabinshely' &&
