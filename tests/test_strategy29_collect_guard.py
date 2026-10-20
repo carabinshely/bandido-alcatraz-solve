@@ -2,6 +2,7 @@
 import sys
 import unittest
 from random import Random
+from unittest.mock import patch
 
 sys.path[:0] = ["src", "tests"]
 
@@ -23,6 +24,37 @@ def pair(ready):
 
 
 class CollectGuardBeamTwoTests(unittest.TestCase):
+    def test_collect_guard_overrides_higher_beam_path(self):
+        obs, policy, reference = pair(False)
+        self.assertEqual(len(obs.legal_moves()), 13)
+
+        def evaluate_with_invented_scores(evaluator):
+            ordinal = 0
+
+            def score(_features, _weights):
+                nonlocal ordinal
+                current = ordinal
+                ordinal += 1
+                if current == 0:
+                    return 100  # collect is V4's sole highest first action
+                if current == 1:
+                    return 90  # placement is second, with a superior continuation
+                return 1000 if current >= 23 else 0
+
+            with patch.object(strategy, "score_features", side_effect=score):
+                result = evaluator.evaluate(obs, Random(17))
+            self.assertEqual(ordinal, 28)
+            return result
+
+        candidate = evaluate_with_invented_scores(policy)
+        self.assertEqual(candidate, evaluate_with_invented_scores(reference))
+        audit = candidate[1]
+        self.assertEqual(audit["tiers"]["v4_top"], [0])
+        self.assertEqual(audit["tiers"]["beam_final"], [1])
+        self.assertTrue(audit["flags"]["collect_guard_active"])
+        self.assertEqual(audit["tiers"]["final"], [0])
+        self.assertEqual(candidate[0].action.value, "collect")
+
     def test_shared_primitives_against_direct_synthetic_oracle(self):
         weights = BoundedMergeV4Policy(setup_weight=250).weights
         for ready in (False, True):
