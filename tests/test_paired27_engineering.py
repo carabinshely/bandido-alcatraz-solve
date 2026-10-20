@@ -142,6 +142,7 @@ class Paired27Engineering(unittest.TestCase):
     def test_general_ci_skips_this_branch_before_science_go(self):
         workflow = (ROOT / ".github" / "workflows" / "test.yml").read_text()
         self.assertIn("github.head_ref != 'codex/strategy27-card-reserve'", workflow)
+        self.assertIn("fetch-depth: 0", workflow)
 
     def test_eight_pair_subject_and_checked_runtime_hashes(self):
         workflow = (ROOT / ".github" / "workflows" / "paired27.yml").read_text()

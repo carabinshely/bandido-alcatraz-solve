@@ -21,6 +21,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 0  # Historical source-commit provenance tests need reachable Git objects.
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
