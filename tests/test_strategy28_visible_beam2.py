@@ -6,6 +6,9 @@ from random import Random
 sys.path[:0] = ["src", "tests"]
 
 from test_strategy25_equipment_closure import pair as equipment_pair
+from bandido_alcatraz import strategy
+from bandido_alcatraz.game import GameState
+from bandido_alcatraz.policies import BoundedMergeV4Policy
 from bandido_alcatraz.quota_reserve_closure import OperationLimits, ResourceExceeded
 from bandido_alcatraz.visible_beam2 import VisibleBeamTwoPolicy
 from bandido_alcatraz.visible_beam2_reference import VisibleBeamTwoReference
@@ -20,6 +23,31 @@ def pair(ready):
 
 
 class VisibleBeamTwoTests(unittest.TestCase):
+    def test_shared_primitives_against_direct_synthetic_oracle(self):
+        weights = BoundedMergeV4Policy(setup_weight=250).weights
+        for ready in (False, True):
+            with self.subTest(ready=ready):
+                obs, _, _ = pair(ready)
+                for move in obs.legal_moves():
+                    direct = GameState(
+                        board=obs.board.clone(), draw_pile=[], hand=list(obs.hand),
+                        raincoats=obs.raincoats, ropes=obs.ropes,
+                        exit_placed=obs.exit_placed, exit_seen=obs.exit_seen,
+                        turns=obs.turns, set_aside_unplayable=obs.set_aside_unplayable,
+                        collected_equipment=obs.collected_equipment,
+                        setup=obs.setup, player_index=obs.player_index)
+                    direct.apply(move, validate=True)
+                    preview = strategy.preview_move_without_draw(obs, move).successor
+                    self.assertEqual(observation_wire(preview.observation()),
+                                     observation_wire(direct.observation()))
+                    no_draw = strategy.move_features_no_draw(obs, move)
+                    older = strategy.move_features(obs, move)
+                    self.assertEqual(no_draw, older)
+                    expected = sum(getattr(older, name) * getattr(weights, name)
+                                   for name in older.__dataclass_fields__)
+                    self.assertEqual(strategy.score_move_no_draw(obs, move, weights),
+                                     expected)
+
     def test_ready_and_unready_reference_agree_on_public_input(self):
         for ready in (False, True):
             with self.subTest(ready=ready):

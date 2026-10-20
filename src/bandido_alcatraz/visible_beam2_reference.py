@@ -1,4 +1,4 @@
-"""Independent fixed two-root visible-hand reference for paired28."""
+"""Independent beam-selection reference; canonical V4 scoring is shared."""
 from __future__ import annotations
 
 from . import strategy
