@@ -33,11 +33,14 @@ class EquipmentClosurePolicy(LateClosurePolicy):
             rng_before = sha(rng.getstate())
             legal = observation.legal_moves()
             ready = is_equipment_ready(observation.raincoats, observation.ropes)
-            weights = BoundedMergeV4Policy(setup_weight=250).weights
+            base = BoundedMergeV4Policy(setup_weight=250).weights
+            weights = base
             if ready:
                 weights = replace(weights, delta_open_tunnels=1000)
-            scores = [strategy.score_move_no_draw(observation, move, weights)
-                      for move in legal]
+            features = [strategy.move_features_no_draw(observation, move)
+                        for move in legal]
+            scores = [strategy.score_features(row, weights) for row in features]
+            v4_scores = [strategy.score_features(row, base) for row in features]
             _require(all(type(score) is int for score in scores),
                      "V4 scores must be integers")
             best = max(scores, default=None)
@@ -52,8 +55,9 @@ class EquipmentClosurePolicy(LateClosurePolicy):
             _require(before == after, "public observation mutated by evaluation")
             audit = dict(schema="strategy25-equipment-closure-v1",
                          input_before=before, input_after=after,
-                         roots=[dict(move=move_wire(move), score=score)
-                                for move, score in zip(legal, scores)],
+                         roots=[dict(move=move_wire(move), score=score,
+                                     v4_score=v4_score)
+                                for move, score, v4_score in zip(legal, scores, v4_scores)],
                          tiers=dict(final=final),
                          flags=dict(equipment_ready=ready,
                                     closure_weight=weights.delta_open_tunnels),

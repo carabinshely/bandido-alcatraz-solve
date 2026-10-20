@@ -15,22 +15,29 @@ class EquipmentClosureReference(LateClosureReference):
         self._public_validation(obs)
         roots = obs.legal_moves()
         ready = is_equipment_ready(obs.raincoats, obs.ropes)
+        base = strategy.PolicyWeights(
+            collect_excess=0, delta_visible_water=20_000,
+            delta_water_obstruction=1_000, new_trapped_water=-100_000,
+            bounded_merge_setup_gain=250,
+        )
         weights = strategy.PolicyWeights(
             collect_excess=0, delta_visible_water=20_000,
             delta_water_obstruction=1_000, new_trapped_water=-100_000,
             bounded_merge_setup_gain=250,
             delta_open_tunnels=1000 if ready else 100,
         )
-        scores = [strategy.score_move_no_draw(obs, root, weights)
-                  for root in roots]
+        features = [strategy.move_features_no_draw(obs, root) for root in roots]
+        scores = [strategy.score_features(row, weights) for row in features]
+        v4_scores = [strategy.score_features(row, base) for row in features]
         if any(type(score) is not int for score in scores):
             raise ReferenceIntegrityError("canonical scores must be exact integers")
         peak = max(scores, default=None)
         final_indices = [index for index, score in enumerate(scores)
                          if score == peak]
         science = dict(schema="strategy25-equipment-closure-v1",
-                       roots=[dict(move=move_wire(root), score=score)
-                              for root, score in zip(roots, scores)],
+                       roots=[dict(move=move_wire(root), score=score,
+                                   v4_score=v4_score)
+                              for root, score, v4_score in zip(roots, scores, v4_scores)],
                        tiers=dict(final=final_indices),
                        flags=dict(equipment_ready=ready,
                                   closure_weight=weights.delta_open_tunnels))

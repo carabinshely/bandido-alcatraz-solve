@@ -51,16 +51,14 @@ class EquipmentClosureTests(unittest.TestCase):
 
     def test_one_open_root_is_not_vetoed(self):
         obs, policy, reference = pair()
-        original = strategy.score_move_no_draw
+        original = strategy.score_features
 
-        def prefer_one_open(public, move, weights):
-            if move.action is Action.PLACE:
-                successor = strategy.preview_move_without_draw(public, move).successor
-                if successor.board.open_tunnels == 1 and not successor.won:
-                    return 1_000_001
-            return original(public, move, weights)
+        def prefer_one_open(features, weights):
+            if features.delta_open_tunnels == 1 and not features.wins:
+                return 1_000_001
+            return original(features, weights)
 
-        with patch.object(strategy, "score_move_no_draw", side_effect=prefer_one_open):
+        with patch.object(strategy, "score_features", side_effect=prefer_one_open):
             chosen, audit, _ = policy.evaluate(obs, Random(7))
             self.assertEqual((chosen, audit), reference.evaluate(obs, Random(7))[:2])
         self.assertEqual(strategy.preview_move_without_draw(obs, chosen)
