@@ -98,9 +98,9 @@ class Paired28Engineering(unittest.TestCase):
     def test_exact_source_manifest_matches_committed_git_blobs(self):
         manifest = json.loads((EXPERIMENT / "source-pins.json").read_bytes())
         self.assertEqual(manifest["schema"], "strategy28-source-pins-v1")
-        self.assertEqual(manifest["commit"], "7ceaf2184bbf2c7a819936729f5878ee9542d573")
+        self.assertEqual(manifest["commit"], "2cd870911c2dd77714ef7e94e1158fd69335bcc8")
         self.assertEqual(len(manifest["files"]), 47)
-        self.assertEqual(sum(row["bytes"] for row in manifest["files"]), 290175)
+        self.assertEqual(sum(row["bytes"] for row in manifest["files"]), 290181)
         tree = subprocess.check_output(
             ["git", "show", "-s", "--format=%T", manifest["commit"]], cwd=ROOT
         ).decode().strip()

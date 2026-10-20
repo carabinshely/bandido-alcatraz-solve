@@ -69,7 +69,7 @@ def verify_sources(root, manifest):
         blob = b'blob ' + str(len(raw)).encode() + b'\0' + raw
         require(hashlib.sha1(blob).hexdigest() == row['git_blob'], 'SOURCE_GIT_BLOB')
         total += len(raw)
-    require(total == 290175, 'SOURCE_TOTAL')
+    require(total == 290181, 'SOURCE_TOTAL')
 
 
 
