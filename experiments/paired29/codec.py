@@ -11,7 +11,7 @@ RAW_BYTES = 128 * 1024 * 1024
 COMPRESSED_BYTES = 32 * 1024 * 1024
 FRAME_RAW_BYTES = 129 * 1024 * 1024
 TERMINAL_RESERVE = 524288
-MAX_RECORDS = 12288
+MAX_RECORDS = 16384
 
 def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True,

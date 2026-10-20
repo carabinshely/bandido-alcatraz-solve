@@ -15,6 +15,12 @@ EXPERIMENT = ROOT / "experiments" / "paired29"
 
 
 class Paired29Engineering(unittest.TestCase):
+    def test_frame_count_covers_fixed_twelve_pair_budget(self):
+        spec = importlib.util.spec_from_file_location("paired29_codec", EXPERIMENT / "codec.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        self.assertGreaterEqual(module.MAX_RECORDS, 12 * 1200 + 2)
+
     def test_reference_uses_its_exact_operation_limits(self):
         # The reference inherits the limit type from the quota module.
         from test_strategy29_collect_guard import pair
