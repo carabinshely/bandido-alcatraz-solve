@@ -34,7 +34,7 @@ jobs:
       CURRENT_BODY: ${{ github.event.pull_request.body }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
-      DRIVER_SHA: 0e84ab93be0ff1abf8706343dd8a78ca72db2d05dc0325a82b9aa60e2eae18bd
+      DRIVER_SHA: 187b4ae3e0a68a27cf718e0d8df90a8a17a455a9c829b98a5e153ae422bcab91
       MANIFEST_SHA: 0790fa92a99b9a341ec37eeb8f03cc40785601956a59b20587c59a04b53bdf76
       GATE_SHA: 4231d02252d9cb3b21335367e9f8c1898a18b447ac6a4acd9d97debdbb542de6
     steps:
