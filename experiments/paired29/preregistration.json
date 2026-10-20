@@ -2,7 +2,7 @@
   "subject": "paired29",
   "stage": "SOURCE_ONLY_NOT_ADMITTED",
   "purpose": "Collect-priority V4 top tier guard on public-visible top-two lookahead versus frozen V4-250; fixed twelve fresh developmental pairs, not confirmation",
-  "source_commit": "PENDING_SOURCE_COMMIT",
+  "source_commit": "ab2ee4380df913cfc53da97eedfa4945e4e7e94f",
   "candidate": "CollectGuardBeamTwoPolicy",
   "reference": "CollectGuardBeamTwoReference",
   "control": "BoundedMergeV4Policy(setup_weight=250)",
