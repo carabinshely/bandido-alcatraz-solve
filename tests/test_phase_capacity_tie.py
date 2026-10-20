@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from bandido_alcatraz.game import PlayerObservation
 from bandido_alcatraz.moves import Action, Move
+from bandido_alcatraz.policies import BoundedMergeV4Policy
 from bandido_alcatraz.phase_capacity_tie import PhaseCapacityTiePolicy
 from bandido_alcatraz.strategy import MoveFeatures
 import bandido_alcatraz.phase_capacity_tie as phase
@@ -67,6 +68,10 @@ class PhaseCapacityTieTests(unittest.TestCase):
         self.assertEqual(actual, expected)
         self.assertEqual(actual[1]["tiers"], {"v4_top": [0, 1], "final": [1]})
         self.assertTrue(actual[1]["flags"]["phase_tie_active"])
+
+    def test_exact_control_weights(self):
+        self.assertEqual(PhaseCapacityTiePolicy().weights,
+                         BoundedMergeV4Policy(setup_weight=250).weights)
 
 
 if __name__ == "__main__":

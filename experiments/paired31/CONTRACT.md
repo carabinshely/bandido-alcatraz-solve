@@ -1,0 +1,9 @@
+# Paired31 phase-capacity tie-break — source-only protocol
+
+This is a twelve-pair developmental comparison of frozen V4-250 against one public-state candidate. The candidate first scores every legal move with the unchanged V4-250 immediate score. It never leaves the highest-score tier. If that tier contains only PLACE moves, it uses each move's visible change in open-tunnel count as a tie-break: before both EXIT placement and equipment readiness, it preserves more open tunnels; afterward, it favors closing more tunnels. Equal values and mixed COLLECT/PLACE tiers keep the canonical V4 RNG choice. No replacement draw is visible to either decision rule.
+
+The completed paired30 screen (candidate 1/12 wins; V4 3/12) and its seed1000504/1000509 terminal traces motivated this rule. They are post-hoc development evidence on earlier trajectories. They do not predict improvement, and no prior seed is replayed, resumed, or treated as confirmation.
+
+Seeds 1000515–1000526 are proposed and **not allocated**. Exactly twelve pairs, control then candidate per seed, use the unchanged solo easy5, hand6, real-deck model. A complete table reports wins by arm, paired discordance and exact two-sided binomial p, candidate choice changes, phase tie decisions, terminal diagnostics, operations, and runtime. Partial results have no twelve-pair verdict. There is no retry, replacement, suffix resume, extension, or outcome-selected stopping. A favorable developmental screen still requires untouched preregistered confirmation and independent fresh replication before adoption.
+
+Only the admitted `bandido-alcatraz-ci` workflow may run games after exact source, runner, ownership, resource, issuance, review, and root GO checks. Source files and invented-fixture tests give no execution or efficacy authority.
