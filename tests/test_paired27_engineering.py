@@ -155,8 +155,9 @@ class Paired27Engineering(unittest.TestCase):
         self.assertIn("CardReservePolicy", driver)
         for name in ("diagnostic.py", "source-pins.json", "check_source_gate.py",
                      "issuance.py", "codec.py", "bounds.py"):
-            current = (EXPERIMENT / name).read_bytes()
-            sha = hashlib.sha256(current).hexdigest()
+            committed = subprocess.check_output(
+                ["git", "show", "HEAD:experiments/paired27/" + name], cwd=ROOT)
+            sha = hashlib.sha256(committed).hexdigest()
             self.assertIn(sha, workflow if name in ("diagnostic.py", "source-pins.json",
                                                  "check_source_gate.py") else workflow + driver)
 

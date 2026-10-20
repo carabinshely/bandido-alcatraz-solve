@@ -34,9 +34,9 @@ jobs:
       CURRENT_BODY: ${{ github.event.pull_request.body }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
-      DRIVER_SHA: 626af795dfc03c7a85273353cdbc9565a5144f45e342a80637ff6f29367b5bea
-      MANIFEST_SHA: 1e4ba9878190c088761ec7bf9c3afd8099de75f93a631a585b4bc26e0c76760e
-      GATE_SHA: 173496525b67934ea44281b69e493dea279f3afdecc5f6ce16fdd4dce5669a24
+      DRIVER_SHA: 9fc8fb5093e6ffb20b3d472e054850939165919efa11a548340a91a6a8e263d6
+      MANIFEST_SHA: 67fde10891d484710cb4166c0e35c607654cf9de34ec2efb0cf3178e8a8352e4
+      GATE_SHA: 4231d02252d9cb3b21335367e9f8c1898a18b447ac6a4acd9d97debdbb542de6
     steps:
       - name: Admission consistency before checkout, no policy imports
         timeout-minutes: 1
@@ -97,11 +97,11 @@ jobs:
           manifest="$GITHUB_WORKSPACE/cost-driver/experiments/paired27/source-pins.json"
           gate="$GITHUB_WORKSPACE/cost-driver/experiments/paired27/check_source_gate.py"
           printf '%s  %s\n' "$DRIVER_SHA" "$driver" | sha256sum --check --status
-          printf '%s  %s\n' 'aa5cd0184814644b7607296eae2ac39a07422a9199ecdb61860e905bbf309d72' "$bounds" | sha256sum --check --status
+          printf '%s  %s\n' 'c7985720e132df4fbd65afe6ef557b08a4bda793c8c70b82546fe5b533e4c70d' "$bounds" | sha256sum --check --status
           printf '%s  %s\n' "$MANIFEST_SHA" "$manifest" | sha256sum --check --status
           printf '%s  %s\n' "$GATE_SHA" "$gate" | sha256sum --check --status
-          printf '%s  %s\n' '0de319cf67525a507d192cd914486cad96c8400e0e5be915ac172cd5603487d1' "$codec" | sha256sum --check --status
-          printf '%s  %s\n' '274b0ee2b9dc2f87ecc8a3a2f3d9c1722debafed20dbe33b82cc13667b2a6acb' "$issuer" | sha256sum --check --status
+          printf '%s  %s\n' '9fa353e4ad879a3619b7b834e4915c0b254b0ffcd39f2e8b86eec8872f81b230' "$codec" | sha256sum --check --status
+          printf '%s  %s\n' '8d1da991a2cea042140a373f3658720024172d55cbc34835150045b73277cf75' "$issuer" | sha256sum --check --status
           py="$RUNNER_TOOL_CACHE/Python/3.11.16/x64/bin/python"
           # No installation or alternate interpreter fallback. Driver checks exact executable hash.
           test -x "$py"
