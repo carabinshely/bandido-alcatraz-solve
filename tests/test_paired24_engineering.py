@@ -136,7 +136,9 @@ class Paired24Engineering(unittest.TestCase):
         self.assertNotIn("LateClosurePolicy", driver)
         for name in ("diagnostic.py", "source-pins.json", "check_source_gate.py",
                      "issuance.py", "codec.py", "bounds.py"):
-            sha = hashlib.sha256((EXPERIMENT / name).read_bytes()).hexdigest()
+            committed = subprocess.check_output(
+                ["git", "show", "HEAD:experiments/paired24/" + name], cwd=ROOT)
+            sha = hashlib.sha256(committed).hexdigest()
             self.assertIn(sha, workflow if name in ("diagnostic.py", "source-pins.json",
                                                  "check_source_gate.py") else workflow + driver)
 
