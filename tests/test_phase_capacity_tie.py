@@ -9,6 +9,7 @@ from bandido_alcatraz.moves import Action, Move
 from bandido_alcatraz.phase_capacity_tie import PhaseCapacityTiePolicy
 from bandido_alcatraz.strategy import MoveFeatures
 import bandido_alcatraz.phase_capacity_tie as phase
+import bandido_alcatraz.phase_capacity_tie_reference as oracle
 
 
 def observation(*, raincoats=0, ropes=0, exit_placed=False):
@@ -50,6 +51,22 @@ class PhaseCapacityTieTests(unittest.TestCase):
         with patch.object(PlayerObservation, "legal_moves", return_value=[]), \
              patch.object(phase, "move_features_no_draw", side_effect=AssertionError("scored")):
             self.assertIsNone(PhaseCapacityTiePolicy().choose(observation(), Random(1)))
+
+    def test_candidate_and_independent_oracle_match_full_audit(self):
+        state = observation(raincoats=3, ropes=2, exit_placed=True)
+        first, second = Random(17), Random(17)
+        with patch.object(PlayerObservation, "legal_moves", return_value=self.moves), \
+             patch.object(phase, "observation_wire", return_value={"synthetic": True}), \
+             patch.object(oracle, "observation_wire", return_value={"synthetic": True}), \
+             patch.object(phase, "move_features_no_draw", side_effect=self.features * 2), \
+             patch.object(oracle.strategy, "move_features_no_draw", side_effect=self.features * 2), \
+             patch.object(phase, "score_features", side_effect=[42, 42]), \
+             patch.object(oracle.strategy, "score_features", side_effect=[42, 42]):
+            actual = PhaseCapacityTiePolicy().evaluate(state, first)
+            expected = oracle.PhaseCapacityTieReference().evaluate(state, second)
+        self.assertEqual(actual, expected)
+        self.assertEqual(actual[1]["tiers"], {"v4_top": [0, 1], "final": [1]})
+        self.assertTrue(actual[1]["flags"]["phase_tie_active"])
 
 
 if __name__ == "__main__":
