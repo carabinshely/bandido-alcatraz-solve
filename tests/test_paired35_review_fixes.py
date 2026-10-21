@@ -40,13 +40,19 @@ class ReviewFixTests(unittest.TestCase):
         pairs = []
         for index in range(100):
             pairs.append(dict(results=[
-                dict(arm="control", result=dict(won=False), terminal_open_tunnels=1,
+                dict(arm="control", result=dict(won=False, reason="deck_exhausted",
+                                                visible_water_cells=3), terminal_open_tunnels=1,
                      choice_changes=0),
-                dict(arm="candidate", result=dict(won=index < 10),
+                dict(arm="candidate", result=dict(won=index < 10,
+                                                  reason="win" if index < 10 else "deck_exhausted",
+                                                  visible_water_cells=0 if index < 10 else 2),
                      terminal_open_tunnels=1, choice_changes=0)]))
         result = namespace["paired_analysis"](pairs)
         self.assertEqual(result["paired_net_wins"], 10)
         self.assertEqual(result["paired_win_rate_difference"], 0.1)
+        self.assertEqual(result["terminal_reasons"]["candidate"],
+                         {"win": 10, "deck_exhausted": 90})
+        self.assertEqual(result["terminal_visible_water"]["control"], [3] * 100)
 
 
 if __name__ == "__main__":
