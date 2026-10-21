@@ -1,4 +1,4 @@
-"""Fixed 100-pair public visible-water priority policy versus V4-250; CI-only under root GO."""
+"""Fixed 30-pair public visible-water priority policy versus V4-250; CI-only under root GO."""
 import argparse
 import hashlib
 import json
@@ -78,9 +78,9 @@ def timeout(signum, frame):
 
 
 
-SEEDS = tuple(range(1000739, 1000839))
+SEEDS = tuple(range(1000739, 1000769))
 CODEC_SHA = '0f855d6aec8e970458d6aa0192f681c5e3fcd7c15c93dfc03a3eeff8c7a16e68'
-ISSUANCE_SHA = 'c72c31274cc531b9688a524fb6d6c6ae9b998453ea3fe0cbbd96cad0c8a72882'
+ISSUANCE_SHA = '19ea3bdfc9563322fa64f6854e1c167584f68caffe90d4321e18149c5c64bb85'
 WHOLE_SECONDS = 14400
 BOUNDS_SHA = '0377da69625b9d8c0c04ed946342b89499d1a956851e62c44378521fd0bce5cd'
 DATA = {
@@ -330,7 +330,7 @@ def main():
             return chosen, audit, operations
 
         evidence.write('run-intent.json', dict(subject='paired35', seeds=SEEDS,
-                       arms=['control', 'candidate'], purpose='FIXED100PAIR_DEVELOPMENT_NOT_CONFIRMATION',
+                       arms=['control', 'candidate'], purpose='FIXED30PAIR_DEVELOPMENT_NOT_CONFIRMATION',
                        source=manifest['commit'], setup=SOLO_EASY.setup_id, data=DATA,
                        runtime_executable_sha256=EXPECTED_EXE, codec_sha256=CODEC_SHA, issuance=issuance))
         batch_results = []
@@ -449,8 +449,8 @@ def main():
                 for r in results]))
         evidence.prefix = ''
         evidence.rows = []
-        evidence.write('result.json', dict(status='FIXED100PAIR_COMPLETE_DEVELOPMENT_NO_ADOPTION',
-                       seeds=SEEDS, pairs=100, games=200, results=batch_results,
+        evidence.write('result.json', dict(status='FIXED30PAIR_COMPLETE_DEVELOPMENT_NO_ADOPTION',
+                       seeds=SEEDS, pairs=30, games=60, results=batch_results,
                        analysis=paired_analysis(batch_results),
                        choice_changes=changed_choices,
                        visible_water_priority_decisions=visible_water_priority_decisions,

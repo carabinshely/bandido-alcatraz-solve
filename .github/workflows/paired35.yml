@@ -1,4 +1,4 @@
-# Public visible-water priority 100-pair developmental runner; source-only until separately admitted.
+# Public visible-water priority 30-pair developmental runner; source-only until separately admitted.
 name: admitted paired35 development
 on:
   pull_request:
@@ -34,7 +34,7 @@ jobs:
       CURRENT_BODY: ${{ github.event.pull_request.body }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
-      DRIVER_SHA: 83682f0f71984bb36ddb4a8bae65386c3d90923b7b1429369e9488072f9d2f10
+      DRIVER_SHA: 7813370883a06865d6e42113a42680b7811304951dbdb47fce16ec1558348f4e
       MANIFEST_SHA: f71cfd3a586fff22ed312cf38355d2e23d58a85ef474b2166997915b33cf5628
       GATE_SHA: 4231d02252d9cb3b21335367e9f8c1898a18b447ac6a4acd9d97debdbb542de6
     steps:
@@ -85,7 +85,7 @@ jobs:
           sparse-checkout: |
             src
             data
-      - name: Fixed100-pair public visible-water priority development
+      - name: Fixed30-pair public visible-water priority development
         id: pair
         env:
           ISSUANCE_TOKEN: ${{ github.token }}

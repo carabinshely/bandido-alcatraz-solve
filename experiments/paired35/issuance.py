@@ -13,9 +13,9 @@ import urllib.request
 
 REPO = "carabinshely/bandido-alcatraz-solve"
 BASE = "https://api.github.com/repos/" + REPO
-ALLOCATION = "bandido-seeds-1000739-1000838"
+ALLOCATION = "bandido-seeds-1000739-1000768"
 REF = "refs/tags/" + ALLOCATION
-GLOBAL_BRANCH = "codex/seed-allocation-1000739-1000838"
+GLOBAL_BRANCH = "codex/seed-allocation-1000739-1000768"
 GLOBAL_REF = "refs/heads/" + GLOBAL_BRANCH
 MAX_RESPONSE = 65536
 
@@ -117,7 +117,7 @@ def utc_second(value):
 def global_message(head, pr_number, root_intent, nonce):
     return canonical(dict(schema="bandido-first-issue-v1", allocation=ALLOCATION,
                           head=head, pr_number=pr_number, root_intent=root_intent,
-                          nonce=nonce, seeds=list(range(1000739, 1000839)))).decode()[:-1]
+                          nonce=nonce, seeds=list(range(1000739, 1000769)))).decode()[:-1]
 
 
 def validate_global_preissue(client, *, head, pr_number, root_intent, nonce,
@@ -276,7 +276,7 @@ def claim(client, head, run_id, attempt, root_intent):
     status, old = client.request("GET", "/git/ref/tags/" + ALLOCATION, None, "check")
     require(status == 404, "ALLOCATION_ALREADY_ISSUED_OR_CHECK_NOT_404")
     message = canonical(dict(schema="bandido-fixed-allocation-issuance-v1",
-        allocation=ALLOCATION, seeds=list(range(1000739, 1000839)), head=head,
+        allocation=ALLOCATION, seeds=list(range(1000739, 1000769)), head=head,
         run_id=run_id, run_attempt=attempt, root_intent=root_intent)).decode()
     tag_request = dict(tag=ALLOCATION, message=message, object=head, type="commit")
     status, tag = client.request("POST", "/git/tags", tag_request, "tag")
@@ -298,7 +298,7 @@ def claim(client, head, run_id, attempt, root_intent):
             and current["object"].get("sha") == tag["sha"], "ISSUANCE_READBACK_UNKNOWN")
     return dict(schema="bandido-fixed-allocation-issuance-v1", allocation=ALLOCATION,
                 ref=REF, tag_sha=tag["sha"], head=head, run_id=run_id,
-                run_attempt=attempt, seeds=list(range(1000739, 1000839)),
+                run_attempt=attempt, seeds=list(range(1000739, 1000769)),
                 root_intent=root_intent, status="ONE_ATOMIC_REF_CREATED_AND_READ_BACK")
 
 def admit(control):
