@@ -160,7 +160,7 @@ def validate_global_preissue(client, *, head, pr_number, root_intent, nonce,
 
 
 def validate_first_run(client, *, head, run_id, pr_number, root_intent, comment_id, nonce,
-                       global_created_at):
+                       global_created_at, exhaustive_review, adversarial_review, root_go):
     """Provider-persisted first event must be this run, before any allocation mutation.
 
     Root posts the unique first-issue comment BEFORE adding a GO marker. GitHub
@@ -174,6 +174,16 @@ def validate_first_run(client, *, head, run_id, pr_number, root_intent, comment_
     require(type(comment_id) is int and 1 <= comment_id <= 9999999999999999999, "FIRST_ISSUE_COMMENT_ID")
     require(type(nonce) is str and re.fullmatch(r"[0-9a-f]{64}", nonce), "FIRST_ISSUE_NONCE")
     require(type(root_intent) is str and 0 < len(root_intent) <= 256, "FIRST_ISSUE_ROOT")
+    require(root_go == "ROOT_GO_EXACT_HEAD_REVIEWS_VERIFIED", "FIRST_ISSUE_ROOT_GO")
+    for review, reviewer in ((exhaustive_review, "sol61-medium"),
+                             (adversarial_review, "ponytail-adversarial")):
+        require(type(review) is dict and set(review) ==
+                {"reviewer", "head", "verdict", "report_sha256"} and
+                review.get("reviewer") == reviewer and review.get("head") == head and
+                review.get("verdict") == "NO_ACTIONABLE_P0_P3" and
+                type(review.get("report_sha256")) is str and
+                re.fullmatch(r"[0-9a-f]{64}", review["report_sha256"]),
+                "FIRST_ISSUE_REVIEW_RECEIPT")
     status, comments = client.request("GET", f"/issues/{pr_number}/comments?per_page=100",
                                       None, "first_issue_comments")
     require(status == 200 and type(comments) is list and len(comments) < 100,
@@ -195,9 +205,12 @@ def validate_first_run(client, *, head, run_id, pr_number, root_intent, comment_
     except (ValueError, TypeError):
         raise ValueError("FIRST_ISSUE_COMMENT_JSON") from None
     require(type(details) is dict and set(details) ==
-            {"allocation", "head", "nonce", "root_intent", "pr_number"} and
+            {"allocation", "head", "nonce", "root_intent", "pr_number",
+             "exhaustive_review", "adversarial_review", "root_go"} and
             details == dict(allocation=ALLOCATION, head=head, nonce=nonce,
-                            root_intent=root_intent, pr_number=pr_number),
+                            root_intent=root_intent, pr_number=pr_number,
+                            exhaustive_review=exhaustive_review,
+                            adversarial_review=adversarial_review, root_go=root_go),
             "FIRST_ISSUE_COMMENT_BODY")
     # Committer time is author supplied. It records the root claim but cannot
     # exclude a prior provider-created workflow run.
@@ -299,7 +312,7 @@ def admit(control):
     require(type(go) is dict and set(go) ==
             {"subject", "go", "head", "driver_sha256", "manifest_sha256",
              "gate_sha256", "exhaustive_review", "adversarial_review",
-             "root_intent", "first_issue_comment_id", "first_issue_nonce", "pr_number",
+             "root_intent", "root_go", "first_issue_comment_id", "first_issue_nonce", "pr_number",
              "allocation_commit_sha"}
             and go.get("subject") == "paired32" and go.get("go") is True
             and go.get("head") == os.environ.get("HEAD_SHA") and
@@ -316,7 +329,9 @@ def admit(control):
         run_id=os.environ.get("GITHUB_RUN_ID"), pr_number=go.get("pr_number"),
         root_intent=go.get("root_intent"), comment_id=go.get("first_issue_comment_id"),
         nonce=go.get("first_issue_nonce"),
-        global_created_at=global_first["commit_created_at"])
+        global_created_at=global_first["commit_created_at"],
+        exhaustive_review=go.get("exhaustive_review"),
+        adversarial_review=go.get("adversarial_review"), root_go=go.get("root_go"))
     write_new(control / "issuance-global-preissue-validated.json", canonical(global_first))
     write_new(control / "issuance-first-run-validated.json", canonical(first))
     receipt = claim(client, go["head"], os.environ.get("GITHUB_RUN_ID"),

@@ -34,7 +34,7 @@ jobs:
       CURRENT_BODY: ${{ github.event.pull_request.body }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
-      DRIVER_SHA: 9fe8ebb30203cd9f56becbdf16868b7a5614eb3e47e00b1b9ee817a3361799b0
+      DRIVER_SHA: 2484fbefa2a1d376d6b265b2a558eee577c6a3bd332e50b9a15d31acaace0372
       MANIFEST_SHA: 99c507ed4f2c0c448f6b58eeb00b7c52cb8a6e90682b8bc19625c3396e073ddf
       GATE_SHA: 4231d02252d9cb3b21335367e9f8c1898a18b447ac6a4acd9d97debdbb542de6
     steps:
@@ -48,7 +48,7 @@ jobs:
           body=os.environ['CURRENT_BODY']
           assert len(body)<=8192 and body.count('PAIRED32_GO_JSON\n')==1 and body.count('\nPAIRED32_END')==1
           go=json.loads(body.split('PAIRED32_GO_JSON\n',1)[1].split('\nPAIRED32_END',1)[0])
-          assert set(go)=={'subject','go','head','driver_sha256','manifest_sha256','gate_sha256','exhaustive_review','adversarial_review','root_intent','first_issue_comment_id','first_issue_nonce','pr_number','allocation_commit_sha'}
+          assert set(go)=={'subject','go','head','driver_sha256','manifest_sha256','gate_sha256','exhaustive_review','adversarial_review','root_intent','root_go','first_issue_comment_id','first_issue_nonce','pr_number','allocation_commit_sha'}
           assert go['subject']=='paired32' and go['go'] is True
           assert go['head']==os.environ['HEAD_SHA'] and len(go['head'])==40
           assert type(go['pr_number']) is int and str(go['pr_number'])==os.environ['PR_NUMBER']
@@ -57,8 +57,16 @@ jobs:
           assert type(go['allocation_commit_sha']) is str and len(go['allocation_commit_sha'])==40
           assert go['driver_sha256']==os.environ['DRIVER_SHA'] and go['manifest_sha256']==os.environ['MANIFEST_SHA']
           assert go['gate_sha256']==os.environ['GATE_SHA']
-          assert all(type(go[k]) is str and 0<len(go[k])<=256 for k in ('exhaustive_review','adversarial_review','root_intent'))
-          print('Exact admission consistency passed; external ROOT evidence remains required')
+          assert type(go['root_intent']) is str and 0<len(go['root_intent'])<=256
+          assert go['root_go']=='ROOT_GO_EXACT_HEAD_REVIEWS_VERIFIED'
+          for key, reviewer in (('exhaustive_review','sol61-medium'),('adversarial_review','ponytail-adversarial')):
+              review=go[key]
+              assert type(review) is dict and set(review)=={'reviewer','head','verdict','report_sha256'}
+              assert review['reviewer']==reviewer and review['head']==go['head']
+              assert review['verdict']=='NO_ACTIONABLE_P0_P3'
+              assert type(review['report_sha256']) is str and len(review['report_sha256'])==64
+              assert all(c in '0123456789abcdef' for c in review['report_sha256'])
+          print('Exact marker shape passed; provider-authenticated ROOT attestation is checked before claim')
           PY
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         timeout-minutes: 2
@@ -101,7 +109,7 @@ jobs:
           printf '%s  %s\n' "$MANIFEST_SHA" "$manifest" | sha256sum --check --status
           printf '%s  %s\n' "$GATE_SHA" "$gate" | sha256sum --check --status
           printf '%s  %s\n' '08b4ae535a47c00e8e8b39b6a710a01b3dd0c149376808a0bfce10f06662939a' "$codec" | sha256sum --check --status
-          printf '%s  %s\n' 'f05ca3c5036a362341ca73bd85e908760833050ab4562dd9690d9bf54cac039d' "$issuer" | sha256sum --check --status
+          printf '%s  %s\n' 'c626daf8aa9a5700a0a1a822e41883f30e7ebe77d0a7d0de0a1a97deba3ada37' "$issuer" | sha256sum --check --status
           py="$RUNNER_TOOL_CACHE/Python/3.11.16/x64/bin/python"
           # No installation or alternate interpreter fallback. Driver checks exact executable hash.
           test -x "$py"
