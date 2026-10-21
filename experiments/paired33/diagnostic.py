@@ -82,7 +82,7 @@ SEEDS = tuple(range(1000539, 1000639))
 CODEC_SHA = '0f855d6aec8e970458d6aa0192f681c5e3fcd7c15c93dfc03a3eeff8c7a16e68'
 ISSUANCE_SHA = '5f97f914aa352c5c3d3bcb69e7e7942234e1422d213f87351a37699e91da3568'
 WHOLE_SECONDS = 14400
-BOUNDS_SHA = 'c7985720e132df4fbd65afe6ef557b08a4bda793c8c70b82546fe5b533e4c70d'
+BOUNDS_SHA = '0377da69625b9d8c0c04ed946342b89499d1a956851e62c44378521fd0bce5cd'
 DATA = {
     'deck-v1.json': (35723, '31ea3a727f082f9f6bdd971b278b24e4b5cc004a162170e198d084726ff1e89a'),
     'deck-observations-v0.json': (4830, 'e967ca41b5ebf5883c89426c517a63e3965ad36e0e9975a0b6311cb7de20d985'),
@@ -140,7 +140,8 @@ def paired_analysis(pairs):
     return dict(wins=dict(control=counts['both_win'] + counts['control_only'],
                           candidate=counts['both_win'] + counts['candidate_only']),
                 paired_outcomes=counts,
-                paired_difference=counts['candidate_only'] - counts['control_only'],
+                paired_net_wins=counts['candidate_only'] - counts['control_only'],
+                paired_win_rate_difference=(counts['candidate_only'] - counts['control_only']) / len(pairs),
                 discordant_pairs=discordant,
                 exact_two_sided_binomial=dict(numerator=min(2 * tail, denominator),
                                               denominator=denominator),
@@ -366,6 +367,8 @@ def main():
                     bounds.reserve(evidence.total, need, TOTAL_BYTES)
                     bounds.reserve(evidence.compressed, codec.compressed_upper(need, 6), FILE_BYTES)
                     require(len(evidence.rows) + 6 <= JOURNAL_RECORDS, 'JOURNAL_CAP_BEFORE_CALL')
+                    # Intent, two audits, transition, pair result, and terminal record.
+                    bounds.reserve_records(len(evidence.names), 6, codec.MAX_RECORDS)
                     prefix = arm + '-' + str(ordinal).zfill(4)
                     used = evidence.total
                     evidence.write(prefix + '-intent.json', dict(state=before, rng=rng.getstate(),

@@ -1,5 +1,5 @@
 """Closed evidence budget for the separately admitted paired diagnostic."""
-TERMINAL_RESERVE = 524288
+TERMINAL_RESERVE = 4 * 1024 * 1024
 
 
 def decision_upper(public_bytes, roots, candidate):
@@ -16,5 +16,12 @@ def decision_upper(public_bytes, roots, candidate):
 def reserve(used, upcoming, total):
     if any(type(x) is not int or x < 0 for x in (used, upcoming, total)):
         raise ValueError('PROOF_BOUND_DOMAIN')
-    if used + upcoming + TERMINAL_RESERVE > total:
+    if used + upcoming + TERMINAL_RESERVE + 32 > total:
         raise ValueError('EVIDENCE_CAP_BEFORE_CALL_NO_TRUNCATION')
+
+
+def reserve_records(used, upcoming, total):
+    if any(type(x) is not int or x < 0 for x in (used, upcoming, total)):
+        raise ValueError('PROOF_BOUND_DOMAIN')
+    if used + upcoming > total:
+        raise ValueError('RECORD_CAP_BEFORE_CALL_NO_TRUNCATION')

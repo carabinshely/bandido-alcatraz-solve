@@ -34,7 +34,7 @@ jobs:
       CURRENT_BODY: ${{ github.event.pull_request.body }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
-      DRIVER_SHA: 02606338e04eddbee54fd101b5f68148b6705a5a79c8680f4765944cdf9310eb
+      DRIVER_SHA: 2675df4208931a5d47669544fcdd3ca1fe9635617f859c05da80aeaca86736dd
       MANIFEST_SHA: a8519f960b3dddd89d10bbd818f74abbfb1ac1ee4c989672db65eff006a754af
       GATE_SHA: 4231d02252d9cb3b21335367e9f8c1898a18b447ac6a4acd9d97debdbb542de6
     steps:
@@ -105,7 +105,7 @@ jobs:
           manifest="$GITHUB_WORKSPACE/cost-driver/experiments/paired33/source-pins.json"
           gate="$GITHUB_WORKSPACE/cost-driver/experiments/paired33/check_source_gate.py"
           printf '%s  %s\n' "$DRIVER_SHA" "$driver" | sha256sum --check --status
-          printf '%s  %s\n' 'c7985720e132df4fbd65afe6ef557b08a4bda793c8c70b82546fe5b533e4c70d' "$bounds" | sha256sum --check --status
+          printf '%s  %s\n' '0377da69625b9d8c0c04ed946342b89499d1a956851e62c44378521fd0bce5cd' "$bounds" | sha256sum --check --status
           printf '%s  %s\n' "$MANIFEST_SHA" "$manifest" | sha256sum --check --status
           printf '%s  %s\n' "$GATE_SHA" "$gate" | sha256sum --check --status
           printf '%s  %s\n' '0f855d6aec8e970458d6aa0192f681c5e3fcd7c15c93dfc03a3eeff8c7a16e68' "$codec" | sha256sum --check --status
