@@ -1,0 +1,5 @@
+# Paired32 capacity proposal — no reservation or GO
+
+The fixed twelve pairs mean 24 games. The CI driver proposes 128 MiB decoded evidence, 32 MiB compressed artifact, 1,200 records per pair, 16,384 total framed records, 32,768 counted physical operations per call, and 3,600 seconds whole-run. These are hard vetoes that preserve complete evidence or mark the batch incomplete; they are not estimated game sizes. The candidate computes each current move's visible features once and scores those features under both V4 and the fixed phase weight. It adds no visible next-state search. The earlier paired31 run is timing and storage context only, never a pass certificate for this subject.
+
+Before first issue, verify exact normal and failure-path evidence bounds, CPU/wall/AS/FD/disk fit, private-copy/custody capacity, and fresh owner accounting. If the chosen cap could truncate plausible completed games, raise and reserve it before issue; never silently discard a winning game or infer unused capacity from a prior run. A bound violation yields incomplete evidence, spent seeds, and no verdict.

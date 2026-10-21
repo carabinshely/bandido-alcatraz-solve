@@ -1,0 +1,172 @@
+# Phase-capacity tie developmental runner; source-only until separately admitted.
+name: admitted paired32 development
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+permissions:
+  contents: read
+  pull-requests: read
+concurrency:
+  group: bandido-paired32-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  paired32:
+    permissions:
+      contents: write
+      pull-requests: read
+      actions: read
+    if: >-
+      github.repository == 'carabinshely/bandido-alcatraz-solve' &&
+      github.event.action == 'edited' && github.event.changes.body != null && github.run_attempt == 1 &&
+      github.actor == 'carabinshely' && github.triggering_actor == 'carabinshely' &&
+      github.event.sender.login == 'carabinshely' &&
+      github.event.pull_request.user.login == 'carabinshely' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.base.ref == 'main' &&
+      github.event.pull_request.base.sha == '925f5d4a8c4f20b8044bd32a4abcdcad379a3e56' &&
+      github.event.pull_request.head.ref == 'codex/strategy32-phase-closure' &&
+      github.event.pull_request.draft &&
+      contains(github.event.pull_request.body, 'PAIRED32_GO_JSON') &&
+      !contains(github.event.changes.body.from, 'PAIRED32_GO_JSON')
+    runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+    timeout-minutes: 75
+    env:
+      CURRENT_BODY: ${{ github.event.pull_request.body }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      DRIVER_SHA: 9fe8ebb30203cd9f56becbdf16868b7a5614eb3e47e00b1b9ee817a3361799b0
+      MANIFEST_SHA: 99c507ed4f2c0c448f6b58eeb00b7c52cb8a6e90682b8bc19625c3396e073ddf
+      GATE_SHA: 4231d02252d9cb3b21335367e9f8c1898a18b447ac6a4acd9d97debdbb542de6
+    steps:
+      - name: Admission consistency before checkout, no policy imports
+        timeout-minutes: 1
+        shell: bash --noprofile --norc -e -o pipefail {0}
+        run: |
+          umask 077
+          python3 -I -S -B - <<'PY'
+          import json, os
+          body=os.environ['CURRENT_BODY']
+          assert len(body)<=8192 and body.count('PAIRED32_GO_JSON\n')==1 and body.count('\nPAIRED32_END')==1
+          go=json.loads(body.split('PAIRED32_GO_JSON\n',1)[1].split('\nPAIRED32_END',1)[0])
+          assert set(go)=={'subject','go','head','driver_sha256','manifest_sha256','gate_sha256','exhaustive_review','adversarial_review','root_intent','first_issue_comment_id','first_issue_nonce','pr_number','allocation_commit_sha'}
+          assert go['subject']=='paired32' and go['go'] is True
+          assert go['head']==os.environ['HEAD_SHA'] and len(go['head'])==40
+          assert type(go['pr_number']) is int and str(go['pr_number'])==os.environ['PR_NUMBER']
+          assert type(go['first_issue_comment_id']) is int and go['first_issue_comment_id']>0
+          assert type(go['first_issue_nonce']) is str and len(go['first_issue_nonce'])==64
+          assert type(go['allocation_commit_sha']) is str and len(go['allocation_commit_sha'])==40
+          assert go['driver_sha256']==os.environ['DRIVER_SHA'] and go['manifest_sha256']==os.environ['MANIFEST_SHA']
+          assert go['gate_sha256']==os.environ['GATE_SHA']
+          assert all(type(go[k]) is str and 0<len(go[k])<=256 for k in ('exhaustive_review','adversarial_review','root_intent'))
+          print('Exact admission consistency passed; external ROOT evidence remains required')
+          PY
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        timeout-minutes: 2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: cost-driver
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        timeout-minutes: 2
+        with:
+          ref: 0ec672923c9760c7f17ab52859d5cf4f2b326642
+          path: cost-source
+          persist-credentials: false
+          fetch-depth: 1
+          sparse-checkout: |
+            src
+            data
+      - name: Fixed12-pair public-turn closure development
+        id: pair
+        env:
+          ISSUANCE_TOKEN: ${{ github.token }}
+        timeout-minutes: 65
+        shell: bash --noprofile --norc -e -o pipefail {0}
+        run: |
+          set +xv
+          umask 077
+          for name in ${!LD@} ${!PYTHON@}; do unset "$name"; done
+          control="$RUNNER_TEMP/paired32-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          mkdir -m 700 "$control"
+          printf 'CONTROL=%s\n' "$control" >> "$GITHUB_ENV"
+          driver="$GITHUB_WORKSPACE/cost-driver/experiments/paired32/diagnostic.py"
+          bounds="$GITHUB_WORKSPACE/cost-driver/experiments/paired32/bounds.py"
+          codec="$GITHUB_WORKSPACE/cost-driver/experiments/paired32/codec.py"
+          issuer="$GITHUB_WORKSPACE/cost-driver/experiments/paired32/issuance.py"
+          manifest="$GITHUB_WORKSPACE/cost-driver/experiments/paired32/source-pins.json"
+          gate="$GITHUB_WORKSPACE/cost-driver/experiments/paired32/check_source_gate.py"
+          printf '%s  %s\n' "$DRIVER_SHA" "$driver" | sha256sum --check --status
+          printf '%s  %s\n' 'c7985720e132df4fbd65afe6ef557b08a4bda793c8c70b82546fe5b533e4c70d' "$bounds" | sha256sum --check --status
+          printf '%s  %s\n' "$MANIFEST_SHA" "$manifest" | sha256sum --check --status
+          printf '%s  %s\n' "$GATE_SHA" "$gate" | sha256sum --check --status
+          printf '%s  %s\n' '08b4ae535a47c00e8e8b39b6a710a01b3dd0c149376808a0bfce10f06662939a' "$codec" | sha256sum --check --status
+          printf '%s  %s\n' 'f05ca3c5036a362341ca73bd85e908760833050ab4562dd9690d9bf54cac039d' "$issuer" | sha256sum --check --status
+          py="$RUNNER_TOOL_CACHE/Python/3.11.16/x64/bin/python"
+          # No installation or alternate interpreter fallback. Driver checks exact executable hash.
+          test -x "$py"
+          set +o posix
+          ulimit -f 65536
+          printf '%s  %s\n' 'a15ccdaf07655a8667a3687b13171486c9a265d92273ba3ad820fbb64d2cfecc' "$py" | sha256sum --check --status
+          # Actual narrow cache-library provenance, not an inherited LD path or install.
+          libdir="$RUNNER_TOOL_CACHE/Python/3.11.16/x64/lib"
+          lib="$libdir/libpython3.11.so.1.0"
+          test -d "$libdir"
+          test ! -L "$libdir"
+          test -f "$lib"
+          test ! -L "$lib"
+          test -r "$lib"
+          lib_size=$(stat --format=%s -- "$lib")
+          [[ "$lib_size" =~ ^[0-9]+$ ]]
+          test "$lib_size" -eq 23041360
+          stat --printf='mode=%f size=%s dev=%d inode=%i mtime=%Y ctime=%Z\n' -- "$lib" > "$control/runtime-libpython-before.txt"
+          sha256sum -- "$lib" > "$control/runtime-libpython.sha256"
+          printf '%s  %s\n' 'ba4450817186fbe1e3c477f6aefeee7c353cba3593cc9950382ad9d1f5e62896' "$lib" | sha256sum --check --status
+          stat --printf='mode=%f size=%s dev=%d inode=%i mtime=%Y ctime=%Z\n' -- "$lib" > "$control/runtime-libpython-after.txt"
+          cmp --silent "$control/runtime-libpython-before.txt" "$control/runtime-libpython-after.txt"
+          export LD_LIBRARY_PATH="$libdir"
+          (
+            ulimit -f 64
+            timeout --signal=KILL 60 "$py" -I -S -B "$gate" \
+              --driver "$driver" --manifest "$manifest" \
+              --source-root "$GITHUB_WORKSPACE/cost-source" --work-root "$control/source-gate" \
+              > "$control/source-gate-stdout.log" 2> "$control/source-gate-stderr.log"
+          )
+          out_fifo="$RUNNER_TEMP/paired32-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-stdout.pipe"
+          err_fifo="$RUNNER_TEMP/paired32-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-stderr.pipe"
+          test ! -e "$out_fifo" && test ! -e "$err_fifo"
+          mkfifo -m 600 -- "$out_fifo" "$err_fifo"
+          trap 'rm -f -- "$out_fifo" "$err_fifo"' EXIT
+          set +e
+          (ulimit -f 128; cat -- "$out_fifo" > "$control/stdout.log") &
+          out_capture=$!
+          (ulimit -f 128; cat -- "$err_fifo" > "$control/stderr.log") &
+          err_capture=$!
+          timeout --signal=KILL 3620 "$py" -I -S -B "$driver" \
+            --source-root "$GITHUB_WORKSPACE/cost-source" \
+            --manifest "$manifest" --manifest-sha256 "$MANIFEST_SHA" \
+            --output-dir "$control/evidence" > "$out_fifo" 2> "$err_fifo"
+          status=$?
+          wait "$out_capture"
+          out_status=$?
+          wait "$err_capture"
+          err_status=$?
+          set -e
+          printf 'driver=%s stdout_capture=%s stderr_capture=%s\n' "$status" "$out_status" "$err_status" > "$control/capture-status.txt"
+          printf '%s\n' "$status" > "$control/process-exit.txt"
+          if (( out_status != 0 || err_status != 0 )); then
+            printf 'INCOMPLETE_CAPTURE_FAILURE_OR_OVERFLOW; no game verdict\n'
+            exit 97
+          fi
+          printf 'Diagnostic process exit=%s; complete/partial artifact required\n' "$status"
+          exit "$status"
+      - name: Always preserve existing complete or partial files
+        if: always() && env.CONTROL != ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        timeout-minutes: 2
+        with:
+          name: paired32-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.CONTROL }}/
+          if-no-files-found: error
+          retention-days: 7
+          include-hidden-files: true
