@@ -120,9 +120,12 @@ def v4_counterfactual(audit, rng_state):
 
 
 def paired_analysis(pairs):
+    from collections import Counter
     from math import comb
     counts = dict(both_win=0, both_loss=0, control_only=0, candidate_only=0)
     terminal_open_tunnels = dict(control=[], candidate=[])
+    terminal_reasons = dict(control=Counter(), candidate=Counter())
+    terminal_visible_water = dict(control=[], candidate=[])
     for pair in pairs:
         arms = {row['arm']: row for row in pair['results']}
         control = arms['control']['result']['won']
@@ -133,6 +136,8 @@ def paired_analysis(pairs):
         counts[key] += 1
         for arm in terminal_open_tunnels:
             terminal_open_tunnels[arm].append(arms[arm]['terminal_open_tunnels'])
+            terminal_reasons[arm][arms[arm]['result']['reason']] += 1
+            terminal_visible_water[arm].append(arms[arm]['result']['visible_water_cells'])
     discordant = counts['control_only'] + counts['candidate_only']
     tail = sum(comb(discordant, k) for k in range(min(counts['control_only'],
                                                       counts['candidate_only']) + 1))
@@ -147,7 +152,9 @@ def paired_analysis(pairs):
                                               denominator=denominator),
                 choice_changes=sum(row['choice_changes'] for pair in pairs
                                    for row in pair['results'] if row['arm'] == 'candidate'),
-                terminal_open_tunnels=terminal_open_tunnels)
+                terminal_open_tunnels=terminal_open_tunnels,
+                terminal_reasons={arm: dict(value) for arm, value in terminal_reasons.items()},
+                terminal_visible_water=terminal_visible_water)
 
 
 def main():
@@ -250,6 +257,7 @@ def main():
         changed_choices = 0
         visible_water_priority_decisions = 0
         changed_top_decisions = 0
+        operation_totals = dict(control=Counter(), candidate=Counter(), reference=Counter())
 
         def evaluation(label, obj, module, public, rng, prefix):
             nonlocal changed_choices, visible_water_priority_decisions, changed_top_decisions
@@ -279,6 +287,7 @@ def main():
                 chosen, audit, operations = obj.evaluate(public, rng, limits=candidate.OperationLimits(
                     legal_enumerations=OP_LIMIT, previews=OP_LIMIT,
                     exit_geometry_checks=OP_LIMIT))
+            operation_totals[label].update(operations)
             elapsed, cpu_used = time.monotonic() - began, time.process_time() - cpu
             require(sys.getprofile() is None, 'PROFILE_NOT_RESTORED')
             require(canonical(observation(public)) == before, 'PUBLIC_MUTATED')
@@ -446,6 +455,8 @@ def main():
                        choice_changes=changed_choices,
                        visible_water_priority_decisions=visible_water_priority_decisions,
                        changed_top_decisions=changed_top_decisions,
+                       operation_counts_by_evaluation={label: dict(value)
+                                                       for label, value in operation_totals.items()},
                        raw_evidence_bytes_before_result=evidence.total,
                        whole_seconds=time.monotonic() - whole_started), terminal=True)
         evidence.finish()
