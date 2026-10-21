@@ -368,8 +368,9 @@ def main():
                     bounds.reserve(evidence.total, need, TOTAL_BYTES)
                     bounds.reserve(evidence.compressed, codec.compressed_upper(need, 6), FILE_BYTES)
                     require(len(evidence.rows) + 6 <= JOURNAL_RECORDS, 'JOURNAL_CAP_BEFORE_CALL')
-                    # Intent, two audits, transition, pair result, and terminal record.
-                    bounds.reserve_records(len(evidence.names), 6, codec.MAX_RECORDS)
+                    # Candidate final decision: intent, two audits, transition,
+                    # arm result, pair result, and the reserved terminal record.
+                    bounds.reserve_records(len(evidence.names), 7, codec.MAX_RECORDS)
                     prefix = arm + '-' + str(ordinal).zfill(4)
                     used = evidence.total
                     evidence.write(prefix + '-intent.json', dict(state=before, rng=rng.getstate(),

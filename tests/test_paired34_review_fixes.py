@@ -24,11 +24,11 @@ class ReviewFixTests(unittest.TestCase):
                            upcoming, total)
 
     def test_global_record_slots_veto_before_policy_call(self):
-        bounds.reserve_records(65_530, 6, 65_536)
+        bounds.reserve_records(65_529, 7, 65_536)
         with self.assertRaisesRegex(ValueError, "RECORD_CAP_BEFORE_CALL"):
-            bounds.reserve_records(65_531, 6, 65_536)
+            bounds.reserve_records(65_530, 7, 65_536)
         source = DIAGNOSTIC.read_text(encoding="utf-8")
-        self.assertIn("bounds.reserve_records(len(evidence.names), 6, codec.MAX_RECORDS)", source)
+        self.assertIn("bounds.reserve_records(len(evidence.names), 7, codec.MAX_RECORDS)", source)
 
     def test_paired_win_rate_difference_is_normalized(self):
         tree = ast.parse(DIAGNOSTIC.read_text(encoding="utf-8"))
