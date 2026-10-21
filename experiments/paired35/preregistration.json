@@ -50,7 +50,7 @@
   "cpu_seconds": 14400,
   "address_space_bytes": 536870912,
   "fd_limit": 64,
-  "raw_payload_cap": 1073741824,
+  "raw_payload_cap": 805306368,
   "compressed_file_cap": 67108864,
   "terminal_reserve": 4194304,
   "record_cap_per_pair": 1200,

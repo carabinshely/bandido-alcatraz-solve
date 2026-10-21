@@ -7,7 +7,7 @@ import struct
 import time
 import zlib
 
-RAW_BYTES = 1024 * 1024 * 1024
+RAW_BYTES = 768 * 1024 * 1024
 COMPRESSED_BYTES = 64 * 1024 * 1024
 TERMINAL_RESERVE = 4 * 1024 * 1024
 MAX_RECORDS = 65536
