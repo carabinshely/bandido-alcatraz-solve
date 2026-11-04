@@ -23,10 +23,22 @@ Substantive changes use bounded branches and pull requests. Research is checkpoi
 Repository validation runs on:
 
 ```yaml
-runs-on: [self-hosted, Linux, X64, bandido-alcatraz-ci]
+runs-on: [self-hosted, Linux, X64, bandido-alcatraz-tests]
 ```
 
 There is no GitHub-hosted fallback.
+
+Current development and routine CI use CPython 3.14 (CI patch 3.14.10,
+also selected by `.python-version`). The simulator uses the standard library;
+the development extra adds pytest. Use that interpreter for
+`python -m pip install -e ".[dev]"`, `python -m pytest -q`, and the existing
+spent-seed smoke commands.
+
+Historical experiments and already admitted scientific runs retain their exact
+frozen source, interpreter, dependencies and seed/provenance gates. A new default
+does not reinterpret those results or migrate an admitted run to a new Python.
+Future scientific execution needs its own exact-runtime admission and ordinary
+CI is not performance/confirmation evidence.
 
 ## Current state
 
