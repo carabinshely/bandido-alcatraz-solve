@@ -68,6 +68,8 @@ def test_agent_sources_match_repository():
     dist = SITE / 'dist'
     for path in (dist / 'agents').glob('*.json'):
         data = json.loads(path.read_text(encoding='utf-8'))
+        if path.stem.startswith('research-'):
+            continue
         assert hashlib.sha256((ROOT / data['source']).read_bytes()).hexdigest() == data['source_sha256']
     assert (dist / 'agents/v7.json').exists()
 
@@ -75,7 +77,8 @@ def test_agent_sources_match_repository():
 def test_downloaded_reproduction_runs_without_repository(tmp_path):
     from zipfile import ZipFile
     for archive_name, script in [('strategy-source.zip', 'replay.py'),
-                                 ('bandido-example-reproduction.zip', 'verify_example.py')]:
+                                 ('bandido-example-reproduction.zip', 'verify_example.py'),
+                                 ('recent-strategy-source.zip', 'replay_recent.py')]:
         target = tmp_path / archive_name.removesuffix('.zip')
         with ZipFile(SITE / 'dist/downloads' / archive_name) as archive:
             archive.extractall(target)
@@ -96,7 +99,7 @@ def test_english_has_every_page_and_no_russian_ui():
         assert not re.search('[А-Яа-яЁё]', text.replace('Русский', '')), f'Untranslated Russian text: {counterpart}'
         assert 'id="language-switch"' in text
         assert 'hreflang="ru"' in text and 'hreflang="en"' in text
-    assert len(russian_pages) == 27
+    assert len(russian_pages) == 31
 
 
 def test_language_switches_link_equivalent_pages():
@@ -176,7 +179,7 @@ def test_percentage_labels_in_history_and_related_links():
 
                 def handle_endtag(self, tag):
                     if tag == 'a' and self.policy:
-                        for r in registry[self.policy]:
+                        for r in registry.get(self.policy, []):
                             if r['primary']:
                                 rate = str((Decimal(r['wins']) * 100 / r['games']).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)) + '%'
                                 assert (rate if locale else rate.replace('.', ',')) in self.label
@@ -202,4 +205,55 @@ def test_recent_completed_results_preserve_counts_and_frozen_code():
         assert rate in results and '62 / 400' in results
         assert 'id="recent-129"' in results
         history = (dist / locale / 'index.html').read_text(encoding='utf-8')
-        assert 'results.html#recent-129' in history and rate in history
+        assert 'strategies/research-129.html' in history and rate in history
+
+
+def test_recent_strategies_have_complete_bilingual_pages_and_examples():
+    dist = SITE / 'dist'
+    for number in (110, 113, 127, 129):
+        for locale in ('', 'en/'):
+            path = dist / locale / 'strategies' / f'research-{number}.html'
+            assert path.exists(), f'Missing full strategy page: {path}'
+            document = path.read_text(encoding='utf-8')
+            for anchor in ('player', 'example', 'evidence', 'agent'):
+                assert f'id="{anchor}"' in document
+            assert 'id="board-data"' in document
+            assert f'../agents/research-{number}.json' in document
+        agent = json.loads((dist / 'agents' / f'research-{number}.json').read_text(encoding='utf-8'))
+        assert agent['example']['input_unchanged']
+        assert agent['example']['legal']
+        assert agent['example']['branch_active']
+        assert agent['example']['differs_from_catalog']
+        assert agent['example']['kind'] == 'recalculated-public-position'
+        assert agent['rng_seed'] == 0
+        assert not agent['adopted']
+    latest = json.loads((dist / 'agents/research-129.json').read_text(encoding='utf-8'))['example']
+    assert latest['diagnostics']['anchor_L'] == 8
+    assert latest['diagnostics']['chosen_L'] == 7
+    assert latest['diagnostics']['relaxed_anchor_certificate']['L'] == 7
+    water = next(c for c in latest['original']['board']['cells'] if (c['x'],c['y']) == (12,5))
+    assert water['water'] and set(water['tunnel_edges']) == {'N','S'}
+    class CatalogPanels(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.sections = []
+            self.links = {panel:set() for panel in ('panel-ideas','panel-policies','panel-journey')}
+
+        def handle_starttag(self, tag, attrs):
+            attrs = dict(attrs)
+            if tag == 'section':
+                self.sections.append(attrs.get('id'))
+            if tag == 'a':
+                for panel in self.links:
+                    if panel in self.sections:
+                        self.links[panel].add(attrs.get('href'))
+
+        def handle_endtag(self, tag):
+            if tag == 'section':
+                self.sections.pop()
+
+    for locale in ('', 'en/'):
+        panels = CatalogPanels()
+        panels.feed((dist / locale / 'index.html').read_text(encoding='utf-8'))
+        for links in panels.links.values():
+            assert {f'strategies/research-{n}.html' for n in (110,113,127,129)} <= links

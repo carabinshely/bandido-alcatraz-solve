@@ -12,6 +12,8 @@ from replay import ROOT, replay
 from localize import english_page
 from result_data import recorded_results, percent
 from recent import STUDIES, recent_links, recent_results
+from replay_recent import replay_recent
+from recent_pages import generate_recent_pages
 
 HERE = Path(__file__).resolve().parent
 DIST = HERE / 'dist'
@@ -113,7 +115,8 @@ def home():
         count = len(f['members'])
         suffix = 'подход' if count == 1 else 'варианта'
         family_cards.append(f'<a class="family-card {"featured" if f["id"] == "water" else ""}" href="families/{f["id"]}.html?view=ideas"><h3>{esc(f["name"])}</h3><p>{esc(f["summary"])}</p><span>{count} {suffix}</span></a>')
-    individual = results_table()
+    experiments = '<section class="reading"><h3>Последние экспериментальные варианты</h3><p>У каждого варианта есть свой разбор и точный код; превосходство пока не подтверждено.</p>' + recent_links() + '</section>'
+    individual = results_table() + experiments
     timeline = []
     for stage in DATA['stages']:
         entries = ''.join(link_policy(id, context='?view=journey') for id in stage['members'])
@@ -123,7 +126,7 @@ def home():
     <section class="hero"><div><h1>Хороший ход.<br>Не просто<br>удачная карта.</h1><p class="lead">Учимся выбирать из того, что есть в руке. На настоящих позициях Bandido: Alcatraz.</p><a class="primary" href="strategies/v4.html#example">Разобрать одну позицию</a><p class="small">Соло-игра · 6 карт в руке</p></div><figure class="hero-board"><div class="board" data-board="home"></div><figcaption>Настоящее поле перед 8-м действием.<br>5 открытых концов, воды нет.</figcaption><div class="pocket"><strong>Закрыть два тоннеля?</strong><span>Сначала проверь, не добавится ли вода.</span></div></figure></section>
     <section class="catalog" id="catalog" aria-labelledby="catalog-heading"><div class="section-intro"><h2 id="catalog-heading">Найди свой способ<br>выбрать ход</h2><p>Один набор стратегий. Начни с игровой задачи, найди конкретный алгоритм или проследи развитие идей.</p></div>
     <div class="catalog-tabs" role="tablist" aria-label="Способ просмотра стратегий"><button type="button" id="tab-ideas" role="tab" aria-selected="true" aria-controls="panel-ideas" data-view="ideas">По игровым задачам</button><button type="button" id="tab-policies" role="tab" aria-selected="false" aria-controls="panel-policies" data-view="policies" tabindex="-1">Все алгоритмы</button><button type="button" id="tab-journey" role="tab" aria-selected="false" aria-controls="panel-journey" data-view="journey" tabindex="-1">История развития</button></div>
-    <section id="panel-ideas" role="tabpanel" aria-labelledby="tab-ideas"><p class="panel-intro">Выбери задачу на поле. Близкие варианты собраны вместе, чтобы их было проще сравнить.</p><div class="family-grid">{''.join(family_cards)}</div></section>
+    <section id="panel-ideas" role="tabpanel" aria-labelledby="tab-ideas"><p class="panel-intro">Выбери задачу на поле. Близкие варианты собраны вместе, чтобы их было проще сравнить.</p><div class="family-grid">{''.join(family_cards)}</div>{experiments}</section>
     <section id="panel-policies" role="tabpanel" aria-labelledby="tab-policies" hidden><p class="panel-intro">Все 15 алгоритмов, включая базовые и промежуточные варианты. У каждого есть описание, разбор позиции и точный исходный код.</p>{individual}</section>
     <section id="panel-journey" role="tabpanel" aria-labelledby="tab-journey" hidden><p class="panel-intro">История идей, а не рейтинг побед. V1–V7 исследовались в прежней модели правил; подход с каталогом — отдельная ветка от V4.</p><div class="timeline">{''.join(timeline)}</div></section>
     <noscript><p>Для переключения вкладок нужен JavaScript. Все стратегии доступны через страницы игровых задач выше.</p></noscript></section>
@@ -233,6 +236,7 @@ def copy_sources(agents):
     for name in ('current-smoke', 'historical-v1', 'historical-v2', 'historical-v3'):
         shutil.copyfile(HERE / 'inputs' / (name + '.json'), DIST / 'sources' / (name + '.json'))
     shutil.copyfile(HERE / 'inputs/recent-research.json', DIST / 'sources/recent-research.json')
+    shutil.copyfile(HERE / 'inputs/recent-examples.json', DIST / 'sources/recent-examples.json')
     for frozen in (HERE / 'inputs/research-code').glob('*.txt'):
         shutil.copyfile(frozen, DIST / 'sources' / frozen.name)
     shutil.copyfile(HERE / 'inputs/bandido-example-reproduction.zip', DIST / 'downloads/bandido-example-reproduction.zip')
@@ -246,6 +250,16 @@ def copy_sources(agents):
     with ZipFile(DIST / 'downloads/strategy-source.zip', 'w', ZIP_DEFLATED) as archive:
         for name, raw in payload.items():
             archive.writestr(name, raw)
+    recent_payload = {name:raw for name,raw in payload.items() if name != 'SHA256SUMS.json'}
+    recent_payload['replay_recent.py'] = (HERE / 'replay_recent.py').read_bytes()
+    for name in ('recent-examples.json', 'recent-research.json'):
+        recent_payload[name] = (HERE / 'inputs' / name).read_bytes()
+    for source in (HERE / 'inputs/research-code').glob('*.txt'):
+        recent_payload['research-code/' + source.name] = source.read_bytes()
+    recent_payload['SHA256SUMS.json'] = json.dumps({name:hashlib.sha256(raw).hexdigest() for name,raw in recent_payload.items()},indent=2).encode()
+    with ZipFile(DIST / 'downloads/recent-strategy-source.zip', 'w', ZIP_DEFLATED) as archive:
+        for name,raw in recent_payload.items():
+            archive.writestr(name,raw)
 
 
 def main():
@@ -258,10 +272,14 @@ def main():
     home()
     family_pages()
     strategy_pages(agents)
+    recent_agents = replay_recent()
+    generate_recent_pages(page, title_block, script_data, recent_agents)
     reference_pages()
     copy_sources(agents)
+    for number, data in recent_agents.items():
+        (DIST / 'agents' / ('research-' + number + '.json')).write_text(json.dumps(data,indent=2),encoding='utf-8')
     (DIST / '.nojekyll').write_text('', encoding='utf-8')
-    print(f'Built {len(list(DIST.rglob("*.html")))} pages, {len(agents)} policies. Output: {DIST}')
+    print(f'Built {len(list(DIST.rglob("*.html")))} pages, {len(agents) + len(recent_agents)} strategy pages per language. Output: {DIST}')
 
 
 if __name__ == '__main__':

@@ -1,0 +1,3426 @@
+{
+  "110": {
+    "original": {
+      "board": {
+        "cells": [
+          {
+            "tunnel_edges": [
+              "E",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": -2,
+            "y": 0
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N"
+            ],
+            "water": false,
+            "x": -2,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": -1,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "N"
+            ],
+            "water": false,
+            "x": -1,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "S"
+            ],
+            "water": false,
+            "x": 0,
+            "y": -1
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 0,
+            "y": 0
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": 0,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 1,
+            "y": -1
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 1,
+            "y": 0
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 1,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "S"
+            ],
+            "water": false,
+            "x": 1,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "W"
+            ],
+            "water": false,
+            "x": 2,
+            "y": 0
+          }
+        ],
+        "placements": [
+          {
+            "card_id": "start_easy",
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "start",
+            "origin": [
+              0,
+              0
+            ],
+            "overlaps": [],
+            "placement_index": 0,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-1-r1-c2",
+            "cells": [
+              [
+                0,
+                -1
+              ],
+              [
+                1,
+                -1
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              0,
+              -1
+            ],
+            "overlaps": [],
+            "placement_index": 1,
+            "quarter_turns": 3
+          },
+          {
+            "card_id": "photo-3-r4-c4",
+            "cells": [
+              [
+                1,
+                1
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              1,
+              1
+            ],
+            "overlaps": [],
+            "placement_index": 2,
+            "quarter_turns": 2
+          },
+          {
+            "card_id": "photo-1-r4-c5",
+            "cells": [
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              1,
+              0
+            ],
+            "overlaps": [],
+            "placement_index": 3,
+            "quarter_turns": 3
+          },
+          {
+            "card_id": "photo-2-r4-c5",
+            "cells": [
+              [
+                -1,
+                1
+              ],
+              [
+                -1,
+                2
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              -1,
+              1
+            ],
+            "overlaps": [],
+            "placement_index": 4,
+            "quarter_turns": 2
+          },
+          {
+            "card_id": "photo-2-r3-c1",
+            "cells": [
+              [
+                -2,
+                0
+              ],
+              [
+                -2,
+                1
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              -2,
+              0
+            ],
+            "overlaps": [],
+            "placement_index": 5,
+            "quarter_turns": 2
+          }
+        ]
+      },
+      "collected_equipment": [
+        {
+          "card": {
+            "card_id": "photo-1-r1-c5",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "E",
+                  "N",
+                  "S",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "N",
+                  "S"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "rope"
+          },
+          "player_index": 0,
+          "turn": 1
+        },
+        {
+          "card": {
+            "card_id": "photo-2-r1-c4",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "S",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "N",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "raincoat"
+          },
+          "player_index": 0,
+          "turn": 5
+        }
+      ],
+      "exit_placed": false,
+      "exit_seen": true,
+      "hand": [
+        {
+          "card_id": "exit",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "N",
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "N"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": true,
+          "material": null
+        },
+        {
+          "card_id": "photo-4-r2-c4",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "E",
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "E",
+                "N",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-1-r3-c3",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "N",
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "N",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-2-r1-c2",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "E",
+                "N",
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "N",
+                "S",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-1-r1-c3",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "S",
+                "W"
+              ],
+              "water": true,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "E",
+                "N",
+                "S",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-4-r1-c2",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "N",
+                "S",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "E",
+                "N",
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        }
+      ],
+      "player_index": 0,
+      "raincoats": 1,
+      "ropes": 1,
+      "set_aside_unplayable": 0,
+      "setup": {
+        "hand_size": 6,
+        "player_count": 1,
+        "start_side": "easy-5-exit",
+        "starting_player": 0
+      },
+      "turns": 7
+    },
+    "game_seed": 1000263,
+    "decision": 8,
+    "source_snapshot_sha256": "c4faceb4c0e0cce24675c50e723764385ebf859f4f0c7c3ed6b636bba8fd5dcf",
+    "source_kind": "existing-published-public-position",
+    "state_before": {
+      "planned": false,
+      "returned_none": false
+    }
+  },
+  "113": {
+    "original": {
+      "board": {
+        "cells": [
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 0,
+            "y": 0
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": 0,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "W"
+            ],
+            "water": false,
+            "x": 1,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "W"
+            ],
+            "water": false,
+            "x": 2,
+            "y": 1
+          }
+        ],
+        "placements": [
+          {
+            "card_id": "start_easy",
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "start",
+            "origin": [
+              0,
+              0
+            ],
+            "overlaps": [],
+            "placement_index": 0,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "exit",
+            "cells": [
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                1
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "exit",
+            "origin": [
+              1,
+              1
+            ],
+            "overlaps": [],
+            "placement_index": 1,
+            "quarter_turns": 3
+          }
+        ]
+      },
+      "collected_equipment": [
+        {
+          "card": {
+            "card_id": "photo-1-r3-c1",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "S"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "E",
+                  "N"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "rope"
+          },
+          "player_index": 0,
+          "turn": 1
+        },
+        {
+          "card": {
+            "card_id": "photo-2-r2-c2",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "N",
+                  "S",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "N"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "raincoat"
+          },
+          "player_index": 0,
+          "turn": 2
+        },
+        {
+          "card": {
+            "card_id": "photo-4-r1-c5",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "E",
+                  "S",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "E",
+                  "N"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "raincoat"
+          },
+          "player_index": 0,
+          "turn": 3
+        },
+        {
+          "card": {
+            "card_id": "photo-3-r3-c2",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "S"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "E",
+                  "N",
+                  "S",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "raincoat"
+          },
+          "player_index": 0,
+          "turn": 4
+        },
+        {
+          "card": {
+            "card_id": "photo-1-r1-c4",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "N",
+                  "S"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "N"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "rope"
+          },
+          "player_index": 0,
+          "turn": 5
+        }
+      ],
+      "exit_placed": true,
+      "exit_seen": true,
+      "hand": [
+        {
+          "card_id": "photo-2-r2-c5",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "N",
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "N",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-1-r1-c2",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "S",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "N",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-1-r1-c3",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "S",
+                "W"
+              ],
+              "water": true,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "E",
+                "N",
+                "S",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-2-r4-c2",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "N",
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "E",
+                "N",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-1-r1-c5",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "E",
+                "N",
+                "S",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "N",
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": "rope"
+        },
+        {
+          "card_id": "photo-4-r2-c3",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "E",
+                "S",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "E",
+                "N",
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        }
+      ],
+      "player_index": 0,
+      "raincoats": 3,
+      "ropes": 2,
+      "set_aside_unplayable": 0,
+      "setup": {
+        "hand_size": 6,
+        "player_count": 1,
+        "start_side": "easy-5-exit",
+        "starting_player": 0
+      },
+      "turns": 6
+    },
+    "game_seed": 1006976,
+    "decision": 7,
+    "source_kind": "recorded-first-departure-public-context",
+    "source_snapshot_sha256": "1af56b0131025736e9f32d0a0e5e779d7ed32215d7e19ce3ff8a6ffc0052af1c",
+    "source_packet_sha256": "d5a87de5f220ea42b8a51bfd3619dd7c6face730f4d4e113229e71b6c0a86f13",
+    "source_member": "evidence/s1006976-candidate.json",
+    "source_member_sha256": "50a98c3d668f8311122f3ea66829bb67f03a226a851397af515e036a28f5566b",
+    "state_before": {}
+  },
+  "127": {
+    "original": {
+      "board": {
+        "cells": [
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 0,
+            "y": 0
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": 0,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "W"
+            ],
+            "water": false,
+            "x": 1,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "W"
+            ],
+            "water": false,
+            "x": 2,
+            "y": 1
+          }
+        ],
+        "placements": [
+          {
+            "card_id": "start_easy",
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "start",
+            "origin": [
+              0,
+              0
+            ],
+            "overlaps": [],
+            "placement_index": 0,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "exit",
+            "cells": [
+              [
+                1,
+                1
+              ],
+              [
+                2,
+                1
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "exit",
+            "origin": [
+              1,
+              1
+            ],
+            "overlaps": [],
+            "placement_index": 1,
+            "quarter_turns": 3
+          }
+        ]
+      },
+      "collected_equipment": [
+        {
+          "card": {
+            "card_id": "photo-2-r3-c4",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "N",
+                  "S"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "N"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "raincoat"
+          },
+          "player_index": 0,
+          "turn": 1
+        },
+        {
+          "card": {
+            "card_id": "photo-3-r3-c5",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "S",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "N"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "rope"
+          },
+          "player_index": 0,
+          "turn": 2
+        },
+        {
+          "card": {
+            "card_id": "photo-2-r2-c2",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "N",
+                  "S",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "N"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "raincoat"
+          },
+          "player_index": 0,
+          "turn": 3
+        },
+        {
+          "card": {
+            "card_id": "photo-4-r2-c2",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "E",
+                  "S"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "N"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "rope"
+          },
+          "player_index": 0,
+          "turn": 4
+        },
+        {
+          "card": {
+            "card_id": "photo-3-r4-c3",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "S",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "N",
+                  "S",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "raincoat"
+          },
+          "player_index": 0,
+          "turn": 5
+        }
+      ],
+      "exit_placed": true,
+      "exit_seen": true,
+      "hand": [
+        {
+          "card_id": "photo-2-r2-c1",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "N",
+                "S",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "N"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-4-r2-c1",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "E",
+                "S",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "E",
+                "N",
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-3-r4-c5",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "N",
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "N",
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-2-r3-c2",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "E",
+                "N",
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "N",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-3-r1-c5",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "E",
+                "N",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": "raincoat"
+        },
+        {
+          "card_id": "photo-1-r4-c1",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "E",
+                "S",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "N",
+                "S",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        }
+      ],
+      "player_index": 0,
+      "raincoats": 3,
+      "ropes": 2,
+      "set_aside_unplayable": 0,
+      "setup": {
+        "hand_size": 6,
+        "player_count": 1,
+        "start_side": "easy-5-exit",
+        "starting_player": 0
+      },
+      "turns": 6
+    },
+    "game_seed": 1010430,
+    "decision": 7,
+    "source_kind": "recorded-first-departure-public-context",
+    "source_snapshot_sha256": "f852fcb17d7c28a114d25b91057e6e51ef3f840fafa55fa2bda0e056c8ed83f1",
+    "source_packet_sha256": "91947ba261ee889a4d5d2b8e30bb4d75a897b648439cbd714df0369e12c8add4",
+    "source_member": "evidence/s1010430-candidate.json",
+    "source_member_sha256": "6735b36b39e6d69041fd907a6843b515f1bc6af10395b45238a2ee811755630e",
+    "state_before": {
+      "departed": false
+    }
+  },
+  "129": {
+    "original": {
+      "board": {
+        "cells": [
+          {
+            "tunnel_edges": [
+              "E",
+              "S"
+            ],
+            "water": false,
+            "x": -3,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "N"
+            ],
+            "water": false,
+            "x": -3,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "S"
+            ],
+            "water": false,
+            "x": -2,
+            "y": 0
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": -2,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "S"
+            ],
+            "water": false,
+            "x": -1,
+            "y": -3
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N"
+            ],
+            "water": false,
+            "x": -1,
+            "y": -2
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "S"
+            ],
+            "water": false,
+            "x": -1,
+            "y": -1
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": -1,
+            "y": 0
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": -1,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "N"
+            ],
+            "water": false,
+            "x": -1,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 0,
+            "y": -2
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 0,
+            "y": -1
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 0,
+            "y": 0
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": 0,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 1,
+            "y": -1
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 1,
+            "y": 0
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 1,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "S"
+            ],
+            "water": false,
+            "x": 1,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N"
+            ],
+            "water": false,
+            "x": 1,
+            "y": 3
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "W"
+            ],
+            "water": false,
+            "x": 2,
+            "y": -1
+          },
+          {
+            "tunnel_edges": [
+              "E"
+            ],
+            "water": false,
+            "x": 2,
+            "y": 0
+          },
+          {
+            "tunnel_edges": [
+              "S"
+            ],
+            "water": false,
+            "x": 2,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 2,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": 2,
+            "y": 3
+          },
+          {
+            "tunnel_edges": [
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 3,
+            "y": -1
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": 3,
+            "y": 0
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 3,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": 3,
+            "y": 3
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 4,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": 4,
+            "y": 3
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "S"
+            ],
+            "water": false,
+            "x": 5,
+            "y": -1
+          },
+          {
+            "tunnel_edges": [
+              "N"
+            ],
+            "water": false,
+            "x": 5,
+            "y": 0
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 5,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 5,
+            "y": 3
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N"
+            ],
+            "water": false,
+            "x": 5,
+            "y": 4
+          },
+          {
+            "tunnel_edges": [
+              "S"
+            ],
+            "water": false,
+            "x": 6,
+            "y": -3
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "S"
+            ],
+            "water": false,
+            "x": 6,
+            "y": -2
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 6,
+            "y": -1
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "S"
+            ],
+            "water": false,
+            "x": 6,
+            "y": 0
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N"
+            ],
+            "water": false,
+            "x": 6,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "W"
+            ],
+            "water": false,
+            "x": 6,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "W"
+            ],
+            "water": false,
+            "x": 6,
+            "y": 4
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "S"
+            ],
+            "water": false,
+            "x": 7,
+            "y": 0
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 7,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "S"
+            ],
+            "water": false,
+            "x": 7,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "N"
+            ],
+            "water": false,
+            "x": 7,
+            "y": 3
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "W"
+            ],
+            "water": false,
+            "x": 7,
+            "y": 4
+          },
+          {
+            "tunnel_edges": [
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 8,
+            "y": 0
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "S"
+            ],
+            "water": false,
+            "x": 8,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 8,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "S"
+            ],
+            "water": false,
+            "x": 8,
+            "y": 3
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": 8,
+            "y": 4
+          },
+          {
+            "tunnel_edges": [
+              "E"
+            ],
+            "water": false,
+            "x": 9,
+            "y": -2
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 9,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "S"
+            ],
+            "water": false,
+            "x": 9,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 10,
+            "y": -2
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "S"
+            ],
+            "water": false,
+            "x": 10,
+            "y": -1
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "S"
+            ],
+            "water": false,
+            "x": 10,
+            "y": 0
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": 10,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 10,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "S"
+            ],
+            "water": false,
+            "x": 10,
+            "y": 3
+          },
+          {
+            "tunnel_edges": [
+              "N"
+            ],
+            "water": false,
+            "x": 10,
+            "y": 4
+          },
+          {
+            "tunnel_edges": [
+              "E"
+            ],
+            "water": false,
+            "x": 10,
+            "y": 6
+          },
+          {
+            "tunnel_edges": [
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 11,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": 11,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "S"
+            ],
+            "water": false,
+            "x": 11,
+            "y": 3
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N"
+            ],
+            "water": false,
+            "x": 11,
+            "y": 4
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 11,
+            "y": 6
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N"
+            ],
+            "water": false,
+            "x": 11,
+            "y": 7
+          },
+          {
+            "tunnel_edges": [
+              "E"
+            ],
+            "water": false,
+            "x": 11,
+            "y": 8
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 12,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": 12,
+            "y": 3
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 12,
+            "y": 4
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "S"
+            ],
+            "water": true,
+            "x": 12,
+            "y": 5
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": 12,
+            "y": 6
+          },
+          {
+            "tunnel_edges": [
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 12,
+            "y": 7
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": 12,
+            "y": 8
+          },
+          {
+            "tunnel_edges": [
+              "W"
+            ],
+            "water": false,
+            "x": 13,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "W"
+            ],
+            "water": false,
+            "x": 13,
+            "y": 3
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 13,
+            "y": 4
+          },
+          {
+            "tunnel_edges": [
+              "W"
+            ],
+            "water": false,
+            "x": 13,
+            "y": 6
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "S"
+            ],
+            "water": false,
+            "x": 14,
+            "y": 3
+          },
+          {
+            "tunnel_edges": [
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": 14,
+            "y": 4
+          },
+          {
+            "tunnel_edges": [
+              "S"
+            ],
+            "water": false,
+            "x": 15,
+            "y": 1
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "S",
+              "W"
+            ],
+            "water": false,
+            "x": 15,
+            "y": 2
+          },
+          {
+            "tunnel_edges": [
+              "E",
+              "N",
+              "W"
+            ],
+            "water": false,
+            "x": 15,
+            "y": 3
+          }
+        ],
+        "placements": [
+          {
+            "card_id": "start_easy",
+            "cells": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                1
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "start",
+            "origin": [
+              0,
+              0
+            ],
+            "overlaps": [],
+            "placement_index": 0,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-1-r4-c1",
+            "cells": [
+              [
+                1,
+                -1
+              ],
+              [
+                1,
+                0
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              1,
+              -1
+            ],
+            "overlaps": [],
+            "placement_index": 1,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-4-r1-c4",
+            "cells": [
+              [
+                -1,
+                -1
+              ],
+              [
+                -1,
+                0
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              -1,
+              -1
+            ],
+            "overlaps": [],
+            "placement_index": 2,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-4-r2-c4",
+            "cells": [
+              [
+                -2,
+                0
+              ],
+              [
+                -2,
+                1
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              -2,
+              0
+            ],
+            "overlaps": [],
+            "placement_index": 3,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-3-r3-c3",
+            "cells": [
+              [
+                -1,
+                1
+              ],
+              [
+                -1,
+                2
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              -1,
+              1
+            ],
+            "overlaps": [],
+            "placement_index": 4,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-1-r2-c2",
+            "cells": [
+              [
+                1,
+                1
+              ],
+              [
+                1,
+                2
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              1,
+              1
+            ],
+            "overlaps": [],
+            "placement_index": 5,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-3-r2-c1",
+            "cells": [
+              [
+                1,
+                3
+              ],
+              [
+                2,
+                3
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              1,
+              3
+            ],
+            "overlaps": [],
+            "placement_index": 6,
+            "quarter_turns": 1
+          },
+          {
+            "card_id": "photo-1-r4-c2",
+            "cells": [
+              [
+                3,
+                2
+              ],
+              [
+                3,
+                3
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              3,
+              2
+            ],
+            "overlaps": [],
+            "placement_index": 7,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-1-r3-c3",
+            "cells": [
+              [
+                2,
+                -1
+              ],
+              [
+                3,
+                -1
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              2,
+              -1
+            ],
+            "overlaps": [],
+            "placement_index": 8,
+            "quarter_turns": 3
+          },
+          {
+            "card_id": "photo-3-r3-c5",
+            "cells": [
+              [
+                2,
+                0
+              ],
+              [
+                3,
+                0
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              2,
+              0
+            ],
+            "overlaps": [],
+            "placement_index": 9,
+            "quarter_turns": 1
+          },
+          {
+            "card_id": "photo-4-r2-c5",
+            "cells": [
+              [
+                4,
+                2
+              ],
+              [
+                4,
+                3
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              4,
+              2
+            ],
+            "overlaps": [],
+            "placement_index": 10,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-3-r3-c4",
+            "cells": [
+              [
+                -3,
+                1
+              ],
+              [
+                -3,
+                2
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              -3,
+              1
+            ],
+            "overlaps": [],
+            "placement_index": 11,
+            "quarter_turns": 2
+          },
+          {
+            "card_id": "photo-3-r2-c3",
+            "cells": [
+              [
+                5,
+                2
+              ],
+              [
+                6,
+                2
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              5,
+              2
+            ],
+            "overlaps": [],
+            "placement_index": 12,
+            "quarter_turns": 1
+          },
+          {
+            "card_id": "photo-3-r2-c5",
+            "cells": [
+              [
+                5,
+                3
+              ],
+              [
+                5,
+                4
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              5,
+              3
+            ],
+            "overlaps": [],
+            "placement_index": 13,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-3-r4-c5",
+            "cells": [
+              [
+                6,
+                4
+              ],
+              [
+                7,
+                4
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              6,
+              4
+            ],
+            "overlaps": [],
+            "placement_index": 14,
+            "quarter_turns": 1
+          },
+          {
+            "card_id": "photo-2-r1-c5",
+            "cells": [
+              [
+                8,
+                3
+              ],
+              [
+                8,
+                4
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              8,
+              3
+            ],
+            "overlaps": [],
+            "placement_index": 15,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-4-r1-c1",
+            "cells": [
+              [
+                8,
+                1
+              ],
+              [
+                8,
+                2
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              8,
+              1
+            ],
+            "overlaps": [],
+            "placement_index": 16,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-1-r1-c2",
+            "cells": [
+              [
+                7,
+                0
+              ],
+              [
+                8,
+                0
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              7,
+              0
+            ],
+            "overlaps": [],
+            "placement_index": 17,
+            "quarter_turns": 3
+          },
+          {
+            "card_id": "photo-1-r4-c3",
+            "cells": [
+              [
+                7,
+                2
+              ],
+              [
+                7,
+                3
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              7,
+              2
+            ],
+            "overlaps": [],
+            "placement_index": 18,
+            "quarter_turns": 2
+          },
+          {
+            "card_id": "photo-4-r2-c1",
+            "cells": [
+              [
+                9,
+                1
+              ],
+              [
+                9,
+                2
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              9,
+              1
+            ],
+            "overlaps": [],
+            "placement_index": 19,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-2-r3-c2",
+            "cells": [
+              [
+                10,
+                1
+              ],
+              [
+                11,
+                1
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              10,
+              1
+            ],
+            "overlaps": [],
+            "placement_index": 20,
+            "quarter_turns": 3
+          },
+          {
+            "card_id": "photo-3-r1-c4",
+            "cells": [
+              [
+                6,
+                1
+              ],
+              [
+                7,
+                1
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              6,
+              1
+            ],
+            "overlaps": [],
+            "placement_index": 21,
+            "quarter_turns": 3
+          },
+          {
+            "card_id": "photo-2-r4-c4",
+            "cells": [
+              [
+                10,
+                -1
+              ],
+              [
+                10,
+                0
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              10,
+              -1
+            ],
+            "overlaps": [],
+            "placement_index": 22,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-1-r3-c2",
+            "cells": [
+              [
+                9,
+                -2
+              ],
+              [
+                10,
+                -2
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              9,
+              -2
+            ],
+            "overlaps": [],
+            "placement_index": 23,
+            "quarter_turns": 1
+          },
+          {
+            "card_id": "photo-4-r1-c2",
+            "cells": [
+              [
+                10,
+                2
+              ],
+              [
+                11,
+                2
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              10,
+              2
+            ],
+            "overlaps": [],
+            "placement_index": 24,
+            "quarter_turns": 1
+          },
+          {
+            "card_id": "photo-2-r2-c1",
+            "cells": [
+              [
+                12,
+                2
+              ],
+              [
+                13,
+                2
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              12,
+              2
+            ],
+            "overlaps": [],
+            "placement_index": 25,
+            "quarter_turns": 3
+          },
+          {
+            "card_id": "exit",
+            "cells": [
+              [
+                10,
+                3
+              ],
+              [
+                10,
+                4
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "exit",
+            "origin": [
+              10,
+              3
+            ],
+            "overlaps": [],
+            "placement_index": 26,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-2-r2-c3",
+            "cells": [
+              [
+                12,
+                3
+              ],
+              [
+                13,
+                3
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              12,
+              3
+            ],
+            "overlaps": [],
+            "placement_index": 27,
+            "quarter_turns": 3
+          },
+          {
+            "card_id": "photo-3-r3-c2",
+            "cells": [
+              [
+                2,
+                1
+              ],
+              [
+                2,
+                2
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              2,
+              1
+            ],
+            "overlaps": [],
+            "placement_index": 28,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-3-r4-c4",
+            "cells": [
+              [
+                6,
+                -1
+              ],
+              [
+                6,
+                0
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              6,
+              -1
+            ],
+            "overlaps": [],
+            "placement_index": 29,
+            "quarter_turns": 2
+          },
+          {
+            "card_id": "photo-1-r1-c4",
+            "cells": [
+              [
+                6,
+                -3
+              ],
+              [
+                6,
+                -2
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              6,
+              -3
+            ],
+            "overlaps": [],
+            "placement_index": 30,
+            "quarter_turns": 2
+          },
+          {
+            "card_id": "photo-3-r4-c1",
+            "cells": [
+              [
+                0,
+                -2
+              ],
+              [
+                0,
+                -1
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              0,
+              -2
+            ],
+            "overlaps": [],
+            "placement_index": 31,
+            "quarter_turns": 2
+          },
+          {
+            "card_id": "photo-2-r2-c4",
+            "cells": [
+              [
+                5,
+                -1
+              ],
+              [
+                5,
+                0
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              5,
+              -1
+            ],
+            "overlaps": [],
+            "placement_index": 32,
+            "quarter_turns": 2
+          },
+          {
+            "card_id": "photo-1-r2-c3",
+            "cells": [
+              [
+                -1,
+                -3
+              ],
+              [
+                -1,
+                -2
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              -1,
+              -3
+            ],
+            "overlaps": [],
+            "placement_index": 33,
+            "quarter_turns": 2
+          },
+          {
+            "card_id": "photo-2-r1-c4",
+            "cells": [
+              [
+                11,
+                3
+              ],
+              [
+                11,
+                4
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              11,
+              3
+            ],
+            "overlaps": [],
+            "placement_index": 34,
+            "quarter_turns": 2
+          },
+          {
+            "card_id": "photo-1-r2-c5",
+            "cells": [
+              [
+                12,
+                4
+              ],
+              [
+                12,
+                5
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              12,
+              4
+            ],
+            "overlaps": [],
+            "placement_index": 35,
+            "quarter_turns": 0
+          },
+          {
+            "card_id": "photo-1-r2-c1",
+            "cells": [
+              [
+                12,
+                6
+              ],
+              [
+                13,
+                6
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              12,
+              6
+            ],
+            "overlaps": [],
+            "placement_index": 36,
+            "quarter_turns": 3
+          },
+          {
+            "card_id": "photo-2-r4-c5",
+            "cells": [
+              [
+                10,
+                6
+              ],
+              [
+                11,
+                6
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              10,
+              6
+            ],
+            "overlaps": [],
+            "placement_index": 37,
+            "quarter_turns": 3
+          },
+          {
+            "card_id": "photo-1-r3-c4",
+            "cells": [
+              [
+                11,
+                7
+              ],
+              [
+                12,
+                7
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              11,
+              7
+            ],
+            "overlaps": [],
+            "placement_index": 38,
+            "quarter_turns": 1
+          },
+          {
+            "card_id": "photo-1-r3-c1",
+            "cells": [
+              [
+                11,
+                8
+              ],
+              [
+                12,
+                8
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              11,
+              8
+            ],
+            "overlaps": [],
+            "placement_index": 39,
+            "quarter_turns": 3
+          },
+          {
+            "card_id": "photo-1-r3-c5",
+            "cells": [
+              [
+                13,
+                4
+              ],
+              [
+                14,
+                4
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              13,
+              4
+            ],
+            "overlaps": [],
+            "placement_index": 40,
+            "quarter_turns": 1
+          },
+          {
+            "card_id": "photo-4-r2-c3",
+            "cells": [
+              [
+                14,
+                3
+              ],
+              [
+                15,
+                3
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              14,
+              3
+            ],
+            "overlaps": [],
+            "placement_index": 41,
+            "quarter_turns": 3
+          },
+          {
+            "card_id": "photo-1-r4-c5",
+            "cells": [
+              [
+                15,
+                1
+              ],
+              [
+                15,
+                2
+              ]
+            ],
+            "covered_placement_index": null,
+            "kind": "ordinary",
+            "origin": [
+              15,
+              1
+            ],
+            "overlaps": [],
+            "placement_index": 42,
+            "quarter_turns": 2
+          }
+        ]
+      },
+      "collected_equipment": [
+        {
+          "card": {
+            "card_id": "photo-3-r1-c2",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "N",
+                  "S",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "E",
+                  "N",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "raincoat"
+          },
+          "player_index": 0,
+          "turn": 1
+        },
+        {
+          "card": {
+            "card_id": "photo-3-r1-c1",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "E",
+                  "S",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "N",
+                  "S",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "rope"
+          },
+          "player_index": 0,
+          "turn": 2
+        },
+        {
+          "card": {
+            "card_id": "photo-3-r4-c3",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "S",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "N",
+                  "S",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "raincoat"
+          },
+          "player_index": 0,
+          "turn": 3
+        },
+        {
+          "card": {
+            "card_id": "photo-2-r3-c4",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "N",
+                  "S"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "N"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "raincoat"
+          },
+          "player_index": 0,
+          "turn": 4
+        },
+        {
+          "card": {
+            "card_id": "photo-1-r1-c5",
+            "cells": [
+              {
+                "tunnel_edges": [
+                  "E",
+                  "N",
+                  "S",
+                  "W"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 0
+              },
+              {
+                "tunnel_edges": [
+                  "N",
+                  "S"
+                ],
+                "water": false,
+                "x": 0,
+                "y": 1
+              }
+            ],
+            "is_exit": false,
+            "material": "rope"
+          },
+          "player_index": 0,
+          "turn": 5
+        }
+      ],
+      "exit_placed": true,
+      "exit_seen": true,
+      "hand": [
+        {
+          "card_id": "photo-2-r3-c5",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "E",
+                "S",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "N",
+                "S"
+              ],
+              "water": true,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-2-r1-c2",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "E",
+                "N",
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "N",
+                "S",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-2-r1-c3",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "E",
+                "S"
+              ],
+              "water": true,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "E",
+                "N",
+                "S",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-1-r1-c3",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "S",
+                "W"
+              ],
+              "water": true,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "E",
+                "N",
+                "S",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-2-r4-c3",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "E",
+                "N",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": null
+        },
+        {
+          "card_id": "photo-3-r1-c3",
+          "cells": [
+            {
+              "tunnel_edges": [
+                "S",
+                "W"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 0
+            },
+            {
+              "tunnel_edges": [
+                "N",
+                "S"
+              ],
+              "water": false,
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "is_exit": false,
+          "material": "rope"
+        }
+      ],
+      "player_index": 0,
+      "raincoats": 3,
+      "ropes": 2,
+      "set_aside_unplayable": 0,
+      "setup": {
+        "hand_size": 6,
+        "player_count": 1,
+        "start_side": "easy-5-exit",
+        "starting_player": 0
+      },
+      "turns": 47
+    },
+    "game_seed": 1011164,
+    "decision": 48,
+    "source_kind": "recorded-first-departure-public-context",
+    "source_snapshot_sha256": "0eeee5b613273a95c22e6d2e399e2340444e0414a4550c3cd2bdd0006169b385",
+    "source_packet_sha256": "b7d86191cf7e2033544be72854f3b842a047f8905e0a39ac5144cf96d2fc03cc",
+    "source_member": "evidence/s1011164-candidate.json",
+    "source_member_sha256": "5aac4cfd128df0a66057f7de37799c39f32673091b7c857ebb45af1b470965dc",
+    "state_before": {
+      "departed": false
+    }
+  }
+}

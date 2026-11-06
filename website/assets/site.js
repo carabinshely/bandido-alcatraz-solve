@@ -127,7 +127,7 @@
   }
   function drawBoard(target, observation, added = false, hand = false) {
     const cells = observation.board.cells;
-    const extents = hand ? cells : [data.original, data.chosen, data.a, data.b].filter(Boolean).flatMap(o => o.board.cells);
+    const extents = hand ? cells : [data.original, data.chosen, data.catalog, data.a, data.b].filter(Boolean).flatMap(o => o.board.cells);
     const minX = Math.min(...extents.map(c => c.x)) - .2;
     const minY = Math.min(...extents.map(c => c.y)) - .2;
     const maxX = Math.max(...extents.map(c => c.x)) + 1.2;
@@ -184,11 +184,16 @@
     const observation = step === 'before' ? data.original : data[step];
     if (!observation || !lesson) return;
     drawBoard(lesson, observation, step !== 'before');
+    if (lesson.classList.contains('wide-board')) {
+      const svg = lesson.querySelector('svg');
+      const x = step === 'before' ? svg.viewBox.baseVal.x : Math.min(...observation.board.placements.at(-1).cells.map(cell => cell[0]));
+      lesson.scrollLeft = (x - svg.viewBox.baseVal.x + 1) / svg.viewBox.baseVal.width * svg.clientWidth - lesson.clientWidth / 2;
+    }
     document.querySelectorAll('[data-step]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.step === step)));
     const water = observation.board.cells.filter(c => c.water).length;
     const open = lesson.querySelectorAll('[data-open-end]').length;
     document.getElementById('board-caption').textContent = english ? `${open} open ends · ${water ? `${water} water half-cell${water === 1 ? '' : 's'}` : 'no water'}` : `${open} открытых концов · ${water ? `${water} водное полуполе` : 'воды нет'}`;
-    const card = step === 'chosen' ? data.chosenMove.hand_index : step === 'a' ? 2 : step === 'b' ? 4 : null;
+    const card = step === 'chosen' ? data.chosenMove.hand_index : step === 'catalog' ? data.catalogMove.hand_index : step === 'a' ? 2 : step === 'b' ? 4 : null;
     document.querySelectorAll('[data-hand-index]').forEach(item => item.dataset.active = String(Number(item.dataset.handIndex) === card));
     if (data.ab) {
       document.getElementById('choice-title').textContent = step === 'a' ? text('A: продолжить без новой воды', 'A: extend without new water') : step === 'b' ? text('B: закрыть два конца и добавить воду', 'B: close two ends and add water') : text('Одна позиция — два продолжения', 'One position, two continuations');

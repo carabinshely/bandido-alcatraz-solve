@@ -90,7 +90,8 @@ async function main() {
     assert(await evaluate(`new URL(document.querySelector('[data-return]').href).searchParams.get('view')==='journey'`), 'Return context lost');
     await send('Page.reload'); await wait(150);
     assert(await evaluate(`new URL(document.querySelector('[data-return]').href).searchParams.get('view')==='journey'`), 'Reload context lost');
-    const files = fs.readdirSync(path.join(dist, 'strategies')).filter(f => f.endsWith('.html'));
+    const files = fs.readdirSync(path.join(dist, 'strategies')).filter(f => f.endsWith('.html') && !f.startsWith('research-'));
+    const researchFiles = fs.readdirSync(path.join(dist, 'strategies')).filter(f => f.startsWith('research-'));
     for (const file of files) {
       await navigate('strategies/' + file);
       assert(await evaluate(`document.querySelectorAll('#hand .hand-piece').length===6`), 'Hand missing: ' + file);
@@ -114,6 +115,26 @@ async function main() {
       assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'), 'Reference/family overflow: ' + file);
     }
     for (const locale of ['', 'en/']) {
+      for (const file of researchFiles) {
+        await navigate(locale + 'strategies/' + file);
+        for (const width of [320, 1024]) {
+          await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 600 });
+          for (const theme of ['light', 'dark']) {
+            await evaluate(`document.documentElement.dataset.theme='${theme}';document.getElementById('agent').open=true`);
+            for (const step of ['before', 'catalog', 'chosen']) {
+              const state = await evaluate(`(()=>{document.querySelector('[data-step=${step}]').click();const d=JSON.parse(document.getElementById('board-data').textContent);const o='${step}'==='before'?d.original:d['${step}'];return {overflow:document.documentElement.scrollWidth>innerWidth,cells:document.querySelectorAll('[data-board=lesson] [data-cell]').length,expected:o.board.cells.length,highlight:document.querySelectorAll('.hand-piece[data-active=true]').length,scroll:document.querySelector('[data-board=lesson]').scrollLeft}})()`);
+              assert(!state.overflow && state.cells === state.expected && state.highlight === (step === 'before' ? 0 : 1), 'Research example invalid: '+file+locale+width+step+JSON.stringify(state));
+              if (file === 'research-129.html' && step !== 'before' && width === 320) assert(state.scroll>0, 'Large board did not reveal selected move');
+              results.push({language:locale?'en':'ru',file,width,theme,step,...state});
+            }
+            if (theme === 'light') {
+              await evaluate(`document.getElementById('agent').open=false;new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))`);
+              const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
+              fs.writeFileSync(path.join(qa, `${locale ? 'en-' : ''}${file.replace('.html','')}-${width}.png`),Buffer.from(shot.data,'base64'));
+            }
+          }
+        }
+      }
       await navigate(locale + 'results.html#recent-129');
       await evaluate(`document.querySelectorAll('.recent-study details').forEach(d=>d.open=true)`);
       for (const width of [320, 1024]) {
@@ -186,7 +207,7 @@ async function main() {
     await evaluate(`document.getElementById('language-switch').click()`);
     for (let i=0;i<100;i++){if(await evaluate(`document.documentElement.lang==='ru'&&document.readyState==='complete'`))break;await wait(50);}
     assert(await evaluate(`location.pathname.endsWith('/strategies/v6.html')&&!location.pathname.includes('/en/')&&location.search==='?view=journey'&&location.hash==='#example'`), 'Russian switch lost context');
-    const summary = { states: results.length, policyPages: files.length, ab, exceptions, networkFailures, passed: exceptions.length === 0 && networkFailures.length === 0 };
+    const summary = { states: results.length, policyPages: files.length, researchPages: researchFiles.length, ab, exceptions, networkFailures, passed: exceptions.length === 0 && networkFailures.length === 0 };
     fs.writeFileSync(path.join(qa, 'browser-checks.json'), JSON.stringify({ summary, results }, null, 2));
     console.log(JSON.stringify(summary)); assert(summary.passed, 'Browser exceptions or failed resources');
   } finally {
