@@ -113,6 +113,16 @@ async function main() {
       await navigate(file); await send('Emulation.setDeviceMetricsOverride', { width: 320, height: 900, deviceScaleFactor: 1, mobile: true });
       assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'), 'Reference/family overflow: ' + file);
     }
+    for (const locale of ['', 'en/']) {
+      await navigate(locale + 'results.html#recent-129');
+      await evaluate(`document.querySelectorAll('.recent-study details').forEach(d=>d.open=true)`);
+      for (const width of [320, 1024]) {
+        await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 600 });
+        assert(await evaluate(`document.documentElement.scrollWidth<=innerWidth && document.querySelectorAll('.recent-study').length===4`), 'Recent results overflow/missing: ' + locale + width);
+        const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true });
+        fs.writeFileSync(path.join(qa, `${locale ? 'en-' : ''}results-${width}.png`), Buffer.from(shot.data, 'base64'));
+      }
+    }
     await navigate('example.html');
     const ab = [];
     for (const step of ['before', 'a', 'b']) {

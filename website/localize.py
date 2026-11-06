@@ -19,9 +19,12 @@ class EnglishPage(HTMLParser):
     def translate(self, value):
         text = value.strip()
         if not CYRILLIC.search(text):
-            return value
+            return re.sub(r'(\d+),(\d+)(?=%)', r'\1.\2', value)
         if text in self.messages:
             translated = self.messages[text]
+        elif re.search(r' · \d+,\d+%$', text):
+            label, rate = text.rsplit(' · ', 1)
+            translated = self.translate(label) + ' · ' + rate.replace(',', '.')
         elif text.endswith(' · Bandido: Alcatraz'):
             translated = self.translate(text.removesuffix(' · Bandido: Alcatraz')) + ' · Bandido: Alcatraz'
         else:

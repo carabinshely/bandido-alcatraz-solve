@@ -1,0 +1,61 @@
+"""Public joint-cleanup lower bound; a heuristic, not a WIN certificate."""
+from bandido_alcatraz.moves import Action
+from bandido_alcatraz.strategy import move_features
+from local92_catalog_baseline import CatalogSupportPolicy
+class GraphLimit(Exception):pass
+
+def move_wire(m):return None if m is None else dict(action=m.action.value,hand_index=m.hand_index,origin=list(m.origin) if m.origin is not None else None,quarter_turns=m.quarter_turns)
+
+def graph_certificate(board):
+ targets=set(board.open_tunnel_target_counts);water={p for p,c in board.cells.items() if c.water};Q=targets|water
+ if len(Q)>64:raise GraphLimit('JOINT_Q64_GLOBAL_FALLBACK')
+ left=sorted(p for p in Q if sum(p)%2==0);edges={u:sorted(v for v in Q if abs(u[0]-v[0])+abs(u[1]-v[1])==1 and not (u in water and v in water)) for u in left};right_match={}
+ def augment(u,seen):
+  for v in edges[u]:
+   if v in seen:continue
+   seen.add(v)
+   if v not in right_match or augment(right_match[v],seen):right_match[v]=u;return True
+  return False
+ for u in left:augment(u,set())
+ left_match={u:v for v,u in right_match.items()};seenL=set(left)-set(left_match);seenR=set();stack=list(seenL)
+ while stack:
+  u=stack.pop()
+  for v in edges[u]:
+   if left_match.get(u)==v or v in seenR:continue
+   seenR.add(v)
+   if v in right_match and right_match[v] not in seenL:seenL.add(right_match[v]);stack.append(right_match[v])
+ cover=sorted((set(left)-seenL)|seenR);matching=sorted((u,v) for v,u in right_match.items())
+ if len(cover)!=len(matching):raise ValueError('MATCHING_COVER_INTERNAL_DISAGREEMENT')
+ return dict(Q=[list(p) for p in sorted(Q)],water=[list(p) for p in sorted(water)],matching=[[list(u),list(v)] for u,v in matching],cover=[list(p) for p in cover],L=len(Q)-len(matching))
+
+class JointCleanupPolicy:
+ def __init__(self,ordinary_cards,exit_card):
+  self.baseline=CatalogSupportPolicy(ordinary_cards,exit_card);self.weights=self.baseline.weights if hasattr(self.baseline,'weights') else None;self.captured=[];self.departed=False;self.last={};original=self.baseline._weakest_support
+  def observed(p,m):
+   value=original(p,m);self.captured.append((m,value));return value
+  self.baseline._weakest_support=observed
+ def choose(self,p,rng):
+  self.captured=[];anchor=self.baseline.choose(p,rng);self.last=dict(status='PROTECTED',catalog=move_wire(anchor),chosen=move_wire(anchor),rows=[])
+  if anchor is None or anchor.action is Action.COLLECT or move_features(p,anchor).wins:return anchor
+  self.last['status']='PRE_BRANCH'
+  if not p.exit_placed or (p.raincoats,p.ropes)!=(3,2):return anchor
+  self.last['status']='AFTER_DEPARTURE'
+  if self.departed:return anchor
+  rows=self.captured
+  if (not 1<=len(rows)<=3 or len({m for m,_ in rows})!=len(rows) or anchor not in dict(rows)
+      or any(m.action is not Action.PLACE or type(s) is not int or not 0<=s<=4 for m,s in rows)):
+   self.last['status']='UNKNOWN_CAPTURE';return anchor
+  self.last['status']='ZERO_ANCHOR'
+  if dict(rows)[anchor]<=0:return anchor
+  try:
+   for m,support in rows:
+    if support<=0:continue
+    child=p.board.clone();child.place(p.hand[m.hand_index],m.origin,m.quarter_turns);self.last['rows'].append(dict(move=move_wire(m),support=support,certificate=graph_certificate(child)))
+  except GraphLimit:
+   self.last.update(status='GRAPH_CAP',chosen=move_wire(anchor));return anchor
+  scores={tuple((r['move']['hand_index'],tuple(r['move']['origin']),r['move']['quarter_turns'])):r['certificate']['L'] for r in self.last['rows']}
+  key=lambda m:(m.hand_index,tuple(m.origin),m.quarter_turns);chosen=anchor
+  for m,support in rows:
+   if support>0 and scores[key(m)]<scores[key(chosen)]:chosen=m
+  self.departed=chosen!=anchor;self.last.update(status='EVALUATED',chosen=move_wire(chosen),anchor_L=scores[key(anchor)],chosen_L=scores[key(chosen)])
+  return chosen

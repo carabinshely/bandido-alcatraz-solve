@@ -1,0 +1,162 @@
+"""One held dry quiet EXIT preference while equipment is incomplete.
+
+Early EXIT can obstruct later geometry; no win-improvement or no-loss guarantee.
+The three-second added-phase deadline is cooperative, not preemptive.
+"""
+from collections import Counter
+from hashlib import sha256
+from json import dumps
+from time import monotonic
+
+from bandido_alcatraz.game import PlayerObservation
+from bandido_alcatraz.moves import Action, Move
+from bandido_alcatraz.rules import is_equipment_ready
+from bandido_alcatraz.strategy import move_features, score_features
+from local92_catalog_baseline import CatalogSupportPolicy
+
+MAX_SECONDS = 3.0
+MAX_ROOT_CELLS = 48
+MAX_POST_CELLS = 50
+MAX_TARGETS = 12
+MAX_ALIGNMENTS = 96
+DIAGNOSTICS = ('attempts', 'departures', 'unknown_fallbacks', 'deadline_fallbacks',
+    'alignment_checks', 'legal_exit_candidates', 'quiet_exit_candidates',
+    'completed_comparisons', 'planning_milliseconds', 'max_targets')
+
+
+class _Unknown(Exception):
+    def __init__(self, reason):
+        self.reason = reason
+
+
+def _check(deadline):
+    if monotonic() >= deadline:
+        raise _Unknown('deadline')
+
+
+def _move_dict(move):
+    return dict(action=move.action.value, hand_index=move.hand_index,
+        origin=list(move.origin) if move.origin is not None else None,
+        quarter_turns=move.quarter_turns)
+
+
+def _frontier(targets):
+    return [[x, y, targets[(x, y)]] for x, y in sorted(targets)]
+
+
+class EarlyExitPolicy:
+    def __init__(self, ordinary_cards, exit_card):
+        self.baseline = CatalogSupportPolicy(tuple(ordinary_cards), exit_card)
+        self.weights = self.baseline.weights
+        self.exit_card = exit_card
+        self.planned = self.returned_none = False
+        for name in DIAGNOSTICS:
+            setattr(self, name, 0)
+        self.planning_evidence = {}
+        self.planning_unknown_reason = None
+
+    def choose(self, observation, rng):
+        if not isinstance(observation, PlayerObservation):
+            raise TypeError('detached PlayerObservation required')
+        fallback = self.baseline.choose(observation, rng)
+        if fallback is None:
+            self.returned_none = True
+            return None
+        if (self.planned or self.returned_none or fallback.action is not Action.PLACE
+                or observation.exit_placed or observation.hand[fallback.hand_index].is_exit
+                or is_equipment_ready(observation.raincoats, observation.ropes)
+                or observation.setup.player_count != 1 or observation.player_index != 0
+                or observation.setup.hand_size != 6 or len(observation.hand) != 6
+                or observation.set_aside_unplayable != 0):
+            return fallback
+        exit_indices = [i for i, card in enumerate(observation.hand) if card.is_exit]
+        if not exit_indices:
+            return fallback
+        self.planned = True
+        self.attempts += 1
+        started = monotonic()
+        deadline = started + MAX_SECONDS
+        try:
+            _check(deadline)
+            if len(observation.board.cells) > MAX_ROOT_CELLS:
+                raise _Unknown('root_cells')
+            if len(exit_indices) != 1 or observation.hand[exit_indices[0]] != self.exit_card:
+                raise _Unknown('exit_identity')
+            card = self.exit_card
+            if (not card.is_exit or card.material is not None or card.has_water
+                    or not 1 <= len(card.cells) <= 2
+                    or (len(card.cells) == 2 and abs(card.cells[0].x-card.cells[1].x)
+                        + abs(card.cells[0].y-card.cells[1].y) != 1)):
+                raise _Unknown('exit_shape')
+            targets = Counter(observation.board.open_tunnel_target_counts)
+            _check(deadline)
+            if not 1 <= len(targets) <= MAX_TARGETS:
+                raise _Unknown('root_targets')
+            self.max_targets = len(targets)
+            exit_index = exit_indices[0]
+            seen, scan = set(), []
+            selected = selected_move = None
+            for target in sorted(targets):
+                desired = targets.copy()
+                del desired[target]  # Quiet removes the whole incoming-port multiplicity.
+                for quarter_turns in range(4):
+                    _check(deadline)
+                    rotated = card.rotated(quarter_turns)
+                    _check(deadline)
+                    for cell in rotated.cells:
+                        _check(deadline)
+                        origin = (target[0]-cell.x, target[1]-cell.y)
+                        key = (origin, quarter_turns)
+                        if key in seen:
+                            continue
+                        if self.alignment_checks >= MAX_ALIGNMENTS:
+                            raise _Unknown('alignment_cap')
+                        seen.add(key)
+                        self.alignment_checks += 1
+                        legal = observation.board.can_place(card, origin, quarter_turns)
+                        _check(deadline)
+                        quiet = False
+                        post_open = post_water = score = None
+                        if legal:
+                            self.legal_exit_candidates += 1
+                            after = observation.board.clone()
+                            _check(deadline)
+                            after.place(card, origin, quarter_turns)
+                            _check(deadline)
+                            if len(after.cells) > MAX_POST_CELLS:
+                                raise _Unknown('root_cells')
+                            post_open, post_water = after.open_tunnels, after.visible_water_cells
+                            quiet = (post_open > 0 and Counter(after.open_tunnel_target_counts) == desired)
+                            if quiet:
+                                self.quiet_exit_candidates += 1
+                                move = Move(Action.PLACE, exit_index, origin, quarter_turns)
+                                _check(deadline)
+                                feature = move_features(observation, move)
+                                _check(deadline)
+                                score = score_features(feature, self.weights)
+                                _check(deadline)
+                                if selected is None or score > selected['score']:
+                                    selected_move = move
+                                    selected = dict(move=_move_dict(move), score=score,
+                                        closed_target=list(target), frontier_after=_frontier(desired),
+                                        post_open_tunnels=post_open, post_water=post_water)
+                        # Ordered source-bound scan: target XY, origin XY, q, legal, qualifying, F, W, score.
+                        scan.append([*target, *origin, quarter_turns, legal, quiet, post_open, post_water, score])
+                        _check(deadline)
+            scan_hash = sha256(dumps(scan, separators=(',', ':'), ensure_ascii=True).encode()).hexdigest()
+            _check(deadline)
+            self.planning_evidence = dict(turn=observation.turns, fallback=_move_dict(fallback),
+                exit_hand_index=exit_index, required_raincoats=3-observation.raincoats,
+                required_ropes=2-observation.ropes, frontier_before=_frontier(targets),
+                water_before=observation.board.visible_water_cells, selected_exit=selected,
+                scan_sha256=scan_hash)
+            self.completed_comparisons = 1
+            self.departures = int(selected_move is not None)
+            return selected_move if selected_move is not None else fallback
+        except Exception as error:
+            self.planning_unknown_reason = error.reason if isinstance(error, _Unknown) else 'model_exception'
+            self.unknown_fallbacks = 1
+            self.deadline_fallbacks = int(self.planning_unknown_reason == 'deadline')
+            return fallback
+        finally:
+            self.planning_milliseconds += max(0, int((monotonic()-started)*1000))

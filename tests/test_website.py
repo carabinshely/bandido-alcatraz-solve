@@ -132,7 +132,7 @@ def test_numeric_results_are_shared_by_summary_and_strategy_pages():
                 'v1': [(0, 20)], 'discard-v2': [(0, 50)], 'water-v2': [(0, 50)],
                 'combined-v2': [(0, 50)], 'merge-v3': [(1, 50)], 'space-v3': [(0, 50)],
                 'combined-v3': [(1, 50)], 'v4': [(45, 400)], 'v5': [(3, 23)],
-                'v6': [(5, 100)], 'v7': [(14, 400)], 'catalog': [(37, 240), (34, 240)]}
+                'v6': [(5, 100)], 'v7': [(14, 400)], 'catalog': [(57, 400)]}
     for id, records in registry.items():
         primary = [record for record in records if record['primary']]
         assert [(r['wins'], r['games']) for r in primary] == expected[id]
@@ -151,3 +151,55 @@ def test_numeric_results_are_shared_by_summary_and_strategy_pages():
                 assert f'data-result-policy="{id}"' in document
                 for record in primary:
                     assert f'data-result-id="{record["id"]}"' in document
+
+
+def test_percentage_labels_in_history_and_related_links():
+    from decimal import Decimal, ROUND_HALF_UP
+    registry = json.loads((SITE / 'dist/sources/strategy-results.json').read_text(encoding='utf-8'))
+    for locale in ('', 'en/'):
+        for document in (SITE / 'dist' / locale).rglob('*.html'):
+            if not locale and 'en' in document.relative_to(SITE / 'dist').parts:
+                continue
+            class PolicyLinks(HTMLParser):
+                policy = None
+                label = ''
+
+                def handle_starttag(self, tag, attrs):
+                    attrs = dict(attrs)
+                    if tag == 'a' and attrs.get('class') == 'policy-link' and 'strategies/' in attrs.get('href', ''):
+                        self.policy = attrs['href'].split('strategies/')[1].split('.html')[0]
+                        self.label = ''
+
+                def handle_data(self, text):
+                    if self.policy:
+                        self.label += text
+
+                def handle_endtag(self, tag):
+                    if tag == 'a' and self.policy:
+                        for r in registry[self.policy]:
+                            if r['primary']:
+                                rate = str((Decimal(r['wins']) * 100 / r['games']).quantize(Decimal('.01'), rounding=ROUND_HALF_UP)) + '%'
+                                assert (rate if locale else rate.replace('.', ',')) in self.label
+                        self.policy = None
+            PolicyLinks().feed(document.read_text(encoding='utf-8'))
+
+
+def test_recent_completed_results_preserve_counts_and_frozen_code():
+    import hashlib
+    dist = SITE / 'dist'
+    data = json.loads((dist / 'sources/recent-research.json').read_text(encoding='utf-8'))
+    assert [(s['number'], s['wins_candidate'], s['wins_control'], s['pairs']) for s in data['studies']] == [
+        (110, 287, 284, 2000), (113, 289, 287, 2000), (127, 47, 51, 400), (129, 62, 57, 400)]
+    for s in data['studies']:
+        assert not s['adopted'] and not s['primary_positive_superiority']
+        assert s['wins_candidate'] == s['both_win'] + s['only_candidate_win']
+        assert s['wins_control'] == s['both_win'] + s['only_control_win']
+        assert sum(s[k] for k in ('both_win', 'neither_win', 'only_candidate_win', 'only_control_win')) == s['pairs']
+        assert hashlib.sha256((dist / 'sources' / s['code_file']).read_bytes()).hexdigest() == s['policy_sha256']
+        assert hashlib.sha256((dist / 'sources/local92_catalog_baseline.py.txt').read_bytes()).hexdigest() == s['control_policy_sha256']
+    for locale, rate in [('', '15,50%'), ('en/', '15.50%')]:
+        results = (dist / locale / 'results.html').read_text(encoding='utf-8')
+        assert rate in results and '62 / 400' in results
+        assert 'id="recent-129"' in results
+        history = (dist / locale / 'index.html').read_text(encoding='utf-8')
+        assert 'results.html#recent-129' in history and rate in history
