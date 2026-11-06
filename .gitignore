@@ -16,3 +16,7 @@ artifacts/tmp/
 
 # Physical-card source photos are evidence/input, not repository content
 card-photos/
+
+# Rebuildable local strategy site and browser evidence
+website/dist/
+website/.qa/
