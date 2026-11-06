@@ -1,0 +1,7 @@
+# Strategy21 one-open reserve — source-only proposal
+
+Hypothesis: retain at least two open tunnels when another legal root is available, while allowing valuable closure from three to two. V4-250 remains the score/tie baseline. A nonwinning placement leaving fewer than two open tunnels is excluded only if a non-excluded legal root exists; collecting and a winning placement remain eligible. The policy uses only the public observation and canonical RNG. No physical game, deck, rules, or hidden-information boundary changes.
+
+Evidence motivating the new threshold is exploratory paired20 (run 39136062266, seeds 1000423–1000430, all spent): control 2/8 wins, floor3 candidate 1/8. Floor3 changed 16 choices, all when its safe tier lost V4 score; in the sole control-only pair, the first divergence vetoed a +100 move leaving two open tunnels and chose a score-0 move leaving three. A threshold of two would allow that immediate move. This is a design hypothesis, not an observed floor2 outcome or a claim that the later game would necessarily follow the control path. The previous eight pairs cannot serve as fresh confirmation.
+
+This source commit is not an execution admission. Before a future comparison, freeze the exact code and runner, obtain independent full reviews and focused tests, allocate untouched seeds, define fixed sample/analysis/stopping, verify current budget and CI runtime/source, issue one root GO, then preserve complete private evidence. Do not rerun old seeds or reuse the paired20 GO.
