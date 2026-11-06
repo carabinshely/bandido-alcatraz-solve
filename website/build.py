@@ -10,6 +10,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 from replay import ROOT, replay
 from localize import english_page
+from result_data import recorded_results
 
 HERE = Path(__file__).resolve().parent
 DIST = HERE / 'dist'
@@ -17,6 +18,19 @@ DATA = json.loads((HERE / 'content.json').read_text(encoding='utf-8'))
 EXAMPLE = json.loads((HERE / 'inputs/player-example.json').read_text(encoding='utf-8'))
 POLICIES = {p['id']: p for p in DATA['policies']}
 FAMILIES = {f['id']: f for f in DATA['families']}
+RESULTS = recorded_results()
+RESULT_NOTES = {
+    'smoke': 'Текущая модель · 6 карт · smoke-проверка, 20 использованных seeds. Не оценка вероятности победы.',
+    'baseline': 'Текущая модель · 6 карт · базовый прогон. Повтор не добавляет независимых партий.',
+    'historical-v1': 'Прежняя модель · 3 карты · проверка V1, seeds 0–99.',
+    'historical-v2': 'Прежняя модель · 3 карты · проверка V2, seeds 0–49.',
+    'historical-v3': 'Прежняя модель · 3 карты · проверка V3, seeds 0–49.',
+    'historical-v5': 'Прежняя модель · 3 карты · 23 выбранных development-seeds.',
+    'historical-v6': 'Прежняя модель · 3 карты · development-seeds 1000–1099.',
+    'historical-v7': 'Прежняя модель · 3 карты · development-seeds 1000000–1000399.',
+    'catalog-1': 'Текущая модель · 6 карт · парный набор 1, seeds 1001729–1001968.',
+    'catalog-2': 'Текущая модель · 6 карт · парный набор 2, seeds 1001969–1002208.',
+}
 FEATURES = {
     'collect_needed': 'Сбор нужного снаряжения', 'collect_excess': 'Избыточный сбор (сейчас запрещён)',
     'collect_degree_one': 'Сбор снаряжения с одним внешним входом', 'wins': 'Победа',
@@ -63,13 +77,36 @@ def title_block(title, lead, back=None):
     return f'{back_link}<section class="page-heading"><h1>{title}</h1><p class="lead">{lead}</p></section>'
 
 
+def result_fraction(record):
+    return f'<strong class="result-fraction" data-result-id="{record["id"]}">{record["wins"]} / {record["games"]}</strong>'
+
+
+def results_table(prefix=''):
+    rows = []
+    for p in DATA['policies']:
+        primary = [r for r in RESULTS[p['id']] if r['primary']]
+        for index, record in enumerate(primary):
+            heading = f'<th scope="row" rowspan="{len(primary)}"><a class="result-link" href="{prefix}strategies/{p["id"]}.html">{esc(p["name"])}</a><span class="result-version">{esc(p["version"])}</span></th>' if index == 0 else ''
+            note = f'<p>{RESULT_NOTES[record["study"]]}</p><a class="result-source" href="{prefix}sources/{record["source_file"]}">Источник</a>'
+            rows.append(f'<tr data-result-policy="{p["id"]}">{heading}<td>{result_fraction(record)}</td><td>{note}</td></tr>')
+    return '<table class="result-summary"><caption>Победы / партии. Разные наборы и модели не объединяются.</caption><thead><tr><th scope="col">Стратегия</th><th scope="col">Победы / партии</th><th scope="col">Условия проверки</th></tr></thead><tbody>' + ''.join(rows) + '</tbody></table>'
+
+
+def result_block(id, all_records=False):
+    records = RESULTS[id] if all_records else [r for r in RESULTS[id] if r['primary']]
+    lines = []
+    for record in records:
+        lines.append(f'<div class="recorded-result">{result_fraction(record)}<div><p>{RESULT_NOTES[record["study"]]}</p><a href="../sources/{record["source_file"]}">Источник</a></div></div>')
+    return '<section class="strategy-result" aria-label="Численный результат стратегии"><h2>Победы / сыгранные партии</h2>' + ''.join(lines) + '</section>'
+
+
 def home():
     family_cards = []
     for f in DATA['families']:
         count = len(f['members'])
         suffix = 'подход' if count == 1 else 'варианта'
         family_cards.append(f'<a class="family-card {"featured" if f["id"] == "water" else ""}" href="families/{f["id"]}.html?view=ideas"><h3>{esc(f["name"])}</h3><p>{esc(f["summary"])}</p><span>{count} {suffix}</span></a>')
-    individual = ''.join(link_policy(p['id'], context='?view=policies') for p in DATA['policies'])
+    individual = results_table()
     timeline = []
     for stage in DATA['stages']:
         entries = ''.join(link_policy(id, context='?view=journey') for id in stage['members'])
@@ -79,7 +116,7 @@ def home():
     <section class="catalog" id="catalog" aria-labelledby="catalog-heading"><div class="section-intro"><h2 id="catalog-heading">Найди свой способ<br>выбрать ход</h2><p>Один набор стратегий. Начни с игровой задачи, найди конкретный алгоритм или проследи развитие идей.</p></div>
     <div class="catalog-tabs" role="tablist" aria-label="Способ просмотра стратегий"><button type="button" id="tab-ideas" role="tab" aria-selected="true" aria-controls="panel-ideas" data-view="ideas">По игровым задачам</button><button type="button" id="tab-policies" role="tab" aria-selected="false" aria-controls="panel-policies" data-view="policies" tabindex="-1">Все алгоритмы</button><button type="button" id="tab-journey" role="tab" aria-selected="false" aria-controls="panel-journey" data-view="journey" tabindex="-1">История развития</button></div>
     <section id="panel-ideas" role="tabpanel" aria-labelledby="tab-ideas"><p class="panel-intro">Выбери задачу на поле. Близкие варианты собраны вместе, чтобы их было проще сравнить.</p><div class="family-grid">{''.join(family_cards)}</div></section>
-    <section id="panel-policies" role="tabpanel" aria-labelledby="tab-policies" hidden><p class="panel-intro">Все 15 алгоритмов, включая базовые и промежуточные варианты. У каждого есть описание, разбор позиции и точный исходный код.</p><div class="policy-grid">{individual}</div></section>
+    <section id="panel-policies" role="tabpanel" aria-labelledby="tab-policies" hidden><p class="panel-intro">Все 15 алгоритмов, включая базовые и промежуточные варианты. У каждого есть описание, разбор позиции и точный исходный код.</p>{individual}</section>
     <section id="panel-journey" role="tabpanel" aria-labelledby="tab-journey" hidden><p class="panel-intro">История идей, а не рейтинг побед. V1–V7 исследовались в прежней модели правил; подход с каталогом — отдельная ветка от V4.</p><div class="timeline">{''.join(timeline)}</div></section>
     <noscript><p>Для переключения вкладок нужен JavaScript. Все стратегии доступны через страницы игровых задач выше.</p></noscript></section>
     <section class="evidence-band"><div><h2>Совет можно проверить</h2><p>Каждый алгоритм получает только публичное поле и видимые карты. На страницах показано, какой ход он выбирает из одной сохранённой позиции.</p></div><div><strong>45 побед из 400 партий</strong><p>Исходный результат V4 в текущей модели правил. Отдельно доступны парные проверки подхода с каталогом карт.</p><a href="results.html">Посмотреть результаты и условия</a></div></section>
@@ -140,12 +177,16 @@ def strategy_pages(agents):
         siblings = [id for id in f['members'] if id != p['id']] or ['v4']
         related = ''.join(link_policy(id, '../') for id in siblings)
         badge = 'Текущая модель: базовый эксперимент' if p['id'] == 'v4' else 'Текущая модель: парные проверки' if p['id'] == 'catalog' else 'Исторический подход; пример пересчитан по текущим правилам'
+        if p['id'] in ('random', 'min-open', 'v0', 'v1'):
+            badge = 'Текущая модель: smoke-проверка'
         content = title_block(esc(p['name']), esc(p['summary']), '../index.html#catalog')
-        content += f'<p class="version">{esc(p["version"])} · {badge}</p><nav class="contents" aria-label="Содержание стратегии"><a href="#player">Как применять</a><a href="#example">Разбор хода</a><a href="#evidence">Результаты</a><a href="#agent">Для агента</a></nav>'
+        content += f'<p class="version">{esc(p["version"])} · {badge}</p>'
+        content += result_block(p['id'])
+        content += '<nav class="contents" aria-label="Содержание стратегии"><a href="#player">Как применять</a><a href="#example">Разбор хода</a><a href="#evidence">Результаты</a><a href="#agent">Для агента</a></nav>'
         content += f'<div class="strategy-layout"><div><section class="player-rule" id="player"><h2>Как действовать игроку</h2><p>{esc(p["rule"])}</p></section><section class="difference"><h2>Чем отличается</h2><p>{esc(p["difference"])}</p><p class="muted">Совет для человека упрощает взвешенную оценку. Чтобы точно повторить алгоритм, используй описание и исходники ниже.</p></section></div><aside><h2>Близкие подходы</h2>{related}<a class="family-back" href="../families/{f["id"]}.html?view=ideas">{esc(f["name"])}</a></aside></div>'
         content += example_section(p, agent)
         anchor = p['id'] if p['id'] in ('v4', 'catalog') else 'historical'
-        content += f'<section class="reading" id="evidence"><h2>Что показала проверка</h2><p>{esc(p["evidence"])}</p><p>Одиночный пересчёт хода выше не измеряет частоту побед и не превращает старый результат в проверку по новым правилам.</p><a href="../results.html#{anchor}">Условия, ограничения и источники</a></section>'
+        content += f'<section class="reading" id="evidence"><h2>Что показала проверка</h2>{result_block(p["id"], all_records=True)}<p>Одиночный пересчёт хода выше не измеряет частоту побед и не превращает старый результат в проверку по новым правилам.</p><a href="../results.html#{anchor}">Условия, ограничения и источники</a></section>'
         content += agent_section(p, agent)
         content += '<div class="return"><a class="secondary" data-return href="../index.html#catalog">Вернуться к стратегиям</a></div>'
         content += script_data('board-data', {'original': EXAMPLE['original'], 'chosen': agent['example']['after'], 'chosenMove': agent['example']['move']})
@@ -155,6 +196,8 @@ def strategy_pages(agents):
 def reference_pages():
     for name in ('rules', 'results', 'method', 'example'):
         source = (HERE / 'templates' / (name + '.html')).read_text(encoding='utf-8')
+        if name == 'results':
+            source = source.replace('__RESULT_SUMMARY__', results_table())
         if name == 'example':
             source += script_data('board-data', {'original': EXAMPLE['original'], 'a': EXAMPLE['choices'][0]['observation'], 'b': EXAMPLE['choices'][1]['observation'], 'ab': True})
         titles = {'rules': 'Правила модели', 'results': 'Результаты проверок', 'method': 'Как воспроизвести', 'example': 'Разбор двух ходов'}
@@ -176,7 +219,11 @@ def copy_sources(agents):
     manifest = {'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(), 'ruleset': EXAMPLE['ruleset'], 'example_snapshot_sha256': EXAMPLE['source_snapshot_sha256'], 'policy_count': len(agents), 'source_files': {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in sorted(source_paths | set(manifests.values()))}}
     (DIST / 'sources/site-manifest.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
     for id, data in agents.items():
+        data['evaluation_results'] = RESULTS[id]
         (DIST / 'agents' / (id + '.json')).write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
+    (DIST / 'sources/strategy-results.json').write_text(json.dumps(RESULTS, ensure_ascii=False, indent=2), encoding='utf-8')
+    for name in ('current-smoke', 'historical-v1', 'historical-v2', 'historical-v3'):
+        shutil.copyfile(HERE / 'inputs' / (name + '.json'), DIST / 'sources' / (name + '.json'))
     shutil.copyfile(HERE / 'inputs/bandido-example-reproduction.zip', DIST / 'downloads/bandido-example-reproduction.zip')
     modules = ['__init__', 'board', 'deck_data', 'game', 'model', 'moves', 'photo_geometry', 'physical_deck', 'policies', 'rules', 'setup', 'strategy', 'catalog_support', 'simulate']
     files = [ROOT / f'src/bandido_alcatraz/{name}.py' for name in modules]

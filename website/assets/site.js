@@ -32,7 +32,7 @@
     return;
   }
   function contextualLinks() {
-    document.querySelectorAll('a[data-return], a[data-catalog-link], a.policy-link').forEach(link => {
+    document.querySelectorAll('a[data-return], a[data-catalog-link], a.policy-link, a.result-link').forEach(link => {
       const url = new URL(link.getAttribute('href'), location.href);
       url.searchParams.set('view', view);
       link.href = url.href;
