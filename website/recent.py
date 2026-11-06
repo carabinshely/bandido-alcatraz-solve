@@ -16,7 +16,7 @@ IDEAS = {
 
 def recent_links(prefix=''):
     return '<div class="stage-policies">' + ''.join(
-        f'<a class="policy-link" href="{prefix}results.html#recent-{s["number"]}"><strong>{html.escape(s["name"])}</strong><span>#{s["number"]} · {percent(s["wins_candidate"], s["pairs"])}</span></a>'
+        f'<a class="policy-link" href="{prefix}strategies/research-{s["number"]}.html"><strong>{html.escape(s["name"])}</strong><span>#{s["number"]} · {percent(s["wins_candidate"], s["pairs"])}</span></a>'
         for s in STUDIES) + '</div>'
 
 
@@ -28,7 +28,7 @@ def recent_results():
         interval = f'{100 * low:+.2f} … {100 * high:+.2f}'
         diff = f'{100 * s["paired_win_difference"]:+.2f}'
         sections.append(f'''<article class="reading recent-study" id="recent-{n}">
-        <p class="version">{s['date']} · #{n}</p><h3>{html.escape(s['name'])}</h3>
+        <p class="version">{s['date']} · #{n}</p><h3><a href="strategies/research-{n}.html">{html.escape(s['name'])} · {percent(s['wins_candidate'],s['pairs'])}</a></h3>
         <div class="score-pair"><div><span>Экспериментальный вариант</span><strong>{percent(s['wins_candidate'], s['pairs'])}</strong><span>{s['wins_candidate']} / {s['pairs']}</span></div>
         <div><span>Контроль: каталог карт</span><strong>{percent(s['wins_control'], s['pairs'])}</strong><span>{s['wins_control']} / {s['pairs']}</span></div></div>
         <p>{IDEAS[n]}</p><p>Превосходство не подтверждено; вариант не принят базовой стратегией.</p>
