@@ -1,10 +1,15 @@
 """Read recorded aggregate results; never simulate, pool or infer missing wins."""
 import json
 import re
+from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
+
+
+def percent(wins, games):
+    return str((Decimal(wins) * 100 / Decimal(games)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)).replace('.', ',') + '%'
 
 
 def read(path):
@@ -86,4 +91,12 @@ def recorded_results():
                 'docs--catalog-support-policy.md.txt',
                 'https://github.com/carabinshely/bandido-alcatraz-solve/blob/main/docs/catalog-support-policy.md',
                 [int(start), int(end)], commit, primary=policy == 'catalog')
+    recent = read('website/inputs/recent-research.json')
+    for row in rows['catalog']:
+        row['primary'] = False
+    for study in recent['studies']:
+        add('catalog', 'recent-' + str(study['number']), study['wins_control'], study['pairs'],
+            'current', 'recent-research.json',
+            'https://carabinshely.github.io/bandido-alcatraz-solve/results.html#recent-' + str(study['number']),
+            study['seeds'], study['source_head'], primary=study['number'] == 129)
     return rows

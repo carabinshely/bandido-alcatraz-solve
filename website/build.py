@@ -10,7 +10,8 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 from replay import ROOT, replay
 from localize import english_page
-from result_data import recorded_results
+from result_data import recorded_results, percent
+from recent import STUDIES, recent_links, recent_results
 
 HERE = Path(__file__).resolve().parent
 DIST = HERE / 'dist'
@@ -31,6 +32,8 @@ RESULT_NOTES = {
     'catalog-1': 'Текущая модель · 6 карт · парный набор 1, seeds 1001729–1001968.',
     'catalog-2': 'Текущая модель · 6 карт · парный набор 2, seeds 1001969–1002208.',
 }
+for study in STUDIES:
+    RESULT_NOTES['recent-' + str(study['number'])] = 'Текущая модель · 6 карт · контроль в проверке #' + str(study['number']) + ', seeds ' + study['seeds'] + '.'
 FEATURES = {
     'collect_needed': 'Сбор нужного снаряжения', 'collect_excess': 'Избыточный сбор (сейчас запрещён)',
     'collect_degree_one': 'Сбор снаряжения с одним внешним входом', 'wins': 'Победа',
@@ -69,7 +72,11 @@ def page(path, title, description, content, kind='article'):
 
 def link_policy(id, prefix='', context=''):
     p = POLICIES[id]
-    return f'<a class="policy-link" href="{prefix}strategies/{id}.html{context}"><strong>{esc(p["name"])}</strong><span>{esc(p["version"])}</span></a>'
+    return f'<a class="policy-link" href="{prefix}strategies/{id}.html{context}"><strong>{esc(p["name"])}</strong><span>{esc(p["version"])} · {policy_percent(id)}</span></a>'
+
+
+def policy_percent(id):
+    return ' / '.join(percent(r['wins'], r['games']) for r in RESULTS[id] if r['primary'])
 
 
 def title_block(title, lead, back=None):
@@ -78,7 +85,7 @@ def title_block(title, lead, back=None):
 
 
 def result_fraction(record):
-    return f'<strong class="result-fraction" data-result-id="{record["id"]}">{record["wins"]} / {record["games"]}</strong>'
+    return f'<div data-result-id="{record["id"]}"><strong class="result-fraction">{percent(record["wins"], record["games"])}</strong><span class="result-version">{record["wins"]} / {record["games"]}</span></div>'
 
 
 def results_table(prefix=''):
@@ -89,7 +96,7 @@ def results_table(prefix=''):
             heading = f'<th scope="row" rowspan="{len(primary)}"><a class="result-link" href="{prefix}strategies/{p["id"]}.html">{esc(p["name"])}</a><span class="result-version">{esc(p["version"])}</span></th>' if index == 0 else ''
             note = f'<p>{RESULT_NOTES[record["study"]]}</p><a class="result-source" href="{prefix}sources/{record["source_file"]}">Источник</a>'
             rows.append(f'<tr data-result-policy="{p["id"]}">{heading}<td>{result_fraction(record)}</td><td>{note}</td></tr>')
-    return '<table class="result-summary"><caption>Победы / партии. Разные наборы и модели не объединяются.</caption><thead><tr><th scope="col">Стратегия</th><th scope="col">Победы / партии</th><th scope="col">Условия проверки</th></tr></thead><tbody>' + ''.join(rows) + '</tbody></table>'
+    return '<table class="result-summary"><caption>Процент побед; ниже — победы / партии. Разные наборы и модели не объединяются.</caption><thead><tr><th scope="col">Стратегия</th><th scope="col">Процент побед</th><th scope="col">Условия проверки</th></tr></thead><tbody>' + ''.join(rows) + '</tbody></table>'
 
 
 def result_block(id, all_records=False):
@@ -111,6 +118,7 @@ def home():
     for stage in DATA['stages']:
         entries = ''.join(link_policy(id, context='?view=journey') for id in stage['members'])
         timeline.append(f'<section class="stage"><div class="stage-label">{esc(stage["label"])}</div><div><h3>{esc(stage["title"])}</h3><p>{esc(stage["problem"])}</p><div class="stage-policies">{entries}</div></div></section>')
+    timeline.append('<section class="stage"><div class="stage-label">2026-11</div><div><h3>Последние завершённые проверки</h3><p>Экспериментальные варианты каталога; превосходство не подтверждено.</p>' + recent_links() + '</div></section>')
     content = f'''
     <section class="hero"><div><h1>Хороший ход.<br>Не просто<br>удачная карта.</h1><p class="lead">Учимся выбирать из того, что есть в руке. На настоящих позициях Bandido: Alcatraz.</p><a class="primary" href="strategies/v4.html#example">Разобрать одну позицию</a><p class="small">Соло-игра · 6 карт в руке</p></div><figure class="hero-board"><div class="board" data-board="home"></div><figcaption>Настоящее поле перед 8-м действием.<br>5 открытых концов, воды нет.</figcaption><div class="pocket"><strong>Закрыть два тоннеля?</strong><span>Сначала проверь, не добавится ли вода.</span></div></figure></section>
     <section class="catalog" id="catalog" aria-labelledby="catalog-heading"><div class="section-intro"><h2 id="catalog-heading">Найди свой способ<br>выбрать ход</h2><p>Один набор стратегий. Начни с игровой задачи, найди конкретный алгоритм или проследи развитие идей.</p></div>
@@ -119,14 +127,14 @@ def home():
     <section id="panel-policies" role="tabpanel" aria-labelledby="tab-policies" hidden><p class="panel-intro">Все 15 алгоритмов, включая базовые и промежуточные варианты. У каждого есть описание, разбор позиции и точный исходный код.</p>{individual}</section>
     <section id="panel-journey" role="tabpanel" aria-labelledby="tab-journey" hidden><p class="panel-intro">История идей, а не рейтинг побед. V1–V7 исследовались в прежней модели правил; подход с каталогом — отдельная ветка от V4.</p><div class="timeline">{''.join(timeline)}</div></section>
     <noscript><p>Для переключения вкладок нужен JavaScript. Все стратегии доступны через страницы игровых задач выше.</p></noscript></section>
-    <section class="evidence-band"><div><h2>Совет можно проверить</h2><p>Каждый алгоритм получает только публичное поле и видимые карты. На страницах показано, какой ход он выбирает из одной сохранённой позиции.</p></div><div><strong>45 побед из 400 партий</strong><p>Исходный результат V4 в текущей модели правил. Отдельно доступны парные проверки подхода с каталогом карт.</p><a href="results.html">Посмотреть результаты и условия</a></div></section>
+    <section class="evidence-band"><div><h2>Совет можно проверить</h2><p>Каждый алгоритм получает только публичное поле и видимые карты. На страницах показано, какой ход он выбирает из одной сохранённой позиции.</p></div><div><strong>11,25% · 45 побед из 400 партий</strong><p>Исходный результат V4 в текущей модели правил. Отдельно доступны парные проверки подхода с каталогом карт.</p><a href="results.html">Посмотреть результаты и условия</a></div></section>
     {script_data('board-data', {'original': EXAMPLE['original']})}'''
     page('index.html', 'Стратегии для игрока', 'Игровые задачи, все алгоритмы и история развития стратегий Bandido: Alcatraz.', content, 'home')
 
 
 def family_pages():
     for f in DATA['families']:
-        cards = ''.join(f'<article class="family-option"><div><p class="version">{esc(POLICIES[id]["version"])}</p><h2>{esc(POLICIES[id]["name"])}</h2><p>{esc(POLICIES[id]["summary"])}</p><p class="muted">{esc(POLICIES[id]["difference"])}</p></div><a class="secondary" href="../strategies/{id}.html?view=ideas">Разобрать подход</a></article>' for id in f['members'])
+        cards = ''.join(f'<article class="family-option"><div><p class="version">{esc(POLICIES[id]["version"])}</p><h2>{esc(POLICIES[id]["name"])}</h2><p class="version">{policy_percent(id)}</p><p>{esc(POLICIES[id]["summary"])}</p><p class="muted">{esc(POLICIES[id]["difference"])}</p></div><a class="secondary" href="../strategies/{id}.html?view=ideas">Разобрать подход</a></article>' for id in f['members'])
         content = title_block(esc(f['name']), esc(f['summary']), '../index.html?view=ideas#catalog')
         content += f'<div class="family-options">{cards}</div><section class="reading"><h2>Как сравнивать варианты</h2><p>На каждой странице использована одна и та же публичная позиция. Это позволяет увидеть различия в выборе хода. Один пример не заменяет проверку частоты побед на множестве партий.</p><a href="../results.html">Что известно о результатах</a></section>'
         page(f'families/{f["id"]}.html', f['name'], f['summary'], content, 'family')
@@ -197,7 +205,7 @@ def reference_pages():
     for name in ('rules', 'results', 'method', 'example'):
         source = (HERE / 'templates' / (name + '.html')).read_text(encoding='utf-8')
         if name == 'results':
-            source = source.replace('__RESULT_SUMMARY__', results_table())
+            source = source.replace('__RESULT_SUMMARY__', results_table() + recent_results())
         if name == 'example':
             source += script_data('board-data', {'original': EXAMPLE['original'], 'a': EXAMPLE['choices'][0]['observation'], 'b': EXAMPLE['choices'][1]['observation'], 'ab': True})
         titles = {'rules': 'Правила модели', 'results': 'Результаты проверок', 'method': 'Как воспроизвести', 'example': 'Разбор двух ходов'}
@@ -224,6 +232,9 @@ def copy_sources(agents):
     (DIST / 'sources/strategy-results.json').write_text(json.dumps(RESULTS, ensure_ascii=False, indent=2), encoding='utf-8')
     for name in ('current-smoke', 'historical-v1', 'historical-v2', 'historical-v3'):
         shutil.copyfile(HERE / 'inputs' / (name + '.json'), DIST / 'sources' / (name + '.json'))
+    shutil.copyfile(HERE / 'inputs/recent-research.json', DIST / 'sources/recent-research.json')
+    for frozen in (HERE / 'inputs/research-code').glob('*.txt'):
+        shutil.copyfile(frozen, DIST / 'sources' / frozen.name)
     shutil.copyfile(HERE / 'inputs/bandido-example-reproduction.zip', DIST / 'downloads/bandido-example-reproduction.zip')
     modules = ['__init__', 'board', 'deck_data', 'game', 'model', 'moves', 'photo_geometry', 'physical_deck', 'policies', 'rules', 'setup', 'strategy', 'catalog_support', 'simulate']
     files = [ROOT / f'src/bandido_alcatraz/{name}.py' for name in modules]
