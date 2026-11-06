@@ -1,0 +1,9 @@
+# Paired23 floor-only ablation contract
+
+This is a fixed **developmental** 16-pair comparison on the unchanged solo easy5, hand6, real 69-card deck and canonical engine win condition. The candidate retains the two-open nonwinning-placement guard of strategy22 but keeps the V4-250 `delta_open_tunnels=100` on every public turn. The control is frozen strategy22 with the same guard and the turn>=20 weight1000. A separate reference implementation checks every decision in each arm. Spent paired22 outcomes generated this hypothesis; they are not confirmation.
+
+Seeds 1000447–1000462 are **proposed, not allocated**. All 16 complete pairs are required for the planned descriptive table: wins, paired discordance and exact two-sided binomial, choice changes on the same public state, and terminal open tunnels. A partial batch is incomplete, never a loss or a 16-pair verdict. No retry, replacement, suffix resume or outcome-selected extension. Fresh full seed-ledger proof and one irrevocable first issue precede CI.
+
+The evidence stream preserves complete physical traces with a no-truncation pre-call reserve, terminal slot, gzip CRC/EOF and 12288-record/256MiB decoded/64MiB compressed hard caps. These caps are not a completion guarantee. A fresh empirical capacity forecast, actual runner resources and private custody path are required before GO. The driver cannot run game/policy locally.
+
+`.github/workflows/paired23.yml` must skip until a separate reviewed exact-head admission. Before execution: independent full effective-chain reviews, separate Sol 6.1 Medium exhaustive Codex-like PR review, ponytail review, fresh resource and custody proof, source/runtime/runner gate proof and root GO. Science runs only on `bandido-alcatraz-ci`. Efficacy requires later untouched preregistered confirmation and independent replication.

@@ -1,0 +1,7 @@
+# Paired23 capacity forecast (development, no GO)
+
+The completed paired22 eight-pair run produced 2,119 evidence records, 35,690,923 JSON payload bytes, 35,769,534 framed bytes and 1,371,872 gzip bytes. Its largest complete pair had 488 records and 9,741,984 JSON bytes. The preceding incomplete paired21 run had a largest complete pair of 488 records and 9,528,602 JSON bytes. These are observations, not a bound on fresh games.
+
+Paired23 adds an independent reference evaluation to the control arm. For a 69-turn control game, the additional audit is approximately one record per decision; the per-pair journal hard cap is 600. The fixed16-pair plan can therefore approach 16*(488+69)=8,912 records under an observed-max-plus-reference stress, above the old 8,192 cap. The new 12,288-record cap leaves room for that stress plus global records. An estimated 16*(9,741,984+69*20,000)=177,951,744 JSON bytes is below the new 256MiB raw cap, but is not a completion proof. The compressor's 64MiB physical cap and finite pre-call raw/compressed reservation veto any unexpectedly large run without dropping evidence.
+
+Before an actual first issue, remeasure the final exact source/driver, check native runner resources and private custody/copy reserves against the owner 5GB ceiling. A failed or partial run still consumes its proposed seeds and must be privately preserved; there is no automatic retry. The experimental result requires all16 complete pairs.
