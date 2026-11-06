@@ -26,7 +26,8 @@ Repository validation runs on:
 runs-on: ubuntu-24.04
 ```
 
-Routine tests use GitHub-hosted runners. Historical scientific workflows keep
+Routine tests and the Pages build/deploy use GitHub-hosted runners.
+Historical scientific workflows keep
 their separate runtime and admission requirements.
 
 Current development and routine CI use CPython 3.14 (CI patch 3.14.10,
