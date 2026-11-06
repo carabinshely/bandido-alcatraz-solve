@@ -23,10 +23,12 @@ Substantive changes use bounded branches and pull requests. Research is checkpoi
 Repository validation runs on:
 
 ```yaml
-runs-on: [self-hosted, Linux, X64, bandido-alcatraz-tests]
+runs-on: ubuntu-24.04
 ```
 
-There is no GitHub-hosted fallback.
+Routine tests and the Pages build/deploy use GitHub-hosted runners.
+Historical scientific workflows keep
+their separate runtime and admission requirements.
 
 Current development and routine CI use CPython 3.14 (CI patch 3.14.10,
 also selected by `.python-version`). The simulator uses the standard library;
