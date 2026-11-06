@@ -60,7 +60,7 @@ def generate_recent_pages(page, title_block, script_data, agents):
         <p>Seed / номер решения:</p><p><code>{ex['game_seed']} / {ex['decision']}</code></p><p>Снаряжение до хода: плащи / верёвки</p><p><code>{original['raincoats']} / {original['ropes']}</code></p>
         <div class="choice-controls" role="group" aria-label="Состояние поля"><button type="button" data-step="before" aria-pressed="true">До хода</button><button type="button" data-step="catalog" aria-pressed="false">Ход каталога</button><button type="button" data-step="chosen" aria-pressed="false">Выбор алгоритма</button></div>
         <figure class="game-mat"><div class="board {'wide-board' if n == 129 else ''}" data-board="lesson" tabindex="0" role="region" aria-label="Игровое поле"></div><figcaption id="board-caption" aria-live="polite"></figcaption></figure>
-        {'<p class="small">Большое поле можно прокручивать по горизонтали, в том числе стрелками с клавиатуры.</p>' if n == 129 else ''}
+        {'<p class="small narrow-board-hint">Большое поле можно прокручивать по горизонтали, в том числе стрелками с клавиатуры.</p>' if n == 129 else ''}
         <p>{REASONS[n]}</p>
         {'<p>Водная клетка (12, 5) имеет тоннели на север и юг. Цель (11, 5) находится к западу, где порта нет. Прежняя оценка объединяет их и даёт ходу каталога L=7; проверка направления убирает это ребро и даёт L=8.</p>' if n == 129 else ''}
         <p class="small board-key">Синяя рамка — старт. Кольца — открытые концы. Цветная рамка — добавленная карта.</p>
