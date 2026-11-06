@@ -119,3 +119,35 @@ def test_language_switches_link_equivalent_pages():
         target_relative = target.relative_to(dist).as_posix().removeprefix('en/')
         assert source_relative == target_relative
         assert page != target
+
+
+def test_numeric_results_are_shared_by_summary_and_strategy_pages():
+    dist = SITE / 'dist'
+    registry_path = dist / 'sources/strategy-results.json'
+    assert registry_path.exists(), 'Missing sourced results registry'
+    registry = json.loads(registry_path.read_text(encoding='utf-8'))
+    policies = json.loads((SITE / 'content.json').read_text(encoding='utf-8'))['policies']
+    assert set(registry) == {p['id'] for p in policies}
+    expected = {'random': [(0, 20)], 'min-open': [(0, 20)], 'v0': [(1, 20)],
+                'v1': [(0, 20)], 'discard-v2': [(0, 50)], 'water-v2': [(0, 50)],
+                'combined-v2': [(0, 50)], 'merge-v3': [(1, 50)], 'space-v3': [(0, 50)],
+                'combined-v3': [(1, 50)], 'v4': [(45, 400)], 'v5': [(3, 23)],
+                'v6': [(5, 100)], 'v7': [(14, 400)], 'catalog': [(37, 240), (34, 240)]}
+    for id, records in registry.items():
+        primary = [record for record in records if record['primary']]
+        assert [(r['wins'], r['games']) for r in primary] == expected[id]
+        for record in records:
+            assert 0 <= record['wins'] <= record['games']
+            assert record['source_url'] and record['source_file']
+            assert record['model'] in ('current', 'historical')
+        for prefix in ('', 'en/'):
+            detail = (dist / prefix / 'strategies' / (id + '.html')).read_text(encoding='utf-8')
+            for record in primary:
+                marker = f'data-result-id="{record["id"]}"'
+                assert marker in detail
+                assert f'{record["wins"]} / {record["games"]}' in detail
+            for summary in ('index.html', 'results.html'):
+                document = (dist / prefix / summary).read_text(encoding='utf-8')
+                assert f'data-result-policy="{id}"' in document
+                for record in primary:
+                    assert f'data-result-id="{record["id"]}"' in document
