@@ -117,7 +117,7 @@ async function main() {
     for (const locale of ['', 'en/']) {
       for (const file of researchFiles) {
         await navigate(locale + 'strategies/' + file);
-        for (const width of [320, 1024]) {
+        for (const width of file === 'research-129.html' ? [320, 620, 768, 1024, 1440] : [320, 1024]) {
           await send('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: width < 600 });
           for (const theme of ['light', 'dark']) {
             await evaluate(`document.documentElement.dataset.theme='${theme}';document.getElementById('agent').open=true`);
@@ -125,6 +125,12 @@ async function main() {
               const state = await evaluate(`(()=>{document.querySelector('[data-step=${step}]').click();const d=JSON.parse(document.getElementById('board-data').textContent);const o='${step}'==='before'?d.original:d['${step}'];return {overflow:document.documentElement.scrollWidth>innerWidth,cells:document.querySelectorAll('[data-board=lesson] [data-cell]').length,expected:o.board.cells.length,highlight:document.querySelectorAll('.hand-piece[data-active=true]').length,scroll:document.querySelector('[data-board=lesson]').scrollLeft}})()`);
               assert(!state.overflow && state.cells === state.expected && state.highlight === (step === 'before' ? 0 : 1), 'Research example invalid: '+file+locale+width+step+JSON.stringify(state));
               if (file === 'research-129.html' && step !== 'before' && width === 320) assert(state.scroll>0, 'Large board did not reveal selected move');
+              if (file === 'research-129.html') {
+                const fit = await evaluate(`(()=>{const board=document.querySelector('.wide-board'),mat=board.parentElement,style=getComputedStyle(mat),svg=board.querySelector('svg');return {width:board.getBoundingClientRect().width,available:mat.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight),scrollWidth:board.scrollWidth,clientWidth:board.clientWidth,svgWidth:svg.getBoundingClientRect().width,svgHeight:svg.getBoundingClientRect().height,boardHeight:board.clientHeight,hint:document.querySelector('.narrow-board-hint').checkVisibility()}})()`);
+                assert(Math.abs(fit.width-fit.available)<2, 'Board does not fill mat: '+width+JSON.stringify(fit));
+                assert(fit.hint === (width<=620), 'Scroll hint does not match viewport width');
+                if (width>620) assert(fit.scrollWidth<=fit.clientWidth+1 && Math.abs(fit.svgWidth-fit.width)<2 && Math.abs(fit.svgHeight-fit.boardHeight)<2, 'Desktop board is clipped or leaves unused canvas: '+width+JSON.stringify(fit));
+              }
               results.push({language:locale?'en':'ru',file,width,theme,step,...state});
             }
             if (theme === 'light') {

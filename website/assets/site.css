@@ -16,4 +16,5 @@ details{border-top:1px solid var(--line)}summary{padding:16px 0;min-height:54px;
 @media(max-width:620px){.result-summary :is(th,td){padding:14px 5px}.result-summary thead th:nth-child(1){width:36%}.result-summary thead th:nth-child(2){width:25%}.result-summary thead th:nth-child(3){width:39%}.result-summary thead th{font-size:12px}.result-link{font-size:14px}.result-version{font-size:12px}.result-summary .result-fraction{font-size:15px;margin-top:8px}.result-summary td>p{font-size:12px;line-height:1.5}.strategy-result{padding:21px}.recorded-result{grid-template-columns:1fr;gap:10px}.recorded-result .result-fraction{font-size:29px}.strategy-result h2{font-size:19px}}
 @media(prefers-reduced-motion:reduce){button:active{transform:none}}
 
-.player-steps{display:grid;gap:18px;padding-left:25px;max-width:75ch}.wide-board{overflow-x:auto;max-width:100%;overscroll-behavior-x:contain}.wide-board svg{min-width:760px}.game-mat:has(.wide-board){min-width:0}
+.player-steps{display:grid;gap:18px;padding-left:25px;max-width:75ch}.game-mat>.wide-board{width:100%;max-width:none;overflow-x:auto;overscroll-behavior-x:contain}.wide-board svg{max-height:none}.game-mat:has(.wide-board){min-width:0}
+.narrow-board-hint{display:none}@media(max-width:620px){.wide-board svg{min-width:760px}.narrow-board-hint{display:block}}
